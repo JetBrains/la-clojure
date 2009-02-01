@@ -1,0 +1,56 @@
+<project>
+    <property name="idea.home" value="/opt/idea/idea-9164"/>
+    <property name="java.home" value="/usr/lib/jvm/java-6-sun"/>
+
+    <path id="jdk.classpath">
+        <fileset dir="${java.home}" id="jdk.fileset">
+            <include name="jre/lib/*.jar"/>
+	</fileset>
+    </path>
+
+    <path id="idea.classpath">
+        <fileset dir="${idea.home}" id="idea.fileset">
+            <include name="lib/*.jar"/>
+            <include name="plugin/**/*.jar"/>
+	</fileset>
+    </path>
+
+    <path id="clojure.plugin.classpath">
+      <path refid="jdk.classpath"/>
+      <path refid="idea.classpath"/>
+    </path>
+
+    <target name="init">
+        <mkdir dir="build/classes"/>
+    </target>
+
+    <target name="clean" depends="init">
+        <delete dir="build" includes="**/*"/>
+    </target>
+
+    <target name="lexer">
+      <jflex skeleton="${idea.home}/tools/jflex/idea-flex.skeleton"
+	   nobak="true"
+	   file="src/org/clojure/intellij/lexer/clojure.flex"
+	   destdir="src"
+	   charat="true" />
+    </target>
+
+    <target name="compile" depends="lexer">
+        <javac srcdir="src" destdir="build/classes" target="1.6">
+	  <classpath refid="clojure.plugin.classpath"/>
+	</javac>
+    </target>
+
+    <taskdef name="jflex" classname="JFlex.anttask.JFlexTask">
+      <classpath location="${idea.home}/tools/jflex/lib/JFlex.jar"/>
+    </taskdef>
+
+    <target name="jar" depends="clean, compile">
+        <jar jarfile="build/clojure-intellij-plugin.jar">
+            <fileset dir="build/classes" includes="**/*"/>
+            <fileset dir="." includes="META-INF/plugin.xml"/>
+        </jar>
+    </target>
+
+</project>

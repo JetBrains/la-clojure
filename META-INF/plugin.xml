@@ -1,0 +1,41 @@
+<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+<idea-plugin>
+
+    <name>Clojure</name>
+    <description>Plugin for Clojure language support</description>
+    <version>0.04</version>
+    <vendor logo="/org/clojure/intellij/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
+    <idea-version since-build="9100"/>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileTypeFactory implementation="org.jetbrains.plugins.clojure.file.ClojureFileTypeLoader"/>
+        <lang.braceMatcher language="Clojure" implementationClass="org.jetbrains.plugins.clojure.ClojureBraceMatcher"/>
+        <syntaxHighlighter key="Clojure" implementationClass="org.jetbrains.plugins.clojure.ClojureSyntaxHighlighter"/>
+        <colorSettingsPage implementation="org.jetbrains.plugins.clojure.ClojureColorsAndFontsPage"/>
+        <lang.parserDefinition language="Clojure" implementationClass="org.jetbrains.plugins.clojure.parser.ClojureParserDefinition"/>
+        <lang.foldingBuilder language="Clojure" implementationClass="org.jetbrains.plugins.clojure.ClojureFoldingBuilder"/>
+
+        <configurationType implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationType"/>
+        <configurationProducer implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>
+        <fileTemplateGroup implementation="org.jetbrains.plugins.clojure.actions.ClojureTemplatesFactory"/>
+
+    </extensions>
+
+    <application-components>
+        <component>
+            <implementation-class>org.jetbrains.plugins.clojure.ClojureLoader</implementation-class>
+        </component>
+    </application-components>
+
+    <project-components>
+    </project-components>
+
+    <actions>
+      <action id="Clojure.ClojureFile" class="org.jetbrains.plugins.clojure.actions.NewClojureFileAction"
+          text="Clojure File" description="Create new Clojure File">
+        <add-to-group group-id="NewGroup" anchor="last"/>
+      </action>
+    </actions>
+
+
+</idea-plugin>
