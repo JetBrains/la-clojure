@@ -123,6 +123,7 @@
          src/**/*.skeleton,
          src/**/*.form,
          build.xml,
+         clojure.properties,
          resources/**/*.png,
          META-INF/**/*.xml,
          lib/**/*,
