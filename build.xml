@@ -1,56 +1,185 @@
-<project>
-    <property name="idea.home" value="/opt/idea/idea-9164"/>
-    <property name="java.home" value="/usr/lib/jvm/java-6-sun"/>
+<project name="Build Clojure plugin for IntelliJ IDEA" default="deploy.plugin">
+  <property file="clojure.properties"/>
+  <property name="project.dir" value="."/>
+  <property name="project.lib" value="${project.dir}/lib"/>
+  <property name="project.dest" value="${project.dir}/out/production/clojure-plugin"/>
+  <property name="test.dest" value="${project.dir}/out/test/clojure-plugin"/>
+  <property name="output" value="${project.dir}/dist"/>
 
-    <path id="jdk.classpath">
-        <fileset dir="${java.home}" id="jdk.fileset">
-            <include name="jre/lib/*.jar"/>
-	</fileset>
-    </path>
+  <property name="0" value="unknown"/>
+  <property name="build.vcs.number.clojure_svn" value="unknown"/>
+  <property name="plugin.revision" value="${build.vcs.number.clojure_svn}"/>
+  <property name="plugin.version" value="${clojure.plugin.version}.${plugin.revision}"/>
 
-    <path id="idea.classpath">
-        <fileset dir="${idea.home}" id="idea.fileset">
-            <include name="lib/*.jar"/>
-            <include name="plugin/**/*.jar"/>
-	</fileset>
-    </path>
+  <path id="jdk.classpath">
+    <fileset dir="${java.home}" id="jdk.fileset">
+      <include name="jre/lib/*.jar"/>
+    </fileset>
+  </path>
 
-    <path id="clojure.plugin.classpath">
-      <path refid="jdk.classpath"/>
-      <path refid="idea.classpath"/>
-    </path>
+  <path id="idea.classpath">
+    <fileset dir="${idea.home}" id="idea.fileset">
+      <include name="lib/*.jar"/>
+      <include name="plugin/**/*.jar"/>
+    </fileset>
+  </path>
 
-    <target name="init">
-        <mkdir dir="build/classes"/>
-    </target>
+  <path id="clojure.plugin.classpath">
+    <path refid="jdk.classpath"/>
+    <path refid="idea.classpath"/>
+  </path>
 
-    <target name="clean" depends="init">
-        <delete dir="build" includes="**/*"/>
-    </target>
+  <target name="unzip.last.successful.IDEA.build">
+    <unzip dest="${idea.pack}">
+      <fileset dir="${idea.home}">
+        <include name="*.zip"/>
+      </fileset>
+    </unzip>
+  </target>
 
-    <target name="lexer">
-      <jflex skeleton="${idea.home}/tools/jflex/idea-flex.skeleton"
-	   nobak="true"
-	   file="src/org/jetbrains/plugins/clojure/lexer/clojure.flex"
-	   destdir="src"
-	   charat="true" />
-    </target>
 
-    <target name="compile" depends="lexer">
-        <javac srcdir="src" destdir="build/classes" target="1.6">
-	  <classpath refid="clojure.plugin.classpath"/>
-	</javac>
-    </target>
+  <target name="init">
+    <mkdir dir="${project.dest}"/>
+  </target>
 
-    <taskdef name="jflex" classname="JFlex.anttask.JFlexTask">
-      <classpath location="${idea.home}/tools/jflex/lib/JFlex.jar"/>
-    </taskdef>
+  <target name="clean" depends="init">
+    <delete dir="build" includes="**/*"/>
+  </target>
 
-    <target name="jar" depends="clean, compile">
-        <jar jarfile="build/clojure-intellij-plugin.jar">
-            <fileset dir="build/classes" includes="**/*"/>
-            <fileset dir="." includes="META-INF/plugin.xml"/>
-        </jar>
-    </target>
+  <taskdef name="jflex" classname="JFlex.anttask.JFlexTask">
+    <classpath location="${project.lib}/JFlex.jar"/>
+  </taskdef>
+
+  <target name="make.lexer">
+    <jflex skeleton="${project.lib}/idea-flex.skeleton"
+           nobak="true"
+           file="src/org/jetbrains/plugins/clojure/lexer/clojure.flex"
+           destdir="src"
+           charat="true"/>
+  </target>
+
+  <target name="make.plugin" depends="make.lexer">
+    <!--Copy descriptor-->
+    <copy todir="${project.dest}/META-INF">
+      <fileset dir="${project.dir}/META-INF"/>
+    </copy>
+
+    <!--Copy resources-->
+    <copy todir="${project.dest}">
+      <fileset dir="${project.dir}/resources/"/>
+    </copy>
+
+    <!--Copy resource bundle-->
+    <copy file="${project.dir}/src/org/jetbrains/plugins/clojure/ClojureBundle.properties"
+          tofile="${project.dest}/org/jetbrains/plugins/clojure/ClojureBundle.properties"/>
+
+    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.classpath"/>
+
+    <!--Compile project files-->
+    <javac2 srcdir="${project.dir}"
+            destdir="${project.dest}"
+            verbose="yes"
+            debug="true"
+            target="1.5">
+      <classpath refid="clojure.plugin.classpath"/>
+      <include name="src/**/*.java"/>
+      <include name="src/**/*.form"/>
+    </javac2>
+
+    <replace file="${project.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
+
+  </target>
+
+  <target name="deploy.plugin" depends="clean, make.plugin">
+
+    <mkdir dir="${project.dir}/tempjar/clojure-plugin/lib"/>
+
+    <jar destfile="${project.dir}/tempjar/clojure-plugin/lib/clojure-intellij-plugin.jar">
+      <fileset dir="${project.dest}" includes="**/*"/>
+
+      <manifest>
+        <attribute name="Revision" value="${plugin.revision}"/>
+        <attribute name="Build" value="${plugin.version}"/>
+      </manifest>
+    </jar>
+
+    <copy todir="${project.dir}/tempjar/clojure-plugin/lib">
+      <fileset dir="${project.lib}">
+        <include name="clojure.jar"/>
+      </fileset>
+    </copy>
+
+    <zip destfile="${project.dir}/clojure-intellij-bin-${plugin.version}.zip" basedir="${project.dir}/tempjar"/>
+    <delete dir="${project.dir}/tempjar"/>
+
+  </target>
+
+
+  <target name="build.tests" depends="make.plugin">
+
+    <mkdir dir="${test.dest}"/>
+
+    <javac srcdir="${project.dir}"
+           destdir="${test.dest}"
+           debug="true">
+      <classpath refid="clojure.plugin.classpath"/>
+      <classpath>
+        <path location="${project.dest}"/>
+      </classpath>
+      <include name="test/**/*.java"/>
+    </javac>
+
+    <!--<copy toDir="${project.lib}/testdata">-->
+    <!--<fileset dir="${base.dir}/testdata"/>-->
+    <!--<fileset dir="${scalax.dir}/testdata"/>-->
+    <!--</copy>-->
+
+  </target>
+
+  <target name="run.tests" depends="make.plugin">
+
+    <mkdir dir="${project.dir}/logs"/>
+    <mkdir dir="${output}/config"/>
+    <mkdir dir="${output}/system"/>
+
+    <junit fork="yes"
+           dir="${project.dir}"
+           printsummary="yes"
+           haltonfailure="no"
+           haltonerror="no">
+
+      <classpath>
+        <path location="${project.lib}"/>
+        <path location="${project.dest}"/>
+        <path location="${test.dest}"/>
+        <path refid="clojure.plugin.classpath"/>
+      </classpath>
+
+      <jvmarg value="-Xbootclasspath/p:${project.lib}/boot/boot.jar"/>
+      <jvmarg value="-Djava.awt.headless=true"/>
+      <jvmarg value="-Xmx256M"/>
+      <jvmarg value="-ea"/>
+      <jvmarg value="-Xdebug"/>
+      <jvmarg value="-Djava.compiler=NONE"/>
+      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5545"/>
+
+      <jvmarg value="-Didea.config.path=${output}/config"/>
+      <jvmarg value="-Didea.system.path=${output}/system"/>
+      <jvmarg value="-Didea.plugins.path=${project.dest}/.."/>
+
+      <jvmarg value="-Didea.load.plugins.id=org.intellij.clojure"/>
+
+      <formatter type="plain"/>
+
+      <batchtest todir="${project.dir}/logs">
+        <fileset dir="${test.dest}">
+          <include name="**/*Test.class"/>
+          <exclude name="**/*ActualTest.class"/>
+        </fileset>
+      </batchtest>
+    </junit>
+    
+    <delete dir="${output}"/>
+  </target>
 
 </project>
