@@ -114,6 +114,21 @@
     <zip destfile="${project.dir}/clojure-intellij-bin-${plugin.version}.zip" basedir="${project.dir}/tempjar"/>
     <delete dir="${project.dir}/tempjar"/>
 
+    <!-- Zip sources-->
+    <zip destfile="${project.dir}/clojure-intellij-src-${plugin.version}.zip" basedir="${project.dir}"
+         includes="src/**/*.java,
+         src/**/*.properties,
+         src/**/*.flex,
+         src/**/*.jar,
+         src/**/*.skeleton,
+         src/**/*.form,
+         **/*.xml,
+         *.xml,
+         resources/**/*.png,
+         META-INF/**/*.xml,
+         lib/**/*,
+         test/**/*"
+        />
   </target>
 
 
@@ -138,7 +153,7 @@
 
   </target>
 
-  <target name="run.tests" depends="make.plugin">
+  <target name="run.tests" depends="build.tests">
 
     <mkdir dir="${project.dir}/logs"/>
     <mkdir dir="${output}/config"/>
