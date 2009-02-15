@@ -32,8 +32,8 @@
 
   <target name="unzip.last.successful.IDEA.build">
     <mkdir dir="${idea.home}"/>
-    <unzip dest="${idea.pack}">
-      <fileset dir="${idea.home}">
+    <unzip dest="${idea.home}">
+      <fileset dir="${idea.pack}">
         <include name="*.zip"/>
       </fileset>
     </unzip>
