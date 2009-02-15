@@ -128,6 +128,7 @@
          META-INF/**/*.xml,
          lib/**/*,
          test/**/*"
+         excludes="idea_home*, out*"
         />
   </target>
 
