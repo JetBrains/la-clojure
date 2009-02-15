@@ -172,7 +172,7 @@
         <path refid="clojure.plugin.classpath"/>
       </classpath>
 
-      <jvmarg value="-Xbootclasspath/p:${project.lib}/boot/boot.jar"/>
+      <jvmarg value="-Xbootclasspath/p:./lib/boot/boot.jar"/>
       <jvmarg value="-Djava.awt.headless=true"/>
       <jvmarg value="-Xmx256M"/>
       <jvmarg value="-ea"/>
