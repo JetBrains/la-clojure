@@ -6,6 +6,13 @@
   <property name="test.dest" value="${project.dir}/out/test/clojure-plugin"/>
   <property name="output" value="${project.dir}/dist"/>
   <property name="idea.pack" value="${project.dir}/idea_pack"/>
+  <property name="tools.jar.dir" value="${java.home}/lib"/>
+
+  <path id="tools.path">
+    <fileset dir="${tools.jar.dir}">
+      <include name="**/*tools.jar"/>
+    </fileset>
+  </path>
 
   <property name="0" value="unknown"/>
   <property name="build.vcs.number.clojure_svn" value="unknown"/>
@@ -169,6 +176,7 @@
         <path location="${project.lib}"/>
         <path location="${project.dest}"/>
         <path location="${test.dest}"/>
+        <path refid="tools.path"/>
         <path refid="clojure.plugin.classpath"/>
       </classpath>
 
