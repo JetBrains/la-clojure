@@ -26,11 +26,17 @@
   </path>
 
   <path id="idea.classpath">
-    <fileset dir="${idea.home}" id="idea.fileset">
-      <include name="lib/*.jar"/>
-      <include name="plugin/**/*.jar"/>
+    <fileset dir="${idea.home}/lib">
+      <include name="**/*.jar"/>
+      <exclude name="boot.jar"/>
+    </fileset>
+    <fileset dir="${idea.home}/plugins">
+      <include name="CSS/lib/*.jar"/>
+      <include name="**/JavascriptLanguage.jar"/>
+      <include name="**/JavaScriptLanguage/lib/resurces_en.jar"/>
     </fileset>
   </path>
+
 
   <path id="clojure.plugin.classpath">
     <path refid="jdk.classpath"/>
