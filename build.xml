@@ -41,6 +41,7 @@
   <path id="clojure.plugin.classpath">
     <path refid="jdk.classpath"/>
     <path refid="idea.classpath"/>
+    <path refid="tools.path"/>
   </path>
 
   <target name="unzip.last.successful.IDEA.build">
