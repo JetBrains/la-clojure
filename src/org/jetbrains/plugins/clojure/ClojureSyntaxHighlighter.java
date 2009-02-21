@@ -12,6 +12,7 @@ import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.clojure.lexer.ClojureFlexLexer;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
@@ -95,17 +96,20 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   static final String STRING_ID = "String";
   @NonNls
   static final String BRACES_ID = "Braces";
+
+  public static final TextAttributes UNTYPED_ACCESS_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
+  public static final TextAttributes KEYWORD_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
+  public static final TextAttributes ATOM_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
+
   @NonNls
   static final String BAD_CHARACTER_ID = "Bad character";
 
   public static TextAttributesKey LINE_COMMENT = TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID,
       SyntaxHighlighterColors.LINE_COMMENT.getDefaultAttributes());
 
-  public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID,
-      SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
+  public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID, KEYWORD_ATTRIB);
 
-  public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID,
-      SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
+  public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID, ATOM_ATTRIB);
 
   public static TextAttributesKey NUMBER = TextAttributesKey.createTextAttributesKey(NUMBER_ID,
       SyntaxHighlighterColors.NUMBER.getDefaultAttributes());
@@ -119,12 +123,17 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID,
       CodeInsightColors.UNMATCHED_BRACE_ATTRIBUTES.getDefaultAttributes());
 
-  public static final TextAttributes UNTYPED_ACCESS_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
-
   static {
     UNTYPED_ACCESS_ATTRIB.setForegroundColor(Color.BLACK);
     UNTYPED_ACCESS_ATTRIB.setEffectColor(Color.BLACK);
     UNTYPED_ACCESS_ATTRIB.setEffectType(EffectType.LINE_UNDERSCORE);
+
+    final Color violet = HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes().getForegroundColor();
+    KEYWORD_ATTRIB.setForegroundColor(violet);
+    KEYWORD_ATTRIB.setFontType(Font.BOLD);
+
+    final Color deepBlue = SyntaxHighlighterColors.KEYWORD.getDefaultAttributes().getForegroundColor();
+    ATOM_ATTRIB.setForegroundColor(deepBlue);
   }
 
   static {
