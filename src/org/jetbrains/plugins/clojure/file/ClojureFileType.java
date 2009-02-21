@@ -31,34 +31,34 @@ import javax.swing.*;
  */
 public class ClojureFileType extends LanguageFileType {
 
-    public static final ClojureFileType CLOJURE_FILE_TYPE = new ClojureFileType();
-    public static final Language CLOJURE_LANGUAGE = CLOJURE_FILE_TYPE.getLanguage();
-    public static final Icon CLOJURE_LOGO = ClojureIcons.CLOJURE_ICON_16x16;
-    @NonNls
-    public static final String CLOJURE_DEFAULT_EXTENSION = "clj";
+  public static final ClojureFileType CLOJURE_FILE_TYPE = new ClojureFileType();
+  public static final Language CLOJURE_LANGUAGE = CLOJURE_FILE_TYPE.getLanguage();
+  public static final Icon CLOJURE_LOGO = ClojureIcons.CLOJURE_ICON_16x16;
+  @NonNls
+  public static final String CLOJURE_DEFAULT_EXTENSION = "clj";
 
 
-    public ClojureFileType() {
-        super(new ClojureLanguage());
-    }
+  public ClojureFileType() {
+    super(new ClojureLanguage());
+  }
 
-    @NotNull
-    public String getName() {
-        return "Clojure";
-    }
+  @NotNull
+  public String getName() {
+    return "Clojure";
+  }
 
-    @NotNull
-    public String getDescription() {
-        return "Clojure file";
-    }
+  @NotNull
+  public String getDescription() {
+    return "Clojure file";
+  }
 
-    @NotNull
-    public String getDefaultExtension() {
-        return "clj";
-    }
+  @NotNull
+  public String getDefaultExtension() {
+    return "clj";
+  }
 
-    public Icon getIcon() {
-        return ClojureIcons.CLOJURE_ICON_16x16;
-    }
+  public Icon getIcon() {
+    return ClojureIcons.CLOJURE_ICON_16x16;
+  }
 
 }

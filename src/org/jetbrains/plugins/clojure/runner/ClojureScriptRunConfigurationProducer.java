@@ -5,6 +5,8 @@ import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
 import com.intellij.execution.junit.RuntimeConfigurationProducer;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import org.jetbrains.plugins.clojure.file.ClojureFile;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,21 +25,27 @@ import com.intellij.psi.PsiElement;
  */
 public class ClojureScriptRunConfigurationProducer extends RuntimeConfigurationProducer implements Cloneable {
 
-    private PsiElement mySourceElement;
+  private PsiElement mySourceElement;
 
-    public ClojureScriptRunConfigurationProducer() {
-        super(ClojureScriptRunConfigurationType.getInstance());
-    }
+  public ClojureScriptRunConfigurationProducer() {
+    super(ClojureScriptRunConfigurationType.getInstance());
+  }
 
-    public PsiElement getSourceElement() {
-        return mySourceElement;
-    }
+  public PsiElement getSourceElement() {
+    return mySourceElement;
+  }
 
-    protected RunnerAndConfigurationSettingsImpl createConfigurationByElement(final Location location, final ConfigurationContext context) {
-        return null;
+  protected RunnerAndConfigurationSettingsImpl createConfigurationByElement(final Location location, final ConfigurationContext context) {
+    PsiElement element = location.getPsiElement();
+    PsiFile file = element.getContainingFile();
+    if (file instanceof ClojureFile) {
+      mySourceElement = element;
+      return ((RunnerAndConfigurationSettingsImpl) ClojureScriptRunConfigurationType.getInstance().createConfigurationByLocation(location));
     }
+    return null;
+  }
 
-    public int compareTo(final Object o) {
-        return PREFERED;
-    }
+  public int compareTo(final Object o) {
+    return PREFERED;
+  }
 }

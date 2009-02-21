@@ -19,33 +19,33 @@ import org.jetbrains.plugins.clojure.file.ClojureFileType;
  * limitations under the License.
  */
 public class ClojureElementTypes {
-    public static final IFileElementType FILE = new IFileElementType(ClojureFileType.CLOJURE_LANGUAGE);
+  public static final IFileElementType FILE = new IFileElementType(ClojureFileType.CLOJURE_LANGUAGE);
 
-    public static final IElementType DEFN = new ClojureElementType("defn");
-    public static final IElementType DEFNDASH = new ClojureElementType("defn-");
-    public static final IElementType DEF = new ClojureElementType("element");
-    public static final IElementType TOPLIST = new ClojureElementType("toplist");
+  public static final IElementType DEFN = new ClojureElementType("defn");
+  public static final IElementType DEFNDASH = new ClojureElementType("defn-");
+  public static final IElementType DEF = new ClojureElementType("element");
+  public static final IElementType TOPLIST = new ClojureElementType("toplist");
 
-    public static final IElementType LIST = new ClojureElementType("list");
-    public static final IElementType VECTOR = new ClojureElementType("vector");
-    public static final IElementType MAP = new ClojureElementType("map");
+  public static final IElementType LIST = new ClojureElementType("list");
+  public static final IElementType VECTOR = new ClojureElementType("vector");
+  public static final IElementType MAP = new ClojureElementType("map");
 
-    public static final IElementType LITERAL = new ClojureElementType("literal");
-    public static final IElementType VARIABLE = new ClojureElementType("variable");
-    public static final IElementType KEY = new ClojureElementType("key definition");
+  public static final IElementType LITERAL = new ClojureElementType("literal");
+  public static final IElementType VARIABLE = new ClojureElementType("variable");
+  public static final IElementType KEY = new ClojureElementType("key definition");
 
-    public static final IElementType BINDINGS = new ClojureElementType("bindings");
-    public static final IElementType REST = new ClojureElementType("rest");
-    public static final IElementType AS = new ClojureElementType("as");
+  public static final IElementType BINDINGS = new ClojureElementType("bindings");
+  public static final IElementType REST = new ClojureElementType("rest");
+  public static final IElementType AS = new ClojureElementType("as");
 
-    public static final IElementType EXPRESSION = new ClojureElementType("expression");
-    public static final IElementType QUOTED_EXPRESSION = new ClojureElementType("quoted expression");
-    public static final IElementType BACKQUOTED_EXPRESSION = new ClojureElementType("backquoted expression");
+  public static final IElementType EXPRESSION = new ClojureElementType("expression");
+  public static final IElementType QUOTED_EXPRESSION = new ClojureElementType("quoted expression");
+  public static final IElementType BACKQUOTED_EXPRESSION = new ClojureElementType("backquoted expression");
 
-    public static final IElementType POUND_EXPRESSION = new ClojureElementType("pound expression");
-    public static final IElementType UP_EXPRESSION = new ClojureElementType("up expression");
-    public static final IElementType POUNDUP_EXPRESSION = new ClojureElementType("poundup expression");
-    public static final IElementType TILDA_EXPRESSION = new ClojureElementType("tilda expression");
-    public static final IElementType AT_EXPRESSION = new ClojureElementType("at expression");
-    public static final IElementType TILDAAT_EXPRESSION = new ClojureElementType("tildaat expression");
+  public static final IElementType POUND_EXPRESSION = new ClojureElementType("pound expression");
+  public static final IElementType UP_EXPRESSION = new ClojureElementType("up expression");
+  public static final IElementType POUNDUP_EXPRESSION = new ClojureElementType("poundup expression");
+  public static final IElementType TILDA_EXPRESSION = new ClojureElementType("tilda expression");
+  public static final IElementType AT_EXPRESSION = new ClojureElementType("at expression");
+  public static final IElementType TILDAAT_EXPRESSION = new ClojureElementType("tildaat expression");
 }

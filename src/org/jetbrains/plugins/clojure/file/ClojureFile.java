@@ -21,25 +21,25 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ClojureFile extends PsiFileBase {
 
-    public ClojureFile(FileViewProvider viewProvider) {
-        super(viewProvider, ClojureFileType.CLOJURE_LANGUAGE);
-    }
+  public ClojureFile(FileViewProvider viewProvider) {
+    super(viewProvider, ClojureFileType.CLOJURE_LANGUAGE);
+  }
 
-    @NotNull
-    public FileType getFileType() {
-        return ClojureFileType.CLOJURE_FILE_TYPE;
-    }
+  @NotNull
+  public FileType getFileType() {
+    return ClojureFileType.CLOJURE_FILE_TYPE;
+  }
 
-    @NotNull
-    public String getPackageName() {
-        return "";
-    }
+  @NotNull
+  public String getPackageName() {
+    return "";
+  }
 
-    public boolean isScript() {
-        return true;
-    }
+  public boolean isScript() {
+    return true;
+  }
 
-    public boolean isJVMDebuggingSupported() {
-        return true;
-    }
+  public boolean isJVMDebuggingSupported() {
+    return true;
+  }
 }

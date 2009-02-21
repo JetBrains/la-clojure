@@ -18,7 +18,7 @@ import org.jetbrains.plugins.clojure.file.ClojureFileType;
  * limitations under the License.
  */
 public class ClojureElementType extends IElementType {
-    public ClojureElementType(String debugName) {
-        super(debugName, ClojureFileType.CLOJURE_LANGUAGE);
-    }
+  public ClojureElementType(String debugName) {
+    super(debugName, ClojureFileType.CLOJURE_LANGUAGE);
+  }
 }

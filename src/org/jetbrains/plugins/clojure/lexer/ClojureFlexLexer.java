@@ -21,7 +21,7 @@ import org.jetbrains.plugins.clojure.lexer._ClojureLexer;
  * limitations under the License.
  */
 public class ClojureFlexLexer extends FlexAdapter {
-    public ClojureFlexLexer() {
-        super(new _ClojureLexer((Reader) null));
-    }
+  public ClojureFlexLexer() {
+    super(new _ClojureLexer((Reader) null));
+  }
 }

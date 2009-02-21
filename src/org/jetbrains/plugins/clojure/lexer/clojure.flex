@@ -134,12 +134,6 @@ mFLOAT = {mDIGIT}+ "." {mDIGIT}+
 mLETTER = [A-Z] | [a-z]
 mSLASH_LETTER = \\ ({mLETTER} | .)
 
-// | \\ r | \\ t | \\ b | \\ f | "\\" "\\" | \\ \" | \\ \'
-//                   | "\\""u"{mHEX_DIGIT}{4}
-//                   | "\\" [0..3] ([0..7] ([0..7])?)?
-//                   | "\\" [4..7] ([0..7])?
-//                   | "\\" {mNL}
-
 mOTHER = "_" | "-" | "*" | "." | "+" | "=" | "&" | "<" | ">" | "$" | "/" | "?" | "!"
 
 mNoDigit = ({mLETTER} | {mOTHER} | {mSLASH_LETTER})
@@ -194,7 +188,7 @@ mNIL = "nil" | "NIL"
 }
 
 // Anything else is should be marked as a bad char
-.                                {  return BAD_CHARACTER; }
+.                                           {  return BAD_CHARACTER; }
 
 
 

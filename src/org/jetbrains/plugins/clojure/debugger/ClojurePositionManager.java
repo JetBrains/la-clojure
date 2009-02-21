@@ -38,65 +38,65 @@ import org.jetbrains.annotations.Nullable;
  * limitations under the License.
  */
 public class ClojurePositionManager implements PositionManager {
-    private static final Logger LOG = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl");
+  private static final Logger LOG = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl");
 
-    private final DebugProcess myDebugProcess;
+  private final DebugProcess myDebugProcess;
 
-    public ClojurePositionManager(DebugProcess debugProcess) {
-        myDebugProcess = debugProcess;
+  public ClojurePositionManager(DebugProcess debugProcess) {
+    myDebugProcess = debugProcess;
+  }
+
+  public DebugProcess getDebugProcess() {
+    return myDebugProcess;
+  }
+
+  @NotNull
+  public List<Location> locationsOfLine(ReferenceType type, SourcePosition position) throws NoDataException {
+    try {
+      int line = position.getLine() + 1;
+      List<Location> locations = getDebugProcess().getVirtualMachineProxy().versionHigher("1.4")
+          ? type.locationsOfLine(DebugProcessImpl.JAVA_STRATUM, null, line)
+          : type.locationsOfLine(line);
+      if (locations == null || locations.isEmpty()) throw new NoDataException();
+      return locations;
     }
-
-    public DebugProcess getDebugProcess() {
-        return myDebugProcess;
+    catch (AbsentInformationException e) {
+      throw new NoDataException();
     }
+  }
 
-    @NotNull
-    public List<Location> locationsOfLine(ReferenceType type, SourcePosition position) throws NoDataException {
-        try {
-            int line = position.getLine() + 1;
-            List<Location> locations = getDebugProcess().getVirtualMachineProxy().versionHigher("1.4")
-                    ? type.locationsOfLine(DebugProcessImpl.JAVA_STRATUM, null, line)
-                    : type.locationsOfLine(line);
-            if (locations == null || locations.isEmpty()) throw new NoDataException();
-            return locations;
-        }
-        catch (AbsentInformationException e) {
-            throw new NoDataException();
-        }
-    }
+  public ClassPrepareRequest createPrepareRequest(final ClassPrepareRequestor requestor, final SourcePosition position)
+      throws NoDataException {
+    PsiFile file = position.getFile();
+    //if (!(file instanceof ClojureElement.File)) return null;
+    PsiElement element = file.findElementAt(position.getOffset());
+    return myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, element.getText());
+  }
 
-    public ClassPrepareRequest createPrepareRequest(final ClassPrepareRequestor requestor, final SourcePosition position)
-            throws NoDataException {
-        PsiFile file = position.getFile();
-        //if (!(file instanceof ClojureElement.File)) return null;
-        PsiElement element = file.findElementAt(position.getOffset());
-        return myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, element.getText());
-    }
+  public SourcePosition getSourcePosition(final Location location) throws NoDataException {
+    if (location == null) throw new NoDataException();
 
-    public SourcePosition getSourcePosition(final Location location) throws NoDataException {
-        if (location == null) throw new NoDataException();
+    PsiFile psiFile = getPsiFileByLocation(getDebugProcess().getProject(), location);
+    if (psiFile == null) throw new NoDataException();
 
-        PsiFile psiFile = getPsiFileByLocation(getDebugProcess().getProject(), location);
-        if (psiFile == null) throw new NoDataException();
+    int lineNumber = location.lineNumber();
+    if (lineNumber < 0) throw new NoDataException();
+    return SourcePosition.createFromLine(psiFile, lineNumber);
+  }
 
-        int lineNumber = location.lineNumber();
-        if (lineNumber < 0) throw new NoDataException();
-        return SourcePosition.createFromLine(psiFile, lineNumber);
-    }
+  @NotNull
+  public List<ReferenceType> getAllClasses(final SourcePosition position) throws NoDataException {
+    //PsiElement element = position.getElementAt();
+    //if( element instanceof PsiClass ) {
+    //    return myDebugProcess.getVirtualMachineProxy().classesByName(qName);
+    //}
+    // ArrayList<ReferenceType> l = new ArrayList<ReferenceType>();
+    // l.add( position.getElementAt().getReference().get );
+    return Collections.EMPTY_LIST;
+  }
 
-    @NotNull
-    public List<ReferenceType> getAllClasses(final SourcePosition position) throws NoDataException {
-        //PsiElement element = position.getElementAt();
-        //if( element instanceof PsiClass ) {
-        //    return myDebugProcess.getVirtualMachineProxy().classesByName(qName);
-        //}
-        // ArrayList<ReferenceType> l = new ArrayList<ReferenceType>();
-        // l.add( position.getElementAt().getReference().get );
-        return Collections.EMPTY_LIST;
-    }
-
-    @Nullable
-    private PsiFile getPsiFileByLocation(final Project project, final Location location) {
-        throw null;
-    }
+  @Nullable
+  private PsiFile getPsiFileByLocation(final Project project, final Location location) {
+    throw null;
+  }
 }

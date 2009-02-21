@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.runner;
 import com.intellij.execution.CantRunException;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
+import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.configurations.*;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.runners.ExecutionEnvironment;
@@ -13,15 +14,21 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.*;
+import com.intellij.openapi.roots.ui.configuration.ModulesConfigurator;
+import com.intellij.openapi.roots.ui.configuration.ClasspathEditor;
+import com.intellij.openapi.roots.libraries.LibraryUtil;
+import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizer;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.ui.Messages;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.clojure.ClojureBundle;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,199 +51,229 @@ import java.util.List;
  * limitations under the License.
  */
 public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
-    private ClojureScriptConfigurationFactory factory;
-    private String scriptPath;
-    private String workDir;
-    private String vmParams;
-    private String scriptParams;
-    private boolean isDebugEnabled;
+  private ClojureScriptConfigurationFactory factory;
+  private String scriptPath;
+  private String workDir;
+  private String vmParams;
+  private String scriptParams;
+  private boolean isDebugEnabled;
 
-    @NonNls
-    private static final String CLOJURE_STARTER = "clojure.lang.Repl";
+  @NonNls
+  private static final String CLOJURE_MAIN = "clojure.main";
+  private static final String CLOJURE_REPL = "clojure.lang.Repl";
+  private static final String CLOJURE_MAIN_CLASS_FILE = "clojure/main.class";
 
-    public ClojureScriptRunConfiguration(ClojureScriptConfigurationFactory factory, Project project, String name) {
-        super(name, new RunConfigurationModule(project), factory);
-        this.factory = factory;
+  public ClojureScriptRunConfiguration(ClojureScriptConfigurationFactory factory, Project project, String name) {
+    super(name, new RunConfigurationModule(project), factory);
+    this.factory = factory;
+  }
+
+  public Collection<Module> getValidModules() {
+    Module[] modules = ModuleManager.getInstance(getProject()).getModules();
+    ArrayList<Module> res = new ArrayList<Module>();
+    for (Module module : modules) {
+      res.add(module);
     }
+    return res;
+  }
 
-    public Collection<Module> getValidModules() {
-        Module[] modules = ModuleManager.getInstance(getProject()).getModules();
-        ArrayList<Module> res = new ArrayList<Module>();
-        for (Module module : modules) {
-            res.add(module);
+  public void setWorkDir(String dir) {
+    workDir = dir;
+  }
+
+  public String getWorkDir() {
+    return workDir;
+  }
+
+  public String getAbsoluteWorkDir() {
+    if (!new File(workDir).isAbsolute()) {
+      return new File(getProject().getLocation(), workDir).getAbsolutePath();
+    }
+    return workDir;
+  }
+
+  public void readExternal(Element element) throws InvalidDataException {
+    super.readExternal(element);
+    readModule(element);
+    scriptPath = JDOMExternalizer.readString(element, "path");
+    vmParams = JDOMExternalizer.readString(element, "vmparams");
+    scriptParams = JDOMExternalizer.readString(element, "params");
+    workDir = JDOMExternalizer.readString(element, "workDir");
+    isDebugEnabled = Boolean.parseBoolean(JDOMExternalizer.readString(element, "debug"));
+    workDir = getWorkDir();
+  }
+
+  public void writeExternal(Element element) throws WriteExternalException {
+    super.writeExternal(element);
+    writeModule(element);
+    JDOMExternalizer.write(element, "path", scriptPath);
+    JDOMExternalizer.write(element, "vmparams", vmParams);
+    JDOMExternalizer.write(element, "params", scriptParams);
+    JDOMExternalizer.write(element, "workDir", workDir);
+    JDOMExternalizer.write(element, "debug", isDebugEnabled);
+  }
+
+  protected ModuleBasedConfiguration createInstance() {
+    return new ClojureScriptRunConfiguration(factory, getConfigurationModule().getProject(), getName());
+  }
+
+  public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
+    return new ClojureRunConfigurationEditor();
+  }
+
+  public static void configureScriptSystemClassPath(final JavaParameters params, final Module module) throws CantRunException {
+    params.configureByModule(module, JavaParameters.JDK_ONLY);
+    //params.getClassPath().add(CLOJURE_SDK);
+    params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
+  }
+
+  private void configureJavaParams(JavaParameters params, Module module) throws CantRunException {
+
+    // Setting up classpath
+    configureScriptSystemClassPath(params, module);
+
+    params.setWorkingDirectory(getAbsoluteWorkDir());
+
+    // add user parameters
+    params.getVMParametersList().addParametersString(vmParams);
+
+    // set starter class
+    params.setMainClass(CLOJURE_MAIN);
+  }
+
+  private boolean isJarFromJRE(String path, Module module) {
+    if (path == null) return false;
+    OrderEntry[] entries = ModuleRootManager.getInstance(module).getOrderEntries();
+    for (OrderEntry entry : entries) {
+      if (entry instanceof JdkOrderEntry) {
+        JdkOrderEntry jdkEntry = (JdkOrderEntry) entry;
+        for (VirtualFile file : jdkEntry.getFiles(OrderRootType.CLASSES)) {
+          if (file.getPresentableUrl().equals(path)) return true;
         }
-        return res;
+      }
     }
+    return false;
+  }
 
-    public void setWorkDir(String dir) {
-        workDir = dir;
-    }
-
-    public String getWorkDir() {
-        return workDir;
-    }
-
-    public String getAbsoluteWorkDir() {
-        if (!new File(workDir).isAbsolute()) {
-            return new File(getProject().getLocation(), workDir).getAbsolutePath();
+  public StringBuffer getClearClassPathString(JavaParameters params, final Module module) {
+    List<String> list = params.getClassPath().getPathList();
+    Sdk jdk = params.getJdk();
+    StringBuffer buffer = new StringBuffer();
+    if (jdk != null) {
+      for (String libPath : list) {
+        if (!isJarFromJRE(libPath, module) /*&& !isJarFromClojureLib(libPath, module)*/) {
+          buffer.append(libPath).append(File.pathSeparator);
         }
-        return workDir;
+      }
+    }
+    //buffer.append(CLOJURE_SDK);
+    return buffer;
+  }
+
+  private void configureScript(JavaParameters params) {
+    // add script
+    params.getProgramParametersList().add(scriptPath);
+
+    // add script parameters
+    params.getProgramParametersList().addParametersString(scriptParams);
+  }
+
+  public Module getModule() {
+    return getConfigurationModule().getModule();
+  }
+
+  public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment environment) throws ExecutionException {
+    final Module module = getModule();
+    if (module == null) {
+      throw new ExecutionException("Module is not specified");
     }
 
-    public void readExternal(Element element) throws InvalidDataException {
-        super.readExternal(element);
-        readModule(element);
-        scriptPath = JDOMExternalizer.readString(element, "path");
-        vmParams = JDOMExternalizer.readString(element, "vmparams");
-        scriptParams = JDOMExternalizer.readString(element, "params");
-        workDir = JDOMExternalizer.readString(element, "workDir");
-        isDebugEnabled = Boolean.parseBoolean(JDOMExternalizer.readString(element, "debug"));
-        workDir = getWorkDir();
+    final ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
+    final Sdk sdk = rootManager.getSdk();
+    if (sdk == null || !(sdk.getSdkType() instanceof JavaSdkType)) {
+      throw CantRunException.noJdkForModule(getModule());
     }
 
-    public void writeExternal(Element element) throws WriteExternalException {
-        super.writeExternal(element);
-        writeModule(element);
-        JDOMExternalizer.write(element, "path", scriptPath);
-        JDOMExternalizer.write(element, "vmparams", vmParams);
-        JDOMExternalizer.write(element, "params", scriptParams);
-        JDOMExternalizer.write(element, "workDir", workDir);
-        JDOMExternalizer.write(element, "debug", isDebugEnabled);
+    if (!isClojureConfigured(module)) {
+      Messages.showErrorDialog(module.getProject(),
+          ExecutionBundle.message("error.running.configuration.with.error.error.message", getName(),
+              ClojureBundle.message("clojure.lib.is.not.attached")),
+          ExecutionBundle.message("run.error.message.title"));
+
+      ModulesConfigurator.showDialog(module.getProject(), module.getName(), ClasspathEditor.NAME, false);
+      return null;
     }
 
-    protected ModuleBasedConfiguration createInstance() {
-        return new ClojureScriptRunConfiguration(factory, getConfigurationModule().getProject(), getName());
-    }
 
-    public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
-        return new ClojureRunConfigurationEditor();
-    }
+    final JavaCommandLineState state = new JavaCommandLineState(environment) {
+      protected JavaParameters createJavaParameters() throws ExecutionException {
+        JavaParameters params = new JavaParameters();
+        configureJavaParams(params, module);
+        configureScript(params);
+        return params;
+      }
+    };
 
-    public static void configureScriptSystemClassPath(final JavaParameters params, final Module module) throws CantRunException {
-        params.configureByModule(module, JavaParameters.JDK_ONLY);
-        //params.getClassPath().add(CLOJURE_SDK);
-        params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
-    }
+    state.setConsoleBuilder(TextConsoleBuilderFactory.getInstance().createBuilder(getProject()));
+    return state;
 
-    private void configureJavaParams(JavaParameters params, Module module) throws CantRunException {
+  }
 
-        // Setting up classpath
-        configureScriptSystemClassPath(params, module);
-
-        params.setWorkingDirectory(getAbsoluteWorkDir());
-
-        // add user parameters
-        params.getVMParametersList().addParametersString(vmParams);
-
-        // set starter class
-        params.setMainClass(CLOJURE_STARTER);
-    }
-
-    private boolean isJarFromJRE(String path, Module module) {
-        if (path == null) return false;
-        OrderEntry[] entries = ModuleRootManager.getInstance(module).getOrderEntries();
-        for (OrderEntry entry : entries) {
-            if (entry instanceof JdkOrderEntry) {
-                JdkOrderEntry jdkEntry = (JdkOrderEntry) entry;
-                for (VirtualFile file : jdkEntry.getFiles(OrderRootType.CLASSES)) {
-                    if (file.getPresentableUrl().equals(path)) return true;
-                }
+  private static boolean isClojureConfigured(final Module module) {
+    ModuleRootManager manager = ModuleRootManager.getInstance(module);
+    for (OrderEntry entry : manager.getOrderEntries()) {
+      if (entry instanceof LibraryOrderEntry) {
+        Library library = ((LibraryOrderEntry) entry).getLibrary();
+        if (library != null) {
+          for (VirtualFile file : library.getFiles(OrderRootType.CLASSES)) {
+            String path = file.getPath();
+            if (path.endsWith(".jar!/")) {
+              if (file.findFileByRelativePath(CLOJURE_MAIN_CLASS_FILE) != null) {
+                return true;
+              }
             }
+          }
         }
-        return false;
+      }
     }
+    return false;
 
-    public StringBuffer getClearClassPathString(JavaParameters params, final Module module) {
-        List<String> list = params.getClassPath().getPathList();
-        Sdk jdk = params.getJdk();
-        StringBuffer buffer = new StringBuffer();
-        if (jdk != null) {
-            for (String libPath : list) {
-                if (!isJarFromJRE(libPath, module) /*&& !isJarFromClojureLib(libPath, module)*/) {
-                    buffer.append(libPath).append(File.pathSeparator);
-                }
-            }
-        }
-        //buffer.append(CLOJURE_SDK);
-        return buffer;
-    }
+  }
 
-    private void configureScript(JavaParameters params) {
-        // add script
-        params.getProgramParametersList().add(scriptPath);
+  @Nullable
+  private VirtualFile findScriptFile() {
+    return VirtualFileManager.getInstance().findFileByUrl("file://" + scriptPath);
+  }
 
-        // add script parameters
-        params.getProgramParametersList().addParametersString(scriptParams);
-    }
+  public void setScriptPath(String path) {
+    this.scriptPath = path;
+  }
 
-    public Module getModule() {
-        return getConfigurationModule().getModule();
-    }
+  public String getScriptPath() {
+    return scriptPath;
+  }
 
-    public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment environment) throws ExecutionException {
-        final Module module = getModule();
-        if (module == null) {
-            throw new ExecutionException("Module is not specified");
-        }
+  public String getVmParams() {
+    return vmParams;
+  }
 
-        final ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
-        final Sdk sdk = rootManager.getSdk();
-        if (sdk == null || !(sdk.getSdkType() instanceof JavaSdkType)) {
-            throw CantRunException.noJdkForModule(getModule());
-        }
+  public String getScriptParams() {
+    return scriptParams;
+  }
 
-        final VirtualFile script = findScriptFile();
+  public void setVmParams(String params) {
+    vmParams = params;
+  }
 
-        final JavaCommandLineState state = new JavaCommandLineState(environment) {
-            protected JavaParameters createJavaParameters() throws ExecutionException {
-                JavaParameters params = new JavaParameters();
+  public void setIsDebugEnabled(boolean isEnabled) {
+    isDebugEnabled = isEnabled;
+  }
 
-                configureJavaParams(params, module);
-                configureScript(params);
+  public void setScriptParams(String params) {
+    scriptParams = params;
+  }
 
-                return params;
-            }
-        };
-
-        state.setConsoleBuilder(TextConsoleBuilderFactory.getInstance().createBuilder(getProject()));
-        return state;
-
-    }
-
-    @Nullable
-    private VirtualFile findScriptFile() {
-        return VirtualFileManager.getInstance().findFileByUrl("file://" + scriptPath);
-    }
-
-    public void setScriptPath(String path) {
-        this.scriptPath = path;
-    }
-
-    public String getScriptPath() {
-        return scriptPath;
-    }
-
-    public String getVmParams() {
-        return vmParams;
-    }
-
-    public String getScriptParams() {
-        return scriptParams;
-    }
-
-    public void setVmParams(String params) {
-        vmParams = params;
-    }
-
-    public void setIsDebugEnabled(boolean isEnabled) {
-        isDebugEnabled = isEnabled;
-    }
-
-    public void setScriptParams(String params) {
-        scriptParams = params;
-    }
-
-    public boolean getIsDebugEnabled() {
-        return isDebugEnabled;
-    }
+  public boolean getIsDebugEnabled() {
+    return isDebugEnabled;
+  }
 }

@@ -90,10 +90,10 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
 
   public void applyEditorTo(ClojureScriptRunConfiguration configuration) throws ConfigurationException {
     configuration.setModule((Module) myModulesBox.getSelectedItem());
-    configuration.setVmParams( myVMParameters.getText() );
-    configuration.setIsDebugEnabled( myDebugCB.isSelected() );
-    configuration.setScriptParams( myParameters.getText() );
-    configuration.setScriptPath( scriptPathField.getText() );
+    configuration.setVmParams(myVMParameters.getText());
+    configuration.setIsDebugEnabled(myDebugCB.isSelected());
+    configuration.setScriptParams(myParameters.getText());
+    configuration.setScriptPath(scriptPathField.getText());
     configuration.setWorkDir(workDirField.getText());
   }
 

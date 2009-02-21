@@ -21,53 +21,53 @@ import org.jetbrains.plugins.clojure.parser.ClojureElementType;
  */
 public interface ClojureTokenTypes {
 
-    // Special characters
-    IElementType LEFT_PAREN = new ClojureElementType("(");
-    IElementType RIGHT_PAREN = new ClojureElementType(")");
+  // Special characters
+  IElementType LEFT_PAREN = new ClojureElementType("(");
+  IElementType RIGHT_PAREN = new ClojureElementType(")");
 
-    IElementType LEFT_CURLY = new ClojureElementType("{");
-    IElementType RIGHT_CURLY = new ClojureElementType("}");
+  IElementType LEFT_CURLY = new ClojureElementType("{");
+  IElementType RIGHT_CURLY = new ClojureElementType("}");
 
-    IElementType LEFT_SQUARE = new ClojureElementType("[");
-    IElementType RIGHT_SQUARE = new ClojureElementType("]");
+  IElementType LEFT_SQUARE = new ClojureElementType("[");
+  IElementType RIGHT_SQUARE = new ClojureElementType("]");
 
-    IElementType POUND = new ClojureElementType("#");
-    IElementType UP = new ClojureElementType("^");
-    IElementType POUNDUP = new ClojureElementType("#^");
-    IElementType TILDA = new ClojureElementType("~");
-    IElementType AT = new ClojureElementType("@");
-    IElementType TILDAAT = new ClojureElementType("~@");
-    IElementType PERCENT = new ClojureElementType("%");
-    IElementType QUOTE = new ClojureElementType("'");
-    IElementType BACKQUOTE = new ClojureElementType("`");
+  IElementType POUND = new ClojureElementType("#");
+  IElementType UP = new ClojureElementType("^");
+  IElementType POUNDUP = new ClojureElementType("#^");
+  IElementType TILDA = new ClojureElementType("~");
+  IElementType AT = new ClojureElementType("@");
+  IElementType TILDAAT = new ClojureElementType("~@");
+  IElementType PERCENT = new ClojureElementType("%");
+  IElementType QUOTE = new ClojureElementType("'");
+  IElementType BACKQUOTE = new ClojureElementType("`");
 
-    // Comments
-    IElementType LINE_COMMENT = new ClojureElementType("line comment");
-    TokenSet COMMENTS = TokenSet.create(LINE_COMMENT);
+  // Comments
+  IElementType LINE_COMMENT = new ClojureElementType("line comment");
+  TokenSet COMMENTS = TokenSet.create(LINE_COMMENT);
 
-    // Literals
-    IElementType STRING_LITERAL = new ClojureElementType("string literal");
-    IElementType INTEGER_LITERAL = new ClojureElementType("numeric literal");
-    IElementType FLOAT_LITERAL = new ClojureElementType("numeric literal");
-    IElementType CHAR_LITERAL = new ClojureElementType("character literal");
+  // Literals
+  IElementType STRING_LITERAL = new ClojureElementType("string literal");
+  IElementType INTEGER_LITERAL = new ClojureElementType("numeric literal");
+  IElementType FLOAT_LITERAL = new ClojureElementType("numeric literal");
+  IElementType CHAR_LITERAL = new ClojureElementType("character literal");
 
-    IElementType T = new ClojureElementType("t");
-    IElementType NIL = new ClojureElementType("nil");
-    TokenSet BOOLEAN_LITERAL = TokenSet.create(T, NIL);
+  IElementType T = new ClojureElementType("t");
+  IElementType NIL = new ClojureElementType("nil");
+  TokenSet BOOLEAN_LITERAL = TokenSet.create(T, NIL);
 
-    TokenSet LITERALS = TokenSet.create(STRING_LITERAL, INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL, T, NIL);
+  TokenSet LITERALS = TokenSet.create(STRING_LITERAL, INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL, T, NIL);
 
-    TokenSet READABLE_TEXT = TokenSet.create(STRING_LITERAL, LINE_COMMENT);
+  TokenSet READABLE_TEXT = TokenSet.create(STRING_LITERAL, LINE_COMMENT);
 
-    IElementType SYMBOL = new ClojureElementType("symbol"); // foo
-    IElementType COLON_SYMBOL = new ClojureElementType("key");  // :foo
+  IElementType SYMBOL = new ClojureElementType("symbol"); // foo
+  IElementType COLON_SYMBOL = new ClojureElementType("key");  // :foo
 
-    // Control characters
-    IElementType EOL = new ClojureElementType("end of line");
-    IElementType EOF = new ClojureElementType("end of file");
-    IElementType WHITESPACE = TokenType.WHITE_SPACE;
-    IElementType BAD_CHARACTER = TokenType.BAD_CHARACTER;
+  // Control characters
+  IElementType EOL = new ClojureElementType("end of line");
+  IElementType EOF = new ClojureElementType("end of file");
+  IElementType WHITESPACE = TokenType.WHITE_SPACE;
+  IElementType BAD_CHARACTER = TokenType.BAD_CHARACTER;
 
-    TokenSet WHITESPACE_SET = TokenSet.create(EOL, EOF, WHITESPACE);
-    TokenSet STRINGS = TokenSet.create(STRING_LITERAL);
+  TokenSet WHITESPACE_SET = TokenSet.create(EOL, EOF, WHITESPACE);
+  TokenSet STRINGS = TokenSet.create(STRING_LITERAL);
 }

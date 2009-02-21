@@ -36,104 +36,104 @@ import java.awt.*;
  */
 public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements ClojureTokenTypes {
 
-    private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
+  private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
 
 
-    static final TokenSet sNUMBERS = TokenSet.create(
-            ClojureTokenTypes.INTEGER_LITERAL,
-            ClojureTokenTypes.FLOAT_LITERAL
-    );
+  static final TokenSet sNUMBERS = TokenSet.create(
+      ClojureTokenTypes.INTEGER_LITERAL,
+      ClojureTokenTypes.FLOAT_LITERAL
+  );
 
-    static final TokenSet sLINE_COMMENTS = TokenSet.create(
-            ClojureTokenTypes.LINE_COMMENT
-    );
+  static final TokenSet sLINE_COMMENTS = TokenSet.create(
+      ClojureTokenTypes.LINE_COMMENT
+  );
 
-    static final TokenSet sBAD_CHARACTERS = TokenSet.create(
-            ClojureTokenTypes.BAD_CHARACTER
-    );
+  static final TokenSet sBAD_CHARACTERS = TokenSet.create(
+      ClojureTokenTypes.BAD_CHARACTER
+  );
 
-    static final TokenSet sSTRINGS = TokenSet.create(
-            ClojureTokenTypes.STRING_LITERAL
-    );
+  static final TokenSet sSTRINGS = TokenSet.create(
+      ClojureTokenTypes.STRING_LITERAL
+  );
 
-    static final TokenSet sBRACES = TokenSet.create(
-            ClojureTokenTypes.LEFT_PAREN,
-            ClojureTokenTypes.RIGHT_PAREN,
-            ClojureTokenTypes.LEFT_SQUARE,
-            ClojureTokenTypes.RIGHT_SQUARE,
-            ClojureTokenTypes.LEFT_CURLY,
-            ClojureTokenTypes.RIGHT_CURLY
-    );
+  static final TokenSet sBRACES = TokenSet.create(
+      ClojureTokenTypes.LEFT_PAREN,
+      ClojureTokenTypes.RIGHT_PAREN,
+      ClojureTokenTypes.LEFT_SQUARE,
+      ClojureTokenTypes.RIGHT_SQUARE,
+      ClojureTokenTypes.LEFT_CURLY,
+      ClojureTokenTypes.RIGHT_CURLY
+  );
 
-    public static final TokenSet sATOMS = TokenSet.create(
-            ClojureTokenTypes.SYMBOL
-    );
+  public static final TokenSet sATOMS = TokenSet.create(
+      ClojureTokenTypes.SYMBOL
+  );
 
-    public static final TokenSet sKEYS = TokenSet.create(
-            ClojureTokenTypes.COLON_SYMBOL
-    );
+  public static final TokenSet sKEYS = TokenSet.create(
+      ClojureTokenTypes.COLON_SYMBOL
+  );
 
-    @NotNull
-    public Lexer getHighlightingLexer() {
-        return new ClojureFlexLexer();
-    }
+  @NotNull
+  public Lexer getHighlightingLexer() {
+    return new ClojureFlexLexer();
+  }
 
-    @NotNull
-    public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
-        return pack(ATTRIBUTES.get(tokenType));
-    }
+  @NotNull
+  public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
+    return pack(ATTRIBUTES.get(tokenType));
+  }
 
-    @NonNls
-    static final String LINE_COMMENT_ID = "Line comment";
-    @NonNls
-    static final String KEY_ID = "Key";
-    @NonNls
-    static final String ATOM_ID = "Atom";
-    @NonNls
-    static final String NUMBER_ID = "Number";
-    @NonNls
-    static final String STRING_ID = "String";
-    @NonNls
-    static final String BRACES_ID = "Braces";
-    @NonNls
-    static final String BAD_CHARACTER_ID = "Bad character";
+  @NonNls
+  static final String LINE_COMMENT_ID = "Line comment";
+  @NonNls
+  static final String KEY_ID = "Key";
+  @NonNls
+  static final String ATOM_ID = "Atom";
+  @NonNls
+  static final String NUMBER_ID = "Number";
+  @NonNls
+  static final String STRING_ID = "String";
+  @NonNls
+  static final String BRACES_ID = "Braces";
+  @NonNls
+  static final String BAD_CHARACTER_ID = "Bad character";
 
-    public static TextAttributesKey LINE_COMMENT = TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID,
-            SyntaxHighlighterColors.LINE_COMMENT.getDefaultAttributes());
+  public static TextAttributesKey LINE_COMMENT = TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID,
+      SyntaxHighlighterColors.LINE_COMMENT.getDefaultAttributes());
 
-    public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID,
-            SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
+  public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID,
+      SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
 
-    public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID,
-            SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
+  public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID,
+      SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
 
-    public static TextAttributesKey NUMBER = TextAttributesKey.createTextAttributesKey(NUMBER_ID,
-            SyntaxHighlighterColors.NUMBER.getDefaultAttributes());
+  public static TextAttributesKey NUMBER = TextAttributesKey.createTextAttributesKey(NUMBER_ID,
+      SyntaxHighlighterColors.NUMBER.getDefaultAttributes());
 
-    public static TextAttributesKey STRING = TextAttributesKey.createTextAttributesKey(STRING_ID,
-            SyntaxHighlighterColors.STRING.getDefaultAttributes());
+  public static TextAttributesKey STRING = TextAttributesKey.createTextAttributesKey(STRING_ID,
+      SyntaxHighlighterColors.STRING.getDefaultAttributes());
 
-    public static TextAttributesKey BRACES = TextAttributesKey.createTextAttributesKey(BRACES_ID,
-            SyntaxHighlighterColors.BRACKETS.getDefaultAttributes());
+  public static TextAttributesKey BRACES = TextAttributesKey.createTextAttributesKey(BRACES_ID,
+      SyntaxHighlighterColors.BRACKETS.getDefaultAttributes());
 
-    public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID,
-            CodeInsightColors.UNMATCHED_BRACE_ATTRIBUTES.getDefaultAttributes());
+  public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID,
+      CodeInsightColors.UNMATCHED_BRACE_ATTRIBUTES.getDefaultAttributes());
 
-    public static final TextAttributes UNTYPED_ACCESS_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
+  public static final TextAttributes UNTYPED_ACCESS_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
 
-    static {
-        UNTYPED_ACCESS_ATTRIB.setForegroundColor(Color.BLACK);
-        UNTYPED_ACCESS_ATTRIB.setEffectColor(Color.BLACK);
-        UNTYPED_ACCESS_ATTRIB.setEffectType(EffectType.LINE_UNDERSCORE);
-    }
+  static {
+    UNTYPED_ACCESS_ATTRIB.setForegroundColor(Color.BLACK);
+    UNTYPED_ACCESS_ATTRIB.setEffectColor(Color.BLACK);
+    UNTYPED_ACCESS_ATTRIB.setEffectType(EffectType.LINE_UNDERSCORE);
+  }
 
-    static {
-        fillMap(ATTRIBUTES, sLINE_COMMENTS, LINE_COMMENT);
-        fillMap(ATTRIBUTES, sKEYS, KEY);
-        fillMap(ATTRIBUTES, sATOMS, ATOM);
-        fillMap(ATTRIBUTES, sNUMBERS, NUMBER);
-        fillMap(ATTRIBUTES, sSTRINGS, STRING);
-        fillMap(ATTRIBUTES, sBRACES, BRACES);
-    }
+  static {
+    fillMap(ATTRIBUTES, sLINE_COMMENTS, LINE_COMMENT);
+    fillMap(ATTRIBUTES, sKEYS, KEY);
+    fillMap(ATTRIBUTES, sATOMS, ATOM);
+    fillMap(ATTRIBUTES, sNUMBERS, NUMBER);
+    fillMap(ATTRIBUTES, sSTRINGS, STRING);
+    fillMap(ATTRIBUTES, sBRACES, BRACES);
+  }
 
 }

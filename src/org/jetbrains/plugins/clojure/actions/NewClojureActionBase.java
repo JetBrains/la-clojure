@@ -93,7 +93,7 @@ public abstract class NewClojureActionBase extends CreateElementActionBase {
   protected abstract PsiElement[] doCreate(String newName, PsiDirectory directory) throws Exception;
 
   protected static PsiFile createFileFromTemplate(final PsiDirectory directory, String className, @NonNls String templateName,
-                                                   @NonNls String... parameters) throws IncorrectOperationException {
+                                                  @NonNls String... parameters) throws IncorrectOperationException {
     return ClojureTemplatesFactory.createFromTemplate(directory, className, className + CLOJURE_EXTENSION, templateName, parameters);
   }
 

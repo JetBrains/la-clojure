@@ -18,10 +18,10 @@ import com.intellij.lang.Language;
  * limitations under the License.
  */
 public class ClojureLanguage extends Language {
-    private static final String ID = "Clojure";
+  private static final String ID = "Clojure";
 
-    public ClojureLanguage() {
-        super(ID);
-    }
+  public ClojureLanguage() {
+    super(ID);
+  }
 
 }

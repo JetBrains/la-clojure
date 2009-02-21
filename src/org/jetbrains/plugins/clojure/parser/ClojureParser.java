@@ -167,6 +167,7 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
   /**
    * Enter: Lexer is pointed at symbol
    * Exit: Lexer is pointed immediately after symbol
+   *
    * @param builder
    */
   private void parseSymbol(PsiBuilder builder) {
@@ -176,6 +177,7 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
   /**
    * Enter: Lexer is pointed at symbol
    * Exit: Lexer is pointed immediately after symbol
+   *
    * @param builder
    */
   private void parseKey(PsiBuilder builder) {
@@ -185,6 +187,7 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
   /**
    * Enter: Lexer is pointed at literal
    * Exit: Lexer is pointed immediately after literal
+   *
    * @param builder
    */
   private void parseLiteral(PsiBuilder builder) {

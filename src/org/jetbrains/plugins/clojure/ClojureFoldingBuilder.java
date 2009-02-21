@@ -28,59 +28,60 @@ import java.util.List;
  */
 public class ClojureFoldingBuilder implements FoldingBuilder {
 
-    public String getPlaceholderText(ASTNode node) {
+  public String getPlaceholderText(ASTNode node) {
 
-        if (node.getElementType() == DEF) {
-            return "(def "+((ClojureElement)(node.getPsi())).getName()+"  ...)";
-        } else if (node.getElementType() == DEFN) {
-            return "(defn "+((ClojureElement)(node.getPsi())).getName()+"  ...)";
-        } else if (node.getElementType() == DEFNDASH) {
-             return "(defn- "+((ClojureElement)(node.getPsi())).getName()+"  ...)";
-        } else if (node.getElementType() == TOPLIST) {
-             return "(...)";
-        }
-        throw new Error( "Unexpected node: " + node.getElementType() + "-->" + node.getText());
+    if (node.getElementType() == DEF) {
+      return "(def " + ((ClojureElement) (node.getPsi())).getName() + "  ...)";
+    } else if (node.getElementType() == DEFN) {
+      return "(defn " + ((ClojureElement) (node.getPsi())).getName() + "  ...)";
+    } else if (node.getElementType() == DEFNDASH) {
+      return "(defn- " + ((ClojureElement) (node.getPsi())).getName() + "  ...)";
+    } else if (node.getElementType() == TOPLIST) {
+      return "(...)";
+    }
+    throw new Error("Unexpected node: " + node.getElementType() + "-->" + node.getText());
+  }
+
+  public boolean isCollapsedByDefault(ASTNode node) {
+    return false;
+  }
+
+  public FoldingDescriptor[] buildFoldRegions(ASTNode node, Document document) {
+    touchTree(node);
+    List<FoldingDescriptor> descriptors = new ArrayList<FoldingDescriptor>();
+    appendDescriptors(node, descriptors);
+    return descriptors.toArray(new FoldingDescriptor[descriptors.size()]);
+  }
+
+  /**
+   * We have to touch the PSI tree to get the folding to show up when we first open a file
+   *
+   * @param node given node
+   */
+  private void touchTree(ASTNode node) {
+    if (node.getElementType() == ClojureElementTypes.FILE) {
+      node.getPsi().getFirstChild();
+    }
+  }
+
+  private void appendDescriptors(final ASTNode node, final List<FoldingDescriptor> descriptors) {
+    if (isFoldableNode(node)) {
+      descriptors.add(new FoldingDescriptor(node, node.getTextRange()));
     }
 
-    public boolean isCollapsedByDefault(ASTNode node) {
-        return false;
+    ASTNode child = node.getFirstChildNode();
+    while (child != null) {
+      appendDescriptors(child, descriptors);
+      child = child.getTreeNext();
     }
+  }
 
-    public FoldingDescriptor[] buildFoldRegions(ASTNode node, Document document) {
-        touchTree(node);
-        List<FoldingDescriptor> descriptors = new ArrayList<FoldingDescriptor>();
-        appendDescriptors(node, descriptors);
-        return descriptors.toArray(new FoldingDescriptor[descriptors.size()]);
-    }
-
-    /**
-     * We have to touch the PSI tree to get the folding to show up when we first open a file
-     * @param node given node
-     */
-    private void touchTree(ASTNode node) {
-        if (node.getElementType() == ClojureElementTypes.FILE) {
-            node.getPsi().getFirstChild();
-        }
-    }
-
-    private void appendDescriptors(final ASTNode node, final List<FoldingDescriptor> descriptors) {
-        if (isFoldableNode(node)) {
-            descriptors.add(new FoldingDescriptor(node, node.getTextRange()));
-        }
-
-        ASTNode child = node.getFirstChildNode();
-        while (child != null) {
-            appendDescriptors(child, descriptors);
-            child = child.getTreeNext();
-        }
-    }
-
-    private boolean isFoldableNode(ASTNode node) {
-        return (
+  private boolean isFoldableNode(ASTNode node) {
+    return (
         (node.getElementType() == DEF)
-                || (node.getElementType() == DEFN)
-                || (node.getElementType() == DEFNDASH)
-                || (node.getElementType() == TOPLIST)
-                );
-    }
+            || (node.getElementType() == DEFN)
+            || (node.getElementType() == DEFNDASH)
+            || (node.getElementType() == TOPLIST)
+    );
+  }
 }

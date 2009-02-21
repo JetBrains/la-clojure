@@ -21,24 +21,23 @@ import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-
  */
 public class ClojureBraceMatcher implements PairedBraceMatcher {
-    private static final BracePair[] PAIRS = new BracePair[]{
-            new BracePair(ClojureTokenTypes.LEFT_PAREN, ClojureTokenTypes.RIGHT_PAREN, true),
-            new BracePair(ClojureTokenTypes.LEFT_SQUARE, ClojureTokenTypes.RIGHT_SQUARE, false),
-            new BracePair(ClojureTokenTypes.LEFT_CURLY, ClojureTokenTypes.RIGHT_CURLY, false),
-    };
+  private static final BracePair[] PAIRS = new BracePair[]{
+      new BracePair(ClojureTokenTypes.LEFT_PAREN, ClojureTokenTypes.RIGHT_PAREN, true),
+      new BracePair(ClojureTokenTypes.LEFT_SQUARE, ClojureTokenTypes.RIGHT_SQUARE, false),
+      new BracePair(ClojureTokenTypes.LEFT_CURLY, ClojureTokenTypes.RIGHT_CURLY, false),
+  };
 
-    public BracePair[] getPairs() {
-        return PAIRS;
-    }
+  public BracePair[] getPairs() {
+    return PAIRS;
+  }
 
-    public boolean isPairedBracesAllowedBeforeType(@NotNull final IElementType lbraceType, @Nullable final IElementType tokenType) {
-        return true;
-    }
+  public boolean isPairedBracesAllowedBeforeType(@NotNull final IElementType lbraceType, @Nullable final IElementType tokenType) {
+    return true;
+  }
 
-    public int getCodeConstructStart(PsiFile file, int openingBraceOffset) {
-        return 0;
-    }
+  public int getCodeConstructStart(PsiFile file, int openingBraceOffset) {
+    return 0;
+  }
 }

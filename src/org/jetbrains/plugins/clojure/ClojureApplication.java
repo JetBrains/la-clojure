@@ -22,22 +22,22 @@ import org.jetbrains.plugins.clojure.file.ClojureFileType;
  * limitations under the License.
  */
 public class ClojureApplication implements ApplicationComponent {
-    public void initComponent() {
-        ApplicationManager.getApplication().runWriteAction(
-                new Runnable() {
-                    public void run() {
-                        FileTypeManager.getInstance().registerFileType(new ClojureFileType(), "clj");
-                    }
-                }
-        );
-    }
+  public void initComponent() {
+    ApplicationManager.getApplication().runWriteAction(
+        new Runnable() {
+          public void run() {
+            FileTypeManager.getInstance().registerFileType(new ClojureFileType(), "clj");
+          }
+        }
+    );
+  }
 
-    public void disposeComponent() {
-        // TODO: insert component disposal logic here
-    }
+  public void disposeComponent() {
+    // TODO: insert component disposal logic here
+  }
 
-    @NotNull
-    public String getComponentName() {
-        return "ClojureApplication";
-    }
+  @NotNull
+  public String getComponentName() {
+    return "ClojureApplication";
+  }
 }

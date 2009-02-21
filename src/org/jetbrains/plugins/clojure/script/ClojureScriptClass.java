@@ -36,13 +36,13 @@ import java.util.ArrayList;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ClojureScriptClass  extends LightElement implements PsiClass {
+public class ClojureScriptClass extends LightElement implements PsiClass {
 
- private ClojureFile myFile;
+  private ClojureFile myFile;
 
-  public ClojureScriptClass(ClojureFile file)  {
+  public ClojureScriptClass(ClojureFile file) {
     super(file.getManager(), file.getLanguage());
-            myFile = file;
+    myFile = file;
   }
 
   public String toString() {

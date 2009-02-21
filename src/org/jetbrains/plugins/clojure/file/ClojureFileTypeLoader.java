@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
  * limitations under the License.
  */
 public class ClojureFileTypeLoader extends FileTypeFactory {
-    public void createFileTypes(@NotNull FileTypeConsumer consumer) {
-        consumer.consume(ClojureFileType.CLOJURE_FILE_TYPE, ClojureFileType.CLOJURE_DEFAULT_EXTENSION);
-    }
+  public void createFileTypes(@NotNull FileTypeConsumer consumer) {
+    consumer.consume(ClojureFileType.CLOJURE_FILE_TYPE, ClojureFileType.CLOJURE_DEFAULT_EXTENSION);
+  }
 }

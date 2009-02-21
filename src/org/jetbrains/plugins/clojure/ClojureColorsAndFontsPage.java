@@ -28,63 +28,63 @@ import java.util.Map;
  * limitations under the License.
  */
 public class ClojureColorsAndFontsPage implements ColorSettingsPage {
-    @NotNull
-    public String getDisplayName() {
-        return "Clojure";
-    }
+  @NotNull
+  public String getDisplayName() {
+    return "Clojure";
+  }
 
-    @Nullable
-    public Icon getIcon() {
-        return ClojureIcons.CLOJURE_ICON_16x16;
-    }
+  @Nullable
+  public Icon getIcon() {
+    return ClojureIcons.CLOJURE_ICON_16x16;
+  }
 
-    @NotNull
-    public AttributesDescriptor[] getAttributeDescriptors() {
-        return ATTRS;
-    }
+  @NotNull
+  public AttributesDescriptor[] getAttributeDescriptors() {
+    return ATTRS;
+  }
 
-    private static final AttributesDescriptor[] ATTRS =
-            new AttributesDescriptor[]{
-                    new AttributesDescriptor(ClojureSyntaxHighlighter.LINE_COMMENT_ID, ClojureSyntaxHighlighter.LINE_COMMENT),
-                    new AttributesDescriptor(ClojureSyntaxHighlighter.ATOM_ID, ClojureSyntaxHighlighter.ATOM),
-                    new AttributesDescriptor(ClojureSyntaxHighlighter.KEY_ID, ClojureSyntaxHighlighter.KEY),
-                    new AttributesDescriptor(ClojureSyntaxHighlighter.NUMBER_ID, ClojureSyntaxHighlighter.NUMBER),
-                    new AttributesDescriptor(ClojureSyntaxHighlighter.STRING_ID, ClojureSyntaxHighlighter.STRING),
-                    new AttributesDescriptor(ClojureSyntaxHighlighter.BRACES_ID, ClojureSyntaxHighlighter.BRACES),
-                    new AttributesDescriptor(ClojureSyntaxHighlighter.BAD_CHARACTER_ID, ClojureSyntaxHighlighter.BAD_CHARACTER),
-            };
+  private static final AttributesDescriptor[] ATTRS =
+      new AttributesDescriptor[]{
+          new AttributesDescriptor(ClojureSyntaxHighlighter.LINE_COMMENT_ID, ClojureSyntaxHighlighter.LINE_COMMENT),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.ATOM_ID, ClojureSyntaxHighlighter.ATOM),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.KEY_ID, ClojureSyntaxHighlighter.KEY),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.NUMBER_ID, ClojureSyntaxHighlighter.NUMBER),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.STRING_ID, ClojureSyntaxHighlighter.STRING),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.BRACES_ID, ClojureSyntaxHighlighter.BRACES),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.BAD_CHARACTER_ID, ClojureSyntaxHighlighter.BAD_CHARACTER),
+      };
 
-    @NotNull
-    public ColorDescriptor[] getColorDescriptors() {
-        return new ColorDescriptor[0];
-    }
+  @NotNull
+  public ColorDescriptor[] getColorDescriptors() {
+    return new ColorDescriptor[0];
+  }
 
-    @NotNull
-    public SyntaxHighlighter getHighlighter() {
-        return new ClojureSyntaxHighlighter();
-    }
+  @NotNull
+  public SyntaxHighlighter getHighlighter() {
+    return new ClojureSyntaxHighlighter();
+  }
 
-    @NonNls
-    @NotNull
-    public String getDemoText() {
-        return "; Example from Clojure Special Forms http://clojure.org/special_forms\n" +
-                "; \n" +
-                "\n" +
-                "(defn\n" +
-                "#^{:doc \"mymax [xs+] gets the maximum value in xs using > \"\n" +
-                "   :test (fn []\n" +
-                "             (assert (= 42  (max 2 42 5 4))))\n" +
-                "   :user/comment \"this is the best fn ever!\"}\n" +
-                "  mymax\n" +
-                "  ([x] x)\n" +
-                "  ([x y] (if (> x y) x y))\n" +
-                "  ([x y & more]\n" +
-                "   (reduce mymax (mymax x y) more)))";
-    }
+  @NonNls
+  @NotNull
+  public String getDemoText() {
+    return "; Example from Clojure Special Forms http://clojure.org/special_forms\n" +
+        "; \n" +
+        "\n" +
+        "(defn\n" +
+        "#^{:doc \"mymax [xs+] gets the maximum value in xs using > \"\n" +
+        "   :test (fn []\n" +
+        "             (assert (= 42  (max 2 42 5 4))))\n" +
+        "   :user/comment \"this is the best fn ever!\"}\n" +
+        "  mymax\n" +
+        "  ([x] x)\n" +
+        "  ([x y] (if (> x y) x y))\n" +
+        "  ([x y & more]\n" +
+        "   (reduce mymax (mymax x y) more)))";
+  }
 
-    @Nullable
-    public Map<String, TextAttributesKey> getAdditionalHighlightingTagToDescriptorMap() {
-        Map<String, TextAttributesKey> map = new HashMap<String, TextAttributesKey>();
-        return map;
-    }
+  @Nullable
+  public Map<String, TextAttributesKey> getAdditionalHighlightingTagToDescriptorMap() {
+    Map<String, TextAttributesKey> map = new HashMap<String, TextAttributesKey>();
+    return map;
+  }
 }
