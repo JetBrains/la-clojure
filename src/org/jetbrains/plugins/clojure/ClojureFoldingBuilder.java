@@ -4,7 +4,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
-import org.jetbrains.plugins.clojure.parser.ClojureElement;
+import org.jetbrains.plugins.clojure.parser.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
 import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
 
@@ -31,11 +31,11 @@ public class ClojureFoldingBuilder implements FoldingBuilder {
   public String getPlaceholderText(ASTNode node) {
 
     if (node.getElementType() == DEF) {
-      return "(def " + ((ClojureElement) (node.getPsi())).getName() + "  ...)";
+      return "(def " + ((ClojurePsiElement) (node.getPsi())).getName() + "  ...)";
     } else if (node.getElementType() == DEFN) {
-      return "(defn " + ((ClojureElement) (node.getPsi())).getName() + "  ...)";
+      return "(defn " + ((ClojurePsiElement) (node.getPsi())).getName() + "  ...)";
     } else if (node.getElementType() == DEFNDASH) {
-      return "(defn- " + ((ClojureElement) (node.getPsi())).getName() + "  ...)";
+      return "(defn- " + ((ClojurePsiElement) (node.getPsi())).getName() + "  ...)";
     } else if (node.getElementType() == TOPLIST) {
       return "(...)";
     }
@@ -81,7 +81,7 @@ public class ClojureFoldingBuilder implements FoldingBuilder {
         (node.getElementType() == DEF)
             || (node.getElementType() == DEFN)
             || (node.getElementType() == DEFNDASH)
-            || (node.getElementType() == TOPLIST)
+            || (node.getElementType() == TOPLIST && node.getText().contains("\n")) 
     );
   }
 }

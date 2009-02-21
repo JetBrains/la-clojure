@@ -21,6 +21,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ClojureFile extends PsiFileBase {
 
+  @Override
+  public String toString() {
+    return "ClojureFile";
+  }
+
   public ClojureFile(FileViewProvider viewProvider) {
     super(viewProvider, ClojureFileType.CLOJURE_LANGUAGE);
   }

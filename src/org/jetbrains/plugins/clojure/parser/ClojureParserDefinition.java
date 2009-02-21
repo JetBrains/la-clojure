@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.plugins.clojure.file.ClojureFile;
@@ -63,51 +62,7 @@ public class ClojureParserDefinition implements ParserDefinition {
 
   @NotNull
   public PsiElement createElement(ASTNode node) {
-    final IElementType type = node.getElementType();
-
-    if (type == ClojureElementTypes.FILE) {
-      return new ClojureElement.File(node);
-    } else if (type == ClojureElementTypes.VARIABLE) {
-      return new ClojureElement.Symbol(node);
-    } else if (type == ClojureElementTypes.DEFN) {
-      return new ClojureElement.Defn(node);
-    } else if (type == ClojureElementTypes.DEFNDASH) {
-      return new ClojureElement.DefnDash(node);
-    } else if (type == ClojureElementTypes.DEF) {
-      return new ClojureElement.Def(node);
-    } else if (type == ClojureElementTypes.BINDINGS) {
-      return new ClojureElement.Bindings(node);
-    } else if (type == ClojureElementTypes.KEY) {
-      return new ClojureElement.Key(node);
-    } else if (type == ClojureElementTypes.LITERAL) {
-      return new ClojureElement.Literal(node);
-    } else if (type == ClojureElementTypes.TOPLIST) {
-      return new ClojureElement.TopList(node);
-    } else if (type == ClojureElementTypes.LIST) {
-      return new ClojureElement.List(node);
-    } else if (type == ClojureElementTypes.VECTOR) {
-      return new ClojureElement.Vector(node);
-    } else if (type == ClojureElementTypes.MAP) {
-      return new ClojureElement.Map(node);
-    } else if (type == ClojureElementTypes.QUOTED_EXPRESSION) {
-      return new ClojureElement.QuotedExpression(node);
-    } else if (type == ClojureElementTypes.BACKQUOTED_EXPRESSION) {
-      return new ClojureElement.BackQuotedExpression(node);
-    } else if (type == ClojureElementTypes.POUND_EXPRESSION) {
-      return new ClojureElement.Pound(node);
-    } else if (type == ClojureElementTypes.UP_EXPRESSION) {
-      return new ClojureElement.Up(node);
-    } else if (type == ClojureElementTypes.POUNDUP_EXPRESSION) {
-      return new ClojureElement.Metadata(node);
-    } else if (type == ClojureElementTypes.TILDA_EXPRESSION) {
-      return new ClojureElement.Tilda(node);
-    } else if (type == ClojureElementTypes.AT_EXPRESSION) {
-      return new ClojureElement.At(node);
-    } else if (type == ClojureElementTypes.TILDAAT_EXPRESSION) {
-      return new ClojureElement.TildaAt(node);
-    }
-
-    throw new Error("Unexpected ASTNode: " + node.getElementType());
+    return ClojurePsiCreator.createElement(node);
   }
 
   public SpaceRequirements spaceExistanceTypeBetweenTokens(ASTNode left, ASTNode right) {

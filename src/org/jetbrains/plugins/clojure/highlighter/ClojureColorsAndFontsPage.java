@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.clojure;
+package org.jetbrains.plugins.clojure.highlighter;
 
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
@@ -8,6 +8,8 @@ import com.intellij.openapi.options.colors.ColorSettingsPage;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.clojure.highlighter.ClojureSyntaxHighlighter;
+import org.jetbrains.plugins.clojure.ClojureIcons;
 
 import javax.swing.*;
 import java.util.HashMap;

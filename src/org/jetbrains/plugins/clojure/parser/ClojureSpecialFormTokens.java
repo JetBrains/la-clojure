@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.clojure;
+package org.jetbrains.plugins.clojure.parser;
 
 /**
  * @author ilyas

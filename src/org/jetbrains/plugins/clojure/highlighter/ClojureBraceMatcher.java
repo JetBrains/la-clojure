@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.clojure;
+package org.jetbrains.plugins.clojure.highlighter;
 
 import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.lang.BracePair;

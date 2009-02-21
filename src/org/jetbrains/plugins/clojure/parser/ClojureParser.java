@@ -6,7 +6,7 @@ import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
 import static org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes.*;
 import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
-import org.jetbrains.plugins.clojure.ClojureSpecialFormTokens;
+import org.jetbrains.plugins.clojure.parser.ClojureSpecialFormTokens;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.annotations.NotNull;
 

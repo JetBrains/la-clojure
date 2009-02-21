@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class Expression extends ClojureElement {
+public class Expression extends ClojurePsiElement {
   public Expression(@NotNull final ASTNode node) {
     super(node);
   }
