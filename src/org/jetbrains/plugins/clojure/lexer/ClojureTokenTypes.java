@@ -67,8 +67,9 @@ public interface ClojureTokenTypes {
   IElementType EOL = new ClojureElementType("end of line");
   IElementType EOF = new ClojureElementType("end of file");
   IElementType WHITESPACE = TokenType.WHITE_SPACE;
+  IElementType COMMA = new ClojureElementType(",");
   IElementType BAD_CHARACTER = TokenType.BAD_CHARACTER;
 
-  TokenSet WHITESPACE_SET = TokenSet.create(EOL, EOF, WHITESPACE);
+  TokenSet WHITESPACE_SET = TokenSet.create(EOL, EOF, WHITESPACE, COMMA);
   TokenSet STRINGS = TokenSet.create(STRING_LITERAL);
 }

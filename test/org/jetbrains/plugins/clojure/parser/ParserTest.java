@@ -87,8 +87,7 @@ public class ParserTest extends TestCase {
 
   @Test
   public void testClojureFileType() {
-    FileType fileType = FileTypeManager.getInstance().getFileTypeByFileName("foo.clj");
-    assert fileType != null;
+    Assert.assertNotNull(FileTypeManager.getInstance().getFileTypeByFileName("foo.clj"));
   }
 
   public void parseit(String fileName) {
