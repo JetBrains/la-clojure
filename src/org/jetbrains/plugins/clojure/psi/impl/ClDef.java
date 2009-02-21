@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.clojure.psi.impl;
 
-import org.jetbrains.plugins.clojure.parser.ClojurePsiElement;
+import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 
 /**
  * @author ilyas
 */
-public class ClDef extends ClojurePsiElement {
+public class ClDef extends ClojurePsiElementImpl {
 
   public ClDef(ASTNode node) {
     super(node);
   }
 
-  protected ClojurePsiElement getDefinition(String symbol) {
+  protected ClojurePsiElementImpl getDefinition(String symbol) {
     ClSymbol sym = getNameSymbol();
     if (sym != null) {
       String name = sym.getText();

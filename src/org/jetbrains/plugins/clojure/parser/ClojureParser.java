@@ -32,7 +32,7 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
     //builder.setDebugMode(true);
     PsiBuilder.Marker marker = builder.mark();
     for (IElementType token = builder.getTokenType(); token != null; token = builder.getTokenType()) {
-      parseTopExpression(builder);
+      parseTopLevelExpression(builder);
     }
     marker.done(FILE);
     return builder.getTreeBuilt();
@@ -42,23 +42,36 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
    * Enter: Lexer is pointed at the left paren
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
-  private void parseTopExpression(PsiBuilder builder) {
+  private void parseTopLevelExpression(PsiBuilder builder) {
 
     IElementType token = builder.getTokenType();
     if (LEFT_PAREN == token) {
-      parseTopList(builder);
+      parseTopLevelList(builder);
+    } else {
+      parseExpression(builder);
+    }
+  }
+
+  private void parseExpression(PsiBuilder builder) {
+    IElementType token = builder.getTokenType();
+    if (LEFT_PAREN == token) {
+      parseList(builder);
     } else if (LEFT_SQUARE == token) {
       parseVector(builder);
     } else if (LEFT_CURLY == token) {
       parseMap(builder);
     } else if (QUOTE == token) {
-      parseQuote(builder);
-    } else if (POUND == token) {
-      parsePound(builder);
+      parseQuotedForm(builder);
+    } else if (BACKQUOTE == token) {
+      parseBackQuote(builder);
+    } else if (SHARP == token) {
+      parseSharp(builder);
     } else if (UP == token) {
       parseUp(builder);
-    } else if (POUNDUP == token) {
-      parsePoundUp(builder);
+    } else if (SHARP_CURLY == token) {
+      parseSet(builder);
+    } else if (SHARPUP == token) {
+      parseMetadata(builder);
     } else if (TILDA == token) {
       parseTilda(builder);
     } else if (AT == token) {
@@ -79,7 +92,7 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
     }
   }
 
-  private void parseTopList(PsiBuilder builder) {
+  private void parseTopLevelList(PsiBuilder builder) {
     if (builder.getTokenType() != LEFT_PAREN) internalError(ClojureBundle.message("expected.lparen"));
     PsiBuilder.Marker marker = markAndAdvance(builder);
     if (builder.getTokenType() == SYMBOL && tDEF.equals(builder.getTokenText())) {
@@ -99,44 +112,6 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
       parseExpression(builder);
     }
     builder.advanceLexer();
-  }
-
-  private void parseExpression(PsiBuilder builder) {
-    IElementType token = builder.getTokenType();
-    if (LEFT_PAREN == token) {
-      parseList(builder);
-    } else if (LEFT_SQUARE == token) {
-      parseVector(builder);
-    } else if (LEFT_CURLY == token) {
-      parseMap(builder);
-    } else if (QUOTE == token) {
-      parseQuote(builder);
-    } else if (BACKQUOTE == token) {
-      parseBackQuote(builder);
-    } else if (POUND == token) {
-      parsePound(builder);
-    } else if (UP == token) {
-      parseUp(builder);
-    } else if (POUNDUP == token) {
-      parsePoundUp(builder);
-    } else if (TILDA == token) {
-      parseTilda(builder);
-    } else if (AT == token) {
-      parseAt(builder);
-    } else if (TILDAAT == token) {
-      parseTildaAt(builder);
-    } else if (SYMBOL == token) {
-      parseSymbol(builder);
-    } else if (PERCENT == token) {
-      parseSymbol(builder);
-    } else if (COLON_SYMBOL == token) {
-      parseKey(builder);
-
-    } else if (LITERALS.contains(token)) {
-      parseLiteral(builder);
-    } else {
-      syntaxError(builder, ClojureBundle.message("expected.left.paren.symbol.or.literal"));
-    }
   }
 
   private void syntaxError(PsiBuilder builder, String msg) {
@@ -198,12 +173,12 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
    * Enter: Lexer is pointed at '
    * Exit: Lexer is pointed immediately after quoted value
    */
-  private void parseQuote(PsiBuilder builder) {
+  private void parseQuotedForm(PsiBuilder builder) {
     if (builder.getTokenType() != QUOTE) internalError(ClojureBundle.message("expected.quote"));
     final PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
-    mark.done(QUOTED_EXPRESSION);
+    mark.done(QUOTED_FORM);
   }
 
   /**
@@ -222,12 +197,23 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
    * Enter: Lexer is pointed at #
    * Exit: Lexer is pointed immediately after closing }
    */
-  private void parsePound(PsiBuilder builder) {
-    if (builder.getTokenType() != POUND) internalError(ClojureBundle.message("expected.sharp"));
+  private void parseSharp(PsiBuilder builder) {
+    if (builder.getTokenType() != SHARP) internalError(ClojureBundle.message("expected.sharp"));
     PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
-    mark.done(POUND_EXPRESSION);
+    mark.done(SHARP_EXPRESSION);
+  }
+
+  private void parseSet(PsiBuilder builder) {
+    if (builder.getTokenType() != SHARP_CURLY) internalError(ClojureBundle.message("expected.sharp.lcurly"));
+    PsiBuilder.Marker marker = markAndAdvance(builder);
+    for (IElementType token = builder.getTokenType(); token != RIGHT_CURLY && token != null; token = builder.getTokenType()) {
+      parseExpression(builder); //entry
+    }
+    advanceLexerOrEOF(builder);
+    marker.done(SET);
+
   }
 
   /**
@@ -239,19 +225,22 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
     PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
-    mark.done(UP_EXPRESSION);
+    mark.done(META_FORM);
   }
 
   /**
    * Enter: Lexer is pointed at ^
    * Exit: Lexer is pointed immediately after closing }
    */
-  private void parsePoundUp(PsiBuilder builder) {
-    if (builder.getTokenType() != POUNDUP) internalError(ClojureBundle.message("expected.sharp.cup"));
+  private void parseMetadata(PsiBuilder builder) {
+    //todo add expression with metadata
+    if (builder.getTokenType() != SHARPUP) internalError(ClojureBundle.message("expected.sharp.cup"));
     PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
+    parseMap(builder);
+    mark.done(METADATA);
+
     parseExpression(builder);
-    mark.done(POUNDUP_EXPRESSION);
   }
 
   /**

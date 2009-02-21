@@ -6,8 +6,8 @@ import com.intellij.lang.ASTNode;
 /**
  * @author ilyas
 */
-public class ClFn extends ClojurePsiElementImpl {
-  public ClFn(ASTNode node) {
+public class ClSharp extends ClojurePsiElementImpl {
+  public ClSharp(ASTNode node) {
     super(node);
   }
 }

@@ -69,8 +69,8 @@ public class ClojureParserDefinition implements ParserDefinition {
 
     if (
         left.getElementType() == ClojureTokenTypes.QUOTE
-            || left.getElementType() == ClojureTokenTypes.POUND
-            || left.getElementType() == ClojureTokenTypes.POUNDUP
+            || left.getElementType() == ClojureTokenTypes.SHARP
+            || left.getElementType() == ClojureTokenTypes.SHARPUP
         ) {
 
       return SpaceRequirements.MUST_NOT;

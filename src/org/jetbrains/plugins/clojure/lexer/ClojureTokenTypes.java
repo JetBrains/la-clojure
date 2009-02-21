@@ -31,9 +31,10 @@ public interface ClojureTokenTypes {
   IElementType LEFT_SQUARE = new ClojureElementType("[");
   IElementType RIGHT_SQUARE = new ClojureElementType("]");
 
-  IElementType POUND = new ClojureElementType("#");
+  IElementType SHARP = new ClojureElementType("#");
   IElementType UP = new ClojureElementType("^");
-  IElementType POUNDUP = new ClojureElementType("#^");
+  IElementType SHARPUP = new ClojureElementType("#^");
+  IElementType SHARP_CURLY = new ClojureElementType("#{");
   IElementType TILDA = new ClojureElementType("~");
   IElementType AT = new ClojureElementType("@");
   IElementType TILDAAT = new ClojureElementType("~@");

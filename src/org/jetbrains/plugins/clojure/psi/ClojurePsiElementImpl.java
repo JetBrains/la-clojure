@@ -1,8 +1,9 @@
-package org.jetbrains.plugins.clojure.parser;
+package org.jetbrains.plugins.clojure.psi;
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import com.intellij.extapi.psi.StubBasedPsiElementBase;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.stubs.StubElement;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,28 +21,37 @@ import org.jetbrains.annotations.NotNull;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ClojurePsiElement extends ASTWrapperPsiElement {
+public class ClojurePsiElementImpl extends StubBasedPsiElementBase<StubElement> implements ClojurePsiElement{
 
-  public ClojurePsiElement(@NotNull ASTNode astNode, String name) {
+  final private String myName;
+
+  public ClojurePsiElementImpl(@NotNull ASTNode astNode, @NotNull String name) {
     super(astNode);
+    myName = name;
   }
 
-  public ClojurePsiElement(@NotNull ASTNode astNode) {
-    this(astNode, null);
+  public ClojurePsiElementImpl(@NotNull ASTNode astNode) {
+    super(astNode);
+    myName = null;
   }
 
-  protected ClojurePsiElement getDefinition(String symbol) {
+  @Override
+  public String toString() {
+    return myName == null ? super.toString() : myName;
+  }
+
+  protected ClojurePsiElementImpl getDefinition(String symbol) {
     for (PsiElement prev = getPrevSibling(); prev != null; prev = prev.getPrevSibling()) {
-      if (prev instanceof ClojurePsiElement) {
+      if (prev instanceof ClojurePsiElementImpl) {
         System.out.println(symbol + " " + prev);
-        ClojurePsiElement def = ((ClojurePsiElement) prev).getDefinition(symbol);
+        ClojurePsiElementImpl def = ((ClojurePsiElementImpl) prev).getDefinition(symbol);
         if (def != null)
           return def;
       }
     }
     PsiElement parent = getParent();
-    if (parent instanceof ClojurePsiElement) {
-      return ((ClojurePsiElement) parent).getDefinition(symbol);
+    if (parent instanceof ClojurePsiElementImpl) {
+      return ((ClojurePsiElementImpl) parent).getDefinition(symbol);
     }
     return null;
   }

@@ -6,8 +6,13 @@ import com.intellij.lang.ASTNode;
 /**
  * @author ilyas
 */
-public class ClFn extends ClojurePsiElementImpl {
-  public ClFn(ASTNode node) {
+public class ClTopLevelList extends ClList {
+  public ClTopLevelList(ASTNode node) {
     super(node);
+  }
+
+  @Override
+  public String toString() {
+    return "ClTopLevelList";
   }
 }

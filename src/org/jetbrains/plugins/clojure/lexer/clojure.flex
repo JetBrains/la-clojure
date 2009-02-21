@@ -80,9 +80,10 @@ mRC = "}"
 
 mQUOTE = "'"
 mBACKQUOTE = "`"
-mPOUNDUP = {mPOUND} {mUP}
+mSHARP = "#"
+mSHARPUP = {mSHARP} {mUP}
 mUP = "^"
-mPOUND = "#"
+mSHARP_CURLY = "#{"
 mPERCENT = "%"
 mTILDA = "~"
 mAT = "@"
@@ -167,9 +168,10 @@ mNIL = "nil" | "NIL"
 
   {mQUOTE}                                  {  return QUOTE; }
   {mBACKQUOTE}                              {  return BACKQUOTE; }
-  {mPOUND}                                  {  return POUND; }
+  {mSHARPUP}                                {  return SHARPUP; }
+  {mSHARP_CURLY }                           {  return SHARP_CURLY; }
+  {mSHARP}                                  {  return SHARP; }
   {mUP}                                     {  return UP; }
-  {mPOUNDUP}                                {  return POUNDUP; }
   {mPERCENT}                                {  return PERCENT; }
   {mTILDA}                                  {  return TILDA; }
   {mAT}                                     {  return AT; }
