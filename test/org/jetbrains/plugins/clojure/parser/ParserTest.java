@@ -84,7 +84,7 @@ public class ParserTest extends TestCase {
   }
 
   public void parseit(String text) {
-    //FileType fileType = FileTypeManager.getInstance().getFileTypeByFileName("foo.clj");
+
     PsiFile psiFile = createPseudoPhysicalFile(myProject, "test.clj", text);
     String psiTree = DebugUtil.psiToString(psiFile, false);
     System.out.println(psiTree);

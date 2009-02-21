@@ -237,10 +237,8 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
     if (builder.getTokenType() != SHARPUP) internalError(ClojureBundle.message("expected.sharp.cup"));
     PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
-    parseMap(builder);
-    mark.done(METADATA);
-
     parseExpression(builder);
+    mark.done(METADATA);
   }
 
   /**
@@ -307,8 +305,10 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
     if (builder.getTokenType() != LEFT_CURLY) internalError(ClojureBundle.message("expected.lcurly"));
     PsiBuilder.Marker marker = markAndAdvance(builder);
     for (IElementType token = builder.getTokenType(); token != RIGHT_CURLY && token != null; token = builder.getTokenType()) {
+      PsiBuilder.Marker entry = builder.mark();
       parseExpression(builder); // key
       parseExpression(builder); // value
+      entry.done(MAP_ENTRY);
     }
     advanceLexerOrEOF(builder);
     marker.done(MAP);

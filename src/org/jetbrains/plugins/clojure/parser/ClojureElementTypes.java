@@ -27,7 +27,9 @@ public class ClojureElementTypes {
   public static final IElementType MAP = new ClojureElementType("map");
   public static final IElementType SET = new ClojureElementType("map");
 
+
   public static final IElementType DEFN = new ClojureElementType("defn");
+  public static final IElementType MAP_ENTRY = new ClojureElementType("map");
   public static final IElementType DEFNDASH = new ClojureElementType("defn-");
   public static final IElementType DEF = new ClojureElementType("element");
 
