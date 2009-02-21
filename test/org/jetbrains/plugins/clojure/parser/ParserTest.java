@@ -12,7 +12,14 @@ import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.TestFixtureBuilder;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import org.junit.Test;
+import org.jetbrains.plugins.clojure.util.PathUtil;
 import junit.framework.TestCase;
+import junit.framework.Assert;
+
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 
 /**
@@ -34,7 +41,10 @@ public class ParserTest extends TestCase {
 
   protected Project myProject;
   protected Module myModule;
+  private static final String DATA_PATH = PathUtil.getDataPath(ParserTest.class);
+
   protected IdeaProjectTestFixture myFixture;
+  private static final String TEST_FILE_EXT = ".test";
 
   protected void setUp() {
     myFixture = createFixture();
@@ -63,8 +73,6 @@ public class ParserTest extends TestCase {
     }
   }
 
-  private static final String DATA_PATH = "/opt/clojure/src/clj/clojure"; //PathUtil.getDataPath(ParserTest.class);
-
   private PsiFile createPseudoPhysicalFile(final Project project, final String fileName, final String text) throws IncorrectOperationException {
 
     FileType fileType = FileTypeManager.getInstance().getFileTypeByFileName(fileName);
@@ -83,227 +91,150 @@ public class ParserTest extends TestCase {
     assert fileType != null;
   }
 
-  public void parseit(String text) {
+  public void parseit(String fileName) {
+    File file = new File(DATA_PATH + fileName + TEST_FILE_EXT);
+    Assert.assertTrue(file.exists());
 
-    PsiFile psiFile = createPseudoPhysicalFile(myProject, "test.clj", text);
+    StringBuilder contents = new StringBuilder();
+    try {
+      BufferedReader input = new BufferedReader(new FileReader(file));
+      try {
+        String line = null;
+        if ((line = input.readLine()) != null) {
+          contents.append(line);
+        }
+        while ((line = input.readLine()) != null) {
+          contents.append(System.getProperty("line.separator"));
+          contents.append(line);
+        }
+      }
+      finally {
+        input.close();
+      }
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+    }
+
+    PsiFile psiFile = createPseudoPhysicalFile(myProject, "test.clj", contents.toString());
     String psiTree = DebugUtil.psiToString(psiFile, false);
     System.out.println(psiTree);
   }
 
   @Test
   public void testSymbol() {
-    String sym =
-        "foo";
-    parseit(sym);
+    parseit("symbol");
   }
 
   @Test
   public void testSymbol2() {
-    String sym =
-        ".foo*";
-    parseit(sym);
+    parseit("symbol2");
   }
 
   @Test
   public void testInteger() {
-    String sym =
-        "123";
-    parseit(sym);
+    parseit("integer");
   }
 
   @Test
   public void testFloat() {
-    String sym =
-        "123.456";
-    parseit(sym);
+    parseit("float");
   }
 
   @Test
   public void testString() {
-    String sym =
-        "\"123.456\"";
-    parseit(sym);
+    parseit("string");
   }
 
   @Test
   public void testMultilineString() {
-    String sym =
-        "\"this is\n" +
-            "a multiline\n" +
-            "string\"";
-    parseit(sym);
+    parseit("multiline_string");
   }
 
 
   @Test
   public void testSexp1() {
-
-    String sexp =
-        "(a b)";
-    parseit(sexp);
+    parseit("sexp");
   }
 
   @Test
   public void testSexp2() {
-
-    String sexp =
-        "(a b (c d))";
-    parseit(sexp);
+    parseit("sexp2");
   }
 
   @Test
   public void testQuote() {
-
-    String sexp =
-        "'(a b (c d))";
-    parseit(sexp);
+    parseit("quote");
   }
 
   @Test
   public void testVector() {
-
-    String sexp =
-        "[a b (c d)]";
-    parseit(sexp);
+    parseit("vector");
   }
 
   @Test
   public void testEmptyList() {
-    parseit("()");
+    parseit("empty_list");
   }
 
   @Test
   public void testEmptyVector() {
-    parseit("[]");
+    parseit("empty_vector");
   }
 
   @Test
   public void testEmptyMap() {
-    parseit("{}");
+    parseit("empty_map");
   }
 
   @Test
   public void testMap() {
-
-    String sexp =
-        "{ :a a :b b :cd (c d)}";
-    parseit(sexp);
+    parseit("map");
   }
 
   @Test
   public void testMetadata() {
-
-    String md =
-        "#^{:foo \"bah\"}";
-    parseit(md);
+    parseit("meta");
   }
 
   @Test
   public void testLet() {
-    parseit("(let [[a b c & d :as e] [1 2 3 4 5 6 7]] [a b c d e])");
+    parseit("let");
   }
 
   @Test
   public void testFn() {
-    parseit("(fn [cs] (if (pos? (count cs))\n" +
-        "                            (into-array (map totype cs))\n" +
-        "                            (make-array Type 0)))");
+    parseit("fn");
   }
 
   @Test
   public void testSexp3() {
-    parseit("(fn [[m p]] {(str m) [p]})");
+    parseit("sexp3");
   }
 
   @Test
   public void testSexp4() {
-    parseit("(apply merge-with concat {} all-sigs)");
+    parseit("sexp4");
   }
 
   @Test
   public void testSexp45() {
-    parseit("(:static ^foo)");
+    parseit("sexp45");
   }
 
   @Test
   public void testDefn() {
-
-    String defn =
-        "(defn\n" +
-            "#^{:doc \"mymax [xs+] gets the maximum value in xs using > \"\n" +
-            "   :test (fn []\n" +
-            "             (assert (= 42  (max 2 42 5 4))))\n" +
-            "   :user/comment \"this is the best fn ever!\"}\n" +
-            "  mymax\n" +
-            "  ([x] x)\n" +
-            "  ([x y] (if (> x y) x y))\n" +
-            "  ([x y & more]\n" +
-            "   (reduce mymax (mymax x y) more)))";
-    parseit(defn);
+    parseit("defn");
   }
 
   @Test
   public void testDefn2() {
-
-    String defn = "(defn- non-private-methods [#^Class c]\n" +
-        "  (loop [mm {}\n" +
-        "         considered #{}\n" +
-        "         c c]\n" +
-        "    (if c\n" +
-        "      (let [[mm considered]\n" +
-        "            (loop [mm mm\n" +
-        "                   considered considered\n" +
-        "                   meths (concat\n" +
-        "                          (seq (. c (getDeclaredMethods)))\n" +
-        "                          (seq (. c (getMethods))))]\n" +
-        "              (if meths\n" +
-        "                (let [#^java.lang.reflect.Method meth (first meths)\n" +
-        "                      mods (. meth (getModifiers))\n" +
-        "                      mk (method-sig meth)]\n" +
-        "                  (if (or (considered mk)\n" +
-        "                          (. Modifier (isPrivate mods))\n" +
-        "                          (. Modifier (isStatic mods))\n" +
-        "                          (. Modifier (isFinal mods))\n" +
-        "                          (= \"finalize\" (.getName meth)))\n" +
-        "                    (recur mm (conj considered mk) (rest meths))\n" +
-        "                    (recur (assoc mm mk meth) (conj considered mk) (rest meths))))\n" +
-        "                [mm considered]))]\n" +
-        "        (recur mm considered (. c (getSuperclass))))\n" +
-        "      mm)))";
-
-    parseit(defn);
+    parseit("defn2");
   }
 
   @Test
   public void testDefn3() {
-
-    String defn = "    (defn- non-private-methods [#^Class c]\n" +
-        "  (loop [mm {}\n" +
-        "         considered #{}\n" +
-        "         c c]\n" +
-        "    (if c\n" +
-        "      (let [[mm considered]\n" +
-        "            (loop [mm mm\n" +
-        "                   considered considered\n" +
-        "                   meths (concat\n" +
-        "                          (seq (. c (getDeclaredMethods)))\n" +
-        "                          (seq (. c (getMethods))))]\n" +
-        "              (if meths\n" +
-        "                (let [#^java.lang.reflect.Method meth (first meths)\n" +
-        "                      mods (. meth (getModifiers))\n" +
-        "                      mk (method-sig meth)]\n" +
-        "                  (if (or (considered mk)\n" +
-        "                          (. Modifier (isPrivate mods))\n" +
-        "                          (. Modifier (isStatic mods))\n" +
-        "                          (. Modifier (isFinal mods))\n" +
-        "                          (= \"finalize\" (.getName meth)))\n" +
-        "                    (recur mm (conj considered mk) (rest meths))\n" +
-        "                    (recur (assoc mm mk meth) (conj considered mk) (rest meths))))\n" +
-        "                [mm considered]))]\n" +
-        "        (recur mm considered (. c (getSuperclass))))\n" +
-        "      mm)))";
-
-    parseit(defn);
+    parseit("defn3");
   }
 
 }

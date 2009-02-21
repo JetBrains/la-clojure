@@ -1,0 +1,3 @@
+(fn [cs] (if (pos? (count cs))
+        (into-array (map totype cs))
+        (make-array Type 0)))

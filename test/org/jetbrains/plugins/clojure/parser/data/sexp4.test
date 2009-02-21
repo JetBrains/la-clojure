@@ -1,0 +1,1 @@
+(apply merge-with concat {} all-sigs)

@@ -1,0 +1,10 @@
+(defn
+    "#^{:doc "mymax [xs+] gets the maximum value in xs using > "
+        :test (fn []
+                  (assert (= 42  (max 2 42 5 4))))
+        :user/comment \"this is the best fn ever!\"}
+      mymax
+      ([x] x)
+      ([x y] (if (> x y) x y))
+      ([x y & more]
+      (reduce mymax (mymax x y) more)))

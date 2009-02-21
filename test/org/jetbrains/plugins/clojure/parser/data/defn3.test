@@ -1,0 +1,25 @@
+(defn- non-private-methods [#^Class c]
+  (loop [mm {}
+         considered #{}
+         c c]
+    (if c
+      (let [[mm considered]
+            (loop [mm mm
+                   considered considered
+                   meths (concat
+                          (seq (. c (getDeclaredMethods)))
+                          (seq (. c (getMethods))))]
+              (if meths
+                (let [#^java.lang.reflect.Method meth (first meths)
+                      mods (. meth (getModifiers))
+                      mk (method-sig meth)]
+                  (if (or (considered mk)
+                          (. Modifier (isPrivate mods))
+                          (. Modifier (isStatic mods))
+                          (. Modifier (isFinal mods))
+                          (= \"finalize\" (.getName meth)))
+                    (recur mm (conj considered mk) (rest meths))
+                    (recur (assoc mm mk meth) (conj considered mk) (rest meths))))
+                [mm considered]))]
+        (recur mm considered (. c (getSuperclass))))
+      mm)))
