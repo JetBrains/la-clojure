@@ -6,6 +6,8 @@ import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
 import static org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes.*;
 import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
+import org.jetbrains.plugins.clojure.ClojureSpecialFormTokens;
+import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -23,13 +25,13 @@ import org.jetbrains.annotations.NotNull;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ClojureParser implements PsiParser {
+public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
 
   @NotNull
   public ASTNode parse(IElementType root, PsiBuilder builder) {
     //builder.setDebugMode(true);
     PsiBuilder.Marker marker = builder.mark();
-    for (IElementType token = builder.getTokenType(); token != null && token != null; token = builder.getTokenType()) {
+    for (IElementType token = builder.getTokenType(); token != null; token = builder.getTokenType()) {
       parseTopExpression(builder);
     }
     marker.done(FILE);
@@ -73,18 +75,18 @@ public class ClojureParser implements PsiParser {
     } else if (LITERALS.contains(token)) {
       parseLiteral(builder);
     } else {
-      syntaxError(builder, "Expected Left Paren, Symbol or Literal");
+      syntaxError(builder, ClojureBundle.message("expected.left.paren.symbol.or.literal"));
     }
   }
 
   private void parseTopList(PsiBuilder builder) {
-    if (builder.getTokenType() != LEFT_PAREN) internalError("Expected (");
+    if (builder.getTokenType() != LEFT_PAREN) internalError(ClojureBundle.message("expected.lparen"));
     PsiBuilder.Marker marker = markAndAdvance(builder);
-    if (builder.getTokenType() == SYMBOL && builder.getTokenText().equals("def")) {
+    if (builder.getTokenType() == SYMBOL && tDEF.equals(builder.getTokenText())) {
       parseDef(builder, marker);
-    } else if (builder.getTokenType() == SYMBOL && builder.getTokenText().equals("defn")) {
+    } else if (builder.getTokenType() == SYMBOL && tDEFN.equals(builder.getTokenText())) {
       parseDefn(builder, marker);
-    } else if (builder.getTokenType() == SYMBOL && builder.getTokenText().equals("defn-")) {
+    } else if (builder.getTokenType() == SYMBOL && tDEFN_DASH.equals(builder.getTokenText())) {
       parseDefnDash(builder, marker);
     } else {
       parseExpressions(RIGHT_PAREN, builder);
@@ -133,7 +135,7 @@ public class ClojureParser implements PsiParser {
     } else if (LITERALS.contains(token)) {
       parseLiteral(builder);
     } else {
-      syntaxError(builder, "Expected Left Paren, Symbol or Literal");
+      syntaxError(builder, ClojureBundle.message("expected.left.paren.symbol.or.literal"));
     }
   }
 
@@ -165,6 +167,7 @@ public class ClojureParser implements PsiParser {
   /**
    * Enter: Lexer is pointed at symbol
    * Exit: Lexer is pointed immediately after symbol
+   * @param builder
    */
   private void parseSymbol(PsiBuilder builder) {
     markAndAdvance(builder, VARIABLE);
@@ -173,6 +176,7 @@ public class ClojureParser implements PsiParser {
   /**
    * Enter: Lexer is pointed at symbol
    * Exit: Lexer is pointed immediately after symbol
+   * @param builder
    */
   private void parseKey(PsiBuilder builder) {
     markAndAdvance(builder, KEY);
@@ -181,6 +185,7 @@ public class ClojureParser implements PsiParser {
   /**
    * Enter: Lexer is pointed at literal
    * Exit: Lexer is pointed immediately after literal
+   * @param builder
    */
   private void parseLiteral(PsiBuilder builder) {
     markAndAdvance(builder, LITERAL);
@@ -191,7 +196,7 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after quoted value
    */
   private void parseQuote(PsiBuilder builder) {
-    if (builder.getTokenType() != QUOTE) internalError("Expected '");
+    if (builder.getTokenType() != QUOTE) internalError(ClojureBundle.message("expected.quote"));
     final PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
@@ -203,7 +208,7 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after quoted value
    */
   private void parseBackQuote(PsiBuilder builder) {
-    if (builder.getTokenType() != BACKQUOTE) internalError("Expected `");
+    if (builder.getTokenType() != BACKQUOTE) internalError(ClojureBundle.message("expected.backquote"));
     final PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
@@ -215,7 +220,7 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after closing }
    */
   private void parsePound(PsiBuilder builder) {
-    if (builder.getTokenType() != POUND) internalError("Expected #");
+    if (builder.getTokenType() != POUND) internalError(ClojureBundle.message("expected.sharp"));
     PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
@@ -227,7 +232,7 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after closing }
    */
   private void parseUp(PsiBuilder builder) {
-    if (builder.getTokenType() != UP) internalError("Expected ^");
+    if (builder.getTokenType() != UP) internalError(ClojureBundle.message("expected.cup"));
     PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
@@ -239,7 +244,7 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after closing }
    */
   private void parsePoundUp(PsiBuilder builder) {
-    if (builder.getTokenType() != POUNDUP) internalError("Expected #^");
+    if (builder.getTokenType() != POUNDUP) internalError(ClojureBundle.message("expected.sharp.cup"));
     PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
@@ -251,7 +256,7 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after closing }
    */
   private void parseTilda(PsiBuilder builder) {
-    if (builder.getTokenType() != TILDA) internalError("Expected ~");
+    if (builder.getTokenType() != TILDA) internalError(ClojureBundle.message("expected.tilde"));
     PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
@@ -263,7 +268,7 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after closing }
    */
   private void parseAt(PsiBuilder builder) {
-    if (builder.getTokenType() != AT) internalError("Expected @");
+    if (builder.getTokenType() != AT) internalError(ClojureBundle.message("expected.at"));
     PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
@@ -275,7 +280,7 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after closing }
    */
   private void parseTildaAt(PsiBuilder builder) {
-    if (builder.getTokenType() != TILDAAT) internalError("Expected ~@");
+    if (builder.getTokenType() != TILDAAT) internalError(ClojureBundle.message("expected.tilde.at"));
     PsiBuilder.Marker mark = builder.mark();
     builder.advanceLexer();
     parseExpression(builder);
@@ -307,7 +312,7 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
   private void parseMap(PsiBuilder builder) {
-    if (builder.getTokenType() != LEFT_CURLY) internalError("Expected {");
+    if (builder.getTokenType() != LEFT_CURLY) internalError(ClojureBundle.message("expected.lcurly"));
     PsiBuilder.Marker marker = markAndAdvance(builder);
     for (IElementType token = builder.getTokenType(); token != RIGHT_CURLY && token != null; token = builder.getTokenType()) {
       parseExpression(builder); // key
@@ -322,14 +327,16 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
   private void parseDef(PsiBuilder builder, PsiBuilder.Marker marker) {
-    if (builder.getTokenType() != SYMBOL || !builder.getTokenText().equals("def")) internalError("Expected element");
+    if (!tDEF.equals(builder.getTokenText()) || builder.getTokenType() != SYMBOL) {
+      internalError(ClojureBundle.message("expected.element"));
+    }
 
     advanceLexerOrEOF(builder);
     for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
       parseExpression(builder);
     }
     advanceLexerOrEOF(builder);
-    marker.done(DEF);
+    marker.done(ClojureElementTypes.DEF);
   }
 
   /**
@@ -337,14 +344,16 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
   private void parseDefn(PsiBuilder builder, PsiBuilder.Marker marker) {
-    if (builder.getTokenType() != SYMBOL || !builder.getTokenText().equals("defn")) internalError("Expected defn");
+    if (builder.getTokenType() != SYMBOL || !ClojureSpecialFormTokens.tDEFN.equals(builder.getTokenText())) {
+      internalError(ClojureBundle.message("expected.defn"));
+    }
 
     advanceLexerOrEOF(builder);
     for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
       parseExpression(builder);
     }
     advanceLexerOrEOF(builder);
-    marker.done(DEFN);
+    marker.done(ClojureElementTypes.DEFN);
   }
 
   /**
@@ -352,8 +361,8 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
   private void parseDefnDash(PsiBuilder builder, PsiBuilder.Marker marker) {
-    if (builder.getTokenType() != SYMBOL || !builder.getTokenText().equals("defn-"))
-      internalError("Expected defn-");
+    if (builder.getTokenType() != SYMBOL || !tDEFN_DASH.equals(builder.getTokenText()))
+      internalError(ClojureBundle.message("expected.defndash"));
 
     advanceLexerOrEOF(builder);
     for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
@@ -368,7 +377,7 @@ public class ClojureParser implements PsiParser {
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
   private void parseBindings(PsiBuilder builder) {
-    if (builder.getTokenType() != LEFT_SQUARE) internalError("Expected [");
+    if (builder.getTokenType() != LEFT_SQUARE) internalError(ClojureBundle.message("expected.lsquare"));
 
     PsiBuilder.Marker marker = markAndAdvance(builder);
     for (IElementType token = builder.getTokenType(); token != RIGHT_SQUARE && token != null; token = builder.getTokenType()) {

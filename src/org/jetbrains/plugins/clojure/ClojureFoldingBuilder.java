@@ -1,17 +1,15 @@
 package org.jetbrains.plugins.clojure;
 
-import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
-import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
-import org.jetbrains.plugins.clojure.parser.ClojureElement;
-
 import com.intellij.lang.ASTNode;
-import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.lang.folding.FoldingBuilder;
-import com.intellij.psi.PsiElement;
+import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
+import org.jetbrains.plugins.clojure.parser.ClojureElement;
+import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
+import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -57,10 +55,11 @@ public class ClojureFoldingBuilder implements FoldingBuilder {
 
     /**
      * We have to touch the PSI tree to get the folding to show up when we first open a file
+     * @param node given node
      */
     private void touchTree(ASTNode node) {
         if (node.getElementType() == ClojureElementTypes.FILE) {
-            final PsiElement firstChild = node.getPsi().getFirstChild();
+            node.getPsi().getFirstChild();
         }
     }
 

@@ -19,11 +19,11 @@ import org.jetbrains.annotations.NotNull;
  * limitations under the License.
  */
 public class Expression extends ClojureElement {
-    public Expression(@NotNull final ASTNode node) {
-        super(node);
-    }
+  public Expression(@NotNull final ASTNode node) {
+    super(node);
+  }
 
-    protected boolean isEmpty(ASTNode[] children) {
-        return children == null || children.length < 1;
-    }
+  protected boolean isEmpty(ASTNode[] children) {
+    return children == null || children.length < 1;
+  }
 }
