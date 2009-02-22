@@ -3,12 +3,11 @@ package org.jetbrains.plugins.clojure.editor.selection;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
-import org.jetbrains.plugins.clojure.psi.api.ClVector;
-import org.jetbrains.plugins.clojure.psi.api.ClSet;
-import org.jetbrains.plugins.clojure.psi.api.ClMap;
-import org.jetbrains.plugins.clojure.psi.impl.ClMapImpl;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClMap;
+import org.jetbrains.plugins.clojure.psi.api.ClSet;
+import org.jetbrains.plugins.clojure.psi.api.ClVector;
 
 import java.util.List;
 
