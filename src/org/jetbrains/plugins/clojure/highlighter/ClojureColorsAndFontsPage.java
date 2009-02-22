@@ -54,6 +54,8 @@ public class ClojureColorsAndFontsPage implements ColorSettingsPage {
           new AttributesDescriptor(ClojureSyntaxHighlighter.STRING_ID, ClojureSyntaxHighlighter.STRING),
           new AttributesDescriptor(ClojureSyntaxHighlighter.BRACES_ID, ClojureSyntaxHighlighter.BRACES),
           new AttributesDescriptor(ClojureSyntaxHighlighter.BAD_CHARACTER_ID, ClojureSyntaxHighlighter.BAD_CHARACTER),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.CHAR_ID, ClojureSyntaxHighlighter.CHAR),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.LITERAL_ID, ClojureSyntaxHighlighter.LITERAL),
       };
 
   @NotNull
@@ -80,8 +82,8 @@ public class ClojureColorsAndFontsPage implements ColorSettingsPage {
         "  mymax\n" +
         "  ([x] x)\n" +
         "  ([x y] (if (> x y) x y))\n" +
-        "  ([x y & more]\n" +
-        "   (reduce mymax (mymax x y) more)))";
+        "  ([x y & nil]\n" +
+        "   (reduce mymax (mymax x y) more {\\tab \"  \"})))";
   }
 
   @Nullable

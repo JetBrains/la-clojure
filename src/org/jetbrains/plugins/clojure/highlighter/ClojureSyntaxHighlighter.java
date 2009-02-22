@@ -53,7 +53,11 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
       ClojureTokenTypes.BAD_CHARACTER
   );
 
+  static final TokenSet sLITERALS = TokenSet.create(ClojureTokenTypes.TRUE, ClojureTokenTypes.FALSE, ClojureTokenTypes.NIL);
+
   static final TokenSet sSTRINGS = ClojureTokenTypes.STRINGS;
+
+  static final TokenSet sCHARS = TokenSet.create(ClojureTokenTypes.CHAR_LITERAL);
 
   static final TokenSet sBRACES = TokenSet.create(
       ClojureTokenTypes.LEFT_PAREN,
@@ -93,21 +97,23 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   @NonNls
   static final String STRING_ID = "String";
   @NonNls
+  static final String BAD_CHARACTER_ID = "Bad character";
+  @NonNls
   static final String BRACES_ID = "Braces";
+  @NonNls
+  static final String LITERAL_ID = "Literal";
+  @NonNls
+  static final String CHAR_ID = "Char";
 
   public static final TextAttributes UNTYPED_ACCESS_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
   public static final TextAttributes KEYWORD_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
   public static final TextAttributes ATOM_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
+  public static final TextAttributes CHAR_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
 
-  @NonNls
-  static final String BAD_CHARACTER_ID = "Bad character";
+  public static final TextAttributes LITERAL_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
 
   public static TextAttributesKey LINE_COMMENT = TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID,
       SyntaxHighlighterColors.LINE_COMMENT.getDefaultAttributes());
-
-  public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID, KEYWORD_ATTRIB);
-
-  public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID, ATOM_ATTRIB);
 
   public static TextAttributesKey NUMBER = TextAttributesKey.createTextAttributesKey(NUMBER_ID,
       SyntaxHighlighterColors.NUMBER.getDefaultAttributes());
@@ -121,6 +127,14 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID,
       CodeInsightColors.UNMATCHED_BRACE_ATTRIBUTES.getDefaultAttributes());
 
+  public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID, KEYWORD_ATTRIB);
+
+  public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID, ATOM_ATTRIB);
+
+  public static TextAttributesKey LITERAL = TextAttributesKey.createTextAttributesKey(LITERAL_ID, LITERAL_ATTRIB);
+
+  public static TextAttributesKey CHAR = TextAttributesKey.createTextAttributesKey(CHAR_ID, CHAR_ATTRIB);
+
   static {
     UNTYPED_ACCESS_ATTRIB.setForegroundColor(Color.BLACK);
     UNTYPED_ACCESS_ATTRIB.setEffectColor(Color.BLACK);
@@ -132,6 +146,12 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
 
     final Color deepBlue = SyntaxHighlighterColors.KEYWORD.getDefaultAttributes().getForegroundColor();
     ATOM_ATTRIB.setForegroundColor(deepBlue);
+
+    CHAR_ATTRIB.setFontType(Font.BOLD);
+    CHAR_ATTRIB.setForegroundColor(Color.MAGENTA);
+
+    LITERAL_ATTRIB.setFontType(Font.BOLD);
+    LITERAL_ATTRIB.setForegroundColor(deepBlue);
   }
 
   static {
@@ -141,6 +161,8 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
     fillMap(ATTRIBUTES, sNUMBERS, NUMBER);
     fillMap(ATTRIBUTES, sSTRINGS, STRING);
     fillMap(ATTRIBUTES, sBRACES, BRACES);
+    fillMap(ATTRIBUTES, sLITERALS, LITERAL);
+    fillMap(ATTRIBUTES, sCHARS, CHAR);
   }
 
 }

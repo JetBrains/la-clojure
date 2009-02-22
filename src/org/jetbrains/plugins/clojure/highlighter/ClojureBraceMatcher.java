@@ -25,8 +25,8 @@ import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 public class ClojureBraceMatcher implements PairedBraceMatcher {
   private static final BracePair[] PAIRS = new BracePair[]{
       new BracePair(ClojureTokenTypes.LEFT_PAREN, ClojureTokenTypes.RIGHT_PAREN, true),
-      new BracePair(ClojureTokenTypes.LEFT_SQUARE, ClojureTokenTypes.RIGHT_SQUARE, false),
-      new BracePair(ClojureTokenTypes.LEFT_CURLY, ClojureTokenTypes.RIGHT_CURLY, false),
+      new BracePair(ClojureTokenTypes.LEFT_SQUARE, ClojureTokenTypes.RIGHT_SQUARE, true),
+      new BracePair(ClojureTokenTypes.LEFT_CURLY, ClojureTokenTypes.RIGHT_CURLY, true),
   };
 
   public BracePair[] getPairs() {
@@ -34,10 +34,16 @@ public class ClojureBraceMatcher implements PairedBraceMatcher {
   }
 
   public boolean isPairedBracesAllowedBeforeType(@NotNull final IElementType lbraceType, @Nullable final IElementType tokenType) {
-    return true;
+    return tokenType == null
+        || ClojureTokenTypes.WHITESPACE_SET.contains(tokenType)
+        || ClojureTokenTypes.COMMENTS.contains(tokenType)
+        || tokenType == ClojureTokenTypes.COMMA
+        || tokenType == ClojureTokenTypes.RIGHT_SQUARE
+        || tokenType == ClojureTokenTypes.RIGHT_PAREN
+        || tokenType == ClojureTokenTypes.RIGHT_CURLY;
   }
 
   public int getCodeConstructStart(PsiFile file, int openingBraceOffset) {
-    return 0;
+    return openingBraceOffset;
   }
 }

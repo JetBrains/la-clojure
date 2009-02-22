@@ -53,11 +53,12 @@ public interface ClojureTokenTypes {
   IElementType FLOAT_LITERAL = new ClojureElementType("numeric literal");
   IElementType CHAR_LITERAL = new ClojureElementType("character literal");
 
-  IElementType T = new ClojureElementType("t");
   IElementType NIL = new ClojureElementType("nil");
-  TokenSet BOOLEAN_LITERAL = TokenSet.create(T, NIL);
+  IElementType TRUE = new ClojureElementType("true");
+  IElementType FALSE = new ClojureElementType("false");
+  TokenSet BOOLEAN_LITERAL = TokenSet.create(TRUE, FALSE, NIL);
 
-  TokenSet LITERALS = TokenSet.create(STRING_LITERAL, INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL, T, NIL, WRONG_STRING_LITERAL);
+  TokenSet LITERALS = TokenSet.create(STRING_LITERAL, INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL, TRUE, FALSE, NIL, WRONG_STRING_LITERAL);
 
   TokenSet READABLE_TEXT = TokenSet.create(STRING_LITERAL, LINE_COMMENT, WRONG_STRING_LITERAL);
 
