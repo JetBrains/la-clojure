@@ -5,8 +5,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.clojure.psi.impl.*;
 import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefImpl;
-import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefnDashImpl;
-import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefnImpl;
+import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefnMethodImpl;
+import org.jetbrains.plugins.clojure.psi.impl.list.ClListImpl;
 import org.jetbrains.plugins.clojure.psi.impl.symbols.ClImplicitArgumentImpl;
 import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbolImpl;
 
@@ -31,10 +31,10 @@ public class ClojurePsiCreator {
 
     if (elementType == ClojureElementTypes.SYMBOL) return new ClSymbolImpl(node);
     if (elementType == ClojureElementTypes.IMPLICIT_ARG) return new ClImplicitArgumentImpl(node);
-    
-    if (elementType == ClojureElementTypes.DEFN) return new ClDefnImpl(node);
-    if (elementType == ClojureElementTypes.DEFNDASH) return new ClDefnDashImpl(node);
+
     if (elementType == ClojureElementTypes.DEF) return new ClDefImpl(node);
+    if (elementType == ClojureElementTypes.DEFMETHOD) return new ClDefnMethodImpl(node);
+
     if (elementType == ClojureElementTypes.BINDINGS) return new ClBindings(node);
     if (elementType == ClojureElementTypes.KEYWORD) return new ClKey(node);
     if (elementType == ClojureElementTypes.LITERAL) return new ClLiteralImpl(node);

@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ClojurePsiElementImpl extends StubBasedPsiElementBase<StubElement> implements ClojurePsiElement{
+public class ClojurePsiElementImpl extends ClojureBaseElementImpl<StubElement> implements ClojurePsiElement{
 
   final private String myName;
 

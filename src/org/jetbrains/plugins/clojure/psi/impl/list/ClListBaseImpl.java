@@ -1,21 +1,29 @@
-package org.jetbrains.plugins.clojure.psi.impl;
+package org.jetbrains.plugins.clojure.psi.impl.list;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiUtil;
+import org.jetbrains.plugins.clojure.psi.ClojureBaseElementImpl;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.stubs.NamedStub;
+import com.intellij.psi.stubs.IStubElementType;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.lang.ASTNode;
 
 /**
  * @author ilyas
-*/
-public class ClListImpl extends ClojurePsiElementImpl implements ClList {
+ */
+public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseElementImpl<T> implements ClList {
 
-  public ClListImpl(ASTNode node) {
-    super(node, "ClList");
+  public ClListBaseImpl(T stub, @NotNull IStubElementType nodeType) {
+    super(stub, nodeType);
+  }
+
+  public ClListBaseImpl(ASTNode node) {
+    super(node);
   }
 
   @Nullable
@@ -39,5 +47,6 @@ public class ClListImpl extends ClojurePsiElementImpl implements ClList {
     }
     return null;
   }
-  
+
+
 }

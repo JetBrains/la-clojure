@@ -87,8 +87,7 @@ public class ClojureFoldingBuilder implements FoldingBuilder {
     }
 
     return (type == DEF
-        || type == DEFN
-        || type == DEFNDASH) &&
+        || type == DEFMETHOD) &&
         node.getText().contains("\n")
         ;
   }

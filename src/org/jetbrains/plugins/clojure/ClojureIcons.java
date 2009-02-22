@@ -19,4 +19,7 @@ import javax.swing.*;
 public interface ClojureIcons {
   @NonNls
   final Icon CLOJURE_ICON_16x16 = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png");
+
+  final Icon FUNCTION = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/def_tmp.png");
+  final Icon METHOD = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/meth_tmp.png");
 }

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
 import org.jetbrains.plugins.clojure.parser.util.ParserUtils;
+import static  org.jetbrains.plugins.clojure.parser.ClojureSpecialFormTokens.DEF_TOKENS;
 
 
 /**
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.clojure.parser.util.ParserUtils;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ClojureParser implements PsiParser, ClojureSpecialFormTokens, ClojureTokenTypes {
+public class ClojureParser implements PsiParser, ClojureTokenTypes {
 
   @NotNull
   public ASTNode parse(IElementType root, PsiBuilder builder) {
@@ -59,12 +60,8 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens, Cloju
     if (builder.getTokenType() != LEFT_PAREN) internalError(ClojureBundle.message("expected.lparen"));
     PsiBuilder.Marker marker = markAndAdvance(builder);
     final String tokenText = builder.getTokenText();
-    if (builder.getTokenType() == symATOM && tDEF.equals(tokenText)) {
+    if (builder.getTokenType() == symATOM && DEF_TOKENS.contains(tokenText)) {
       parseDef(builder, marker);
-    } else if (builder.getTokenType() == symATOM && tDEFN.equals(tokenText)) {
-      parseDefn(builder, marker);
-    } else if (builder.getTokenType() == symATOM && tDEFN_DASH.equals(tokenText)) {
-      parseDefnDash(builder, marker);
     } else {
       parseExpressions(RIGHT_PAREN, builder);
       marker.done(LIST);
@@ -372,7 +369,8 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens, Cloju
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
   private void parseDef(PsiBuilder builder, PsiBuilder.Marker marker) {
-    if (!tDEF.equals(builder.getTokenText()) || builder.getTokenType() != symATOM) {
+    final String text = builder.getTokenText();
+    if (!DEF_TOKENS.contains(text) || builder.getTokenType() != symATOM) {
       internalError(ClojureBundle.message("expected.element"));
     }
 
@@ -386,49 +384,7 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens, Cloju
     } else {
       advanceLexerOrEOF(builder);
     }
-    marker.done(ClojureElementTypes.DEF);
-  }
-
-  /**
-   * Enter: Lexer is pointed at the defn
-   * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
-   */
-  private void parseDefn(PsiBuilder builder, PsiBuilder.Marker marker) {
-    if (builder.getTokenType() != symATOM || !ClojureSpecialFormTokens.tDEFN.equals(builder.getTokenText())) {
-      internalError(ClojureBundle.message("expected.defn"));
-    }
-
-    parseSymbol(builder);
-    for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
-      parseExpression(builder);
-    }
-
-    if (builder.getTokenType() != RIGHT_PAREN) {
-      builder.error(ClojureBundle.message("expected.token", RIGHT_PAREN.toString()));
-    } else {
-      advanceLexerOrEOF(builder);
-    }
-    marker.done(ClojureElementTypes.DEFN);
-  }
-
-  /**
-   * Enter: Lexer is pointed at the defn-
-   * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
-   */
-  private void parseDefnDash(PsiBuilder builder, PsiBuilder.Marker marker) {
-    if (builder.getTokenType() != symATOM || !tDEFN_DASH.equals(builder.getTokenText()))
-      internalError(ClojureBundle.message("expected.defndash"));
-
-    parseSymbol(builder);
-    for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
-      parseExpression(builder);
-    }
-    if (builder.getTokenType() != RIGHT_PAREN) {
-      builder.error(ClojureBundle.message("expected.token", RIGHT_PAREN.toString()));
-    } else {
-      advanceLexerOrEOF(builder);
-    }
-    marker.done(DEFNDASH);
+    marker.done("defmethod".equals(text) ? ClojureElementTypes.DEFMETHOD : ClojureElementTypes.DEF);
   }
 
   /**

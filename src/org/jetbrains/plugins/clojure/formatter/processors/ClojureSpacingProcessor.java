@@ -6,6 +6,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.clojure.formatter.ClojureBlock;
 import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
+import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 
 /**
  * @author ilyas
@@ -28,6 +29,10 @@ public class ClojureSpacingProcessor implements ClojureElementTypes {
     IElementType type2 = node2.getElementType();
 
     if (MODIFIERS.contains(type1)) {
+      return NO_SPACING;
+    }
+
+    if (ClojureTokenTypes.ATOMS.contains(type2)) {
       return NO_SPACING;
     }
 

@@ -2,9 +2,15 @@ package org.jetbrains.plugins.clojure.parser;
 
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
+import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefElementType;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefMethodElementType;
+import org.jetbrains.plugins.clojure.psi.stubs.ClDefStub;
+import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
+import org.jetbrains.plugins.clojure.psi.ClStubElementType;
 
 /**
  * User: peter
@@ -21,7 +27,7 @@ import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
  * limitations under the License.
  */
 public interface ClojureElementTypes extends ClojureTokenTypes {
-  final IFileElementType FILE = new IFileElementType(ClojureFileType.CLOJURE_LANGUAGE);
+  final IFileElementType FILE = new IStubFileElementType(ClojureFileType.CLOJURE_LANGUAGE);
 
   final IElementType TOPLIST = new ClojureElementType("toplist");
   final IElementType LIST = new ClojureElementType("list");
@@ -29,11 +35,10 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
   final IElementType MAP = new ClojureElementType("map");
   final IElementType SET = new ClojureElementType("map");
 
+  final ClStubElementType<ClDefStub, ClDef> DEF = new ClDefElementType();
+  final ClStubElementType<ClDefStub, ClDef> DEFMETHOD = new ClDefMethodElementType();
 
-  final IElementType DEFN = new ClojureElementType("defn");
   final IElementType MAP_ENTRY = new ClojureElementType("map");
-  final IElementType DEFNDASH = new ClojureElementType("defn-");
-  final IElementType DEF = new ClojureElementType("element");
 
   final IElementType LITERAL = new ClojureElementType("literal");
   final IElementType SYMBOL = new ClojureElementType("symbol");
@@ -56,7 +61,7 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
   final IElementType TILDAAT_EXPRESSION = new ClojureElementType("tildaat expression");
 
 
-  TokenSet LIST_LIKE_FORMS = TokenSet.create(LIST, VECTOR, MAP, SET, DEF, DEFN, DEFNDASH);
+  TokenSet LIST_LIKE_FORMS = TokenSet.create(LIST, VECTOR, MAP, SET, DEF, DEFMETHOD);
 
   TokenSet BRACES = TokenSet.create(LEFT_CURLY, LEFT_PAREN, LEFT_SQUARE,
       RIGHT_CURLY, RIGHT_PAREN, RIGHT_SQUARE);
