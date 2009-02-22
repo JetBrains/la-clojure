@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.clojure.formatter;
 
-import com.intellij.lang.ASTNode;
 import com.intellij.formatting.Alignment;
-import com.intellij.formatting.Wrap;
 import com.intellij.formatting.Block;
 import com.intellij.formatting.Indent;
+import com.intellij.formatting.Wrap;
+import com.intellij.lang.ASTNode;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-
-import java.util.List;
-import java.util.ArrayList;
-
 import org.jetbrains.plugins.clojure.formatter.processors.ClojureIndentProcessor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ilyas

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.clojure.utils;
 
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.JavaModuleType;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 
 /**

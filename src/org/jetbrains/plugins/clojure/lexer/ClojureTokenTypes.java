@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.clojure.lexer;
 
+import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import com.intellij.psi.TokenType;
 import org.jetbrains.plugins.clojure.parser.ClojureElementType;
 
 /**

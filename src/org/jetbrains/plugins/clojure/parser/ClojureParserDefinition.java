@@ -10,10 +10,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
-import org.jetbrains.plugins.clojure.psi.impl.ClojureFileImpl;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.lexer.ClojureFlexLexer;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.psi.impl.ClojureFileImpl;
 
 
 /**

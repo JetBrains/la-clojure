@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.clojure.psi.api.defs;
 
-import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
-import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbol;
 import com.sun.istack.internal.Nullable;
+import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 
 /**
  * @author ilyas

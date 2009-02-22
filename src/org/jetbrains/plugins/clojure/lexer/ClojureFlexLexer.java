@@ -4,8 +4,6 @@ import com.intellij.lexer.FlexAdapter;
 
 import java.io.Reader;
 
-import org.jetbrains.plugins.clojure.lexer._ClojureLexer;
-
 /**
  * User: peter
  * Date: Dec 18, 2008

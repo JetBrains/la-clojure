@@ -19,9 +19,6 @@ package org.jetbrains.plugins.clojure.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import java.util.*;
-import java.io.CharArrayReader;
-import org.jetbrains.annotations.NotNull;
 
 
 /**

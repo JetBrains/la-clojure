@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.clojure.formatter;
 
-import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.FileTypeIndentOptionsProvider;
-import com.intellij.psi.PsiFile;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.application.options.IndentOptionsEditor;
 import com.intellij.application.options.SmartIndentOptionsEditor;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.codeStyle.FileTypeIndentOptionsProvider;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 
 /**

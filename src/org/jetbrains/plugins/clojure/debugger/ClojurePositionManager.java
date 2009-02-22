@@ -10,17 +10,15 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-
 import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Location;
+import com.sun.jdi.ReferenceType;
 import com.sun.jdi.request.ClassPrepareRequest;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by IntelliJ IDEA.

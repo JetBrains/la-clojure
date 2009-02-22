@@ -1,25 +1,24 @@
 package org.jetbrains.plugins.clojure.highlighter;
 
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import com.intellij.lexer.Lexer;
-import org.jetbrains.annotations.NotNull;
-
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.colors.CodeInsightColors;
-import com.intellij.openapi.editor.markup.EffectType;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
+import com.intellij.openapi.editor.colors.CodeInsightColors;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.editor.markup.EffectType;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.lexer.ClojureFlexLexer;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.awt.*;
 
 /**
  * User: peter

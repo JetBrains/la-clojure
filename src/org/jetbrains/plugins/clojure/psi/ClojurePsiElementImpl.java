@@ -2,7 +2,6 @@ package org.jetbrains.plugins.clojure.psi;
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.stubs.StubElement;
 import org.jetbrains.annotations.NotNull;
 

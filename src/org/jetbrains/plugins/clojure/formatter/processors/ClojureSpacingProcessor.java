@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.clojure.formatter.processors;
 
-import com.intellij.formatting.Spacing;
 import com.intellij.formatting.Block;
+import com.intellij.formatting.Spacing;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.clojure.formatter.ClojureBlock;

@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.clojure.formatter;
 
-import com.intellij.formatting.FormattingModelBuilder;
 import com.intellij.formatting.FormattingModel;
+import com.intellij.formatting.FormattingModelBuilder;
 import com.intellij.formatting.FormattingModelProvider;
 import com.intellij.formatting.Indent;
+import com.intellij.lang.ASTNode;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.lang.ASTNode;
-import com.intellij.openapi.util.TextRange;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

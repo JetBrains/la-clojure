@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.clojure.file;
 
-import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.lang.Language;
+import com.intellij.openapi.fileTypes.LanguageFileType;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.ClojureLanguage;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.NonNls;
 
 import javax.swing.*;
 

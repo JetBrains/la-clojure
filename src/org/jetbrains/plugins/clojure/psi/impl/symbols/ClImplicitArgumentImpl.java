@@ -5,8 +5,8 @@ import com.intellij.lang.ASTNode;
 /**
  * @author ilyas
  */
-public class ClImplicitArgument extends ClSymbol{
-  public ClImplicitArgument(ASTNode node) {
+public class ClImplicitArgumentImpl extends ClSymbolImpl {
+  public ClImplicitArgumentImpl(ASTNode node) {
     super(node);
   }
 

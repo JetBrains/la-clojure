@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.clojure;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.application.ApplicationManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.clojure;
 
 import com.intellij.openapi.components.ApplicationComponent;
-import static com.intellij.patterns.PlatformPatterns.psiElement;
 import org.jetbrains.annotations.NotNull;
 
 /**

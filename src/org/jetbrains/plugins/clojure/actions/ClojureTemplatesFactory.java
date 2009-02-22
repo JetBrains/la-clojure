@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.clojure.actions;
 
 import com.intellij.ide.fileTemplates.*;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;

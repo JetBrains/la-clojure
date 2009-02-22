@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.clojure.highlighter;
 
+import com.intellij.lang.CodeDocumentationAwareCommenter;
+import com.intellij.psi.PsiComment;
+import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.PsiComment;
-import com.intellij.lang.CodeDocumentationAwareCommenter;
 
 /**
  * @author ilyas

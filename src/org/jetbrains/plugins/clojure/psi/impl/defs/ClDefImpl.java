@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.clojure.psi.impl.defs;
 
-import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
+import com.intellij.lang.ASTNode;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.ClListImpl;
-import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbol;
-import org.jetbrains.annotations.Nullable;
-import com.intellij.lang.ASTNode;
 
 /**
  * @author ilyas

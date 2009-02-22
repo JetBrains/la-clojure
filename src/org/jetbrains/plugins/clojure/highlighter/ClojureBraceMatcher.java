@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.clojure.highlighter;
 
-import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.lang.BracePair;
-import com.intellij.psi.tree.IElementType;
+import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;

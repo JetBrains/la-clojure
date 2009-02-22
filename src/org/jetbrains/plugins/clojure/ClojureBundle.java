@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.clojure;
 
+import com.intellij.CommonBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
 
-import java.util.ResourceBundle;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
-
-import com.intellij.CommonBundle;
+import java.util.ResourceBundle;
 
 /**
  * @author ilyas

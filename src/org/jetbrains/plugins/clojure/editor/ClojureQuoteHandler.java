@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.clojure.editor;
 
 import com.intellij.codeInsight.editorActions.QuoteHandler;
-import com.intellij.openapi.editor.highlighter.HighlighterIterator;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.highlighter.HighlighterIterator;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 

@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.clojure.annotator;
 
-import com.intellij.lang.annotation.Annotator;
-import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotation;
+import com.intellij.lang.annotation.AnnotationHolder;
+import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
-import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.highlighter.ClojureSyntaxHighlighter;
-
-import javax.swing.text.DefaultHighlighter;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 
 /**
  * @author ilyas

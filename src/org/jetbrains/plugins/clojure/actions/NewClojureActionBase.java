@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.clojure.actions;
 
-import com.intellij.ide.actions.CreateElementActionBase;
+import com.intellij.CommonBundle;
 import com.intellij.ide.IdeView;
-import com.intellij.psi.*;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.ide.actions.CreateElementActionBase;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.psi.*;
 import com.intellij.util.IncorrectOperationException;
-import com.intellij.CommonBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.utils.ClojureUtils;
