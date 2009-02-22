@@ -34,36 +34,37 @@ public interface ClojureTokenTypes {
   IElementType SHARP = new ClojureElementType("#");
   IElementType UP = new ClojureElementType("^");
   IElementType SHARPUP = new ClojureElementType("#^");
-  IElementType SHARP_CURLY = new ClojureElementType("#{");
   IElementType TILDA = new ClojureElementType("~");
   IElementType AT = new ClojureElementType("@");
   IElementType TILDAAT = new ClojureElementType("~@");
-  IElementType PERCENT = new ClojureElementType("%");
   IElementType QUOTE = new ClojureElementType("'");
   IElementType BACKQUOTE = new ClojureElementType("`");
-
   // Comments
   IElementType LINE_COMMENT = new ClojureElementType("line comment");
-  TokenSet COMMENTS = TokenSet.create(LINE_COMMENT);
 
+  TokenSet COMMENTS = TokenSet.create(LINE_COMMENT);
   // Literals
   IElementType STRING_LITERAL = new ClojureElementType("string literal");
+
   IElementType WRONG_STRING_LITERAL = new ClojureElementType("wrong string literal");
   IElementType INTEGER_LITERAL = new ClojureElementType("numeric literal");
   IElementType FLOAT_LITERAL = new ClojureElementType("numeric literal");
   IElementType CHAR_LITERAL = new ClojureElementType("character literal");
-
   IElementType NIL = new ClojureElementType("nil");
+
   IElementType TRUE = new ClojureElementType("true");
   IElementType FALSE = new ClojureElementType("false");
   TokenSet BOOLEAN_LITERAL = TokenSet.create(TRUE, FALSE, NIL);
-
   TokenSet LITERALS = TokenSet.create(STRING_LITERAL, INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL, TRUE, FALSE, NIL, WRONG_STRING_LITERAL);
 
   TokenSet READABLE_TEXT = TokenSet.create(STRING_LITERAL, LINE_COMMENT, WRONG_STRING_LITERAL);
 
-  IElementType SYMBOL = new ClojureElementType("symbol"); // foo
   IElementType COLON_SYMBOL = new ClojureElementType("key");  // :foo
+  // Symbol parts
+  IElementType symATOM = new ClojureElementType("atom"); // foo
+  IElementType symDOT = new ClojureElementType("dot"); // foo
+  IElementType symNS_SEP = new ClojureElementType("ns-sep"); // foo
+  IElementType symIMPLICIT_ARG = new ClojureElementType("implicit function argument");
 
   // Control characters
   IElementType EOL = new ClojureElementType("end of line");
@@ -72,6 +73,11 @@ public interface ClojureTokenTypes {
   IElementType COMMA = new ClojureElementType(",");
   IElementType BAD_CHARACTER = TokenType.BAD_CHARACTER;
 
+
+  // Useful token sets
   TokenSet WHITESPACE_SET = TokenSet.create(EOL, EOF, WHITESPACE, COMMA);
   TokenSet STRINGS = TokenSet.create(STRING_LITERAL, WRONG_STRING_LITERAL);
+  TokenSet symS = TokenSet.create(symATOM,  symDOT, symNS_SEP, symIMPLICIT_ARG);
+  TokenSet ATOMS = TokenSet.create(symATOM,  symDOT, symNS_SEP);
+  TokenSet SEPARATORS = TokenSet.create(symDOT, symNS_SEP);
 }

@@ -230,7 +230,6 @@ public class ParserTest extends TestCase {
     parseit("defn2");
   }
 
-  @Test
   public void testDefn3() {
     parseit("defn3");
   }
@@ -245,6 +244,26 @@ public class ParserTest extends TestCase {
 
   public void testString4() {
     parseit("str4");
+  }
+
+  public void testSym1() {
+    parseit("symbols/sym1");
+  }
+
+  public void testSym2() {
+    parseit("symbols/sym2");
+  }
+
+  public void testSym3() {
+    parseit("symbols/sym3");
+  }
+
+  public void testSym4() {
+    parseit("symbols/sym4");
+  }
+
+  public void testSym5() {
+    parseit("symbols/sym5");
   }
 
 }

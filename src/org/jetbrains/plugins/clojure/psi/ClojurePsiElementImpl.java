@@ -40,20 +40,4 @@ public class ClojurePsiElementImpl extends StubBasedPsiElementBase<StubElement> 
     return myName == null ? super.toString() : myName;
   }
 
-  protected ClojurePsiElementImpl getDefinition(String symbol) {
-    for (PsiElement prev = getPrevSibling(); prev != null; prev = prev.getPrevSibling()) {
-      if (prev instanceof ClojurePsiElementImpl) {
-        System.out.println(symbol + " " + prev);
-        ClojurePsiElementImpl def = ((ClojurePsiElementImpl) prev).getDefinition(symbol);
-        if (def != null)
-          return def;
-      }
-    }
-    PsiElement parent = getParent();
-    if (parent instanceof ClojurePsiElementImpl) {
-      return ((ClojurePsiElementImpl) parent).getDefinition(symbol);
-    }
-    return null;
-  }
-
 }

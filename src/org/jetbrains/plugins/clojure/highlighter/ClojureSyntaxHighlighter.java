@@ -68,9 +68,7 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
       ClojureTokenTypes.RIGHT_CURLY
   );
 
-  public static final TokenSet sATOMS = TokenSet.create(
-      ClojureTokenTypes.SYMBOL
-  );
+  public static final TokenSet sATOMS = symS;
 
   public static final TokenSet sKEYS = TokenSet.create(
       ClojureTokenTypes.COLON_SYMBOL
@@ -89,7 +87,7 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   @NonNls
   static final String LINE_COMMENT_ID = "Line comment";
   @NonNls
-  static final String KEY_ID = "Key";
+  static final String KEY_ID = "Keyword";
   @NonNls
   static final String ATOM_ID = "Atom";
   @NonNls
@@ -103,7 +101,7 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   @NonNls
   static final String LITERAL_ID = "Literal";
   @NonNls
-  static final String CHAR_ID = "Char";
+  static final String CHAR_ID = "Character";
 
   public static final TextAttributes UNTYPED_ACCESS_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
   public static final TextAttributes KEYWORD_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();

@@ -69,6 +69,18 @@ mWS = " " | \t | \f | {mNL}                       // Whitespaces
 mCOMMA = ","
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////      integers and floats     /////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+mDIGIT = [0-9]
+
+// Integer
+mINTEGER = {mDIGIT}+
+
+//Float
+mFLOAT = {mDIGIT}+ "." {mDIGIT}+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Parens, Squares, Curleys, Quotes /////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -84,8 +96,7 @@ mBACKQUOTE = "`"
 mSHARP = "#"
 mSHARPUP = {mSHARP} {mUP}
 mUP = "^"
-mSHARP_CURLY = "#{"
-mPERCENT = "%"
+mIMPLICIT_ARG = "%" | "%"{mDIGIT}+ | "%""&"
 mTILDA = "~"
 mAT = "@"
 mTILDAAT = {mTILDA} {mAT}
@@ -116,18 +127,6 @@ mCHAR = \\ [^\r\n]
 mLINE_COMMENT = ";" [^\r\n]*
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////      integers and floats     /////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-mDIGIT = [0-9]
-
-// Integer
-mINTEGER = {mDIGIT}+
-
-//Float
-mFLOAT = {mDIGIT}+ "." {mDIGIT}+
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -135,8 +134,11 @@ mLETTER = [A-Z] | [a-z]
 mSLASH_LETTER = \\ ({mLETTER} | .)
 
 mOTHER = "_" | "-" | "*" | "." | "+" | "=" | "&" | "<" | ">" | "$" | "/" | "?" | "!"
+mNoDigit = ({mLETTER} | {mOTHER})
 
-mNoDigit = ({mLETTER} | {mOTHER} | {mSLASH_LETTER})
+mOTHER_REDUCED = "_" | "-" | "*" | "+" | "=" | "&" | "<" | ">" | "$" | "?" | "!"
+mNoDigit1 = ({mLETTER} | {mOTHER_REDUCED})
+
 mIDENT = {mNoDigit} ({mNoDigit} | {mDIGIT})* "#"?
 mKEY = ":" {mIDENT}
 
@@ -152,7 +154,17 @@ mFALSE = "false"
 ////////////////////  states ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+%xstate SYMBOL
+
 %%
+<SYMBOL> {
+  "."                                       {  return symDOT; }
+  "/"                                       {  return symNS_SEP; }
+  ({mNoDigit1} | {mDIGIT} | ":")+           {  return symATOM; }
+  (({mNoDigit1} | {mDIGIT} | ":")+)? "#"    {  yybegin(YYINITIAL); return symATOM; }
+  [^]                                       {  yypushback(yytext().length()); yybegin(YYINITIAL); }
+}
+
 <YYINITIAL>{
 
   {mLINE_COMMENT}                           {  return LINE_COMMENT; }
@@ -167,17 +179,20 @@ mFALSE = "false"
 
   {mINTEGER}                                {  return INTEGER_LITERAL; }
   {mFLOAT}                                  {  return FLOAT_LITERAL; }
-  {mIDENT}                                  {  return SYMBOL; }
+
+  // Reserved symbols
+  "/"                                       {  return symATOM; }
+  "."{mIDENT} | {mIDENT}"."                 {  return symATOM; }
+  {mIDENT}                                  {  yypushback(yytext().length()); yybegin(SYMBOL); }
   {mKEY}                                    {  return COLON_SYMBOL; }
 
 
   {mQUOTE}                                  {  return QUOTE; }
   {mBACKQUOTE}                              {  return BACKQUOTE; }
   {mSHARPUP}                                {  return SHARPUP; }
-  {mSHARP_CURLY }                           {  return SHARP_CURLY; }
   {mSHARP}                                  {  return SHARP; }
   {mUP}                                     {  return UP; }
-  {mPERCENT}                                {  return PERCENT; }
+  {mIMPLICIT_ARG}                           {  return symIMPLICIT_ARG; }
   {mTILDA}                                  {  return TILDA; }
   {mAT}                                     {  return AT; }
   {mTILDAAT}                                {  return TILDAAT; }

@@ -4,11 +4,11 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
-import static org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes.*;
-import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
-import org.jetbrains.plugins.clojure.parser.ClojureSpecialFormTokens;
-import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
+import org.jetbrains.plugins.clojure.parser.util.ParserUtils;
 
 
 /**
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
+public class ClojureParser implements PsiParser, ClojureSpecialFormTokens, ClojureTokenTypes {
 
   @NotNull
   public ASTNode parse(IElementType root, PsiBuilder builder) {
@@ -59,11 +59,11 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
     if (builder.getTokenType() != LEFT_PAREN) internalError(ClojureBundle.message("expected.lparen"));
     PsiBuilder.Marker marker = markAndAdvance(builder);
     final String tokenText = builder.getTokenText();
-    if (builder.getTokenType() == SYMBOL && tDEF.equals(tokenText)) {
+    if (builder.getTokenType() == symATOM && tDEF.equals(tokenText)) {
       parseDef(builder, marker);
-    } else if (builder.getTokenType() == SYMBOL && tDEFN.equals(tokenText)) {
+    } else if (builder.getTokenType() == symATOM && tDEFN.equals(tokenText)) {
       parseDefn(builder, marker);
-    } else if (builder.getTokenType() == SYMBOL && tDEFN_DASH.equals(tokenText)) {
+    } else if (builder.getTokenType() == symATOM && tDEFN_DASH.equals(tokenText)) {
       parseDefnDash(builder, marker);
     } else {
       parseExpressions(RIGHT_PAREN, builder);
@@ -83,12 +83,12 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
       parseQuotedForm(builder);
     } else if (BACKQUOTE == token) {
       parseBackQuote(builder);
+    } else if (ParserUtils.lookAhead(builder, SHARP, LEFT_CURLY)) {
+      parseSet(builder);
     } else if (SHARP == token) {
       parseSharp(builder);
     } else if (UP == token) {
       parseUp(builder);
-    } else if (SHARP_CURLY == token) {
-      parseSet(builder);
     } else if (SHARPUP == token) {
       parseMetadata(builder);
     } else if (TILDA == token) {
@@ -97,12 +97,10 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
       parseAt(builder);
     } else if (TILDAAT == token) {
       parseTildaAt(builder);
-    } else if (SYMBOL == token) {
-      parseSymbol(builder);
-    } else if (PERCENT == token) {
+    } else if (symS.contains(token)) {
       parseSymbol(builder);
     } else if (COLON_SYMBOL == token) {
-      parseKey(builder);
+      parseKeyword(builder);
 
     } else if (LITERALS.contains(token)) {
       parseLiteral(builder);
@@ -153,7 +151,39 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
    * @param builder
    */
   private void parseSymbol(PsiBuilder builder) {
-    markAndAdvance(builder, VARIABLE);
+    final PsiBuilder.Marker marker = builder.mark();
+    //parse implicit
+    if (builder.getTokenType() == symIMPLICIT_ARG) {
+      builder.advanceLexer();
+      marker.done(IMPLICIT_ARG);
+      return;
+    }
+    builder.advanceLexer(); // eat atom
+    if (SEPARATORS.contains(builder.getTokenType())) {
+      final PsiBuilder.Marker pred = marker.precede();
+      marker.done(SYMBOL);
+      parseSymbol1(builder, pred);
+    } else {
+      marker.done(SYMBOL);
+    }
+  }
+
+  private void parseSymbol1(PsiBuilder builder, PsiBuilder.Marker marker) {
+    if (SEPARATORS.contains(builder.getTokenType())) {
+      builder.advanceLexer(); //eat separator
+      if (builder.getTokenType() == symATOM) {
+        builder.advanceLexer(); //eat atom
+      }
+      if (SEPARATORS.contains(builder.getTokenType())) {
+        final PsiBuilder.Marker pred = marker.precede();
+        marker.done(SYMBOL);
+        parseSymbol1(builder, pred);
+      } else {
+        marker.done(SYMBOL);
+      }
+    } else {
+      marker.drop();
+    }
   }
 
   /**
@@ -162,8 +192,8 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
    *
    * @param builder
    */
-  private void parseKey(PsiBuilder builder) {
-    markAndAdvance(builder, KEY);
+  private void parseKeyword(PsiBuilder builder) {
+    markAndAdvance(builder, KEYWORD);
   }
 
   /**
@@ -220,8 +250,13 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
   }
 
   private void parseSet(PsiBuilder builder) {
-    if (builder.getTokenType() != SHARP_CURLY) internalError(ClojureBundle.message("expected.sharp.lcurly"));
-    PsiBuilder.Marker marker = markAndAdvance(builder);
+    if (!ParserUtils.lookAhead(builder, SHARP, LEFT_CURLY)) {
+      internalError(ClojureBundle.message("expected.sharp.lcurly"));
+    }
+    PsiBuilder.Marker marker = builder.mark();
+    builder.advanceLexer();
+    assert builder.getTokenType() != null;
+    builder.advanceLexer();
     for (IElementType token = builder.getTokenType(); token != RIGHT_CURLY && token != null; token = builder.getTokenType()) {
       parseExpression(builder); //entry
     }
@@ -337,11 +372,11 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
   private void parseDef(PsiBuilder builder, PsiBuilder.Marker marker) {
-    if (!tDEF.equals(builder.getTokenText()) || builder.getTokenType() != SYMBOL) {
+    if (!tDEF.equals(builder.getTokenText()) || builder.getTokenType() != symATOM) {
       internalError(ClojureBundle.message("expected.element"));
     }
 
-    advanceLexerOrEOF(builder);
+    parseSymbol(builder);
     for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
       parseExpression(builder);
     }
@@ -359,11 +394,11 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
   private void parseDefn(PsiBuilder builder, PsiBuilder.Marker marker) {
-    if (builder.getTokenType() != SYMBOL || !ClojureSpecialFormTokens.tDEFN.equals(builder.getTokenText())) {
+    if (builder.getTokenType() != symATOM || !ClojureSpecialFormTokens.tDEFN.equals(builder.getTokenText())) {
       internalError(ClojureBundle.message("expected.defn"));
     }
 
-    advanceLexerOrEOF(builder);
+    parseSymbol(builder);
     for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
       parseExpression(builder);
     }
@@ -381,9 +416,10 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
   private void parseDefnDash(PsiBuilder builder, PsiBuilder.Marker marker) {
-    if (builder.getTokenType() != SYMBOL || !tDEFN_DASH.equals(builder.getTokenText()))
+    if (builder.getTokenType() != symATOM || !tDEFN_DASH.equals(builder.getTokenText()))
       internalError(ClojureBundle.message("expected.defndash"));
-    advanceLexerOrEOF(builder);
+
+    parseSymbol(builder);
     for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
       parseExpression(builder);
     }

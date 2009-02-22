@@ -36,8 +36,9 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
   final IElementType DEF = new ClojureElementType("element");
 
   final IElementType LITERAL = new ClojureElementType("literal");
-  final IElementType VARIABLE = new ClojureElementType("variable");
-  final IElementType KEY = new ClojureElementType("key definition");
+  final IElementType SYMBOL = new ClojureElementType("symbol");
+  final IElementType IMPLICIT_ARG = new ClojureElementType("function argument");
+  final IElementType KEYWORD = new ClojureElementType("key definition");
 
   final IElementType BINDINGS = new ClojureElementType("bindings");
   final IElementType REST = new ClojureElementType("rest");
@@ -60,5 +61,5 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
   TokenSet BRACES = TokenSet.create(LEFT_CURLY, LEFT_PAREN, LEFT_SQUARE,
       RIGHT_CURLY, RIGHT_PAREN, RIGHT_SQUARE);
 
-  TokenSet MODIFIERS = TokenSet.create(SHARP, UP, SHARPUP, SHARP_CURLY, TILDA, AT, TILDAAT, PERCENT, QUOTE, BACKQUOTE);
+  TokenSet MODIFIERS = TokenSet.create(SHARP, UP, SHARPUP, TILDA, AT, TILDAAT, QUOTE, BACKQUOTE);
 }

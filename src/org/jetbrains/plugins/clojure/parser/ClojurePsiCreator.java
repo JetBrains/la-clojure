@@ -4,9 +4,11 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode;
 import org.jetbrains.plugins.clojure.psi.impl.*;
-import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefnDash;
-import org.jetbrains.plugins.clojure.psi.impl.defs.ClDef;
-import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefn;
+import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.impl.symbols.ClImplicitArgument;
+import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefnDashImpl;
+import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefImpl;
+import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefnImpl;
 
 /**
  * @author ilyas
@@ -16,7 +18,7 @@ public class ClojurePsiCreator {
   public static PsiElement createElement(ASTNode node) {
     final IElementType elementType = node.getElementType();
 
-    if (elementType == ClojureElementTypes.LIST) return new ClList(node);
+    if (elementType == ClojureElementTypes.LIST) return new ClListImpl(node);
     if (elementType == ClojureElementTypes.VECTOR) return new ClVector(node);
     if (elementType == ClojureElementTypes.MAP) return new ClMap(node);
     if (elementType == ClojureElementTypes.SET) return new ClMap(node);
@@ -27,12 +29,14 @@ public class ClojurePsiCreator {
     if (elementType == ClojureElementTypes.META_FORM) return new ClMetaForm(node);
     if (elementType == ClojureElementTypes.METADATA) return new ClMetadata(node);
 
-    if (elementType == ClojureElementTypes.VARIABLE) return new ClSymbol(node);
-    if (elementType == ClojureElementTypes.DEFN) return new ClDefn(node);
-    if (elementType == ClojureElementTypes.DEFNDASH) return new ClDefnDash(node);
-    if (elementType == ClojureElementTypes.DEF) return new ClDef(node);
+    if (elementType == ClojureElementTypes.SYMBOL) return new ClSymbol(node);
+    if (elementType == ClojureElementTypes.IMPLICIT_ARG) return new ClImplicitArgument(node);
+    
+    if (elementType == ClojureElementTypes.DEFN) return new ClDefnImpl(node);
+    if (elementType == ClojureElementTypes.DEFNDASH) return new ClDefnDashImpl(node);
+    if (elementType == ClojureElementTypes.DEF) return new ClDefImpl(node);
     if (elementType == ClojureElementTypes.BINDINGS) return new ClBindings(node);
-    if (elementType == ClojureElementTypes.KEY) return new ClKey(node);
+    if (elementType == ClojureElementTypes.KEYWORD) return new ClKey(node);
     if (elementType == ClojureElementTypes.LITERAL) return new ClLiteral(node);
     if (elementType == ClojureElementTypes.BACKQUOTED_EXPRESSION) return new ClBackQuotedExpression(node);
     if (elementType == ClojureElementTypes.SHARP_EXPRESSION) return new ClSharp(node);

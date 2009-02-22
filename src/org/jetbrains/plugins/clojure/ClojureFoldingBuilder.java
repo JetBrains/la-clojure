@@ -4,9 +4,12 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
-import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
 import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +33,13 @@ public class ClojureFoldingBuilder implements FoldingBuilder {
 
   public String getPlaceholderText(ASTNode node) {
 
-    if (node.getElementType() == DEF) {
-      return "(def " + ((ClojurePsiElementImpl) (node.getPsi())).getName() + "  ...)";
-    } else if (node.getElementType() == DEFN) {
-      return "(defn " + ((ClojurePsiElementImpl) (node.getPsi())).getName() + "  ...)";
-    } else if (node.getElementType() == DEFNDASH) {
-      return "(defn- " + ((ClojurePsiElementImpl) (node.getPsi())).getName() + "  ...)";
-    } 
-    throw new Error("Unexpected node: " + node.getElementType() + "-->" + node.getText());
+    final IElementType type = node.getElementType();
+    final PsiElement psi = node.getPsi();
+    if (psi instanceof ClList) {
+      final String text = ((ClList) psi).getPresentableText();
+      return "(" + (text != null ? text + " " : "") + "...)";
+    }
+    throw new Error("Unexpected node: " + type + "-->" + node.getText());
   }
 
   public boolean isCollapsedByDefault(ASTNode node) {
@@ -75,9 +77,18 @@ public class ClojureFoldingBuilder implements FoldingBuilder {
   }
 
   private boolean isFoldableNode(ASTNode node) {
-    return (node.getElementType() == DEF
-        || node.getElementType() == DEFN
-        || node.getElementType() == DEFNDASH) &&
+
+    final PsiElement element = node.getPsi();
+    final IElementType type = node.getElementType();
+    if (type == LIST && element.getParent() instanceof ClojureFile &&
+        node.getText().contains("\n") &&
+        element instanceof ClList) {
+      return true;
+    }
+
+    return (type == DEF
+        || type == DEFN
+        || type == DEFNDASH) &&
         node.getText().contains("\n")
         ;
   }

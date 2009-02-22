@@ -8,6 +8,6 @@ import com.intellij.lang.ASTNode;
 */
 public class ClKey extends ClojurePsiElementImpl {
   public ClKey(ASTNode node) {
-    super(node);
+    super(node, "ClKeyword");
   }
 }

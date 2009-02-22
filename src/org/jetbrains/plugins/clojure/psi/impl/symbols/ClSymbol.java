@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.clojure.psi.impl;
+package org.jetbrains.plugins.clojure.psi.impl.symbols;
 
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
 import org.jetbrains.annotations.Nullable;
@@ -14,11 +14,12 @@ import com.intellij.util.IncorrectOperationException;
 */
 public class ClSymbol extends ClojurePsiElementImpl {
   public ClSymbol(ASTNode node) {
-    super(node, "ClSymbol");
+    super(node);
   }
 
-  public PsiElement getDefinition() {
-    return getDefinition(getNode().getText());
+  @Override
+  public String toString() {
+    return "ClSymbol";
   }
 
 }

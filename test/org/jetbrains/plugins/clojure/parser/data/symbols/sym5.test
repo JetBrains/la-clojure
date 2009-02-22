@@ -1,0 +1,7 @@
+(ns clojure.inspector
+    (:import
+     (java.awt BorderLayout)
+     (java.awt.event ActionEvent ActionListener)
+     (javax.swing.tree TreeModel)
+     (javax.swing.table TableModel AbstractTableModel)
+     (javax.swing JPanel JTree JTable JScrollPane JFrame JToolBar JButton SwingUtilities)))
