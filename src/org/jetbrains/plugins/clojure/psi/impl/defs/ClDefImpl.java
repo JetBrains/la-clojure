@@ -5,8 +5,8 @@ import org.jetbrains.plugins.clojure.psi.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.impl.ClListImpl;
 import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbol;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.lang.ASTNode;
-import com.sun.istack.internal.Nullable;
 
 /**
  * @author ilyas
