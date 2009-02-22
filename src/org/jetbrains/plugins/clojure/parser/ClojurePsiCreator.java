@@ -19,9 +19,9 @@ public class ClojurePsiCreator {
     final IElementType elementType = node.getElementType();
 
     if (elementType == ClojureElementTypes.LIST) return new ClListImpl(node);
-    if (elementType == ClojureElementTypes.VECTOR) return new ClVector(node);
-    if (elementType == ClojureElementTypes.MAP) return new ClMap(node);
-    if (elementType == ClojureElementTypes.SET) return new ClMap(node);
+    if (elementType == ClojureElementTypes.VECTOR) return new ClVectorImpl(node);
+    if (elementType == ClojureElementTypes.MAP) return new ClMapImpl(node);
+    if (elementType == ClojureElementTypes.SET) return new ClSetImpl(node);
 
     if (elementType == ClojureElementTypes.MAP_ENTRY) return new ClMapEntry(node);
 
