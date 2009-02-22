@@ -243,10 +243,6 @@ public class ParserTest extends TestCase {
     parseit("uncompl");
   }
 
-  public void testString3() {
-    parseit("multiline");
-  }
-
   public void testString4() {
     parseit("str4");
   }
