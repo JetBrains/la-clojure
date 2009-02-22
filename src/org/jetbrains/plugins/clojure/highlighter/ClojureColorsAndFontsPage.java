@@ -56,6 +56,7 @@ public class ClojureColorsAndFontsPage implements ColorSettingsPage {
           new AttributesDescriptor(ClojureSyntaxHighlighter.BAD_CHARACTER_ID, ClojureSyntaxHighlighter.BAD_CHARACTER),
           new AttributesDescriptor(ClojureSyntaxHighlighter.CHAR_ID, ClojureSyntaxHighlighter.CHAR),
           new AttributesDescriptor(ClojureSyntaxHighlighter.LITERAL_ID, ClojureSyntaxHighlighter.LITERAL),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.DEF_ID, ClojureSyntaxHighlighter.DEFINITION),
       };
 
   @NotNull
@@ -74,7 +75,7 @@ public class ClojureColorsAndFontsPage implements ColorSettingsPage {
     return "; Example from Clojure Special Forms http://clojure.org/special_forms\n" +
         "; \n" +
         "\n" +
-        "(defn\n" +
+        "(<def>defn</def>\n" +
         "#^{:doc \"mymax [xs+] gets the maximum value in xs using > \"\n" +
         "   :test (fn []\n" +
         "             (assert (= 42  (max 2 42 5 4))))\n" +
@@ -83,12 +84,13 @@ public class ClojureColorsAndFontsPage implements ColorSettingsPage {
         "  ([x] x)\n" +
         "  ([x y] (if (> x y) x y))\n" +
         "  ([x y & nil]\n" +
-        "   (reduce mymax (mymax x y) more {\\tab \"  \"})))";
+        "   (<def>reduce</def> mymax (mymax x y) more {\\tab \"  \"})))";
   }
 
   @Nullable
   public Map<String, TextAttributesKey> getAdditionalHighlightingTagToDescriptorMap() {
     Map<String, TextAttributesKey> map = new HashMap<String, TextAttributesKey>();
+    map.put("def", ClojureSyntaxHighlighter.DEFINITION);
     return map;
   }
 }

@@ -6,6 +6,7 @@ import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbol;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.sun.istack.internal.Nullable;
 
 /**
@@ -25,6 +26,18 @@ public class ClListImpl extends ClojurePsiElementImpl implements ClList {
     final String text1 = first.getText();
     if (next == null) return text1;
     else return text1 + " " + next.getText();
+  }
+
+  @Nullable
+  public ClSymbol getFirstSymbol() {
+    PsiElement child = getFirstChild();
+    while (child instanceof LeafPsiElement) {
+      child = child.getNextSibling();
+    }
+    if (child instanceof ClSymbol) {
+      return (ClSymbol) child;
+    }
+    return null;
   }
   
 }

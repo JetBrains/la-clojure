@@ -89,6 +89,8 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   @NonNls
   static final String KEY_ID = "Keyword";
   @NonNls
+  static final String DEF_ID = "First symbol in list";
+  @NonNls
   static final String ATOM_ID = "Atom";
   @NonNls
   static final String NUMBER_ID = "Number";
@@ -126,6 +128,9 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
       CodeInsightColors.UNMATCHED_BRACE_ATTRIBUTES.getDefaultAttributes());
 
   public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID, KEYWORD_ATTRIB);
+
+  public static TextAttributesKey DEFINITION = TextAttributesKey.createTextAttributesKey(DEF_ID,
+      SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
 
   public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID, ATOM_ATTRIB);
 
