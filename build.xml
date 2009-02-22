@@ -62,16 +62,14 @@
     <delete dir="build" includes="**/*"/>
   </target>
 
-  <taskdef name="jflex" classname="JFlex.anttask.JFlexTask">
-    <classpath location="${project.lib}/JFlex.jar"/>
-  </taskdef>
-
   <target name="make.lexer">
-    <jflex skeleton="${project.lib}/idea-flex.skeleton"
-           nobak="true"
-           file="src/org/jetbrains/plugins/clojure/lexer/clojure.flex"
-           destdir="src"
-           charat="true"/>
+    <java jar="${project.lib}/JFlex.jar" output="jflex.log" fork="true" maxmemory="512m">
+      <arg value="--charat"/>
+      <arg value="-skel"/>
+      <arg value="${project.lib}/idea-flex.skeleton"/>
+      <arg value="src/org/jetbrains/plugins/clojure/lexer/clojure.flex"/>
+    </java>
+
   </target>
 
   <target name="make.plugin" depends="make.lexer">

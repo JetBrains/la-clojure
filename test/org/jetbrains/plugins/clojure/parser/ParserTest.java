@@ -145,7 +145,6 @@ public class ParserTest extends TestCase {
     parseit("string");
   }
 
-  @Test
   public void testMultilineString() {
     parseit("multiline_string");
   }
@@ -236,13 +235,20 @@ public class ParserTest extends TestCase {
     parseit("defn3");
   }
 
-  @Test
   public void testString1() {
     parseit("str1");
   }
 
   public void testString2() {
     parseit("uncompl");
+  }
+
+  public void testString3() {
+    parseit("multiline");
+  }
+
+  public void testString4() {
+    parseit("str4");
   }
 
 }

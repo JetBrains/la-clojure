@@ -8,6 +8,6 @@ import com.intellij.lang.ASTNode;
 */
 public class ClLiteral extends ClojurePsiElementImpl {
   public ClLiteral(ASTNode node) {
-    super(node);
+    super(node, "ClLiteral");
   }
 }
