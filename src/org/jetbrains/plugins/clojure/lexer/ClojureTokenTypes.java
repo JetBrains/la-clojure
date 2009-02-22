@@ -48,6 +48,7 @@ public interface ClojureTokenTypes {
 
   // Literals
   IElementType STRING_LITERAL = new ClojureElementType("string literal");
+  IElementType WRONG_STRING_LITERAL = new ClojureElementType("wrong string literal");
   IElementType INTEGER_LITERAL = new ClojureElementType("numeric literal");
   IElementType FLOAT_LITERAL = new ClojureElementType("numeric literal");
   IElementType CHAR_LITERAL = new ClojureElementType("character literal");
@@ -56,9 +57,9 @@ public interface ClojureTokenTypes {
   IElementType NIL = new ClojureElementType("nil");
   TokenSet BOOLEAN_LITERAL = TokenSet.create(T, NIL);
 
-  TokenSet LITERALS = TokenSet.create(STRING_LITERAL, INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL, T, NIL);
+  TokenSet LITERALS = TokenSet.create(STRING_LITERAL, INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL, T, NIL, WRONG_STRING_LITERAL);
 
-  TokenSet READABLE_TEXT = TokenSet.create(STRING_LITERAL, LINE_COMMENT);
+  TokenSet READABLE_TEXT = TokenSet.create(STRING_LITERAL, LINE_COMMENT, WRONG_STRING_LITERAL);
 
   IElementType SYMBOL = new ClojureElementType("symbol"); // foo
   IElementType COLON_SYMBOL = new ClojureElementType("key");  // :foo
@@ -71,5 +72,5 @@ public interface ClojureTokenTypes {
   IElementType BAD_CHARACTER = TokenType.BAD_CHARACTER;
 
   TokenSet WHITESPACE_SET = TokenSet.create(EOL, EOF, WHITESPACE, COMMA);
-  TokenSet STRINGS = TokenSet.create(STRING_LITERAL);
+  TokenSet STRINGS = TokenSet.create(STRING_LITERAL, WRONG_STRING_LITERAL);
 }

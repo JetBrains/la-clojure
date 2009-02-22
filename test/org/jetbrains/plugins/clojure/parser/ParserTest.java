@@ -236,4 +236,13 @@ public class ParserTest extends TestCase {
     parseit("defn3");
   }
 
+  @Test
+  public void testString1() {
+    parseit("str1");
+  }
+
+  public void testString2() {
+    parseit("uncompl");
+  }
+
 }

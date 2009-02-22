@@ -52,6 +52,25 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
     }
   }
 
+  /*
+  Parse global function, variable or simple list
+   */
+  private void parseTopLevelList(PsiBuilder builder) {
+    if (builder.getTokenType() != LEFT_PAREN) internalError(ClojureBundle.message("expected.lparen"));
+    PsiBuilder.Marker marker = markAndAdvance(builder);
+    final String tokenText = builder.getTokenText();
+    if (builder.getTokenType() == SYMBOL && tDEF.equals(tokenText)) {
+      parseDef(builder, marker);
+    } else if (builder.getTokenType() == SYMBOL && tDEFN.equals(tokenText)) {
+      parseDefn(builder, marker);
+    } else if (builder.getTokenType() == SYMBOL && tDEFN_DASH.equals(tokenText)) {
+      parseDefnDash(builder, marker);
+    } else {
+      parseExpressions(RIGHT_PAREN, builder);
+      marker.done(LIST);
+    }
+  }
+
   private void parseExpression(PsiBuilder builder) {
     IElementType token = builder.getTokenType();
     if (LEFT_PAREN == token) {
@@ -92,31 +111,19 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
     }
   }
 
-  private void parseTopLevelList(PsiBuilder builder) {
-    if (builder.getTokenType() != LEFT_PAREN) internalError(ClojureBundle.message("expected.lparen"));
-    PsiBuilder.Marker marker = markAndAdvance(builder);
-    if (builder.getTokenType() == SYMBOL && tDEF.equals(builder.getTokenText())) {
-      parseDef(builder, marker);
-    } else if (builder.getTokenType() == SYMBOL && tDEFN.equals(builder.getTokenText())) {
-      parseDefn(builder, marker);
-    } else if (builder.getTokenType() == SYMBOL && tDEFN_DASH.equals(builder.getTokenText())) {
-      parseDefnDash(builder, marker);
-    } else {
-      parseExpressions(RIGHT_PAREN, builder);
-      marker.done(TOPLIST);
-    }
-  }
-
   private void parseExpressions(IElementType endToken, PsiBuilder builder) {
     for (IElementType token = builder.getTokenType(); token != endToken && token != null; token = builder.getTokenType()) {
       parseExpression(builder);
     }
-    builder.advanceLexer();
+    if (builder.getTokenType() != endToken) {
+      builder.error(ClojureBundle.message("expected.token", endToken.toString()));
+    } else {
+      builder.advanceLexer();
+    }
   }
 
   private void syntaxError(PsiBuilder builder, String msg) {
     String e = msg + ": " + builder.getTokenText();
-    //System.out.println(e);
     builder.error(e);
     advanceLexerOrEOF(builder);
   }
@@ -166,7 +173,14 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
    * @param builder
    */
   private void parseLiteral(PsiBuilder builder) {
-    markAndAdvance(builder, LITERAL);
+    PsiBuilder.Marker marker = builder.mark();
+    final boolean isWrong = builder.getTokenType() == WRONG_STRING_LITERAL;
+    builder.advanceLexer();
+    if (isWrong) {
+      marker.error(ClojureBundle.message("uncompleted.string.literal"));
+    } else {
+      marker.done(LITERAL);
+    }
   }
 
   /**
@@ -310,7 +324,11 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
       parseExpression(builder); // value
       entry.done(MAP_ENTRY);
     }
-    advanceLexerOrEOF(builder);
+    if (builder.getTokenType() != RIGHT_CURLY) {
+      builder.error(ClojureBundle.message("expected.token", RIGHT_CURLY.toString()));
+    } else {
+      advanceLexerOrEOF(builder);
+    }
     marker.done(MAP);
   }
 
@@ -327,7 +345,12 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
     for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
       parseExpression(builder);
     }
-    advanceLexerOrEOF(builder);
+
+    if (builder.getTokenType() != RIGHT_PAREN) {
+      builder.error(ClojureBundle.message("expected.token", RIGHT_PAREN.toString()));
+    } else {
+      advanceLexerOrEOF(builder);
+    }
     marker.done(ClojureElementTypes.DEF);
   }
 
@@ -344,7 +367,12 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
     for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
       parseExpression(builder);
     }
-    advanceLexerOrEOF(builder);
+
+    if (builder.getTokenType() != RIGHT_PAREN) {
+      builder.error(ClojureBundle.message("expected.token", RIGHT_PAREN.toString()));
+    } else {
+      advanceLexerOrEOF(builder);
+    }
     marker.done(ClojureElementTypes.DEFN);
   }
 
@@ -355,12 +383,15 @@ public class ClojureParser implements PsiParser, ClojureSpecialFormTokens {
   private void parseDefnDash(PsiBuilder builder, PsiBuilder.Marker marker) {
     if (builder.getTokenType() != SYMBOL || !tDEFN_DASH.equals(builder.getTokenText()))
       internalError(ClojureBundle.message("expected.defndash"));
-
     advanceLexerOrEOF(builder);
     for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
       parseExpression(builder);
     }
-    advanceLexerOrEOF(builder);
+    if (builder.getTokenType() != RIGHT_PAREN) {
+      builder.error(ClojureBundle.message("expected.token", RIGHT_PAREN.toString()));
+    } else {
+      advanceLexerOrEOF(builder);
+    }
     marker.done(DEFNDASH);
   }
 

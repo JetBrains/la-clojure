@@ -36,9 +36,7 @@ public class ClojureFoldingBuilder implements FoldingBuilder {
       return "(defn " + ((ClojurePsiElementImpl) (node.getPsi())).getName() + "  ...)";
     } else if (node.getElementType() == DEFNDASH) {
       return "(defn- " + ((ClojurePsiElementImpl) (node.getPsi())).getName() + "  ...)";
-    } else if (node.getElementType() == TOPLIST) {
-      return "(...)";
-    }
+    } 
     throw new Error("Unexpected node: " + node.getElementType() + "-->" + node.getText());
   }
 
@@ -77,11 +75,10 @@ public class ClojureFoldingBuilder implements FoldingBuilder {
   }
 
   private boolean isFoldableNode(ASTNode node) {
-    return (
-        (node.getElementType() == DEF)
-            || (node.getElementType() == DEFN)
-            || (node.getElementType() == DEFNDASH)
-            || (node.getElementType() == TOPLIST && node.getText().contains("\n")) 
-    );
+    return (node.getElementType() == DEF
+        || node.getElementType() == DEFN
+        || node.getElementType() == DEFNDASH) &&
+        node.getText().contains("\n")
+        ;
   }
 }

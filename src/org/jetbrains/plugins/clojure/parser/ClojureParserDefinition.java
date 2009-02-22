@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
-import org.jetbrains.plugins.clojure.file.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.impl.ClojureFileImpl;
 import org.jetbrains.plugins.clojure.lexer.ClojureFlexLexer;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.annotations.NotNull;
@@ -97,7 +97,7 @@ public class ClojureParserDefinition implements ParserDefinition {
   }
 
   public PsiFile createFile(FileViewProvider viewProvider) {
-    return new ClojureFile(viewProvider);
+    return new ClojureFileImpl(viewProvider);
   }
 }
 

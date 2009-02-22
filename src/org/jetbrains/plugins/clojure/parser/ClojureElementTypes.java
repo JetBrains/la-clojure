@@ -55,25 +55,10 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
   final IElementType TILDAAT_EXPRESSION = new ClojureElementType("tildaat expression");
 
 
-  TokenSet LIST_LIKE_FORMS = TokenSet.create(LIST,
-      TOPLIST,
-      VECTOR,
-      MAP,
-      SET);
+  TokenSet LIST_LIKE_FORMS = TokenSet.create(LIST, VECTOR, MAP, SET, DEF, DEFN, DEFNDASH);
 
   TokenSet BRACES = TokenSet.create(LEFT_CURLY, LEFT_PAREN, LEFT_SQUARE,
       RIGHT_CURLY, RIGHT_PAREN, RIGHT_SQUARE);
 
-  TokenSet MODIFIERS = TokenSet.create(
-      SHARP,
-      UP,
-      SHARPUP,
-      SHARP_CURLY,
-      TILDA,
-      AT,
-      TILDAAT,
-      PERCENT,
-      QUOTE,
-      BACKQUOTE
-  );
+  TokenSet MODIFIERS = TokenSet.create(SHARP, UP, SHARPUP, SHARP_CURLY, TILDA, AT, TILDAAT, PERCENT, QUOTE, BACKQUOTE);
 }

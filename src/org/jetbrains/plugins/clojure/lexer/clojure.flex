@@ -90,8 +90,9 @@ mTILDA = "~"
 mAT = "@"
 mTILDAAT = {mTILDA} {mAT}
 
-
-mSTRING = \" [^\"]* \"
+mSTRING_ESC = \\ n | \\ r | \\ t | \\ b | \\ f | "\\" "\\" | \\ "$" | \\ \" | \\ \'
+mSTRING = \" ({mSTRING_ESC }|[^\"])* \"
+mWRONG_STRING = \" ({mSTRING_ESC }|[^\"])*
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Comments ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,6 +171,7 @@ mNIL = "nil" | "NIL"
   {mRC}                                     {  return RIGHT_CURLY; }
 
   {mSTRING}                                 {  return STRING_LITERAL; }
+  {mWRONG_STRING }                          {  return WRONG_STRING_LITERAL; }
 
 }
 

@@ -1,44 +1,52 @@
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin>
 
-    <name>Clojure</name>
-    <id>org.intellij.clojure</id>
-    <description>Plugin for Clojure language support</description>
-    <version>0.01</version>
-    <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
-    <idea-version since-build="9100"/>
+  <name>Clojure</name>
+  <id>org.intellij.clojure</id>
+  <description>Plugin for Clojure language support</description>
+  <version>0.01</version>
+  <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains
+    Inc.
+  </vendor>
+  <idea-version since-build="9100"/>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
-        <fileTypeFactory implementation="org.jetbrains.plugins.clojure.file.ClojureFileTypeLoader"/>
-        <lang.braceMatcher language="Clojure" implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureBraceMatcher"/>
-        <syntaxHighlighter key="Clojure" implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureSyntaxHighlighter"/>
-        <colorSettingsPage implementation="org.jetbrains.plugins.clojure.highlighter.ClojureColorsAndFontsPage"/>
-        <lang.commenter language="Clojure" implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureCommenter"/>
-        <lang.parserDefinition language="Clojure" implementationClass="org.jetbrains.plugins.clojure.parser.ClojureParserDefinition"/>
-        <lang.foldingBuilder language="Clojure" implementationClass="org.jetbrains.plugins.clojure.ClojureFoldingBuilder"/>
-        <lang.formatter language="Clojure" implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
+  <extensions defaultExtensionNs="com.intellij">
+    <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
+    <fileTypeFactory implementation="org.jetbrains.plugins.clojure.file.ClojureFileTypeLoader"/>
+    <lang.braceMatcher language="Clojure"
+                       implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureBraceMatcher"/>
+    <syntaxHighlighter key="Clojure"
+                       implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureSyntaxHighlighter"/>
+    <colorSettingsPage implementation="org.jetbrains.plugins.clojure.highlighter.ClojureColorsAndFontsPage"/>
+    <lang.commenter language="Clojure"
+                    implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureCommenter"/>
+    <lang.parserDefinition language="Clojure"
+                           implementationClass="org.jetbrains.plugins.clojure.parser.ClojureParserDefinition"/>
+    <lang.foldingBuilder language="Clojure" implementationClass="org.jetbrains.plugins.clojure.ClojureFoldingBuilder"/>
+    <lang.formatter language="Clojure"
+                    implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
 
-        <configurationType implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationType"/>
-        <configurationProducer implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>
-        <fileTemplateGroup implementation="org.jetbrains.plugins.clojure.actions.ClojureTemplatesFactory"/>
-    </extensions>
+    <configurationType implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationType"/>
+    <configurationProducer implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>
+    <fileTemplateGroup implementation="org.jetbrains.plugins.clojure.actions.ClojureTemplatesFactory"/>
+    <fileTypeIndentOptionsProvider implementation="org.jetbrains.plugins.clojure.formatter.ClojureIndentOptionsProvider"/>
+  </extensions>
 
-    <application-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.clojure.ClojureLoader</implementation-class>
-        </component>
-    </application-components>
+  <application-components>
+    <component>
+      <implementation-class>org.jetbrains.plugins.clojure.ClojureLoader</implementation-class>
+    </component>
+  </application-components>
 
-    <project-components>
-    </project-components>
+  <project-components>
+  </project-components>
 
-    <actions>
-      <action id="Clojure.ClojureFile" class="org.jetbrains.plugins.clojure.actions.NewClojureFileAction"
-          text="Clojure File" description="Create new Clojure File">
-        <add-to-group group-id="NewGroup" anchor="last"/>
-      </action>
-    </actions>
+  <actions>
+    <action id="Clojure.ClojureFile" class="org.jetbrains.plugins.clojure.actions.NewClojureFileAction"
+            text="Clojure File" description="Create new Clojure File">
+      <add-to-group group-id="NewGroup" anchor="last"/>
+    </action>
+  </actions>
 
 
 </idea-plugin>

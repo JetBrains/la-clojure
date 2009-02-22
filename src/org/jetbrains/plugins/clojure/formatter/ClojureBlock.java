@@ -1,20 +1,20 @@
 package org.jetbrains.plugins.clojure.formatter;
 
 import com.intellij.formatting.*;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
+import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.impl.source.tree.ChameleonElement;
 import com.intellij.psi.tree.IChameleonElementType;
-import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
-import org.jetbrains.plugins.clojure.file.ClojureFile;
-import org.jetbrains.plugins.clojure.formatter.processors.ClojureSpacingProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.clojure.formatter.processors.ClojureSpacingProcessor;
+import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
 import java.util.List;
 

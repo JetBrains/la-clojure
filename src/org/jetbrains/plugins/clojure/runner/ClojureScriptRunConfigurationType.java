@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.clojure.runner;
 
-import com.intellij.execution.*;
+import com.intellij.execution.LocatableConfigurationType;
+import com.intellij.execution.Location;
+import com.intellij.execution.RunManager;
+import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.configurations.ConfigurationFactory;
-import com.intellij.execution.configurations.ConfigurationType;
 import static com.intellij.execution.configurations.ConfigurationTypeUtil.findConfigurationType;
 import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.execution.configurations.RunConfigurationModule;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.module.ModuleUtil;
-import org.jetbrains.plugins.clojure.ClojureIcons;
-import org.jetbrains.plugins.clojure.file.ClojureFile;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.ClojureIcons;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
 import javax.swing.*;
 

@@ -7,7 +7,9 @@ import com.intellij.lang.ASTNode;
  * @author ilyas
 */
 public class ClList extends ClojurePsiElementImpl {
+
   public ClList(ASTNode node) {
     super(node, "ClList");
   }
+  
 }

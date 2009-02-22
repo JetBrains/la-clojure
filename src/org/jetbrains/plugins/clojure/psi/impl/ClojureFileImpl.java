@@ -1,9 +1,11 @@
-package org.jetbrains.plugins.clojure.file;
+package org.jetbrains.plugins.clojure.psi.impl;
 
 import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.file.ClojureFileType;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
 /**
  * User: peter
@@ -19,14 +21,14 @@ import org.jetbrains.annotations.NotNull;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ClojureFile extends PsiFileBase {
+public class ClojureFileImpl extends PsiFileBase implements ClojureFile{
 
   @Override
   public String toString() {
     return "ClojureFile";
   }
 
-  public ClojureFile(FileViewProvider viewProvider) {
+  public ClojureFileImpl(FileViewProvider viewProvider) {
     super(viewProvider, ClojureFileType.CLOJURE_LANGUAGE);
   }
 

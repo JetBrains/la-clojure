@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.clojure.formatter.processors;
 
-import org.jetbrains.plugins.clojure.formatter.ClojureBlock;
-import org.jetbrains.plugins.clojure.file.ClojureFile;
-import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
-import com.intellij.lang.ASTNode;
 import com.intellij.formatting.Indent;
+import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.plugins.clojure.formatter.ClojureBlock;
+import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
 /**
  * @author ilyas

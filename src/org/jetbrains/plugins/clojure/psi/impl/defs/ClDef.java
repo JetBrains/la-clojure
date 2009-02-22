@@ -1,13 +1,15 @@
-package org.jetbrains.plugins.clojure.psi.impl;
+package org.jetbrains.plugins.clojure.psi.impl.defs;
 
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
+import org.jetbrains.plugins.clojure.psi.impl.ClList;
+import org.jetbrains.plugins.clojure.psi.impl.ClSymbol;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 
 /**
  * @author ilyas
 */
-public class ClDef extends ClojurePsiElementImpl {
+public class ClDef extends ClList {
 
   public ClDef(ASTNode node) {
     super(node);

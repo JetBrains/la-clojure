@@ -53,9 +53,7 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
       ClojureTokenTypes.BAD_CHARACTER
   );
 
-  static final TokenSet sSTRINGS = TokenSet.create(
-      ClojureTokenTypes.STRING_LITERAL
-  );
+  static final TokenSet sSTRINGS = ClojureTokenTypes.STRINGS;
 
   static final TokenSet sBRACES = TokenSet.create(
       ClojureTokenTypes.LEFT_PAREN,

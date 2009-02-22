@@ -6,7 +6,7 @@ import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
 import com.intellij.execution.junit.RuntimeConfigurationProducer;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import org.jetbrains.plugins.clojure.file.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
 /**
  * Created by IntelliJ IDEA.
