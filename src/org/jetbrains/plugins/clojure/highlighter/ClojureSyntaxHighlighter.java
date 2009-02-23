@@ -142,8 +142,7 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
     UNTYPED_ACCESS_ATTRIB.setEffectColor(Color.BLACK);
     UNTYPED_ACCESS_ATTRIB.setEffectType(EffectType.LINE_UNDERSCORE);
 
-    final Color violet = HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes().getForegroundColor();
-    KEYWORD_ATTRIB.setForegroundColor(violet);
+    KEYWORD_ATTRIB.setForegroundColor(HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes().getForegroundColor());
     KEYWORD_ATTRIB.setFontType(Font.BOLD);
 
     final Color deepBlue = SyntaxHighlighterColors.KEYWORD.getDefaultAttributes().getForegroundColor();
