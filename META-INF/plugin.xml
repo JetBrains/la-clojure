@@ -4,10 +4,9 @@
   <name>La Clojure</name>
   <id>org.intellij.clojure</id>
   <description>Plugin for Clojure language support</description>
+  <category>Custom Languages</category>
   <version>0.01</version>
-  <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains
-    Inc.
-  </vendor>
+  <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
   <idea-version since-build="9100"/>
 
   <extensions defaultExtensionNs="com.intellij">
