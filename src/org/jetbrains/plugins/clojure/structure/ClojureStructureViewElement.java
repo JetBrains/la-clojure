@@ -62,7 +62,8 @@ public class ClojureStructureViewElement implements StructureViewTreeElement {
     }
 
     private boolean isBrowsableElement(PsiElement element) {
-        return element instanceof ClDef;
+        return element instanceof ClDef &&
+            ((ClDef) element).getNameSymbol() != null;
     }
 
     public ItemPresentation getPresentation() {
