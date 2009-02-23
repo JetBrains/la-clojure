@@ -10,6 +10,7 @@ import com.intellij.ui.FieldPanel;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
+import org.jetbrains.plugins.clojure.ClojureBundle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,47 +39,47 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
   private RawCommandLineEditor myParameters;
   private JPanel scriptPathPanel;
   private JPanel workDirPanel;
-  private JCheckBox myDebugCB;
+  private JCheckBox myReplCB;
   private JTextField scriptPathField;
   private JTextField workDirField;
 
   public ClojureRunConfigurationEditor() {
     scriptPathField = new JTextField();
     final BrowseFilesListener scriptBrowseListener = new BrowseFilesListener(scriptPathField,
-        "Script Path",
-        "Specify path to script",
+        ClojureBundle.message("script.path"),
+        ClojureBundle.message("spec.path.to.script"),
         new FileChooserDescriptor(true, false, false, false, false, false) {
           public boolean isFileSelectable(VirtualFile file) {
             return file.getFileType() == ClojureFileType.CLOJURE_FILE_TYPE;
           }
         });
 
-    final FieldPanel scriptFieldPanel = new FieldPanel(scriptPathField, "Script path:", null, scriptBrowseListener, null);
+    final FieldPanel scriptFieldPanel = new FieldPanel(scriptPathField, ClojureBundle.message("script.path") + ":", null, scriptBrowseListener, null);
     scriptPathPanel.setLayout(new BorderLayout());
     scriptPathPanel.add(scriptFieldPanel, BorderLayout.CENTER);
 
     workDirField = new JTextField();
     final BrowseFilesListener workDirBrowseFilesListener = new BrowseFilesListener(workDirField,
-        "Working directory",
-        "Specify working directory",
+        ClojureBundle.message("work.dir"),
+        ClojureBundle.message("specify.work.dir"),
         BrowseFilesListener.SINGLE_DIRECTORY_DESCRIPTOR);
-    final FieldPanel workDirFieldPanel = new FieldPanel(workDirField, "Working directory:", null, workDirBrowseFilesListener, null);
+    final FieldPanel workDirFieldPanel = new FieldPanel(workDirField, ClojureBundle.message("work.dir")+ ":", null, workDirBrowseFilesListener, null);
     workDirPanel.setLayout(new BorderLayout());
     workDirPanel.add(workDirFieldPanel, BorderLayout.CENTER);
   }
 
   public void resetEditorFrom(ClojureScriptRunConfiguration configuration) {
-    myVMParameters.setDialogCaption("VM Parameters");
+    myVMParameters.setDialogCaption(ClojureBundle.message("vm.params"));
     myVMParameters.setText(configuration.getVmParams());
 
-    myParameters.setDialogCaption("Script Parameters");
+    myParameters.setDialogCaption(ClojureBundle.message("script.params"));
     myParameters.setText(configuration.getScriptParams());
 
     scriptPathField.setText(configuration.getScriptPath());
     workDirField.setText(configuration.getWorkDir());
 
-    myDebugCB.setEnabled(true);
-    myDebugCB.setSelected(configuration.getIsDebugEnabled());
+    myReplCB.setEnabled(true);
+    myReplCB.setSelected(configuration.getRunInREPL());
 
     myModulesModel.removeAllElements();
     for (Module module : configuration.getValidModules()) {
@@ -90,7 +91,7 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
   public void applyEditorTo(ClojureScriptRunConfiguration configuration) throws ConfigurationException {
     configuration.setModule((Module) myModulesBox.getSelectedItem());
     configuration.setVmParams(myVMParameters.getText());
-    configuration.setIsDebugEnabled(myDebugCB.isSelected());
+    configuration.setRunInREPL(myReplCB.isSelected());
     configuration.setScriptParams(myParameters.getText());
     configuration.setScriptPath(scriptPathField.getText());
     configuration.setWorkDir(workDirField.getText());
@@ -100,8 +101,8 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
   public JComponent createEditor() {
     myModulesModel = new DefaultComboBoxModel();
     myModulesBox.setModel(myModulesModel);
-    myDebugCB.setEnabled(true);
-    myDebugCB.setSelected(false);
+    myReplCB.setEnabled(true);
+    myReplCB.setSelected(false);
 
     myModulesBox.setRenderer(new DefaultListCellRenderer() {
       public Component getListCellRendererComponent(JList list, final Object value, int index, boolean isSelected, boolean cellHasFocus) {

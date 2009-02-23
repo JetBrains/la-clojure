@@ -1,7 +1,23 @@
 package org.jetbrains.plugins.clojure;
 
 import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectManagerAdapter;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.compiler.CompilerManager;
+import com.intellij.codeHighlighting.TextEditorHighlightingPassRegistrar;
+import com.intellij.codeHighlighting.Pass;
+import com.intellij.problems.WolfTheProblemSolver;
+import com.intellij.debugger.DebuggerManager;
+import com.intellij.debugger.PositionManager;
+import com.intellij.debugger.engine.DebugProcess;
+import com.intellij.util.Function;
+import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.debugger.ClojurePositionManager;
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,6 +40,21 @@ public class ClojureLoader implements ApplicationComponent {
   }
 
   public void initComponent() {
+    loadClojure();
+  }
+
+  private void loadClojure() {
+/*
+    ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
+      public void projectOpened(final Project project) {
+        DebuggerManager.getInstance(project).registerPositionManagerFactory(new Function<DebugProcess, PositionManager>() {
+          public PositionManager fun(DebugProcess debugProcess) {
+            return new ClojurePositionManager(debugProcess);
+          }
+        });
+      }
+    });
+*/
   }
 
   public void disposeComponent() {

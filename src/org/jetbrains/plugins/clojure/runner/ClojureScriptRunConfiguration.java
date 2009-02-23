@@ -55,11 +55,12 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
   private String workDir;
   private String vmParams;
   private String scriptParams;
-  private boolean isDebugEnabled;
+  private boolean runInREPL;
 
   @NonNls
   private static final String CLOJURE_MAIN = "clojure.main";
   private static final String CLOJURE_REPL = "clojure.lang.Repl";
+  private static final String JLINE_CONSOLE_RUNNER = "jline.ConsoleRunner";
   private static final String CLOJURE_MAIN_CLASS_FILE = "clojure/main.class";
 
   public ClojureScriptRunConfiguration(ClojureScriptConfigurationFactory factory, Project project, String name) {
@@ -98,7 +99,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     vmParams = JDOMExternalizer.readString(element, "vmparams");
     scriptParams = JDOMExternalizer.readString(element, "params");
     workDir = JDOMExternalizer.readString(element, "workDir");
-    isDebugEnabled = Boolean.parseBoolean(JDOMExternalizer.readString(element, "debug"));
+    runInREPL = Boolean.parseBoolean(JDOMExternalizer.readString(element, "repl"));
     workDir = getWorkDir();
   }
 
@@ -109,7 +110,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     JDOMExternalizer.write(element, "vmparams", vmParams);
     JDOMExternalizer.write(element, "params", scriptParams);
     JDOMExternalizer.write(element, "workDir", workDir);
-    JDOMExternalizer.write(element, "debug", isDebugEnabled);
+    JDOMExternalizer.write(element, "repl", runInREPL);
   }
 
   protected ModuleBasedConfiguration createInstance() {
@@ -124,6 +125,8 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     params.configureByModule(module, JavaParameters.JDK_ONLY);
     //params.getClassPath().add(CLOJURE_SDK);
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
+
+    params.getClassPath().add("/home/ilya/work/clojure-plugin/lib/jline.jar");
   }
 
   private void configureJavaParams(JavaParameters params, Module module) throws CantRunException {
@@ -131,13 +134,17 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     // Setting up classpath
     configureScriptSystemClassPath(params, module);
 
+    //Setworking dir
     params.setWorkingDirectory(getAbsoluteWorkDir());
 
     // add user parameters
     params.getVMParametersList().addParametersString(vmParams);
 
-    // set starter class
-    params.setMainClass(CLOJURE_MAIN);
+    if (runInREPL) {
+      params.setMainClass(CLOJURE_REPL);
+    } else {
+      params.setMainClass(CLOJURE_MAIN);
+    }
   }
 
   private boolean isJarFromJRE(String path, Module module) {
@@ -264,15 +271,15 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     vmParams = params;
   }
 
-  public void setIsDebugEnabled(boolean isEnabled) {
-    isDebugEnabled = isEnabled;
+  public void setRunInREPL(boolean isEnabled) {
+    runInREPL = isEnabled;
   }
 
   public void setScriptParams(String params) {
     scriptParams = params;
   }
 
-  public boolean getIsDebugEnabled() {
-    return isDebugEnabled;
+  public boolean getRunInREPL() {
+    return runInREPL;
   }
 }

@@ -100,6 +100,7 @@
     <option name="MAXIMUM_HEAP_SIZE" value="128" />
   </component>
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" />
+  <component name="IdProvider" IDEtalkID="9DF9B1EA05538F35FB7C1A0A47030FDA" />
   <component name="InspectionProjectProfileManager">
     <option name="PROJECT_PROFILE" value="Project Default" />
     <option name="USE_PROJECT_LEVEL_SETTINGS" value="false" />
@@ -269,6 +270,9 @@
     <option name="projectName" value="clojure-intellij-plugin" />
   </component>
   <component name="ProjectFileVersion" converted="true" />
+  <component name="ProjectKey">
+    <option name="state" value="http://svn.jetbrains.org/idea/Trunk/clojure-plugin/clojure-intellij-plugin.ipr" />
+  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/clojure-plugin.iml" filepath="$PROJECT_DIR$/clojure-plugin.iml" />
@@ -315,10 +319,7 @@
         <root url="jar://$PROJECT_DIR$/lib/clojure.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES>
-        <root url="file://$PROJECT_DIR$/lib/src/clj" />
-        <root url="file://$PROJECT_DIR$/lib/src/jvm" />
-      </SOURCES>
+      <SOURCES />
     </library>
   </component>
 </project>

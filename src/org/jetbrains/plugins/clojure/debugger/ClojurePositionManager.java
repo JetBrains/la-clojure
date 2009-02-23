@@ -10,6 +10,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiClass;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by IntelliJ IDEA.
@@ -66,7 +68,6 @@ public class ClojurePositionManager implements PositionManager {
   public ClassPrepareRequest createPrepareRequest(final ClassPrepareRequestor requestor, final SourcePosition position)
       throws NoDataException {
     PsiFile file = position.getFile();
-    //if (!(file instanceof ClojureElement.File)) return null;
     PsiElement element = file.findElementAt(position.getOffset());
     return myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, element.getText());
   }
@@ -84,12 +85,11 @@ public class ClojurePositionManager implements PositionManager {
 
   @NotNull
   public List<ReferenceType> getAllClasses(final SourcePosition position) throws NoDataException {
-    //PsiElement element = position.getElementAt();
-    //if( element instanceof PsiClass ) {
-    //    return myDebugProcess.getVirtualMachineProxy().classesByName(qName);
-    //}
-    // ArrayList<ReferenceType> l = new ArrayList<ReferenceType>();
-    // l.add( position.getElementAt().getReference().get );
+//    PsiElement element = position.getElementAt();
+//    if( element instanceof PsiClass) {
+//        return myDebugProcess.getVirtualMachineProxy().classesByName("foo");
+//    }
+//     ArrayList<ReferenceType> l = new ArrayList<ReferenceType>();
     return Collections.EMPTY_LIST;
   }
 
