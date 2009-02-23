@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author ilyas
  */
-public interface ClList extends ClojurePsiElement{
+public interface ClList extends ClojurePsiElement, ClBraced {
   @Nullable
   String getPresentableText();
 

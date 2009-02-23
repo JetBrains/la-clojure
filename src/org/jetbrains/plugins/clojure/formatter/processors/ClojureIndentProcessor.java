@@ -27,7 +27,7 @@ public class ClojureIndentProcessor implements ClojureElementTypes{
       } else {
         return Indent.getNormalIndent();
       }
-    }
+    } 
     return Indent.getNoneIndent();
   }
 }

@@ -5,5 +5,6 @@ import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 /**
  * @author ilyas
  */
-public interface ClVector extends ClojurePsiElement{
+public interface ClVector extends ClojurePsiElement, ClBraced {
+
 }

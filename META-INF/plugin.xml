@@ -1,7 +1,7 @@
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin>
 
-  <name>Clojure</name>
+  <name>La Clojure</name>
   <id>org.intellij.clojure</id>
   <description>Plugin for Clojure language support</description>
   <version>0.01</version>

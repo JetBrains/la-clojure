@@ -5,6 +5,7 @@ import org.jetbrains.plugins.clojure.psi.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.ClojureBaseElementImpl;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 import com.intellij.psi.PsiElement;
@@ -46,6 +47,17 @@ public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseEle
       return (ClSymbol) child;
     }
     return null;
+  }
+
+  @NotNull
+  public PsiElement getFirstBrace() {
+    PsiElement element = findChildByType(ClojureTokenTypes.LEFT_PAREN);
+    assert element != null;
+    return element;
+  }
+
+  public PsiElement getLastBrace() {
+    return findChildByType(ClojureTokenTypes.RIGHT_PAREN);
   }
 
 
