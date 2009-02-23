@@ -23,6 +23,8 @@
     <lang.parserDefinition language="Clojure"
                            implementationClass="org.jetbrains.plugins.clojure.parser.ClojureParserDefinition"/>
     <lang.foldingBuilder language="Clojure" implementationClass="org.jetbrains.plugins.clojure.ClojureFoldingBuilder"/>
+    <lang.psiStructureViewFactory language="Clojure"
+                                  implementationClass="org.jetbrains.plugins.clojure.structure.ClojureStructureViewBuilderFactory"/>
     <lang.formatter language="Clojure"
                     implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
 
