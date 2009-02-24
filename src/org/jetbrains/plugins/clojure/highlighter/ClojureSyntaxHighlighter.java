@@ -84,13 +84,13 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   }
 
   @NonNls
-  static final String LINE_COMMENT_ID = "Line comment";
+  static final String LINE_COMMENT_ID = "Clojure Line comment";
   @NonNls
-  static final String KEY_ID = "Keyword";
+  static final String KEY_ID = "Clojure Keyword";
   @NonNls
   static final String DEF_ID = "First symbol in list";
   @NonNls
-  static final String ATOM_ID = "Atom";
+  static final String ATOM_ID = "Clojure Atom";
   @NonNls
   static final String NUMBER_ID = "Number";
   @NonNls
@@ -100,9 +100,9 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   @NonNls
   static final String BRACES_ID = "Braces";
   @NonNls
-  static final String LITERAL_ID = "Literal";
+  static final String LITERAL_ID = "Clojure Literal";
   @NonNls
-  static final String CHAR_ID = "Character";
+  static final String CHAR_ID = "Clojure Character";
 
   public static final TextAttributes UNTYPED_ACCESS_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
   public static final TextAttributes KEYWORD_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
@@ -142,7 +142,8 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
     UNTYPED_ACCESS_ATTRIB.setEffectColor(Color.BLACK);
     UNTYPED_ACCESS_ATTRIB.setEffectType(EffectType.LINE_UNDERSCORE);
 
-    KEYWORD_ATTRIB.setForegroundColor(HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes().getForegroundColor());
+    final TextAttributes attrs = HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes().clone();
+    KEYWORD_ATTRIB.setForegroundColor(attrs.getForegroundColor());
     KEYWORD_ATTRIB.setFontType(Font.BOLD);
 
     final Color deepBlue = SyntaxHighlighterColors.KEYWORD.getDefaultAttributes().getForegroundColor();
