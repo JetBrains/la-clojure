@@ -72,13 +72,47 @@ mCOMMA = ","
 /////////////////////      integers and floats     /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+mHEX_DIGIT = [0-9A-Fa-f]
 mDIGIT = [0-9]
+mBIG_SUFFIX = g | G
+mFLOAT_SUFFIX = f | F
+mLONG_SUFFIX = l | L
+mINT_SUFFIX = i | I
+mDOUBLE_SUFFIX = d | D
+mEXPONENT = (e | E)("+" | "-")?([0-9])+
+
+mNUM_INT_PART =  0
+ ( (x | X){mHEX_DIGIT}+
+   | {mDIGIT}+
+   | ([0-7])+
+ )?
+ | {mDIGIT}+
 
 // Integer
-mINTEGER = {mDIGIT}+
+mNUM_INT = {mNUM_INT_PART} {mINT_SUFFIX}?
+
+// Long
+mNUM_LONG = {mNUM_INT_PART} {mLONG_SUFFIX}
+
+// BigInteger
+mNUM_BIG_INT = {mNUM_INT_PART} {mBIG_SUFFIX}
 
 //Float
-mFLOAT = {mDIGIT}+ "." {mDIGIT}+
+mNUM_FLOAT = {mNUM_INT_PART} ( ("." {mDIGIT}+ {mEXPONENT}? {mFLOAT_SUFFIX})
+ | {mFLOAT_SUFFIX}
+ | {mEXPONENT} {mFLOAT_SUFFIX} )
+
+// Double
+mNUM_DOUBLE = {mNUM_INT_PART} ( ("." {mDIGIT}+ {mEXPONENT}? {mDOUBLE_SUFFIX})
+ | {mDOUBLE_SUFFIX}
+ | {mEXPONENT} {mDOUBLE_SUFFIX})
+
+// BigDecimal
+mNUM_BIG_DECIMAL = {mNUM_INT_PART} ( ("." {mDIGIT}+ {mEXPONENT}? {mBIG_SUFFIX}?)
+ | {mEXPONENT} {mBIG_SUFFIX}? )
+
+//Ratios
+mRATIO = {mNUM_INT_PART} "/" {mNUM_INT_PART}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Parens, Squares, Curleys, Quotes /////////////////////////////////////////////////////////////////////////////////
@@ -177,8 +211,13 @@ mFALSE = "false"
   {mTRUE}                                   {  return TRUE; }
   {mFALSE}                                  {  return FALSE; }
 
-  {mINTEGER}                                {  return INTEGER_LITERAL; }
-  {mFLOAT}                                  {  return FLOAT_LITERAL; }
+  {mNUM_INT}                                {  return INTEGER_LITERAL; }
+  {mNUM_LONG}                               {  return LONG_LITERAL; }
+  {mNUM_BIG_INT}                            {  return BIG_INT_LITERAL; }
+  {mNUM_FLOAT}                              {  return FLOAT_LITERAL; }
+  {mNUM_DOUBLE}                             {  return DOUBLE_LITERAL; }
+  {mNUM_BIG_DECIMAL}                        {  return BIG_DECIMAL_LITERAL; }
+  {mRATIO}                                  {  return RATIO; }
 
   // Reserved symbols
   "/"                                       {  return symATOM; }

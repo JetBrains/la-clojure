@@ -45,17 +45,25 @@ public interface ClojureTokenTypes {
   TokenSet COMMENTS = TokenSet.create(LINE_COMMENT);
   // Literals
   IElementType STRING_LITERAL = new ClojureElementType("string literal");
-
   IElementType WRONG_STRING_LITERAL = new ClojureElementType("wrong string literal");
-  IElementType INTEGER_LITERAL = new ClojureElementType("numeric literal");
-  IElementType FLOAT_LITERAL = new ClojureElementType("numeric literal");
+
+  IElementType INTEGER_LITERAL = new ClojureElementType("integer literal");
+  IElementType LONG_LITERAL = new ClojureElementType("long literal");
+  IElementType BIG_INT_LITERAL = new ClojureElementType("big integer literal");
+  IElementType FLOAT_LITERAL = new ClojureElementType("float literal");
+  IElementType DOUBLE_LITERAL = new ClojureElementType("double literal");
+  IElementType BIG_DECIMAL_LITERAL = new ClojureElementType("big deciamel literal");
+  IElementType RATIO = new ClojureElementType("ratio literal");
+
   IElementType CHAR_LITERAL = new ClojureElementType("character literal");
   IElementType NIL = new ClojureElementType("nil");
 
   IElementType TRUE = new ClojureElementType("true");
   IElementType FALSE = new ClojureElementType("false");
   TokenSet BOOLEAN_LITERAL = TokenSet.create(TRUE, FALSE, NIL);
-  TokenSet LITERALS = TokenSet.create(STRING_LITERAL, INTEGER_LITERAL, FLOAT_LITERAL, CHAR_LITERAL, TRUE, FALSE, NIL, WRONG_STRING_LITERAL);
+  TokenSet LITERALS = TokenSet.create(STRING_LITERAL, WRONG_STRING_LITERAL,
+      INTEGER_LITERAL, LONG_LITERAL, BIG_INT_LITERAL, FLOAT_LITERAL, DOUBLE_LITERAL, BIG_DECIMAL_LITERAL, RATIO, 
+      CHAR_LITERAL, TRUE, FALSE, NIL);
 
   TokenSet READABLE_TEXT = TokenSet.create(STRING_LITERAL, LINE_COMMENT, WRONG_STRING_LITERAL);
 
