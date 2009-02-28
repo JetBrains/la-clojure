@@ -23,7 +23,10 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
+import org.jetbrains.plugins.clojure.psi.ClojurePsiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,17 +82,33 @@ public class ClojurePositionManager implements PositionManager {
     final ClojureFile clojureFile = (ClojureFile) file;
     PsiElement element = clojureFile.findElementAt(position.getOffset());
 
-    final ClassPrepareRequest prepareRequest = myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, "*");
-    prepareRequest.addClassExclusionFilter("*__*");
-    prepareRequest.addSourceNameFilter(file.getName());
-    final ClDef parent = PsiTreeUtil.getParentOfType(element, ClDef.class);
-    if (parent != null) {
-      final String name = parent.getDefinedName();
-      if (name != null) {
-        prepareRequest.addClassExclusionFilter("*$" + name +"__*");
+    String nsName = getNameSpaceName(element);
+    final String nsPrefix = nsName != null ? nsName + "$" : "user$";
+    final ClassPrepareRequest prepareRequest = myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, nsPrefix + "*");
+
+//    prepareRequest.addSourceNameFilter(file.getName());
+    return prepareRequest;
+  }
+
+  private String getNameSpaceName(PsiElement element) {
+    while (!(element.getParent() instanceof ClojureFile)) {
+      element = element.getParent();
+    }
+    final PsiElement parent = element.getParent();
+    if (parent instanceof ClojureFile) {
+      while (element != null) {
+        if (element instanceof ClList) {
+          ClList list = (ClList) element;
+          final ClSymbol first = list.getFirstSymbol();
+          if (first != null && first.getText().equals("ns")) {
+            final ClSymbol snd = ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
+            if (snd != null) return snd.getText();
+          }
+        }
+        element = element.getPrevSibling();
       }
     }
-    return prepareRequest;
+    return null;
   }
 
   @NotNull
@@ -97,9 +116,8 @@ public class ClojurePositionManager implements PositionManager {
     PsiFile file = position.getFile();
     if (!(file instanceof ClojureFile)) throw new NoDataException();
 
-    final ClojureFile clojureFile = (ClojureFile) file;
-
 /*
+    final ClojureFile clojureFile = (ClojureFile) file;
     PsiElement element = clojureFile.findElementAt(position.getOffset());
     String pattern = ".*";
     final ClDef parent = PsiTreeUtil.getParentOfType(element, ClDef.class);
