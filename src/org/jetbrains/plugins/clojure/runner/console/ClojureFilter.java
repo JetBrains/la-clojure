@@ -29,7 +29,7 @@ public class ClojureFilter implements Filter {
 
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.clojure.runner.console.ClojureFilter");
 
-  private static final Pattern PATTERN = Pattern.compile("\\((\\w*\\.clj):(\\d*)\\)");
+  private static final Pattern PATTERN = Pattern.compile(".*\\((\\w*\\.clj):(\\d*)\\)(\\s|.)*");
 
   public ClojureFilter(Project project) {
     myProject = project;
@@ -54,7 +54,7 @@ public class ClojureFilter implements Filter {
             new OpenFileHyperlinkInfo(myProject, psiFiles[0].getVirtualFile(), lineNumber - 1) :
             new MyHyperlinkInfo(psiFiles);
 
-        return new Result(textStartOffset + matcher.start(2), textStartOffset + matcher.end(3), info);
+        return new Result(textStartOffset + matcher.start(1), textStartOffset + matcher.end(2), info);
       }
     }
     catch (NumberFormatException e) {
