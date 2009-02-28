@@ -1,2 +1,2 @@
-#if ( $PACKAGE_NAME != "" )(ns ${PACKAGE_NAME}.${NAME})
+#if ($PACKAGE_NAME != "")(ns ${PACKAGE_NAME}.${NAME})
 #end

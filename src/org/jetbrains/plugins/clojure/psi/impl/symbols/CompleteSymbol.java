@@ -73,6 +73,8 @@ public class CompleteSymbol {
         }
       });
 
+      list.addAll(methods);
+
 
       final List<Object> fields = ContainerUtil.map(shortNamesCache.getAllFieldNames(), new Function<String, Object>() {
         public LookupItem fun(String s) {
