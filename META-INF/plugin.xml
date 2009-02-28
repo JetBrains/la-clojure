@@ -26,6 +26,7 @@
                                   implementationClass="org.jetbrains.plugins.clojure.structure.ClojureStructureViewBuilderFactory"/>
     <lang.formatter language="Clojure"
                     implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
+    <consoleFilterProvider implementation="org.jetbrains.plugins.clojure.runner.console.ClojureConsoleFilterProvider"/>
 
     <configurationType implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationType"/>
     <configurationProducer implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>

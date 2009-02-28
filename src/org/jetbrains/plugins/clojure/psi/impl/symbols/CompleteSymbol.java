@@ -5,6 +5,7 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.Function;
@@ -18,6 +19,7 @@ import org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author ilyas
@@ -53,13 +55,14 @@ public class CompleteSymbol {
     });
   }
 
-  private static List<LookupItem> getJavaCompletionVariants(ClSymbol symbol, final boolean isFirst) {
+  private static List<Object> getJavaCompletionVariants(ClSymbol symbol, final boolean isFirst) {
     //Processing Java methods
-    if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".")) {
-      final JavaPsiFacade facade = JavaPsiFacade.getInstance(symbol.getProject());
-      final PsiShortNamesCache shortNamesCache = facade.getShortNamesCache();
+    List<Object> list = new ArrayList<Object>();
+    final JavaPsiFacade facade = JavaPsiFacade.getInstance(symbol.getProject());
 
-      final List<LookupItem> methods = ContainerUtil.map(shortNamesCache.getAllMethodNames(), new Function<String, LookupItem>() {
+    if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".")) {
+      final PsiShortNamesCache shortNamesCache = facade.getShortNamesCache();
+      final List<Object> methods = ContainerUtil.map(shortNamesCache.getAllMethodNames(), new Function<String, Object>() {
         public LookupItem fun(String s) {
           final LookupItem item = new LookupItem(s, "." + s);
           item.setIcon(ClojureIcons.JAVA_METHOD);
@@ -70,7 +73,8 @@ public class CompleteSymbol {
         }
       });
 
-      final List<LookupItem> fields = ContainerUtil.map(shortNamesCache.getAllFieldNames(), new Function<String, LookupItem>() {
+
+      final List<Object> fields = ContainerUtil.map(shortNamesCache.getAllFieldNames(), new Function<String, Object>() {
         public LookupItem fun(String s) {
           final LookupItem item = new LookupItem(s, "." + s);
           item.setIcon(ClojureIcons.JAVA_FIELD);
@@ -81,9 +85,22 @@ public class CompleteSymbol {
         }
       });
 
-      methods.addAll(fields);
-      return methods;
+      list.addAll(fields);
+    } else {
+
+      // add default classes
+      final PsiPackage javaLang = facade.findPackage("java.lang");
+      if (javaLang != null) {
+        list.addAll(Arrays.asList(javaLang.getClasses()));
+      }
+
+      final PsiPackage clojureCore = facade.findPackage("clojure.lang");
+      if (clojureCore != null) {
+        list.addAll(Arrays.asList(clojureCore.getClasses()));
+      }
+
+
     }
-    return new ArrayList<LookupItem>();
+    return list;
   }
 }
