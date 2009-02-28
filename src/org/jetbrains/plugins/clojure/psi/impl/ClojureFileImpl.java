@@ -3,6 +3,10 @@ package org.jetbrains.plugins.clojure.psi.impl;
 import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.PsiComment;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
@@ -21,7 +25,7 @@ import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ClojureFileImpl extends PsiFileBase implements ClojureFile{
+public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
 
   @Override
   public String toString() {
@@ -46,7 +50,25 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile{
     return true;
   }
 
-  public boolean isJVMDebuggingSupported() {
-    return true;
+  private boolean isWrongElement(PsiElement element) {
+    return element == null ||
+        (element instanceof LeafPsiElement || element instanceof PsiWhiteSpace || element instanceof PsiComment);
   }
+
+  public PsiElement getFirstNonLeafElement() {
+    PsiElement first = getFirstChild();
+    while (isWrongElement(first)) {
+      first = first.getNextSibling();
+    }
+    return first;
+  }
+
+  public PsiElement getLastNonLeafElement() {
+    PsiElement lastChild = getLastChild();
+    while (isWrongElement(lastChild)) {
+      lastChild = lastChild.getPrevSibling();
+    }
+    return lastChild;
+  }
+
 }

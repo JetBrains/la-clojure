@@ -61,4 +61,10 @@ public class ClojureFileType extends LanguageFileType {
     return ClojureIcons.CLOJURE_ICON_16x16;
   }
 
+  public boolean isJVMDebuggingSupported() {
+    return true;
+  }
+
+
+
 }

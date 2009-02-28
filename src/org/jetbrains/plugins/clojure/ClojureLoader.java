@@ -15,9 +15,12 @@ import com.intellij.debugger.DebuggerManager;
 import com.intellij.debugger.PositionManager;
 import com.intellij.debugger.engine.DebugProcess;
 import com.intellij.util.Function;
+import com.intellij.util.containers.HashSet;
 import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.debugger.ClojurePositionManager;
+
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,6 +39,17 @@ import org.jetbrains.plugins.clojure.debugger.ClojurePositionManager;
  */
 public class ClojureLoader implements ApplicationComponent {
 
+  @NotNull
+  public static final String CLOJURE_EXTENSION = "clj";
+
+  @NotNull
+  public static final Set<String> CLOJURE_EXTENSIONS = new HashSet<String>();
+
+  static {
+    CLOJURE_EXTENSIONS.add(CLOJURE_EXTENSION);
+  }
+
+
   public ClojureLoader() {
   }
 
@@ -44,7 +58,7 @@ public class ClojureLoader implements ApplicationComponent {
   }
 
   private void loadClojure() {
-/*
+
     ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
       public void projectOpened(final Project project) {
         DebuggerManager.getInstance(project).registerPositionManagerFactory(new Function<DebugProcess, PositionManager>() {
@@ -54,7 +68,7 @@ public class ClojureLoader implements ApplicationComponent {
         });
       }
     });
-*/
+
   }
 
   public void disposeComponent() {

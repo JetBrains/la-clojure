@@ -8,19 +8,27 @@ import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.requests.ClassPrepareRequestor;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiManager;
+
 import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.Location;
 import com.sun.jdi.request.ClassPrepareRequest;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
 /**
  * Created by IntelliJ IDEA.
@@ -68,33 +76,55 @@ public class ClojurePositionManager implements PositionManager {
   public ClassPrepareRequest createPrepareRequest(final ClassPrepareRequestor requestor, final SourcePosition position)
       throws NoDataException {
     PsiFile file = position.getFile();
-    PsiElement element = file.findElementAt(position.getOffset());
-    return myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, element.getText());
+    if (!(file instanceof ClojureFile)) throw new NoDataException();
+
+    final ClojureFile clojureFile = (ClojureFile) file;
+    PsiElement element = clojureFile.findElementAt(position.getOffset());
+    return myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, "user$eval__11123123");
   }
 
   public SourcePosition getSourcePosition(final Location location) throws NoDataException {
     if (location == null) throw new NoDataException();
 
     PsiFile psiFile = getPsiFileByLocation(getDebugProcess().getProject(), location);
-    if (psiFile == null) throw new NoDataException();
+    if (!(psiFile instanceof ClojureFile)) throw new NoDataException();
 
     int lineNumber = location.lineNumber();
-    if (lineNumber < 0) throw new NoDataException();
-    return SourcePosition.createFromLine(psiFile, lineNumber);
+    if (lineNumber < 1) throw new NoDataException();
+    return SourcePosition.createFromLine(psiFile, lineNumber-1);
   }
 
   @NotNull
   public List<ReferenceType> getAllClasses(final SourcePosition position) throws NoDataException {
-//    PsiElement element = position.getElementAt();
-//    if( element instanceof PsiClass) {
-//        return myDebugProcess.getVirtualMachineProxy().classesByName("foo");
-//    }
-//     ArrayList<ReferenceType> l = new ArrayList<ReferenceType>();
-    return Collections.EMPTY_LIST;
+    final List<ReferenceType> list = myDebugProcess.getVirtualMachineProxy().allClasses();
+    final ArrayList<ReferenceType> result = new ArrayList<ReferenceType>();
+    for (ReferenceType type : list) {
+      if (type.toString().matches("user$.*__.*")) {
+        result.add(type);
+      }
+    }
+    return result;
   }
 
   @Nullable
   private PsiFile getPsiFileByLocation(final Project project, final Location location) {
-    throw null;
+    try {
+      final String path = location.sourcePath();
+      if (path == null) return null;
+      final ProjectRootManager manager = ProjectRootManager.getInstance(project);
+      final VirtualFile[] allFiles = manager.getFilesFromAllModules(OrderRootType.SOURCES);
+      for (VirtualFile file : allFiles) {
+        final String path2 = file.getPath() + "/";
+        final String prefix = StringUtil.commonPrefix(path, path2);
+        final String relativePath = StringUtil.trimStart(path, prefix);
+        final VirtualFile child = file.findFileByRelativePath(relativePath);
+        if (child != null) {
+          return PsiManager.getInstance(project).findFile(child);
+        }
+      }
+    } catch (AbsentInformationException e) {
+      return null;
+    }
+    return null;
   }
 }
