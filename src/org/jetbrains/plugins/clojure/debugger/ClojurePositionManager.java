@@ -16,6 +16,8 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.ui.tree.TreeUtil;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ReferenceType;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 
 /**
  * Created by IntelliJ IDEA.
@@ -80,20 +83,39 @@ public class ClojurePositionManager implements PositionManager {
 
     final ClojureFile clojureFile = (ClojureFile) file;
     PsiElement element = clojureFile.findElementAt(position.getOffset());
-    return myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, "user$eval__11123123");
+
+    final ClassPrepareRequest prepareRequest = myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, "*");
+    prepareRequest.addClassExclusionFilter("*__*");
+    prepareRequest.addSourceNameFilter(file.getName());
+    final ClDef parent = PsiTreeUtil.getParentOfType(element, ClDef.class);
+    if (parent != null) {
+      final String name = parent.getDefinedName();
+      if (name != null) {
+        prepareRequest.addClassExclusionFilter("*$" + name +"__*");
+      }
+    }
+    return prepareRequest;
   }
 
   @NotNull
   public List<ReferenceType> getAllClasses(final SourcePosition position) throws NoDataException {
     final List<ReferenceType> list = myDebugProcess.getVirtualMachineProxy().allClasses();
     final ArrayList<ReferenceType> result = new ArrayList<ReferenceType>();
+    final String fileName = position.getFile().getName();
     for (ReferenceType type : list) {
-      if (type.toString().matches("user$.*__.*")) {
-        result.add(type);
+      try {
+        final String name = type.sourceName();
+        if (fileName.equals(name)) {
+          result.add(type);
+        }
+      } catch (AbsentInformationException e) {
+        //do nothing
       }
     }
     return result;
   }
+
+
 
   public SourcePosition getSourcePosition(final Location location) throws NoDataException {
     if (location == null) throw new NoDataException();
