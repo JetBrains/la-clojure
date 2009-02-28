@@ -9,7 +9,7 @@ import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
 import org.jetbrains.plugins.clojure.parser.util.ParserUtils;
-import static  org.jetbrains.plugins.clojure.parser.ClojureSpecialFormTokens.DEF_TOKENS;
+import static org.jetbrains.plugins.clojure.parser.ClojureSpecialFormTokens.DEF_TOKENS;
 
 
 /**
@@ -33,39 +33,10 @@ public class ClojureParser implements PsiParser, ClojureTokenTypes {
     //builder.setDebugMode(true);
     PsiBuilder.Marker marker = builder.mark();
     for (IElementType token = builder.getTokenType(); token != null; token = builder.getTokenType()) {
-      parseTopLevelExpression(builder);
+      parseExpression(builder);
     }
     marker.done(FILE);
     return builder.getTreeBuilt();
-  }
-
-  /**
-   * Enter: Lexer is pointed at the left paren
-   * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
-   */
-  private void parseTopLevelExpression(PsiBuilder builder) {
-
-    IElementType token = builder.getTokenType();
-    if (LEFT_PAREN == token) {
-      parseTopLevelList(builder);
-    } else {
-      parseExpression(builder);
-    }
-  }
-
-  /*
-  Parse global function, variable or simple list
-   */
-  private void parseTopLevelList(PsiBuilder builder) {
-    if (builder.getTokenType() != LEFT_PAREN) internalError(ClojureBundle.message("expected.lparen"));
-    PsiBuilder.Marker marker = markAndAdvance(builder);
-    final String tokenText = builder.getTokenText();
-    if (builder.getTokenType() == symATOM && DEF_TOKENS.contains(tokenText)) {
-      parseDef(builder, marker);
-    } else {
-      parseExpressions(RIGHT_PAREN, builder);
-      marker.done(LIST);
-    }
   }
 
   private void parseExpression(PsiBuilder builder) {
@@ -328,9 +299,15 @@ public class ClojureParser implements PsiParser, ClojureTokenTypes {
    * Exit: Lexer is pointed immediately after the closing right paren, or at the end-of-file
    */
   private void parseList(PsiBuilder builder) {
+    if (builder.getTokenType() != LEFT_PAREN) internalError(ClojureBundle.message("expected.lparen"));
     PsiBuilder.Marker marker = markAndAdvance(builder);
-    parseExpressions(RIGHT_PAREN, builder);
-    marker.done(LIST);
+    final String tokenText = builder.getTokenText();
+    if (builder.getTokenType() == symATOM && DEF_TOKENS.contains(tokenText)) {
+      parseDef(builder, marker);
+    } else {
+      parseExpressions(RIGHT_PAREN, builder);
+      marker.done(LIST);
+    }
   }
 
   /**
