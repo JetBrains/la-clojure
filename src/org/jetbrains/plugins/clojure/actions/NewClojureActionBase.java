@@ -50,7 +50,8 @@ public abstract class NewClojureActionBase extends CreateElementActionBase {
     final DataContext context = event.getDataContext();
     Module module = (Module) context.getData(DataKeys.MODULE.getName());
 
-    if (!ClojureUtils.isSuitableModule(module) ||
+    if (module != null &&
+        !ClojureUtils.isSuitableModule(module) ||
         !presentation.isEnabled() ||
         !isUnderSourceRoots(event)) {
       presentation.setEnabled(false);
