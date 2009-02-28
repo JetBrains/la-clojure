@@ -83,17 +83,6 @@ public class ClojurePositionManager implements PositionManager {
     return myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, "user$eval__11123123");
   }
 
-  public SourcePosition getSourcePosition(final Location location) throws NoDataException {
-    if (location == null) throw new NoDataException();
-
-    PsiFile psiFile = getPsiFileByLocation(getDebugProcess().getProject(), location);
-    if (!(psiFile instanceof ClojureFile)) throw new NoDataException();
-
-    int lineNumber = location.lineNumber();
-    if (lineNumber < 1) throw new NoDataException();
-    return SourcePosition.createFromLine(psiFile, lineNumber-1);
-  }
-
   @NotNull
   public List<ReferenceType> getAllClasses(final SourcePosition position) throws NoDataException {
     final List<ReferenceType> list = myDebugProcess.getVirtualMachineProxy().allClasses();
@@ -104,6 +93,17 @@ public class ClojurePositionManager implements PositionManager {
       }
     }
     return result;
+  }
+
+  public SourcePosition getSourcePosition(final Location location) throws NoDataException {
+    if (location == null) throw new NoDataException();
+
+    PsiFile psiFile = getPsiFileByLocation(getDebugProcess().getProject(), location);
+    if (!(psiFile instanceof ClojureFile)) throw new NoDataException();
+
+    int lineNumber = location.lineNumber();
+    if (lineNumber < 1) throw new NoDataException();
+    return SourcePosition.createFromLine(psiFile, lineNumber-1);
   }
 
   @Nullable
