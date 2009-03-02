@@ -141,18 +141,22 @@ mTILDAAT = {mTILDA} {mAT}
 
 mONE_NL = \r | \n | \r\n
 mHEX_DIGIT = [0-9A-Fa-f]
+
+mCHAR = \\ [^" "\r\n]
+    | \\ [:jletter:]+
+
 mSTRING_ESC = \\ n | \\ r | \\ t | \\ b | \\ f | "\\" "\\" | \\ "$" | \\ \" | \\ \'
     | "\\""u"{mHEX_DIGIT}{4}
     | "\\" [0..3] ([0..7] ([0..7])?)?
     | "\\" [4..7] ([0..7])?
     | "\\" {mONE_NL}
+    | {mCHAR}
+
 
 mSTRING_CONTENT = ({mSTRING_ESC}|[^\\\"])*
 mSTRING = \"\" | \" ([^\\\"] | {mSTRING_ESC})? {mSTRING_CONTENT} \"
 mWRONG_STRING = \" ([^\\\"] | {mSTRING_ESC})? {mSTRING_CONTENT}
 
-mCHAR = \\ [^\r\n]
-    | \\ [:jletter:]+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Comments ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,9 +206,12 @@ mFALSE = "false"
 <YYINITIAL>{
 
   {mLINE_COMMENT}                           {  return LINE_COMMENT; }
-
+  
   {mWS}+                                    {  return WHITESPACE; }
   {mCOMMA}                                  {  return COMMA; }
+
+  {mSTRING}                                 {  return STRING_LITERAL; }
+  {mWRONG_STRING }                          {  return WRONG_STRING_LITERAL; }
 
   {mCHAR}                                   {  return CHAR_LITERAL; }
   {mNIL}                                    {  return NIL; }
@@ -244,8 +251,6 @@ mFALSE = "false"
   {mLC}                                     {  return LEFT_CURLY; }
   {mRC}                                     {  return RIGHT_CURLY; }
 
-  {mSTRING}                                 {  return STRING_LITERAL; }
-  {mWRONG_STRING }                          {  return WRONG_STRING_LITERAL; }
 
 }
 
