@@ -7,6 +7,7 @@ import com.intellij.formatting.Wrap;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.plugins.clojure.formatter.processors.ClojureIndentProcessor;
 import org.jetbrains.plugins.clojure.psi.api.*;
@@ -27,6 +28,7 @@ public class ClojureBlockGenerator {
   private static Wrap myWrap;
   private static CodeStyleSettings mySettings;
   private static ClojureBlock myBlock;
+  private static final TokenSet RIGHT_BRACES = TokenSet.create(ClojureTokenTypes.RIGHT_CURLY, ClojureTokenTypes.RIGHT_SQUARE);
 
   public static List<Block> generateSubBlocks(ASTNode node, Alignment alignment, Wrap wrap, CodeStyleSettings settings, ClojureBlock block) {
     myNode = node;
@@ -58,7 +60,7 @@ public class ClojureBlockGenerator {
   public static boolean mustAlign(PsiElement blockPsi, PsiElement child) {
 
     if (blockPsi instanceof ClVector || blockPsi instanceof ClMap) {
-      return !(child instanceof LeafPsiElement);
+      return !(child instanceof LeafPsiElement) || RIGHT_BRACES.contains(child.getNode().getElementType());
     }
     if (blockPsi instanceof ClList &&
         !(blockPsi instanceof ClDef)) {

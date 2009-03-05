@@ -14,24 +14,13 @@ import com.intellij.lang.ASTNode;
  */
 public abstract class ClojureBaseElementImpl <T extends StubElement> extends StubBasedPsiElementBase<T> implements ClojurePsiElement {
 
-  private boolean isWrongElement(PsiElement element) {
+  protected boolean isWrongElement(PsiElement element) {
     return element == null ||
         (element instanceof LeafPsiElement || element instanceof PsiWhiteSpace || element instanceof PsiComment);
   }
 
   public PsiElement getFirstNonLeafElement() {
     PsiElement first = getFirstChild();
-    while (isWrongElement(first)) {
-      first = first.getNextSibling();
-    }
-    return first;
-  }
-
-  public PsiElement getSecondNonLeafElement() {
-    PsiElement first = getFirstChild();
-    while (isWrongElement(first)) {
-      first = first.getNextSibling();
-    }
     while (isWrongElement(first)) {
       first = first.getNextSibling();
     }

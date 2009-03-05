@@ -56,6 +56,17 @@ public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseEle
     return element;
   }
 
+  public PsiElement getSecondNonLeafElement() {
+    PsiElement first = getFirstChild();
+    while (isWrongElement(first)) {
+      first = first.getNextSibling();
+    }
+    while (isWrongElement(first)) {
+      first = first.getNextSibling();
+    }
+    return first;
+  }
+
   public PsiElement getLastBrace() {
     return findChildByType(ClojureTokenTypes.RIGHT_PAREN);
   }
