@@ -57,9 +57,12 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
 
   static final TokenSet sCHARS = TokenSet.create(ClojureTokenTypes.CHAR_LITERAL);
 
-  static final TokenSet sBRACES = TokenSet.create(
+  static final TokenSet sPARENTS = TokenSet.create(
       ClojureTokenTypes.LEFT_PAREN,
-      ClojureTokenTypes.RIGHT_PAREN,
+      ClojureTokenTypes.RIGHT_PAREN
+  );
+
+  static final TokenSet sBRACES = TokenSet.create(
       ClojureTokenTypes.LEFT_SQUARE,
       ClojureTokenTypes.RIGHT_SQUARE,
       ClojureTokenTypes.LEFT_CURLY,
@@ -91,69 +94,53 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   @NonNls
   static final String ATOM_ID = "Clojure Atom";
   @NonNls
-  static final String NUMBER_ID = "Number";
+  static final String NUMBER_ID = "Clojure Numbers";
   @NonNls
-  static final String STRING_ID = "String";
+  static final String STRING_ID = "Clojure Strings";
   @NonNls
   static final String BAD_CHARACTER_ID = "Bad character";
   @NonNls
-  static final String BRACES_ID = "Braces";
+  static final String BRACES_ID = "Clojure Braces";
+  @NonNls
+  static final String PAREN_ID = "Clojure Parentheses";
   @NonNls
   static final String LITERAL_ID = "Clojure Literal";
   @NonNls
   static final String CHAR_ID = "Clojure Character";
 
-  public static final TextAttributes UNTYPED_ACCESS_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
-  public static final TextAttributes KEYWORD_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
   public static final TextAttributes ATOM_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
-  public static final TextAttributes CHAR_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
 
-  public static final TextAttributes LITERAL_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
 
-  public static TextAttributesKey LINE_COMMENT = TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID,
-      SyntaxHighlighterColors.LINE_COMMENT.getDefaultAttributes());
-
-  public static TextAttributesKey NUMBER = TextAttributesKey.createTextAttributesKey(NUMBER_ID,
-      SyntaxHighlighterColors.NUMBER.getDefaultAttributes());
-
-  public static TextAttributesKey STRING = TextAttributesKey.createTextAttributesKey(STRING_ID,
-      SyntaxHighlighterColors.STRING.getDefaultAttributes());
-
-  public static TextAttributesKey BRACES = TextAttributesKey.createTextAttributesKey(BRACES_ID,
-      SyntaxHighlighterColors.BRACKETS.getDefaultAttributes());
-
-  public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID,
-      CodeInsightColors.UNMATCHED_BRACE_ATTRIBUTES.getDefaultAttributes());
-
-  public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID, KEYWORD_ATTRIB);
-
-  public static TextAttributesKey DEFINITION = TextAttributesKey.createTextAttributesKey(DEF_ID,
-      SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
-
-  public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID, ATOM_ATTRIB);
-
-  public static TextAttributesKey LITERAL = TextAttributesKey.createTextAttributesKey(LITERAL_ID, LITERAL_ATTRIB);
-
-  public static TextAttributesKey CHAR = TextAttributesKey.createTextAttributesKey(CHAR_ID, CHAR_ATTRIB);
-
+  // Registering TextAttributes
   static {
-    UNTYPED_ACCESS_ATTRIB.setForegroundColor(Color.BLACK);
-    UNTYPED_ACCESS_ATTRIB.setEffectColor(Color.BLACK);
-    UNTYPED_ACCESS_ATTRIB.setEffectType(EffectType.LINE_UNDERSCORE);
-
-    final TextAttributes attrs = HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes().clone();
-    KEYWORD_ATTRIB.setForegroundColor(attrs.getForegroundColor());
-    KEYWORD_ATTRIB.setFontType(Font.BOLD);
+    TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID, SyntaxHighlighterColors.LINE_COMMENT.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(KEY_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(DEF_ID, SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(NUMBER_ID, SyntaxHighlighterColors.NUMBER.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(STRING_ID, SyntaxHighlighterColors.STRING.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(BRACES_ID, SyntaxHighlighterColors.BRACES.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(PAREN_ID, SyntaxHighlighterColors.PARENTHS.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(LITERAL_ID, SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(CHAR_ID, SyntaxHighlighterColors.STRING.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER.getDefaultAttributes());
 
     final Color deepBlue = SyntaxHighlighterColors.KEYWORD.getDefaultAttributes().getForegroundColor();
     ATOM_ATTRIB.setForegroundColor(deepBlue);
-
-    CHAR_ATTRIB.setFontType(Font.BOLD);
-    CHAR_ATTRIB.setForegroundColor(Color.MAGENTA);
-
-    LITERAL_ATTRIB.setFontType(Font.BOLD);
-    LITERAL_ATTRIB.setForegroundColor(deepBlue);
+    TextAttributesKey.createTextAttributesKey(ATOM_ID, ATOM_ATTRIB);
   }
+
+  public static TextAttributesKey LINE_COMMENT = TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID);
+  public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID);
+  public static TextAttributesKey DEF = TextAttributesKey.createTextAttributesKey(DEF_ID);
+  public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID);
+  public static TextAttributesKey NUMBER = TextAttributesKey.createTextAttributesKey(NUMBER_ID);
+  public static TextAttributesKey STRING = TextAttributesKey.createTextAttributesKey(STRING_ID);
+  public static TextAttributesKey BRACES = TextAttributesKey.createTextAttributesKey(BRACES_ID);
+  public static TextAttributesKey PARENTS = TextAttributesKey.createTextAttributesKey(PAREN_ID);
+  public static TextAttributesKey LITERAL = TextAttributesKey.createTextAttributesKey(LITERAL_ID);
+  public static TextAttributesKey CHAR = TextAttributesKey.createTextAttributesKey(CHAR_ID);
+  public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID);
+
 
   static {
     fillMap(ATTRIBUTES, sLINE_COMMENTS, LINE_COMMENT);
@@ -162,6 +149,7 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
     fillMap(ATTRIBUTES, sNUMBERS, NUMBER);
     fillMap(ATTRIBUTES, sSTRINGS, STRING);
     fillMap(ATTRIBUTES, sBRACES, BRACES);
+    fillMap(ATTRIBUTES, sPARENTS, PARENTS);
     fillMap(ATTRIBUTES, sLITERALS, LITERAL);
     fillMap(ATTRIBUTES, sCHARS, CHAR);
   }

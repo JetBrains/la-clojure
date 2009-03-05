@@ -52,10 +52,11 @@ public class ClojureColorsAndFontsPage implements ColorSettingsPage {
           new AttributesDescriptor(ClojureSyntaxHighlighter.NUMBER_ID, ClojureSyntaxHighlighter.NUMBER),
           new AttributesDescriptor(ClojureSyntaxHighlighter.STRING_ID, ClojureSyntaxHighlighter.STRING),
           new AttributesDescriptor(ClojureSyntaxHighlighter.BRACES_ID, ClojureSyntaxHighlighter.BRACES),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.PAREN_ID, ClojureSyntaxHighlighter.PARENTS),
           new AttributesDescriptor(ClojureSyntaxHighlighter.BAD_CHARACTER_ID, ClojureSyntaxHighlighter.BAD_CHARACTER),
           new AttributesDescriptor(ClojureSyntaxHighlighter.CHAR_ID, ClojureSyntaxHighlighter.CHAR),
           new AttributesDescriptor(ClojureSyntaxHighlighter.LITERAL_ID, ClojureSyntaxHighlighter.LITERAL),
-          new AttributesDescriptor(ClojureSyntaxHighlighter.DEF_ID, ClojureSyntaxHighlighter.DEFINITION),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.DEF_ID, ClojureSyntaxHighlighter.DEF),
       };
 
   @NotNull
@@ -89,7 +90,7 @@ public class ClojureColorsAndFontsPage implements ColorSettingsPage {
   @Nullable
   public Map<String, TextAttributesKey> getAdditionalHighlightingTagToDescriptorMap() {
     Map<String, TextAttributesKey> map = new HashMap<String, TextAttributesKey>();
-    map.put("def", ClojureSyntaxHighlighter.DEFINITION);
+    map.put("def", ClojureSyntaxHighlighter.DEF);
     return map;
   }
 }

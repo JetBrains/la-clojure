@@ -22,7 +22,7 @@ public class ClojureAnnotator implements Annotator {
     final ClSymbol first = list.getFirstSymbol();
     if (first != null) {
       Annotation annotation = holder.createInfoAnnotation(first, null);
-      annotation.setTextAttributes(ClojureSyntaxHighlighter.DEFINITION);
+      annotation.setTextAttributes(ClojureSyntaxHighlighter.DEF);
     }
   }
 }
