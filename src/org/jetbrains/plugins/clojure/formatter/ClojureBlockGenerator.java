@@ -7,6 +7,7 @@ import com.intellij.formatting.Wrap;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.plugins.clojure.formatter.processors.ClojureIndentProcessor;
 import org.jetbrains.plugins.clojure.psi.api.ClVector;
 import org.jetbrains.plugins.clojure.psi.api.ClMap;
@@ -41,9 +42,11 @@ public class ClojureBlockGenerator {
     ASTNode children[] = myNode.getChildren(null);
     ASTNode prevChildNode = null;
 
-    final Alignment align = mustAlign(blockPsi) ? Alignment.createAlignment() : null;
+
+    final Alignment align1 = Alignment.createAlignment();
     for (ASTNode childNode : children) {
       if (canBeCorrectBlock(childNode)) {
+        final Alignment align = mustAlign(blockPsi, childNode.getPsi()) ? align1 : null;
         final Indent indent = ClojureIndentProcessor.getChildIndent(myBlock, prevChildNode, childNode);
         subBlocks.add(new ClojureBlock(childNode, align, indent, myWrap, mySettings));
         prevChildNode = childNode;
@@ -52,10 +55,15 @@ public class ClojureBlockGenerator {
     return subBlocks;
   }
 
-  private static boolean mustAlign(PsiElement blockPsi) {
-    if (blockPsi instanceof ClVector || blockPsi instanceof ClMap) return true;
+  private static boolean mustAlign(PsiElement blockPsi, PsiElement child) {
+
+    if (blockPsi instanceof ClVector || blockPsi instanceof ClMap) {
+      return !(child instanceof LeafPsiElement);
+    }
     if (blockPsi instanceof ClLiteral) {
-      ASTNode[] elements = blockPsi.getNode().getChildren(null);
+      ASTNode node = blockPsi.getNode();
+      assert node != null;
+      ASTNode[] elements = node.getChildren(null);
       if (elements.length > 0 && elements[0].getElementType() == ClojureTokenTypes.STRING_LITERAL){
         return true;
       }
