@@ -9,10 +9,9 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.plugins.clojure.formatter.processors.ClojureIndentProcessor;
-import org.jetbrains.plugins.clojure.psi.api.ClVector;
-import org.jetbrains.plugins.clojure.psi.api.ClMap;
-import org.jetbrains.plugins.clojure.psi.api.ClBraced;
-import org.jetbrains.plugins.clojure.psi.api.ClLiteral;
+import org.jetbrains.plugins.clojure.psi.api.*;
+import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 
 import java.util.ArrayList;
@@ -43,10 +42,10 @@ public class ClojureBlockGenerator {
     ASTNode prevChildNode = null;
 
 
-    final Alignment align1 = Alignment.createAlignment();
+    final Alignment childAlignment = Alignment.createAlignment();
     for (ASTNode childNode : children) {
       if (canBeCorrectBlock(childNode)) {
-        final Alignment align = mustAlign(blockPsi, childNode.getPsi()) ? align1 : null;
+        final Alignment align = mustAlign(blockPsi, childNode.getPsi()) ? childAlignment : null;
         final Indent indent = ClojureIndentProcessor.getChildIndent(myBlock, prevChildNode, childNode);
         subBlocks.add(new ClojureBlock(childNode, align, indent, myWrap, mySettings));
         prevChildNode = childNode;
@@ -59,6 +58,22 @@ public class ClojureBlockGenerator {
 
     if (blockPsi instanceof ClVector || blockPsi instanceof ClMap) {
       return !(child instanceof LeafPsiElement);
+    }
+    if (blockPsi instanceof ClList &&
+        !(blockPsi instanceof ClDef)) {
+      final ClList list = (ClList) blockPsi;
+      PsiElement first = list.getFirstNonLeafElement();
+      if (first == child && !(first instanceof ClSymbol)) return true;
+      if (first != null &&
+          !(first instanceof ClSymbol) &&
+          first.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
+        return true;
+      }
+      final PsiElement second = list.getSecondNonLeafElement();
+      if (second != null &&
+          second.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
+        return true;
+      }
     }
     if (blockPsi instanceof ClLiteral) {
       ASTNode node = blockPsi.getNode();

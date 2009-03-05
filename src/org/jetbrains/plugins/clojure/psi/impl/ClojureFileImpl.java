@@ -71,4 +71,8 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     return lastChild;
   }
 
+  public PsiElement getSecondNonLeafElement() {
+    return null;
+  }
+
 }
