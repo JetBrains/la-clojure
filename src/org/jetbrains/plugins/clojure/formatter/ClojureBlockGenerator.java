@@ -46,6 +46,7 @@ public class ClojureBlockGenerator {
     for (ASTNode childNode : children) {
       if (canBeCorrectBlock(childNode)) {
         final Alignment align = mustAlign(blockPsi, childNode.getPsi()) ? childAlignment : null;
+        if (align != null) myBlock.setAlignment(align);
         final Indent indent = ClojureIndentProcessor.getChildIndent(myBlock, prevChildNode, childNode);
         subBlocks.add(new ClojureBlock(childNode, align, indent, myWrap, mySettings));
         prevChildNode = childNode;
@@ -54,7 +55,7 @@ public class ClojureBlockGenerator {
     return subBlocks;
   }
 
-  private static boolean mustAlign(PsiElement blockPsi, PsiElement child) {
+  public static boolean mustAlign(PsiElement blockPsi, PsiElement child) {
 
     if (blockPsi instanceof ClVector || blockPsi instanceof ClMap) {
       return !(child instanceof LeafPsiElement);

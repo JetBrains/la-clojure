@@ -28,6 +28,7 @@ public class ClojureBlock implements Block, ClojureElementTypes{
   final protected Indent myIndent;
   final protected Wrap myWrap;
   final protected CodeStyleSettings mySettings;
+  protected Alignment myChildAlignment = Alignment.createAlignment();
 
   protected List<Block> mySubBlocks = null;
 
@@ -35,6 +36,7 @@ public class ClojureBlock implements Block, ClojureElementTypes{
   public ClojureBlock(@NotNull final ASTNode node, @Nullable final Alignment alignment, @NotNull final Indent indent, @Nullable final Wrap wrap, final CodeStyleSettings settings) {
     myNode = node;
     myAlignment = alignment;
+    setAlignment(alignment);
     myIndent = indent;
     myWrap = wrap;
     mySettings = settings;
@@ -94,7 +96,7 @@ public class ClojureBlock implements Block, ClojureElementTypes{
       return new ChildAttributes(Indent.getNoneIndent(), null);
     }
     if (LIST_LIKE_FORMS.contains(astNode.getElementType())) {
-      return new ChildAttributes(Indent.getNormalIndent(), null);
+      return new ChildAttributes(Indent.getNormalIndent(), myChildAlignment);
     }
     return new ChildAttributes(Indent.getNoneIndent(), null);
   }
@@ -122,5 +124,9 @@ public class ClojureBlock implements Block, ClojureElementTypes{
 
   public boolean isLeaf() {
     return myNode.getFirstChildNode() == null;
+  }
+
+  public void setAlignment(Alignment alignment) {
+    myChildAlignment = alignment;
   }
 }
