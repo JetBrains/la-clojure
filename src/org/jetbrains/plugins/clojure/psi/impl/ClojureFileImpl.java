@@ -57,7 +57,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
 
   public PsiElement getFirstNonLeafElement() {
     PsiElement first = getFirstChild();
-    while (isWrongElement(first)) {
+    while (first != null && isWrongElement(first)) {
       first = first.getNextSibling();
     }
     return first;
@@ -65,7 +65,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
 
   public PsiElement getLastNonLeafElement() {
     PsiElement lastChild = getLastChild();
-    while (isWrongElement(lastChild)) {
+    while (lastChild != null && isWrongElement(lastChild)) {
       lastChild = lastChild.getPrevSibling();
     }
     return lastChild;

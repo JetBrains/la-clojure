@@ -58,10 +58,10 @@ public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseEle
 
   public PsiElement getSecondNonLeafElement() {
     PsiElement first = getFirstChild();
-    while (isWrongElement(first)) {
+    while (first != null && isWrongElement(first)) {
       first = first.getNextSibling();
     }
-    while (isWrongElement(first)) {
+    while (first != null && isWrongElement(first)) {
       first = first.getNextSibling();
     }
     return first;

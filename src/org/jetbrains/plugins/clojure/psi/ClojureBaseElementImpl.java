@@ -21,7 +21,7 @@ public abstract class ClojureBaseElementImpl <T extends StubElement> extends Stu
 
   public PsiElement getFirstNonLeafElement() {
     PsiElement first = getFirstChild();
-    while (isWrongElement(first)) {
+    while (first != null && isWrongElement(first)) {
       first = first.getNextSibling();
     }
     return first;
@@ -29,7 +29,7 @@ public abstract class ClojureBaseElementImpl <T extends StubElement> extends Stu
 
   public PsiElement getLastNonLeafElement() {
     PsiElement lastChild = getLastChild();
-    while (isWrongElement(lastChild)) {
+    while (lastChild != null && isWrongElement(lastChild)) {
       lastChild = lastChild.getPrevSibling();
     }
     return lastChild;
