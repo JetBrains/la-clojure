@@ -22,7 +22,7 @@ public class ClListImpl extends ClListBaseImpl<NamedStub> implements ClList {
 
   @Override
   public String toString() {
-    return "ClList";
+    return "ClList"; 
   }
 
 }
