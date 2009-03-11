@@ -13,6 +13,7 @@ import org.jetbrains.plugins.clojure.formatter.processors.ClojureIndentProcessor
 import org.jetbrains.plugins.clojure.psi.api.*;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.impl.ClKey;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 
 import java.util.ArrayList;
@@ -66,9 +67,9 @@ public class ClojureBlockGenerator {
         !(blockPsi instanceof ClDef)) {
       final ClList list = (ClList) blockPsi;
       PsiElement first = list.getFirstNonLeafElement();
-      if (first == child && !(first instanceof ClSymbol)) return true;
+      if (first == child && !applicationStart(first)) return true;
       if (first != null &&
-          !(first instanceof ClSymbol) &&
+          !applicationStart(first) &&
           first.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
         return true;
       }
@@ -87,6 +88,11 @@ public class ClojureBlockGenerator {
       }
     }
     return false;
+  }
+
+  private static boolean applicationStart(PsiElement first) {
+    return first instanceof ClSymbol ||
+        first instanceof ClKey;
   }
 
   private static boolean canBeCorrectBlock(final ASTNode node) {
