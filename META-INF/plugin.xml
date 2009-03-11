@@ -41,6 +41,7 @@
 
     <extendWordSelectionHandler implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureListSelectioner"/>
     <extendWordSelectionHandler implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureLiteralSelectioner"/>
+    <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragementFactory"/>
   </extensions>
 
   <application-components>

@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.impl.source.PsiFileImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
@@ -26,6 +27,7 @@ import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
  * limitations under the License.
  */
 public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
+  private PsiElement myContext = null;
 
   @Override
   public String toString() {
@@ -34,6 +36,20 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
 
   public ClojureFileImpl(FileViewProvider viewProvider) {
     super(viewProvider, ClojureFileType.CLOJURE_LANGUAGE);
+  }
+
+  @Override
+  public PsiElement getContext() {
+    if (myContext != null) {
+      return myContext;
+    }
+    return super.getContext();
+  }
+
+  protected PsiFileImpl clone() {
+    final ClojureFileImpl clone = (ClojureFileImpl) super.clone();
+    clone.myContext = myContext;
+    return clone;
   }
 
   @NotNull
@@ -74,5 +90,12 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
   public PsiElement getSecondNonLeafElement() {
     return null;
   }
+
+  public void setContext(PsiElement context) {
+    if (context != null) {
+      myContext = context;
+    }
+  }
+
 
 }
