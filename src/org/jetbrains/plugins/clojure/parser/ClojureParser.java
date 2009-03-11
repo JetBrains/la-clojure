@@ -69,7 +69,6 @@ public class ClojureParser implements PsiParser, ClojureTokenTypes {
       parseSymbol(builder);
     } else if (COLON_SYMBOL == token) {
       parseKeyword(builder);
-
     } else if (LITERALS.contains(token)) {
       parseLiteral(builder);
     } else {
