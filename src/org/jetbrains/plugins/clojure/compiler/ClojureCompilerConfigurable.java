@@ -29,7 +29,7 @@ public class ClojureCompilerConfigurable implements Configurable {
 
   @Nls
   public String getDisplayName() {
-    return "Scala Compiler";
+    return "Clojure Compiler";
   }
 
   public Icon getIcon() {

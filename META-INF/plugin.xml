@@ -51,7 +51,7 @@
                 implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureLiteralSelectioner"/>
         <debugger.codeFragmentFactory
                 implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragementFactory"/>
-        <compilerSettingsFactory implementation="org.jetbrains.plugins.scala.compiler.CompilerSettingsEP"/>
+        <compilerSettingsFactory implementation="org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettingsFactory"/>
     </extensions>
 
     <application-components>
