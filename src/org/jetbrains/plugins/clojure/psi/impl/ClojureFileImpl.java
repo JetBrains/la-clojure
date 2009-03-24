@@ -2,15 +2,15 @@ package org.jetbrains.plugins.clojure.psi.impl;
 
 import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.psi.FileViewProvider;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.PsiComment;
+import com.intellij.psi.*;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.impl.source.PsiFileImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 
 /**
  * User: peter
@@ -87,6 +87,14 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     return lastChild;
   }
 
+  public <T> T findFirstChildByClass(Class<T> aClass) {
+    PsiElement element = getFirstChild();
+    while (element != null && !aClass.isInstance(element)) {
+      element = element.getNextSibling();
+    }
+    return (T)element;
+  }
+
   public PsiElement getSecondNonLeafElement() {
     return null;
   }
@@ -97,5 +105,35 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     }
   }
 
+  public boolean isClassDefiningFile() {
+    final ClList ns = ClojurePsiUtil.findFormByName(this, "ns");
+    if (ns == null) return false;
+    final ClSymbol first = ns.findFirstChildByClass(ClSymbol.class);
+    if (first == null) return false;
+    final ClSymbol snd = ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
+    if (snd == null) return false;
 
+    final ClList list = ns.findFirstChildByClass(ClList.class);
+    if (list == null) return false;
+    for (PsiElement element : list.getChildren()) {
+      if (element instanceof ClKey) {
+        ClKey key = (ClKey) element;
+        if (":gen-class".equals(key.getText())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public String getNamespace() {
+    final ClList ns = ClojurePsiUtil.findFormByName(this, "ns");
+    if (ns == null) return null;
+    final ClSymbol first = ns.findFirstChildByClass(ClSymbol.class);
+    if (first == null) return null;
+    final ClSymbol snd = ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
+    if (snd == null) return null;
+
+    return snd.getNameString();
+  }
 }

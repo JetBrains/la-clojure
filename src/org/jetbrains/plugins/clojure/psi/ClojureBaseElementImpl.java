@@ -35,6 +35,14 @@ public abstract class ClojureBaseElementImpl <T extends StubElement> extends Stu
     return lastChild;
   }
 
+  public <T> T findFirstChildByClass(Class<T> aClass) {
+    PsiElement element = getFirstChild();
+    while (element != null && !aClass.isInstance(element)) {
+      element = element.getNextSibling();
+    }
+    return (T)element;
+  }
+
   public ClojureBaseElementImpl(T stub, @org.jetbrains.annotations.NotNull IStubElementType nodeType) {
     super(stub, nodeType);
   }

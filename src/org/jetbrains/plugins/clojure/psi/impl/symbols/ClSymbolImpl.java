@@ -70,4 +70,9 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
   public boolean isSoft() {
     return false;
   }
+
+  @NotNull
+  public String getNameString() {
+    return getText();
+  }
 }

@@ -14,7 +14,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.*;
-import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.ui.configuration.ClasspathEditor;
 import com.intellij.openapi.roots.ui.configuration.ModulesConfigurator;
 import com.intellij.openapi.ui.Messages;
@@ -28,6 +27,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.util.ClojureConfigUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -61,7 +61,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
   private static final String CLOJURE_MAIN = "clojure.main";
   private static final String CLOJURE_REPL = "clojure.lang.Repl";
   private static final String JLINE_CONSOLE_RUNNER = "jline.ConsoleRunner";
-  private static final String CLOJURE_MAIN_CLASS_FILE = "clojure/main.class";
 
   public ClojureScriptRunConfiguration(ClojureScriptConfigurationFactory factory, Project project, String name) {
     super(name, new RunConfigurationModule(project), factory);
@@ -126,7 +125,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     //params.getClassPath().add(CLOJURE_SDK);
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
 
-    params.getClassPath().add("/home/ilya/work/clojure-plugin/lib/jline.jar");
+//    params.getClassPath().add("/home/ilya/work/clojure-plugin/lib/jline.jar");
   }
 
   private void configureJavaParams(JavaParameters params, Module module) throws CantRunException {
@@ -200,7 +199,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
       throw CantRunException.noJdkForModule(getModule());
     }
 
-    if (!isClojureConfigured(module)) {
+    if (!ClojureConfigUtil.isClojureConfigured(module)) {
       Messages.showErrorDialog(module.getProject(),
           ExecutionBundle.message("error.running.configuration.with.error.error.message", getName(),
               ClojureBundle.message("clojure.lib.is.not.attached")),
@@ -222,27 +221,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
 
     state.setConsoleBuilder(TextConsoleBuilderFactory.getInstance().createBuilder(getProject()));
     return state;
-
-  }
-
-  private static boolean isClojureConfigured(final Module module) {
-    ModuleRootManager manager = ModuleRootManager.getInstance(module);
-    for (OrderEntry entry : manager.getOrderEntries()) {
-      if (entry instanceof LibraryOrderEntry) {
-        Library library = ((LibraryOrderEntry) entry).getLibrary();
-        if (library != null) {
-          for (VirtualFile file : library.getFiles(OrderRootType.CLASSES)) {
-            String path = file.getPath();
-            if (path.endsWith(".jar!/")) {
-              if (file.findFileByRelativePath(CLOJURE_MAIN_CLASS_FILE) != null) {
-                return true;
-              }
-            }
-          }
-        }
-      }
-    }
-    return false;
 
   }
 

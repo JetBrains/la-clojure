@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.clojure.psi.impl.list;
 
-import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
-import org.jetbrains.plugins.clojure.psi.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.ClojureBaseElementImpl;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
@@ -31,7 +29,7 @@ public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseEle
   public String getPresentableText() {
     final ClSymbol first = findChildByClass(ClSymbol.class);
     if (first == null) return null;
-    PsiElement next = ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
+    PsiElement next = org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
     final String text1 = first.getText();
     if (next == null) return text1;
     else return text1 + " " + next.getText();

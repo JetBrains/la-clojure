@@ -15,7 +15,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
@@ -25,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
-import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
-import org.jetbrains.plugins.clojure.psi.ClojurePsiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +98,7 @@ public class ClojurePositionManager implements PositionManager {
           ClList list = (ClList) element;
           final ClSymbol first = list.getFirstSymbol();
           if (first != null && first.getText().equals("ns")) {
-            final ClSymbol snd = ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
+            final ClSymbol snd = org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
             if (snd != null) return snd.getText();
           }
         }

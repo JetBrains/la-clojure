@@ -12,8 +12,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureIcons;
-import org.jetbrains.plugins.clojure.parser.ClojureSpecialFormTokens;
-import org.jetbrains.plugins.clojure.psi.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.list.ClListBaseImpl;
@@ -46,8 +44,7 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
   public ClSymbol getNameSymbol() {
     final ClSymbol first = findChildByClass(ClSymbol.class);
     if (first == null) return null;
-    assert ClojureSpecialFormTokens.DEF_TOKENS.contains(first.getText());
-    return ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
+    return org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
   }
 
   public String getDefinedName() {

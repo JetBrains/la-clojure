@@ -84,4 +84,11 @@ public class ClojureCodeFragment extends ClojureFileImpl implements JavaCodeFrag
     return myScope;
   }
 
+  public boolean isClassDefiningFile() {
+    return false;
+  }
+
+  public String getNamespace() {
+    return null; 
+  }
 }

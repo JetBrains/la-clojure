@@ -14,4 +14,5 @@ public interface ClojurePsiElement extends PsiElement {
   @Nullable
   PsiElement getLastNonLeafElement();
 
+  <T> T findFirstChildByClass(Class<T> aClass);
 }
