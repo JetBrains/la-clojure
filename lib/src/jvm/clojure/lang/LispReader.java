@@ -25,9 +25,10 @@ public class LispReader{
 static final Symbol QUOTE = Symbol.create("quote");
 static final Symbol THE_VAR = Symbol.create("var");
 //static Symbol SYNTAX_QUOTE = Symbol.create(null, "syntax-quote");
-//static Symbol UNQUOTE = Symbol.create(null, "unquote");
-//static Symbol UNQUOTE_SPLICING = Symbol.create(null, "unquote-splicing");
+static Symbol UNQUOTE = Symbol.create("clojure.core", "unquote");
+static Symbol UNQUOTE_SPLICING = Symbol.create("clojure.core", "unquote-splicing");
 static Symbol CONCAT = Symbol.create("clojure.core", "concat");
+static Symbol SEQ = Symbol.create("clojure.core", "seq");
 static Symbol LIST = Symbol.create("clojure.core", "list");
 static Symbol APPLY = Symbol.create("clojure.core", "apply");
 static Symbol HASHMAP = Symbol.create("clojure.core", "hash-map");
@@ -61,7 +62,7 @@ static Var GENSYM_ENV = Var.create(null);
 //sorted-map num->gensymbol
 static Var ARG_ENV = Var.create(null);
 
-static
+    static
 	{
 	macros['"'] = new StringReader();
 	macros[';'] = new CommentReader();
@@ -90,6 +91,7 @@ static
 	dispatchMacros['='] = new EvalReader();
 	dispatchMacros['!'] = new CommentReader();
 	dispatchMacros['<'] = new UnreadableReader();
+	dispatchMacros['_'] = new DiscardReader();
 	}
 
 static boolean isWhitespace(int ch){
@@ -466,6 +468,14 @@ public static class CommentReader extends AFn{
 
 }
 
+public static class DiscardReader extends AFn{
+	public Object invoke(Object reader, Object underscore) throws Exception{
+		PushbackReader r = (PushbackReader) reader;
+		read(r, true, null, true);
+		return r;
+	}
+}
+
 public static class WrappingReader extends AFn{
 	final Symbol sym;
 
@@ -538,7 +548,7 @@ static Symbol garg(int n){
 public static class FnReader extends AFn{
 	public Object invoke(Object reader, Object lparen) throws Exception{
 		PushbackReader r = (PushbackReader) reader;
-		if(ARG_ENV.get() != null)
+		if(ARG_ENV.deref() != null)
 			throw new IllegalStateException("Nested #()s are not allowed");
 		try
 			{
@@ -548,7 +558,7 @@ public static class FnReader extends AFn{
 			Object form = read(r, true, null, true);
 
 			PersistentVector args = PersistentVector.EMPTY;
-			PersistentTreeMap argsyms = (PersistentTreeMap) ARG_ENV.get();
+			PersistentTreeMap argsyms = (PersistentTreeMap) ARG_ENV.deref();
 			ISeq rargs = argsyms.rseq();
 			if(rargs != null)
 				{
@@ -580,7 +590,7 @@ public static class FnReader extends AFn{
 }
 
 static Symbol registerArg(int n){
-	PersistentTreeMap argsyms = (PersistentTreeMap) ARG_ENV.get();
+	PersistentTreeMap argsyms = (PersistentTreeMap) ARG_ENV.deref();
 	if(argsyms == null)
 		{
 		throw new IllegalStateException("arg literal not in #()");
@@ -626,19 +636,19 @@ public static class MetaReader extends AFn{
 			throw new IllegalArgumentException("Metadata must be Symbol,Keyword,String or Map");
 
 		Object o = read(r, true, null, true);
-		if(o instanceof IObj)
+		if(o instanceof IMeta)
 			{
 			if(line != -1 && o instanceof ISeq)
 				meta = ((IPersistentMap) meta).assoc(RT.LINE_KEY, line);
-			if(o instanceof Var)
+			if(o instanceof IReference)
 				{
-				((Var)o).setMeta((IPersistentMap) meta);
+				((IReference)o).resetMeta((IPersistentMap) meta);
 				return o;
 				}
 			return ((IObj) o).withMeta((IPersistentMap) meta);
 			}
 		else
-			throw new IllegalArgumentException("Metadata can only be applied to IObjs");
+			throw new IllegalArgumentException("Metadata can only be applied to IMetas");
 	}
 
 }
@@ -669,43 +679,56 @@ public static class SyntaxQuoteReader extends AFn{
 			Symbol sym = (Symbol) form;
 			if(sym.ns == null && sym.name.endsWith("#"))
 				{
-				IPersistentMap gmap = (IPersistentMap) GENSYM_ENV.get();
+				IPersistentMap gmap = (IPersistentMap) GENSYM_ENV.deref();
 				if(gmap == null)
 					throw new IllegalStateException("Gensym literal not in syntax-quote");
 				Symbol gs = (Symbol) gmap.valAt(sym);
 				if(gs == null)
 					GENSYM_ENV.set(gmap.assoc(sym, gs = Symbol.intern(null,
 					                                                  sym.name.substring(0, sym.name.length() - 1)
-					                                                  + "__" + RT.nextID())));
+					                                                  + "__" + RT.nextID() + "__auto__")));
 				sym = gs;
 				}
-			else
+			else if(sym.ns == null && sym.name.endsWith("."))
+				{
+				Symbol csym = Symbol.intern(null, sym.name.substring(0, sym.name.length() - 1));
+				csym = Compiler.resolveSymbol(csym);
+				sym = Symbol.intern(null, csym.name.concat("."));
+				}
+			else if(sym.ns == null && sym.name.startsWith("."))
+				{
+				// Simply quote method names.
+ 				}
+            else
 				sym = Compiler.resolveSymbol(sym);
 			ret = RT.list(Compiler.QUOTE, sym);
 			}
-		else if(form instanceof Unquote)
-			return ((Unquote) form).o;
-		else if(form instanceof UnquoteSplicing)
+		else if(isUnquote(form))
+			return RT.second(form);
+		else if(isUnquoteSplicing(form))
 			throw new IllegalStateException("splice not in list");
 		else if(form instanceof IPersistentCollection)
 			{
 			if(form instanceof IPersistentMap)
 				{
 				IPersistentVector keyvals = flattenMap(form);
-				ret = RT.list(APPLY, HASHMAP, RT.cons(CONCAT, sqExpandList(keyvals.seq())));
+                ret = RT.list(APPLY, HASHMAP, RT.list(SEQ, RT.cons(CONCAT, sqExpandList(keyvals.seq()))));
 				}
 			else if(form instanceof IPersistentVector)
-				{
-				ret = RT.list(APPLY, VECTOR, RT.cons(CONCAT, sqExpandList(((IPersistentVector) form).seq())));
-				}
+                {
+                ret = RT.list(APPLY, VECTOR, RT.list(SEQ, RT.cons(CONCAT, sqExpandList(((IPersistentVector) form).seq()))));
+                }
 			else if(form instanceof IPersistentSet)
-				{
-				ret = RT.list(APPLY, HASHSET, RT.cons(CONCAT, sqExpandList(((IPersistentSet) form).seq())));
-				}
-			else if(form instanceof ISeq)
+                    {
+                    ret = RT.list(APPLY, HASHSET, RT.list(SEQ, RT.cons(CONCAT, sqExpandList(((IPersistentSet) form).seq()))));
+                    }
+			else if(form instanceof ISeq || form instanceof IPersistentList)
 				{
 				ISeq seq = RT.seq(form);
-				ret = RT.cons(CONCAT, sqExpandList(seq));
+                if(seq == null)
+                    ret = RT.cons(LIST,null);
+                else
+                    ret = RT.list(SEQ, RT.cons(CONCAT, sqExpandList(seq)));
 				}
 			else
 				throw new UnsupportedOperationException("Unknown Collection type");
@@ -718,7 +741,7 @@ public static class SyntaxQuoteReader extends AFn{
 		else
 			ret = RT.list(Compiler.QUOTE, form);
 
-		if(form instanceof IObj && !(form instanceof Var) && ((IObj) form).meta() != null)
+		if(form instanceof IObj && RT.meta(form) != null)
 			{
 			//filter line numbers
 			IPersistentMap newMeta = ((IObj) form).meta().without(RT.LINE_KEY);
@@ -730,13 +753,13 @@ public static class SyntaxQuoteReader extends AFn{
 
 	private static ISeq sqExpandList(ISeq seq) throws Exception{
 		PersistentVector ret = PersistentVector.EMPTY;
-		for(; seq != null; seq = seq.rest())
+		for(; seq != null; seq = seq.next())
 			{
 			Object item = seq.first();
-			if(item instanceof Unquote)
-				ret = ret.cons(RT.list(LIST, ((Unquote) item).o));
-			else if(item instanceof UnquoteSplicing)
-				ret = ret.cons(((UnquoteSplicing) item).o);
+			if(isUnquote(item))
+				ret = ret.cons(RT.list(LIST, RT.second(item)));
+			else if(isUnquoteSplicing(item))
+				ret = ret.cons(RT.second(item));
 			else
 				ret = ret.cons(RT.list(LIST, syntaxQuote(item)));
 			}
@@ -745,7 +768,7 @@ public static class SyntaxQuoteReader extends AFn{
 
 	private static IPersistentVector flattenMap(Object form){
 		IPersistentVector keyvals = PersistentVector.EMPTY;
-		for(ISeq s = RT.seq(form); s != null; s = s.rest())
+		for(ISeq s = RT.seq(form); s != null; s = s.next())
 			{
 			IMapEntry e = (IMapEntry) s.first();
 			keyvals = (IPersistentVector) keyvals.cons(e.key());
@@ -756,20 +779,12 @@ public static class SyntaxQuoteReader extends AFn{
 
 }
 
-static class Unquote{
-	final Object o;
-
-	public Unquote(Object o){
-		this.o = o;
-	}
+static boolean isUnquoteSplicing(Object form){
+	return form instanceof ISeq && RT.first(form).equals(UNQUOTE_SPLICING);
 }
 
-static class UnquoteSplicing{
-	final Object o;
-
-	public UnquoteSplicing(Object o){
-		this.o = o;
-	}
+static boolean isUnquote(Object form){
+	return form instanceof ISeq && RT.first(form).equals(UNQUOTE);
 }
 
 static class UnquoteReader extends AFn{
@@ -781,13 +796,13 @@ static class UnquoteReader extends AFn{
 		if(ch == '@')
 			{
 			Object o = read(r, true, null, true);
-			return new UnquoteSplicing(o);
+			return RT.list(UNQUOTE_SPLICING, o);
 			}
 		else
 			{
 			unread(r, ch);
 			Object o = read(r, true, null, true);
-			return new Unquote(o);
+			return RT.list(UNQUOTE, o);
 			}
 	}
 
@@ -904,18 +919,18 @@ public static class EvalReader extends AFn{
 				}
 			if(fs.name.endsWith("."))
 				{
-				Object[] args = RT.toArray(RT.rest(o));
+				Object[] args = RT.toArray(RT.next(o));
 				return Reflector.invokeConstructor(RT.classForName(fs.name.substring(0, fs.name.length() - 1)), args);
 				}
 			if(Compiler.namesStaticMember(fs))
 				{
-				Object[] args = RT.toArray(RT.rest(o));
+				Object[] args = RT.toArray(RT.next(o));
 				return Reflector.invokeStaticMethod(fs.ns, fs.name, args);
 				}
 			Object v = Compiler.maybeResolveIn(Compiler.currentNS(), fs);
 			if(v instanceof Var)
 				{
-				return ((IFn) v).applyTo(RT.rest(o));
+				return ((IFn) v).applyTo(RT.next(o));
 				}
 			throw new Exception("Can't resolve " + fs);
 			}
@@ -943,7 +958,7 @@ public static class VectorReader extends AFn{
 public static class MapReader extends AFn{
 	public Object invoke(Object reader, Object leftparen) throws Exception{
 		PushbackReader r = (PushbackReader) reader;
-		return PersistentHashMap.create(readDelimitedList('}', r, true));
+		return RT.map(readDelimitedList('}', r, true).toArray());
 	}
 
 }

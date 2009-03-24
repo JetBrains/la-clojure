@@ -93,9 +93,9 @@ public static PersistentHashMap create(List init){
 
 static public PersistentHashMap create(ISeq items){
 	IPersistentMap ret = EMPTY;
-	for(; items != null; items = items.rest().rest())
+	for(; items != null; items = items.next().next())
 		{
-		if(items.rest() == null)
+		if(items.next() == null)
 			throw new IllegalArgumentException(String.format("No value supplied for key: %s", items.first()));
 		ret = ret.assoc(items.first(), RT.second(items));
 		}
@@ -349,8 +349,8 @@ final static class FullNode implements INode{
 			return s.first();
 		}
 
-		public ISeq rest(){
-			ISeq nexts = s.rest();
+		public ISeq next(){
+			ISeq nexts = s.next();
 			if(nexts != null)
 				return new Seq(nexts, i, node);
 			return create(node, i + 1);
@@ -359,7 +359,7 @@ final static class FullNode implements INode{
 		public Seq withMeta(IPersistentMap meta){
 			return new Seq(meta, s, i, node);
 		}
-	}
+    }
 
 
 }
@@ -507,8 +507,8 @@ final static class BitmapIndexedNode implements INode{
 			return s.first();
 		}
 
-		public ISeq rest(){
-			ISeq nexts = s.rest();
+		public ISeq next(){
+			ISeq nexts = s.next();
 			if(nexts != null)
 				return new Seq(nexts, i, node);
 			return create(node, i + 1);
@@ -517,7 +517,7 @@ final static class BitmapIndexedNode implements INode{
 		public Seq withMeta(IPersistentMap meta){
 			return new Seq(meta, s, i, node);
 		}
-	}
+    }
 
 
 }
@@ -536,7 +536,7 @@ final static class LeafNode extends AMapEntry implements INode{
 	public INode assoc(int shift, int hash, Object key, Object val, Box addedLeaf){
 		if(hash == this.hash)
 			{
-			if(Util.equal(key, this.key))
+			if(Util.equals(key, this.key))
 				{
 				if(val == this.val)
 					return this;
@@ -552,13 +552,13 @@ final static class LeafNode extends AMapEntry implements INode{
 	}
 
 	public INode without(int hash, Object key){
-		if(hash == this.hash && Util.equal(key, this.key))
+		if(hash == this.hash && Util.equals(key, this.key))
 			return null;
 		return this;
 	}
 
 	public LeafNode find(int hash, Object key){
-		if(hash == this.hash && Util.equal(key, this.key))
+		if(hash == this.hash && Util.equals(key, this.key))
 			return this;
 		return null;
 	}

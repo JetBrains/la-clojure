@@ -15,7 +15,7 @@ package clojure.lang;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public final class Var implements IFn, IRef, IObj{
+public final class Var extends ARef implements IFn, IRef, Settable{
 
 
 static class Frame{
@@ -55,9 +55,8 @@ volatile Object root;
 transient final AtomicInteger count;
 public final Symbol sym;
 public final Namespace ns;
-volatile IFn validator = null;
 
-IPersistentMap _meta;
+//IPersistentMap _meta;
 
 public static Var intern(Namespace ns, Symbol sym, Object root){
 	return intern(ns, sym, root, true);
@@ -129,6 +128,10 @@ public boolean isBound(){
 }
 
 final public Object get(){
+	return deref();
+}
+
+final public Object deref(){
 	Box b = getThreadBinding();
 	if(b != null)
 		return b.val;
@@ -138,30 +141,14 @@ final public Object get(){
 }
 
 public void setValidator(IFn vf){
-	if(isBound())
+	if(hasRoot())
 		validate(vf, getRoot());
 	validator = vf;
 }
 
-public IFn getValidator(){
-	return validator;
-}
-
 public Object alter(IFn fn, ISeq args) throws Exception{
-	set(fn.applyTo(RT.cons(get(), args)));
+	set(fn.applyTo(RT.cons(deref(), args)));
 	return this;
-}
-
-void validate(IFn vf, Object val){
-	try
-		{
-		if(vf != null)
-			vf.invoke(val);
-		}
-	catch(Exception e)
-		{
-		throw new IllegalStateException("Invalid var state", e);
-		}
 }
 
 public Object set(Object val){
@@ -178,25 +165,33 @@ public Object set(Object val){
 	throw new IllegalStateException(String.format("Can't change/establish root binding of: %s with set", sym));
 }
 
-public void setMeta(IPersistentMap m){
-	//ensure these basis keys
-	_meta = m.assoc(nameKey, sym).assoc(nsKey, ns);
+public Object doSet(Object val) throws Exception {
+    return set(val);
+    }
+
+public Object doReset(Object val) throws Exception {
+    bindRoot(val);
+    return val;
+    }
+
+public void setMeta(IPersistentMap m) {
+    //ensure these basis keys
+    resetMeta(m.assoc(nameKey, sym).assoc(nsKey, ns));
 }
 
-public IPersistentMap meta(){
-	return _meta;
-}
-
-public IObj withMeta(IPersistentMap meta){
-	throw new UnsupportedOperationException("Vars are not values");
-}
-
-public void setMacro(){
-	_meta = _meta.assoc(macroKey, RT.T);
+public void setMacro() {
+    try
+        {
+        alterMeta(assoc, RT.list(macroKey, RT.T));
+        }
+    catch (Exception e)
+        {
+        throw new RuntimeException(e);
+        }
 }
 
 public boolean isMacro(){
-	return RT.booleanCast(_meta.valAt(macroKey));
+	return RT.booleanCast(meta().valAt(macroKey));
 }
 
 //public void setExported(boolean state){
@@ -204,19 +199,28 @@ public boolean isMacro(){
 //}
 
 public boolean isPublic(){
-	return !RT.booleanCast(_meta.valAt(privateKey));
+	return !RT.booleanCast(meta().valAt(privateKey));
 }
 
 public Object getRoot(){
-	return root;
+	if(hasRoot())
+		return root;
+	throw new IllegalStateException(String.format("Var %s/%s is unbound.", ns, sym));
 }
 
 public Object getTag(){
-	return _meta.valAt(RT.TAG_KEY);
+	return meta().valAt(RT.TAG_KEY);
 }
 
-public void setTag(Symbol tag){
-	_meta = _meta.assoc(RT.TAG_KEY, tag);
+public void setTag(Symbol tag) {
+    try
+        {
+        alterMeta(assoc, RT.list(RT.TAG_KEY, tag));
+        }
+    catch (Exception e)
+        {
+        throw new RuntimeException(e);
+        }
 }
 
 final public boolean hasRoot(){
@@ -226,13 +230,24 @@ final public boolean hasRoot(){
 //binding root always clears macro flag
 synchronized public void bindRoot(Object root){
 	validate(getValidator(), root);
+	Object oldroot = hasRoot()?this.root:null;
 	this.root = root;
-	_meta = _meta.assoc(macroKey, RT.F);
+    try
+        {
+        alterMeta(assoc, RT.list(macroKey, RT.F));
+        }
+    catch (Exception e)
+        {
+        throw new RuntimeException(e);
+        }
+    notifyWatches(oldroot,this.root);
 }
 
 synchronized void swapRoot(Object root){
 	validate(getValidator(), root);
+	Object oldroot = hasRoot()?this.root:null;
 	this.root = root;
+    notifyWatches(oldroot,root);
 }
 
 synchronized public void unbindRoot(){
@@ -242,20 +257,24 @@ synchronized public void unbindRoot(){
 synchronized public void commuteRoot(IFn fn) throws Exception{
 	Object newRoot = fn.invoke(root);
 	validate(getValidator(), newRoot);
+	Object oldroot = getRoot();
 	this.root = newRoot;
+    notifyWatches(oldroot,newRoot);
 }
 
 synchronized public Object alterRoot(IFn fn, ISeq args) throws Exception{
 	Object newRoot = fn.applyTo(RT.cons(root, args));
 	validate(getValidator(), newRoot);
+	Object oldroot = getRoot();
 	this.root = newRoot;
+    notifyWatches(oldroot,newRoot);
 	return newRoot;
 }
 
 public static void pushThreadBindings(Associative bindings){
 	Frame f = dvals.get();
 	Associative bmap = f.bindings;
-	for(ISeq bs = bindings.seq(); bs != null; bs = bs.rest())
+	for(ISeq bs = bindings.seq(); bs != null; bs = bs.next())
 		{
 		IMapEntry e = (IMapEntry) bs.first();
 		Var v = (Var) e.key();
@@ -270,7 +289,7 @@ public static void popThreadBindings(){
 	Frame f = dvals.get();
 	if(f.prev == null)
 		throw new IllegalStateException("Pop without matching push");
-	for(ISeq bs = RT.keys(f.frameBindings); bs != null; bs = bs.rest())
+	for(ISeq bs = RT.keys(f.frameBindings); bs != null; bs = bs.next())
 		{
 		Var v = (Var) bs.first();
 		v.count.decrementAndGet();
@@ -282,7 +301,7 @@ public static void releaseThreadBindings(){
 	Frame f = dvals.get();
 	if(f.prev == null)
 		throw new IllegalStateException("Release without full unwind");
-	for(ISeq bs = RT.keys(f.bindings); bs != null; bs = bs.rest())
+	for(ISeq bs = RT.keys(f.bindings); bs != null; bs = bs.next())
 		{
 		Var v = (Var) bs.first();
 		v.count.decrementAndGet();
@@ -301,7 +320,7 @@ final Box getThreadBinding(){
 }
 
 final public IFn fn(){
-	return (IFn) get();
+	return (IFn) deref();
 }
 
 public Object call() throws Exception{
@@ -444,4 +463,10 @@ public Object applyTo(ISeq arglist) throws Exception{
 	return AFn.applyToHelper(this, arglist);
 }
 
+static IFn assoc = new AFn(){
+    @Override
+    public Object invoke(Object m, Object k, Object v) throws Exception {
+        return RT.assoc(m, k, v);
+    }
+};
 }

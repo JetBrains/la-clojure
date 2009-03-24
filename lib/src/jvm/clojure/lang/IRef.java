@@ -12,11 +12,16 @@
 
 package clojure.lang;
 
-public interface IRef{
+public interface IRef extends IDeref{
 
-Object get() throws Exception;
+	void setValidator(IFn vf);
 
-void setValidator(IFn vf);
+    IFn getValidator();
 
-IFn getValidator();
+    IPersistentMap getWatches();
+
+    IRef addWatch(Object key, IFn callback);
+
+    IRef removeWatch(Object key);
+
 }

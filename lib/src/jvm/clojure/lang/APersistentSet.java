@@ -71,12 +71,16 @@ public boolean equals(Object obj){
 	return true;
 }
 
+public boolean equiv(Object o){
+	return equals(o);
+}
+
 public int hashCode(){
 	if(_hash == -1)
 		{
 		//int hash = count();
 		int hash = 0;
-		for(ISeq s = seq(); s != null; s = s.rest())
+		for(ISeq s = seq(); s != null; s = s.next())
 			{
 			Object e = s.first();
 //			hash = Util.hashCombine(hash, Util.hash(e));
@@ -128,7 +132,7 @@ public Object[] toArray(Object[] a){
 	if(a.length >= count())
 		{
 		ISeq s = seq();
-		for(int i = 0; s != null; ++i, s = s.rest())
+		for(int i = 0; s != null; ++i, s = s.next())
 			{
 			a[i] = s.first();
 			}

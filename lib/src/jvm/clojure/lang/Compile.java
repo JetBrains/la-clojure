@@ -23,13 +23,15 @@ import java.io.IOException;
 public class Compile{
 
 private static final String PATH_PROP = "clojure.compile.path";
+private static final String REFLECTION_WARNING_PROP = "clojure.compile.warn-on-reflection";
 private static final Var compile_path = RT.var("clojure.core", "*compile-path*");
 private static final Var compile = RT.var("clojure.core", "compile");
+private static final Var warn_on_reflection = RT.var("clojure.core", "*warn-on-reflection*");
 
 public static void main(String[] args) throws Exception{
 
-	OutputStreamWriter out = (OutputStreamWriter) RT.OUT.get();
-	PrintWriter err = (PrintWriter) RT.ERR.get();
+	OutputStreamWriter out = (OutputStreamWriter) RT.OUT.deref();
+	PrintWriter err = (PrintWriter) RT.ERR.deref();
 	String path = System.getProperty(PATH_PROP);
 	int count = args.length;
 
@@ -41,9 +43,11 @@ public static void main(String[] args) throws Exception{
 		System.exit(1);
 		}
 
+    boolean warnOnReflection = System.getProperty(REFLECTION_WARNING_PROP, "false").equals("true");
+
 	try
 		{
-		Var.pushThreadBindings(RT.map(compile_path, path));
+		Var.pushThreadBindings(RT.map(compile_path, path, warn_on_reflection, warnOnReflection));
 
 		for(String lib : args)
         {

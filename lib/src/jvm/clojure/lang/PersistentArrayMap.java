@@ -83,7 +83,7 @@ public boolean containsKey(Object key){
 public IMapEntry entryAt(Object key){
 	int i = indexOf(key);
 	if(i >= 0)
-		return new MapEntry(key,array[i+1]);
+		return new MapEntry(array[i],array[i+1]);
 	return null;
 }
 
@@ -197,7 +197,7 @@ public ISeq seq(){
 	return null;
 }
 
-static class Seq extends ASeq{
+static class Seq extends ASeq implements Counted{
 	final Object[] array;
 	final int i;
 
@@ -216,7 +216,7 @@ static class Seq extends ASeq{
 		return new MapEntry(array[i],array[i+1]);
 	}
 
-	public ISeq rest(){
+	public ISeq next(){
 		if(i + 2 < array.length)
 			return new Seq(array, i + 2);
 		return null;

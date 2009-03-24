@@ -12,7 +12,7 @@
 
 package clojure.lang;
 
-public class Delay{
+public class Delay implements IDeref{
 Object val;
 IFn fn;
 
@@ -23,11 +23,11 @@ public Delay(IFn fn){
 
 static public Object force(Object x) throws Exception{
 	return (x instanceof Delay) ?
-	       ((Delay) x).get()
+	       ((Delay) x).deref()
 	       : x;
 }
 
-synchronized Object get() throws Exception{
+synchronized public Object deref() throws Exception{
 	if(fn != null)
 		{
 		val = fn.invoke();

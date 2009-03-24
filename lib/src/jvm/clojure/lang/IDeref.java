@@ -8,10 +8,10 @@
  *   You must not remove this notice, or any other, from this software.
  **/
 
-/* rich Dec 7, 2008 */
+/* rich Feb 9, 2009 */
 
 package clojure.lang;
 
-public interface Streamable {
-    Stream stream() throws Exception;
+public interface IDeref{
+Object deref() throws Exception;
 }

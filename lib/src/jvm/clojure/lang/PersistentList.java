@@ -12,7 +12,7 @@ package clojure.lang;
 
 import java.util.*;
 
-public class PersistentList extends ASeq implements IPersistentList, IReduce{
+public class PersistentList extends ASeq implements IPersistentList, IReduce, List, Counted{
 
 private final Object _first;
 private final IPersistentList _rest;
@@ -29,7 +29,7 @@ public static IFn creator = new RestFn(0){
 			return ret;
 			}
 		LinkedList list = new LinkedList();
-		for(ISeq s = RT.seq(args); s != null; s = s.rest())
+		for(ISeq s = RT.seq(args); s != null; s = s.next())
 			list.add(s.first());
 		return create(list);
 	}
@@ -64,7 +64,7 @@ public Object first(){
 	return _first;
 }
 
-public ISeq rest(){
+public ISeq next(){
 	if(_count == 1)
 		return null;
 	return (ISeq) _rest;
@@ -100,25 +100,50 @@ public PersistentList withMeta(IPersistentMap meta){
 
 public Object reduce(IFn f) throws Exception{
 	Object ret = first();
-	for(ISeq s = rest(); s != null; s = s.rest())
+	for(ISeq s = next(); s != null; s = s.next())
 		ret = f.invoke(ret, s.first());
 	return ret;
 }
 
 public Object reduce(IFn f, Object start) throws Exception{
 	Object ret = f.invoke(start, first());
-	for(ISeq s = rest(); s != null; s = s.rest())
+	for(ISeq s = next(); s != null; s = s.next())
 		ret = f.invoke(ret, s.first());
 	return ret;
 }
 
-static class EmptyList extends Obj implements IPersistentList, Collection{
 
-	EmptyList(IPersistentMap meta){
+    static class EmptyList extends Obj implements IPersistentList, List, ISeq, Counted{
+
+	public int hashCode(){
+		return 1;
+	}
+
+    public boolean equals(Object o) {
+        return (o instanceof Sequential || o instanceof List) && RT.seq(o) == null;
+    }
+
+	public boolean equiv(Object o){
+		return equals(o);
+	}
+	
+    EmptyList(IPersistentMap meta){
 		super(meta);
 	}
 
-	public PersistentList cons(Object o){
+        public Object first() {
+            return null;
+        }
+
+        public ISeq next() {
+            return null;
+        }
+
+        public ISeq more() {
+            return this;
+        }
+
+        public PersistentList cons(Object o){
 		return new PersistentList(meta(), o, null, 1);
 	}
 
@@ -215,6 +240,59 @@ static class EmptyList extends Obj implements IPersistentList, Collection{
 			objects[0] = null;
 		return objects;
 	}
+
+	//////////// List stuff /////////////////
+	private List reify(){
+		return Collections.unmodifiableList(new ArrayList(this));
+	}
+
+	public List subList(int fromIndex, int toIndex){
+		return reify().subList(fromIndex, toIndex);
+	}
+
+	public Object set(int index, Object element){
+		throw new UnsupportedOperationException();
+	}
+
+	public Object remove(int index){
+		throw new UnsupportedOperationException();
+	}
+
+	public int indexOf(Object o){
+		ISeq s = seq();
+		for(int i = 0; s != null; s = s.next(), i++)
+			{
+			if(Util.equiv(s.first(), o))
+				return i;
+			}
+		return -1;
+	}
+
+	public int lastIndexOf(Object o){
+		return reify().lastIndexOf(o);
+	}
+
+	public ListIterator listIterator(){
+		return reify().listIterator();
+	}
+
+	public ListIterator listIterator(int index){
+		return reify().listIterator(index);
+	}
+
+	public Object get(int index){
+		return RT.nth(this, index);
+	}
+
+	public void add(int index, Object element){
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean addAll(int index, Collection c){
+		throw new UnsupportedOperationException();
+	}
+
+
 }
 
 }

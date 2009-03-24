@@ -14,7 +14,7 @@ package clojure.lang;
 
 public class Box{
 
-public volatile Object val;
+public Object val;
 
 public Box(Object val){
 	this.val = val;

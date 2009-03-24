@@ -14,7 +14,7 @@ package clojure.lang;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Range extends ASeq implements IReduce, Streamable{
+public class Range extends ASeq implements IReduce, Streamable, Counted{
 final int end;
 final int n;
 
@@ -39,7 +39,7 @@ public Object first(){
 	return n;
 }
 
-public ISeq rest(){
+public ISeq next(){
 	if(n < end-1)
 		return new Range(_meta, n + 1, end);
 	return null;
@@ -59,15 +59,27 @@ public Object reduce(IFn f, Object start) throws Exception{
 	return ret;
 }
 
-public IStream stream() throws Exception {
-    final AtomicInteger an = new AtomicInteger(n);
-    return new IStream(){
-        public Object next() throws Exception {
-            int i = an.getAndIncrement();
-            if (i < end)
-                return i;
-            return RT.eos();
-        }
-    };
+public int count() {
+    return end - n;
+    }
+
+public Stream stream() throws Exception {
+    return new Stream(new Src(n,end));
 }
+
+    static class Src extends AFn{
+        int n;
+        final int end;
+
+        public Src(int n, int end) {
+            this.n = n;
+            this.end = end;
+        }
+
+        public Object invoke() throws Exception {
+            if(n < end)
+                return n++;
+            return RT.EOS;
+        }
+    }
 }

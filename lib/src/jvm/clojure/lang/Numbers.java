@@ -15,12 +15,6 @@ package clojure.lang;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.LinkedList;
-import java.util.Arrays;
 
 public class Numbers{
 
@@ -28,6 +22,8 @@ static interface Ops{
 	Ops combine(Ops y);
 
 	Ops opsWith(IntegerOps x);
+
+	Ops opsWith(LongOps x);
 
 	Ops opsWith(FloatOps x);
 
@@ -265,10 +261,11 @@ static public Number rationalize(Number x){
 }
 
 static public Number reduce(BigInteger val){
-	if(val.bitLength() < 32)
+	int bitLength = val.bitLength();
+	if(bitLength < 32)
 		return val.intValue();
-//	else if(val.bitLength() < 64)
-//		return val.longValue();
+	else if(bitLength < 64)
+		return val.longValue();
 	else
 		return val;
 }
@@ -355,6 +352,10 @@ final static class IntegerOps implements Ops{
 
 	final public Ops opsWith(IntegerOps x){
 		return this;
+	}
+
+	final public Ops opsWith(LongOps x){
+		return LONG_OPS;
 	}
 
 	final public Ops opsWith(FloatOps x){
@@ -450,7 +451,10 @@ final static class IntegerOps implements Ops{
 
 	//public Number subtract(Number x, Number y);
 	final public Number negate(Number x){
-		return -x.intValue();
+		int val = x.intValue();
+		if(val > Integer.MIN_VALUE)
+			return -val;
+		return -((long) val);
 	}
 
 	public Number inc(Number x){
@@ -468,12 +472,145 @@ final static class IntegerOps implements Ops{
 	}
 }
 
+final static class LongOps implements Ops{
+	public Ops combine(Ops y){
+		return y.opsWith(this);
+	}
+
+	final public Ops opsWith(IntegerOps x){
+		return this;
+	}
+
+	final public Ops opsWith(LongOps x){
+		return this;
+	}
+
+	final public Ops opsWith(FloatOps x){
+		return FLOAT_OPS;
+	}
+
+	final public Ops opsWith(DoubleOps x){
+		return DOUBLE_OPS;
+	}
+
+	final public Ops opsWith(RatioOps x){
+		return RATIO_OPS;
+	}
+
+	final public Ops opsWith(BigIntegerOps x){
+		return BIGINTEGER_OPS;
+	}
+
+	final public Ops opsWith(BigDecimalOps x){
+		return BIGDECIMAL_OPS;
+	}
+
+	public boolean isZero(Number x){
+		return x.longValue() == 0;
+	}
+
+	public boolean isPos(Number x){
+		return x.longValue() > 0;
+	}
+
+	public boolean isNeg(Number x){
+		return x.longValue() < 0;
+	}
+
+	final public Number add(Number x, Number y){
+		long lx = x.longValue(), ly = y.longValue();
+		long ret = lx + ly;
+		if ((ret ^ lx) < 0 && (ret ^ ly) < 0)
+			return BIGINTEGER_OPS.add(x, y);
+		return ret;
+	}
+
+	final public Number multiply(Number x, Number y){
+		long lx = x.longValue(), ly = y.longValue();
+		long ret = lx * ly;
+		if (ly != 0 && ret/ly != lx)
+			return BIGINTEGER_OPS.multiply(x, y);
+		return ret;
+	}
+
+	static long gcd(long u, long v){
+		while(v != 0)
+			{
+			long r = u % v;
+			u = v;
+			v = r;
+			}
+		return u;
+	}
+
+	public Number divide(Number x, Number y){
+		long n = x.longValue();
+		long val = y.longValue();
+		long gcd = gcd(n, val);
+		if(gcd == 0)
+			return 0;
+
+		n = n / gcd;
+		long d = val / gcd;
+		if(d == 1)
+			return n;
+		if(d < 0)
+			{
+			n = -n;
+			d = -d;
+			}
+		return new Ratio(BigInteger.valueOf(n), BigInteger.valueOf(d));
+	}
+
+	public Number quotient(Number x, Number y){
+		return x.longValue() / y.longValue();
+	}
+
+	public Number remainder(Number x, Number y){
+		return x.longValue() % y.longValue();
+	}
+
+	public boolean equiv(Number x, Number y){
+		return x.longValue() == y.longValue();
+	}
+
+	public boolean lt(Number x, Number y){
+		return x.longValue() < y.longValue();
+	}
+
+	//public Number subtract(Number x, Number y);
+	final public Number negate(Number x){
+		long val = x.longValue();
+		if(val > Long.MIN_VALUE)
+			return -val;
+		return BigInteger.valueOf(val).negate();
+	}
+
+	public Number inc(Number x){
+		long val = x.longValue();
+		if(val < Long.MAX_VALUE)
+			return val + 1;
+		return BIGINTEGER_OPS.inc(x);
+	}
+
+	public Number dec(Number x){
+		long val = x.longValue();
+		if(val > Long.MIN_VALUE)
+			return val - 1;
+		return BIGINTEGER_OPS.dec(x);
+	}
+}
+
 final static class FloatOps implements Ops{
 	public Ops combine(Ops y){
 		return y.opsWith(this);
 	}
 
 	final public Ops opsWith(IntegerOps x){
+		return this;
+	}
+
+	final public Ops opsWith(LongOps x){
 		return this;
 	}
 
@@ -560,6 +697,10 @@ final static class DoubleOps implements Ops{
 		return this;
 	}
 
+	final public Ops opsWith(LongOps x){
+		return this;
+	}
+
 	final public Ops opsWith(FloatOps x){
 		return this;
 	}
@@ -640,6 +781,10 @@ final static class RatioOps implements Ops{
 	}
 
 	final public Ops opsWith(IntegerOps x){
+		return this;
+	}
+
+	final public Ops opsWith(LongOps x){
 		return this;
 	}
 
@@ -754,6 +899,10 @@ final static class BigIntegerOps implements Ops{
 		return this;
 	}
 
+	final public Ops opsWith(LongOps x){
+		return this;
+	}
+
 	final public Ops opsWith(FloatOps x){
 		return FLOAT_OPS;
 	}
@@ -844,6 +993,10 @@ final static class BigDecimalOps implements Ops{
 		return this;
 	}
 
+	final public Ops opsWith(LongOps x){
+		return this;
+	}
+
 	final public Ops opsWith(FloatOps x){
 		return FLOAT_OPS;
 	}
@@ -880,35 +1033,35 @@ final static class BigDecimalOps implements Ops{
 	}
 
 	final public Number add(Number x, Number y){
-		MathContext mc = (MathContext) MATH_CONTEXT.get();
+		MathContext mc = (MathContext) MATH_CONTEXT.deref();
 		return mc == null
 		       ? toBigDecimal(x).add(toBigDecimal(y))
 		       : toBigDecimal(x).add(toBigDecimal(y), mc);
 	}
 
 	final public Number multiply(Number x, Number y){
-		MathContext mc = (MathContext) MATH_CONTEXT.get();
+		MathContext mc = (MathContext) MATH_CONTEXT.deref();
 		return mc == null
 		       ? toBigDecimal(x).multiply(toBigDecimal(y))
 		       : toBigDecimal(x).multiply(toBigDecimal(y), mc);
 	}
 
 	public Number divide(Number x, Number y){
-		MathContext mc = (MathContext) MATH_CONTEXT.get();
+		MathContext mc = (MathContext) MATH_CONTEXT.deref();
 		return mc == null
 		       ? toBigDecimal(x).divide(toBigDecimal(y))
 		       : toBigDecimal(x).divide(toBigDecimal(y), mc);
 	}
 
 	public Number quotient(Number x, Number y){
-		MathContext mc = (MathContext) MATH_CONTEXT.get();
+		MathContext mc = (MathContext) MATH_CONTEXT.deref();
 		return mc == null
 		       ? toBigDecimal(x).divideToIntegralValue(toBigDecimal(y))
 		       : toBigDecimal(x).divideToIntegralValue(toBigDecimal(y), mc);
 	}
 
 	public Number remainder(Number x, Number y){
-		MathContext mc = (MathContext) MATH_CONTEXT.get();
+		MathContext mc = (MathContext) MATH_CONTEXT.deref();
 		return mc == null
 		       ? toBigDecimal(x).remainder(toBigDecimal(y))
 		       : toBigDecimal(x).remainder(toBigDecimal(y), mc);
@@ -924,14 +1077,14 @@ final static class BigDecimalOps implements Ops{
 
 	//public Number subtract(Number x, Number y);
 	final public Number negate(Number x){
-		MathContext mc = (MathContext) MATH_CONTEXT.get();
+		MathContext mc = (MathContext) MATH_CONTEXT.deref();
 		return mc == null
 		       ? ((BigDecimal) x).negate()
 		       : ((BigDecimal) x).negate(mc);
 	}
 
 	public Number inc(Number x){
-		MathContext mc = (MathContext) MATH_CONTEXT.get();
+		MathContext mc = (MathContext) MATH_CONTEXT.deref();
 		BigDecimal bx = (BigDecimal) x;
 		return mc == null
 		       ? bx.add(BigDecimal.ONE)
@@ -939,7 +1092,7 @@ final static class BigDecimalOps implements Ops{
 	}
 
 	public Number dec(Number x){
-		MathContext mc = (MathContext) MATH_CONTEXT.get();
+		MathContext mc = (MathContext) MATH_CONTEXT.deref();
 		BigDecimal bx = (BigDecimal) x;
 		return mc == null
 		       ? bx.subtract(BigDecimal.ONE)
@@ -1180,6 +1333,7 @@ final static class BigIntegerBitOps implements BitOps{
 }
 
 static final IntegerOps INTEGER_OPS = new IntegerOps();
+static final LongOps LONG_OPS = new LongOps();
 static final FloatOps FLOAT_OPS = new FloatOps();
 static final DoubleOps DOUBLE_OPS = new DoubleOps();
 static final RatioOps RATIO_OPS = new RatioOps();
@@ -1202,7 +1356,7 @@ static Ops ops(Object x){
 	else if(xc == BigInteger.class)
 		return BIGINTEGER_OPS;
 	else if(xc == Long.class)
-		return BIGINTEGER_OPS;
+		return LONG_OPS;
 	else if(xc == Ratio.class)
 		return RATIO_OPS;
 	else if(xc == BigDecimal.class)
@@ -1262,7 +1416,7 @@ static BitOps bitOps(Object x){
 		else
 			{
 			ISeq s = RT.seq(init);
-			for(int i = 0; i < size && s != null; i++, s = s.rest())
+			for(int i = 0; i < size && s != null; i++, s = s.next())
 				ret[i] = ((Number) s.first()).floatValue();
 			}
 		return ret;
@@ -1276,7 +1430,7 @@ static BitOps bitOps(Object x){
 			ISeq s = RT.seq(sizeOrSeq);
 			int size = s.count();
 			float[] ret = new float[size];
-			for(int i = 0; i < size && s != null; i++, s = s.rest())
+			for(int i = 0; i < size && s != null; i++, s = s.next())
 				ret[i] = ((Number) s.first()).floatValue();
 			return ret;
 			}
@@ -1293,7 +1447,7 @@ static public double[] double_array(int size, Object init){
 	else
 		{
 		ISeq s = RT.seq(init);
-		for(int i = 0; i < size && s != null; i++, s = s.rest())
+		for(int i = 0; i < size && s != null; i++, s = s.next())
 			ret[i] = ((Number) s.first()).doubleValue();
 		}
 	return ret;
@@ -1307,7 +1461,7 @@ static public double[] double_array(Object sizeOrSeq){
 		ISeq s = RT.seq(sizeOrSeq);
 		int size = s.count();
 		double[] ret = new double[size];
-		for(int i = 0; i < size && s != null; i++, s = s.rest())
+		for(int i = 0; i < size && s != null; i++, s = s.next())
 			ret[i] = ((Number) s.first()).doubleValue();
 		return ret;
 		}
@@ -1324,7 +1478,7 @@ static public int[] int_array(int size, Object init){
 	else
 		{
 		ISeq s = RT.seq(init);
-		for(int i = 0; i < size && s != null; i++, s = s.rest())
+		for(int i = 0; i < size && s != null; i++, s = s.next())
 			ret[i] = ((Number) s.first()).intValue();
 		}
 	return ret;
@@ -1338,7 +1492,7 @@ static public int[] int_array(Object sizeOrSeq){
 		ISeq s = RT.seq(sizeOrSeq);
 		int size = s.count();
 		int[] ret = new int[size];
-		for(int i = 0; i < size && s != null; i++, s = s.rest())
+		for(int i = 0; i < size && s != null; i++, s = s.next())
 			ret[i] = ((Number) s.first()).intValue();
 		return ret;
 		}
@@ -1355,7 +1509,7 @@ static public long[] long_array(int size, Object init){
 	else
 		{
 		ISeq s = RT.seq(init);
-		for(int i = 0; i < size && s != null; i++, s = s.rest())
+		for(int i = 0; i < size && s != null; i++, s = s.next())
 			ret[i] = ((Number) s.first()).longValue();
 		}
 	return ret;
@@ -1369,7 +1523,7 @@ static public long[] long_array(Object sizeOrSeq){
 		ISeq s = RT.seq(sizeOrSeq);
 		int size = s.count();
 		long[] ret = new long[size];
-		for(int i = 0; i < size && s != null; i++, s = s.rest())
+		for(int i = 0; i < size && s != null; i++, s = s.next())
 			ret[i] = ((Number) s.first()).longValue();
 		return ret;
 		}
@@ -1580,7 +1734,7 @@ static public int xor(int x, int y){
 
 static public int minus(int x, int y){
 	int ret = x - y;
-	if ((ret ^ x) < 0 && (ret ^ -y) < 0)
+	if (((ret ^ x) < 0 && (ret ^ -y) < 0) || (y == Integer.MIN_VALUE))
 		return throwIntOverflow();
 	return ret;
 }
@@ -1687,7 +1841,7 @@ static public long add(long x, long y){
 
 static public long minus(long x, long y){
 	long ret = x - y;
-	if ((ret ^ x) < 0 && (ret ^ -y) < 0)
+	if (((ret ^ x) < 0 && (ret ^ -y) < 0) || (y == Long.MIN_VALUE))
 		return throwIntOverflow();
 	return ret;
 }
@@ -1699,13 +1853,13 @@ static public long minus(long x){
 }
 
 static public long inc(long x){
-	if(x == Integer.MAX_VALUE)
+	if(x == Long.MAX_VALUE)
 		return throwIntOverflow();
 	return x + 1;
 }
 
 static public long dec(long x){
-	if(x == Integer.MIN_VALUE)
+	if(x == Long.MIN_VALUE)
 		return throwIntOverflow();
 	return x - 1;
 }

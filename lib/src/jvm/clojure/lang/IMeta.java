@@ -8,10 +8,10 @@
  *   You must not remove this notice, or any other, from this software.
  **/
 
-/* rich Dec 7, 2008 */
+/* rich Dec 31, 2008 */
 
 package clojure.lang;
 
-public interface Streamable {
-    Stream stream() throws Exception;
+public interface IMeta {
+    IPersistentMap meta();
 }

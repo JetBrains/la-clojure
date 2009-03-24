@@ -68,6 +68,9 @@
           (pr-on m w))
       (.write w " "))))
 
+(defmethod print-method :default [o, #^Writer w]
+  (print-method (vary-meta o #(dissoc % :type)) w))
+
 (defmethod print-method nil [o, #^Writer w]
   (.write w "nil"))
 
@@ -80,7 +83,7 @@
   (print-args o w)
   (.write w ")"))
 
-(defmethod print-method :default [o, #^Writer w]
+(defmethod print-method Object [o, #^Writer w]
   (.write w "#<")
   (.write w (.getSimpleName (class o)))
   (.write w " ")
@@ -101,12 +104,12 @@
                   (print-dup (str o) w))
               w))
 
-(defmethod print-dup clojure.lang.AFn [o, #^Writer w]
+(defmethod print-dup clojure.lang.Fn [o, #^Writer w]
   (print-ctor o (fn [o w]) w))
 
-(prefer-method print-dup clojure.lang.IPersistentCollection clojure.lang.AFn)
-(prefer-method print-dup java.util.Map clojure.lang.AFn)
-(prefer-method print-dup java.util.Collection clojure.lang.AFn)
+(prefer-method print-dup clojure.lang.IPersistentCollection clojure.lang.Fn)
+(prefer-method print-dup java.util.Map clojure.lang.Fn)
+(prefer-method print-dup java.util.Collection clojure.lang.Fn)
 
 (defmethod print-method Boolean [o, #^Writer w]
   (.write w (str o)))
@@ -136,16 +139,15 @@
 (defmethod print-dup clojure.lang.IPersistentList [o w] (print-method o w))
 (prefer-method print-method clojure.lang.IPersistentList clojure.lang.ISeq)
 (prefer-method print-dup clojure.lang.IPersistentList clojure.lang.ISeq)
+(prefer-method print-method clojure.lang.ISeq clojure.lang.IPersistentCollection)
+(prefer-method print-dup clojure.lang.ISeq clojure.lang.IPersistentCollection)
+(prefer-method print-method clojure.lang.ISeq java.util.Collection)
+(prefer-method print-dup clojure.lang.ISeq java.util.Collection)
 
 (defmethod print-method clojure.lang.IPersistentList [o, #^Writer w]
   (print-meta o w)
   (print-sequential "(" print-method " " ")" o w))
 
-
-(defmethod print-method java.util.Collection [o, #^Writer w]
- (print-ctor o #(print-sequential "[" print-method " " "]" %1 %2) w))
-
-(prefer-method print-method clojure.lang.IPersistentCollection java.util.Collection)
 
 (defmethod print-dup java.util.Collection [o, #^Writer w]
  (print-ctor o #(print-sequential "[" print-dup " " "]" %1 %2) w))
@@ -201,11 +203,6 @@
   (print-meta m w)
   (print-map m pr-on w))
 
-(defmethod print-method java.util.Map [m, #^Writer w]
-  (print-ctor m #(print-map (seq %1) print-method %2) w))
-
-(prefer-method print-method clojure.lang.IPersistentMap java.util.Map)
-
 (defmethod print-dup java.util.Map [m, #^Writer w]
   (print-ctor m #(print-map (seq %1) print-dup %2) w))
 
@@ -222,13 +219,6 @@
 (defmethod print-method clojure.lang.IPersistentSet [s, #^Writer w]
   (print-meta s w)
   (print-sequential "#{" pr-on " " "}" (seq s) w))
-
-(defmethod print-method java.util.Set [s, #^Writer w]
-  (print-ctor s
-              #(print-sequential "#{" print-method " " "}" (seq %1) %2)
-              w))
-
-;(prefer-method print-method clojure.lang.IPersistentSet java.util.Set)
 
 (def #^{:tag String 
         :doc "Returns name string for char or nil if none"} 
@@ -317,5 +307,11 @@
   (.write w "#=(find-ns ")
   (print-dup (.name n) w)
   (.write w ")"))
+
+(defmethod print-method clojure.lang.IDeref [o #^Writer w]
+  (print-sequential (format "#<%s@%x: "
+                            (.getSimpleName (class o))
+                            (System/identityHashCode o))
+                    pr-on, "", ">", (list @o), w))
 
 (def #^{:private true} print-initialized true)

@@ -13,11 +13,11 @@
 package clojure.lang;
 
 import java.util.Map;
-import java.util.Collection;
 
 public class MultiFn extends AFn{
 final public IFn dispatchFn;
 final public Object defaultDispatchVal;
+final public IRef hierarchy;
 IPersistentMap methodTable;
 IPersistentMap preferTable;
 IPersistentMap methodCache;
@@ -27,25 +27,25 @@ static final Var assoc = RT.var("clojure.core", "assoc");
 static final Var dissoc = RT.var("clojure.core", "dissoc");
 static final Var isa = RT.var("clojure.core", "isa?");
 static final Var parents = RT.var("clojure.core", "parents");
-static final Var hierarchy = RT.var("clojure.core", "global-hierarchy");
 
-public MultiFn(IFn dispatchFn, Object defaultDispatchVal) throws Exception{
+public MultiFn(IFn dispatchFn, Object defaultDispatchVal, IRef hierarchy) throws Exception{
 	this.dispatchFn = dispatchFn;
 	this.defaultDispatchVal = defaultDispatchVal;
 	this.methodTable = PersistentHashMap.EMPTY;
-	this.methodCache = methodTable;
+	this.methodCache = getMethodTable();
 	this.preferTable = PersistentHashMap.EMPTY;
+    this.hierarchy = hierarchy;
 	cachedHierarchy = null;
 }
 
 synchronized public MultiFn addMethod(Object dispatchVal, IFn method) throws Exception{
-	methodTable = methodTable.assoc(dispatchVal, method);
+	methodTable = getMethodTable().assoc(dispatchVal, method);
 	resetCache();
 	return this;
 }
 
 synchronized public MultiFn removeMethod(Object dispatchVal) throws Exception{
-	methodTable = methodTable.without(dispatchVal);
+	methodTable = getMethodTable().without(dispatchVal);
 	resetCache();
 	return this;
 }
@@ -54,7 +54,7 @@ synchronized public MultiFn preferMethod(Object dispatchValX, Object dispatchVal
 	if(prefers(dispatchValY, dispatchValX))
 		throw new IllegalStateException(
 				String.format("Preference conflict: %s is already preferred to %s", dispatchValY, dispatchValX));
-	preferTable = preferTable.assoc(dispatchValX, RT.conj((IPersistentCollection) RT.get(preferTable,
+	preferTable = getPreferTable().assoc(dispatchValX, RT.conj((IPersistentCollection) RT.get(getPreferTable(),
 	                                                                                     dispatchValX,
 	                                                                                     PersistentHashSet.EMPTY),
 	                                                      dispatchValY));
@@ -63,15 +63,15 @@ synchronized public MultiFn preferMethod(Object dispatchValX, Object dispatchVal
 }
 
 private boolean prefers(Object x, Object y) throws Exception{
-	IPersistentSet xprefs = (IPersistentSet) preferTable.valAt(x);
+	IPersistentSet xprefs = (IPersistentSet) getPreferTable().valAt(x);
 	if(xprefs != null && xprefs.contains(y))
 		return true;
-	for(ISeq ps = RT.seq(parents.invoke(y)); ps != null; ps = ps.rest())
+	for(ISeq ps = RT.seq(parents.invoke(y)); ps != null; ps = ps.next())
 		{
 		if(prefers(x, ps.first()))
 			return true;
 		}
-	for(ISeq ps = RT.seq(parents.invoke(x)); ps != null; ps = ps.rest())
+	for(ISeq ps = RT.seq(parents.invoke(x)); ps != null; ps = ps.next())
 		{
 		if(prefers(ps.first(), y))
 			return true;
@@ -80,21 +80,21 @@ private boolean prefers(Object x, Object y) throws Exception{
 }
 
 private boolean isA(Object x, Object y) throws Exception{
-	return RT.booleanCast(isa.invoke(x, y));
+    return RT.booleanCast(isa.invoke(hierarchy.deref(), x, y));
 }
 
 private boolean dominates(Object x, Object y) throws Exception{
 	return prefers(x, y) || isA(x, y);
 }
 
-private IPersistentMap resetCache(){
-	methodCache = methodTable;
-	cachedHierarchy = hierarchy.get();
+private IPersistentMap resetCache() throws Exception{
+	methodCache = getMethodTable();
+	cachedHierarchy = hierarchy.deref();
 	return methodCache;
 }
 
 synchronized private IFn getFn(Object dispatchVal) throws Exception{
-	if(cachedHierarchy != hierarchy.get())
+	if(cachedHierarchy != hierarchy.deref())
 		resetCache();
 	IFn targetFn = (IFn) methodCache.valAt(dispatchVal);
 	if(targetFn != null)
@@ -102,7 +102,7 @@ synchronized private IFn getFn(Object dispatchVal) throws Exception{
 	targetFn = findAndCacheBestMethod(dispatchVal);
 	if(targetFn != null)
 		return targetFn;
-	targetFn = (IFn) methodTable.valAt(defaultDispatchVal);
+	targetFn = (IFn) getMethodTable().valAt(defaultDispatchVal);
 	if(targetFn == null)
 		throw new IllegalArgumentException(String.format("No method for dispatch value: %s", dispatchVal));
 	return targetFn;
@@ -110,7 +110,7 @@ synchronized private IFn getFn(Object dispatchVal) throws Exception{
 
 private IFn findAndCacheBestMethod(Object dispatchVal) throws Exception{
 	Map.Entry bestEntry = null;
-	for(Object o : methodTable)
+	for(Object o : getMethodTable())
 		{
 		Map.Entry e = (Map.Entry) o;
 		if(isA(dispatchVal, e.getKey()))
@@ -127,7 +127,7 @@ private IFn findAndCacheBestMethod(Object dispatchVal) throws Exception{
 	if(bestEntry == null)
 		return null;
 	//ensure basis has stayed stable throughout, else redo
-	if(cachedHierarchy == hierarchy.get())
+	if(cachedHierarchy == hierarchy.deref())
 		{
 		//place in cache
 		methodCache = methodCache.assoc(dispatchVal, bestEntry.getValue());
@@ -289,4 +289,11 @@ public Object invoke(Object arg1, Object arg2, Object arg3, Object arg4, Object 
 			       arg15, arg16, arg17, arg18, arg19, arg20, args);
 }
 
+    public IPersistentMap getMethodTable() {
+        return methodTable;
+    }
+
+    public IPersistentMap getPreferTable() {
+        return preferTable;
+    }
 }

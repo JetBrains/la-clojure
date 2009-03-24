@@ -19,71 +19,107 @@
 (defn method-sig [#^java.lang.reflect.Method meth]
   [(. meth (getName)) (seq (. meth (getParameterTypes))) (. meth getReturnType)])
 
-(defn proxy-name [super interfaces]
+(defn- most-specific [rtypes]
+  (or (some (fn [t] (when (every? #(isa? t %) rtypes) t)) rtypes)
+    (throw (Exception. "Incompatible return types"))))
+
+(defn- group-by-sig [coll]
+ "takes a collection of [msig meth] and returns a seq of maps from return-types to meths."
+  (vals (reduce (fn [m [msig meth]]
+                  (let [rtype (peek msig)
+                        argsig (pop msig)]
+                    (assoc m argsig (assoc (m argsig {}) rtype meth))))
+          {} coll)))
+
+(defn proxy-name
+ {:tag String} 
+ [#^Class super interfaces]
   (apply str "clojure.proxy."
          (.getName super)
          (interleave (repeat "$")
-                     (sort (map #(.getSimpleName %) interfaces)))))
+                     (sort (map #(.getSimpleName #^Class %) interfaces)))))
 
-(defn- generate-proxy [super interfaces]
+(defn- generate-proxy [#^Class super interfaces]
   (let [cv (new ClassWriter (. ClassWriter COMPUTE_MAXS))
         cname (.replace (proxy-name super interfaces) \. \/) ;(str "clojure/lang/" (gensym "Proxy__"))
         ctype (. Type (getObjectType cname))
-        iname (fn [c] (.. Type (getType c) (getInternalName)))
+        iname (fn [#^Class c] (.. Type (getType c) (getInternalName)))
         fmap "__clojureFnMap"
-        totype (fn [c] (. Type (getType c)))
+        totype (fn [#^Class c] (. Type (getType c)))
         to-types (fn [cs] (if (pos? (count cs))
                             (into-array (map totype cs))
                             (make-array Type 0)))
-        super-type (totype super)
-        imap-type (totype IPersistentMap)
+        super-type #^Type (totype super)
+        imap-type #^Type (totype IPersistentMap)
         ifn-type (totype clojure.lang.IFn)
         obj-type (totype Object)
         sym-type (totype clojure.lang.Symbol)
         rt-type  (totype clojure.lang.RT)
         ex-type  (totype java.lang.UnsupportedOperationException)
+        gen-bridge 
+        (fn [#^java.lang.reflect.Method meth #^java.lang.reflect.Method dest]
+            (let [pclasses (. meth (getParameterTypes))
+                  ptypes (to-types pclasses)
+                  rtype #^Type (totype (. meth (getReturnType)))
+                  m (new Method (. meth (getName)) rtype ptypes)
+                  dtype (totype (.getDeclaringClass dest))
+                  dm (new Method (. dest (getName)) (totype (. dest (getReturnType))) (to-types (. dest (getParameterTypes))))
+                  gen (new GeneratorAdapter (bit-or (. Opcodes ACC_PUBLIC) (. Opcodes ACC_BRIDGE)) m nil nil cv)]
+              (. gen (visitCode))
+              (. gen (loadThis))
+              (dotimes [i (count ptypes)]
+                  (. gen (loadArg i)))
+              (if (-> dest .getDeclaringClass .isInterface)
+                (. gen (invokeInterface dtype dm))
+                (. gen (invokeVirtual dtype dm)))
+              (. gen (returnValue))
+              (. gen (endMethod))))
         gen-method
         (fn [#^java.lang.reflect.Method meth else-gen]
             (let [pclasses (. meth (getParameterTypes))
                   ptypes (to-types pclasses)
-                  rtype (totype (. meth (getReturnType)))
+                  rtype #^Type (totype (. meth (getReturnType)))
                   m (new Method (. meth (getName)) rtype ptypes)
                   gen (new GeneratorAdapter (. Opcodes ACC_PUBLIC) m nil nil cv)
                   else-label (. gen (newLabel))
                   end-label (. gen (newLabel))
                   decl-type (. Type (getType (. meth (getDeclaringClass))))]
               (. gen (visitCode))
-              (. gen (loadThis))
-              (. gen (getField ctype fmap imap-type))
-                                      
-              (. gen (push (. meth (getName))))
+              (if (> (count pclasses) 18)
+                (else-gen gen m)
+                (do
+                  (. gen (loadThis))
+                  (. gen (getField ctype fmap imap-type))
+                  
+                  (. gen (push (. meth (getName))))
                                         ;lookup fn in map
-              (. gen (invokeStatic rt-type (. Method (getMethod "Object get(Object, Object)"))))
-              (. gen (dup))
-              (. gen (ifNull else-label))
+                  (. gen (invokeStatic rt-type (. Method (getMethod "Object get(Object, Object)"))))
+                  (. gen (dup))
+                  (. gen (ifNull else-label))
                                         ;if found
-              (. gen (loadThis))
+                  (.checkCast gen ifn-type)
+                  (. gen (loadThis))
                                         ;box args
-              (dotimes [i (count ptypes)]
-                  (. gen (loadArg i))
-                (. clojure.lang.Compiler$HostExpr (emitBoxReturn nil gen (nth pclasses i))))
+                  (dotimes [i (count ptypes)]
+                      (. gen (loadArg i))
+                    (. clojure.lang.Compiler$HostExpr (emitBoxReturn nil gen (nth pclasses i))))
                                         ;call fn
-              (. gen (invokeInterface ifn-type (new Method "invoke" obj-type 
-                                                    (into-array (cons obj-type 
-                                                                      (replicate (count ptypes) obj-type))))))
+                  (. gen (invokeInterface ifn-type (new Method "invoke" obj-type 
+                                                        (into-array (cons obj-type 
+                                                                          (replicate (count ptypes) obj-type))))))
                                         ;unbox return
-              (. gen (unbox rtype))
-              (when (= (. rtype (getSort)) (. Type VOID))
-                (. gen (pop)))
-              (. gen (goTo end-label))
-              
+                  (. gen (unbox rtype))
+                  (when (= (. rtype (getSort)) (. Type VOID))
+                    (. gen (pop)))
+                  (. gen (goTo end-label))
+                  
                                         ;else call supplied alternative generator
-              (. gen (mark else-label))
-              (. gen (pop))
-              
-              (else-gen gen m)
-              
-              (. gen (mark end-label))
+                  (. gen (mark else-label))
+                  (. gen (pop))
+                  
+                  (else-gen gen m)
+                  
+                  (. gen (mark end-label))))
               (. gen (returnValue))
               (. gen (endMethod))))]
     
@@ -125,6 +161,7 @@
       (. gen (loadThis))
       (. gen (dup))
       (. gen (getField ctype fmap imap-type))
+      (.checkCast gen (totype clojure.lang.IPersistentCollection))
       (. gen (loadArgs))
       (. gen (invokeInterface (totype clojure.lang.IPersistentCollection)
                               (. Method (getMethod "clojure.lang.IPersistentCollection cons(Object)"))))
@@ -151,24 +188,38 @@
                              meths (concat 
                                     (seq (. c (getDeclaredMethods)))
                                     (seq (. c (getMethods))))]
-                        (if meths 
+                        (if (seq meths)
                           (let [#^java.lang.reflect.Method meth (first meths)
                                 mods (. meth (getModifiers))
                                 mk (method-sig meth)]
                             (if (or (considered mk)
-                                    (. Modifier (isPrivate mods)) 
+                                    (not (or (Modifier/isPublic mods) (Modifier/isProtected mods)))
+                                    ;(. Modifier (isPrivate mods)) 
                                     (. Modifier (isStatic mods))
                                     (. Modifier (isFinal mods))
                                     (= "finalize" (.getName meth)))
-                              (recur mm (conj considered mk) (rest meths))
-                              (recur (assoc mm mk meth) (conj considered mk) (rest meths))))
+                              (recur mm (conj considered mk) (next meths))
+                              (recur (assoc mm mk meth) (conj considered mk) (next meths))))
                           [mm considered]))]
                   (recur mm considered (. c (getSuperclass))))
-                [mm considered]))]
+                [mm considered]))
+          ifaces-meths (into {} 
+                         (for [#^Class iface interfaces meth (. iface (getMethods))
+                               :let [msig (method-sig meth)] :when (not (considered msig))]
+                           {msig meth}))
+          mgroups (group-by-sig (concat mm ifaces-meths))
+          rtypes (map #(most-specific (keys %)) mgroups)
+          mb (map #(vector (%1 %2) (vals (dissoc %1 %2))) mgroups rtypes)
+          bridge? (reduce into #{} (map second mb))
+          ifaces-meths (remove bridge? (vals ifaces-meths))
+          mm (remove bridge? (vals mm))]
                                         ;add methods matching supers', if no mapping -> call super
-      (doseq [#^java.lang.reflect.Method meth (vals mm)]
+      (doseq [[#^java.lang.reflect.Method dest bridges] mb
+              #^java.lang.reflect.Method meth bridges]
+          (gen-bridge meth dest))
+      (doseq [#^java.lang.reflect.Method meth mm]
           (gen-method meth 
-                      (fn [gen m]
+                      (fn [#^GeneratorAdapter gen #^Method m]
                           (. gen (loadThis))
                                         ;push args
                         (. gen (loadArgs))
@@ -179,22 +230,19 @@
                                                 (. m (getDescriptor)))))))
       
                                         ;add methods matching interfaces', if no mapping -> throw
-      (doseq [#^Class iface interfaces]
-          (doseq [#^java.lang.reflect.Method meth (. iface (getMethods))]
-            (let [msig (method-sig meth)]
-              (when-not (or (contains? mm msig) (contains? considered msig))
+      (doseq [#^java.lang.reflect.Method meth ifaces-meths]
                 (gen-method meth 
-                            (fn [gen m]
-                                (. gen (throwException ex-type (. m (getName)))))))))))
+                            (fn [#^GeneratorAdapter gen #^Method m]
+                                (. gen (throwException ex-type (. m (getName))))))))
     
                                         ;finish class def
     (. cv (visitEnd))
     [cname (. cv toByteArray)]))
 
 (defn- get-super-and-interfaces [bases]
-  (if (. (first bases) (isInterface))
+  (if (. #^Class (first bases) (isInterface))
     [Object bases]
-    [(first bases) (rest bases)]))
+    [(first bases) (next bases)]))
 
 (defn get-proxy-class 
   "Takes an optional single class followed by zero or more
@@ -207,7 +255,7 @@
           pname (proxy-name super interfaces)]
       (or (RT/loadClassForName pname)
           (let [[cname bytecode] (generate-proxy super interfaces)]
-            (. RT/ROOT_CLASSLOADER (defineClass pname bytecode))))))
+            (. (RT/getRootClassLoader) (defineClass pname bytecode))))))
 
 (defn construct-proxy
   "Takes a proxy class and any arguments for its superclass ctor and
@@ -285,7 +333,10 @@
                     meths (map (fn [[params & body]]
                                    (cons (apply vector 'this params) body))
                                meths)]
-                (recur (assoc fmap (name sym) (cons `fn meths)) (rest fs)))
+                (if-not (contains? fmap (name sym))		  
+                (recur (assoc fmap (name sym) (cons `fn meths)) (next fs))
+		           (throw (IllegalArgumentException.
+			              (str "Method '" (name sym) "' redefined")))))
               fmap)))
         p#)))
 
@@ -311,7 +362,7 @@
 			 (let [name (. pd (getName))
 			       method (. pd (getReadMethod))]
 			   (if (and method (zero? (alength (. method (getParameterTypes)))))
-			     (assoc m (keyword name) (fn [] (. method (invoke x nil))))
+			     (assoc m (keyword name) (fn [] (clojure.lang.Reflector/prepRet (. method (invoke x nil)))))
 			     m)))
 		     {}
 		     (seq (.. java.beans.Introspector
@@ -332,62 +383,11 @@
       (count [] (count pmap))
       (assoc [k v] (assoc (snapshot) k v))
       (without [k] (dissoc (snapshot) k))
-      (seq [] ((fn thisfn [pseq]
-		  (when pseq
-		    (lazy-cons (new clojure.lang.MapEntry (first pseq) (v (first pseq)))
-			       (thisfn (rest pseq))))) (keys pmap))))))
+      (seq [] ((fn thisfn [plseq]
+		  (lazy-seq
+                   (when-let [pseq (seq plseq)]
+                     (cons (new clojure.lang.MapEntry (first pseq) (v (first pseq)))
+                           (thisfn (rest pseq)))))) (keys pmap))))))
 
-(import '(java.util.concurrent.atomic AtomicReference))
 
-(defn atom
-  "Creates and returns a new Atom with an initial value of x and an
-  optional validate fn. validate-fn must be nil or a side-effect-free
-  fn of one argument, which will be passed the intended new state on
-  any state change. If the new state is unacceptable, the validate-fn
-  should throw an exception."
-  ([x] (atom x nil))
-  ([x validator-fn]
-     (let [validator (AtomicReference. nil)
-           atom (proxy [AtomicReference clojure.lang.IRef] [x]
-                  (getValidator [] (.get validator))
-                  (setValidator [f]
-                    (when f
-                      (try
-                       (f @this)
-                       (catch Exception e
-                         (throw (IllegalStateException. "Invalid atom state" e)))))
-                    (.set validator f)))]
-       (set-validator atom validator-fn)
-       atom)))
-
-(defn swap!
-  "Atomically swaps the value of atom to be:
-  (apply f current-value-of-atom args). Note that f may be called
-  multiple times, and thus should be free of side effects.  Returns
-  the value that was swapped in."  
-  [#^AtomicReference atom f & args]
-  (let [validate (get-validator atom)]
-    (loop [oldv (.get atom)]
-      (let [newv (apply f oldv args)]
-        (when validate
-          (try
-           (validate newv)
-           (catch Exception e
-             (throw (IllegalStateException. "Invalid atom state" e)))))
-        (if (.compareAndSet atom oldv newv)
-          newv
-          (recur (.get atom)))))))
-
-(defn compare-and-set! 
-  "Atomically sets the value of atom to newval if and only if the
-  current value of the atom is identical to oldval. Returns true if
-  set happened, else false" 
-  [#^AtomicReference atom oldval newval]
-    (let [validate (get-validator atom)]
-      (when validate
-        (try
-         (validate newval)
-         (catch Exception e
-           (throw (IllegalStateException. "Invalid atom state" e)))))
-      (.compareAndSet atom oldval newval)))
 

@@ -14,6 +14,7 @@ package clojure.lang;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.Callable;
 
 @SuppressWarnings({"SynchronizeOnNonFinalField"})
@@ -66,7 +67,7 @@ static class CFn{
 }
 //total order on transactions
 //transactions will consume a point for init, for each retry, and on commit if writing
-final private static AtomicInteger lastPoint = new AtomicInteger();
+final private static AtomicLong lastPoint = new AtomicLong();
 
 void getReadPoint(){
 	readPoint = lastPoint.incrementAndGet();
@@ -203,10 +204,23 @@ static public Object runInTransaction(Callable fn) throws Exception{
 	return t.run(fn);
 }
 
+static class Notify{
+	final public Ref ref;
+	final public Object oldval;
+	final public Object newval;
+
+	Notify(Ref ref, Object oldval, Object newval){
+		this.ref = ref;
+		this.oldval = oldval;
+		this.newval = newval;
+	}
+}
+
 Object run(Callable fn) throws Exception{
 	boolean done = false;
 	Object ret = null;
 	ArrayList<Ref> locked = new ArrayList<Ref>();
+	ArrayList<Notify> notify = new ArrayList<Notify>();
 
 	for(int i = 0; !done && i < RETRY_LIMIT; i++)
 		{
@@ -251,7 +265,7 @@ Object run(Callable fn) throws Exception{
 						}
 					}
 
-				//validate
+				//validate and enqueue notifications
 				for(Map.Entry<Ref, Object> e : vals.entrySet())
 					{
 					Ref ref = e.getKey();
@@ -265,22 +279,26 @@ Object run(Callable fn) throws Exception{
 				for(Map.Entry<Ref, Object> e : vals.entrySet())
 					{
 					Ref ref = e.getKey();
+					Object oldval = ref.tvals == null ? null : ref.tvals.val;
+					Object newval = e.getValue();
 					if(ref.tvals == null)
 						{
-						ref.tvals = new Ref.TVal(e.getValue(), commitPoint, msecs);
+						ref.tvals = new Ref.TVal(newval, commitPoint, msecs);
 						}
 					else if(ref.faults.get() > 0)
 						{
-						ref.tvals = new Ref.TVal(e.getValue(), commitPoint, msecs, ref.tvals);
+						ref.tvals = new Ref.TVal(newval, commitPoint, msecs, ref.tvals);
 						ref.faults.set(0);
 						}
 					else
 						{
 						ref.tvals = ref.tvals.next;
-						ref.tvals.val = e.getValue();
+						ref.tvals.val = newval;
 						ref.tvals.point = commitPoint;
 						ref.tvals.msecs = msecs;
 						}
+					if(ref.getWatches().count() > 0)
+						notify.add(new Notify(ref, oldval, newval));
 					}
 
 				done = true;
@@ -299,14 +317,25 @@ Object run(Callable fn) throws Exception{
 				}
 			locked.clear();
 			stop(done ? COMMITTED : RETRY);
-			if(done) //re-dispatch out of transaction
+			try
 				{
-				for(Agent.Action action : actions)
+				if(done) //re-dispatch out of transaction
 					{
-					Agent.dispatchAction(action);
+					for(Notify n : notify)
+						{
+						n.ref.notifyWatches(n.oldval, n.newval);
+						}
+					for(Agent.Action action : actions)
+						{
+						Agent.dispatchAction(action);
+						}
 					}
 				}
-			actions.clear();
+			finally
+				{
+				notify.clear();
+				actions.clear();
+				}
 			}
 		}
 	if(!done)
