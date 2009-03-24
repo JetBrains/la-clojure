@@ -42,6 +42,9 @@
     <path refid="jdk.classpath"/>
     <path refid="idea.classpath"/>
     <path refid="tools.path"/>
+    <fileset dir="${project.lib}">
+      <include name="**/clojure.jar"/>
+    </fileset>
   </path>
 
   <target name="unzip.last.successful.IDEA.build">
@@ -208,7 +211,7 @@
         </fileset>
       </batchtest>
     </junit>
-    
+
     <delete dir="${output}"/>
   </target>
 
