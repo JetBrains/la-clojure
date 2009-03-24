@@ -30,9 +30,7 @@ import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.util.ClojureConfigUtil;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -124,6 +122,20 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     params.configureByModule(module, JavaParameters.JDK_ONLY);
     //params.getClassPath().add(CLOJURE_SDK);
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
+
+    ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
+    OrderEntry[] entries = moduleRootManager.getOrderEntries();
+    Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
+    for (OrderEntry orderEntry : entries) {
+      // Add module sources to classpathy
+      if (orderEntry instanceof ModuleSourceOrderEntry) {
+        cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
+      }
+    }
+
+    for (VirtualFile file : cpVFiles) {
+      params.getClassPath().add(file.getPath());
+    }
 
 //    params.getClassPath().add("/home/ilya/work/clojure-plugin/lib/jline.jar");
   }
