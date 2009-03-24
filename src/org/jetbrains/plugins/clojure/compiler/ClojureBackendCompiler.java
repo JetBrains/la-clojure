@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.clojure.compiler;
 
-import clojure.lang.Repl;
 import clojure.main;
 import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.OutputParser;
@@ -13,7 +12,6 @@ import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
@@ -41,7 +39,7 @@ import java.util.*;
 /**
  * @author ilyas
  */
-public class ClojureBackendCompiler  extends ExternalCompiler {
+public class ClojureBackendCompiler extends ExternalCompiler {
 
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.clojure.compiler.ClojureBackendCompiler");
 
@@ -126,9 +124,7 @@ public class ClojureBackendCompiler  extends ExternalCompiler {
   }
 
   public OutputParser createErrorParser(String outputDir) {
-//    todo
-//    return new ClojureOutputParser();
-    return null;
+    return new ClojureOutputParser();
   }
 
   public OutputParser createOutputParser(String outputDir) {
@@ -266,12 +262,13 @@ public class ClojureBackendCompiler  extends ExternalCompiler {
 
     //print output path
     printer.print("(binding [*compile-path* ");
-    printer.print("\"" + outputPath +"\"]\n");
+    printer.print("\"" + outputPath + "\"]\n");
 
     final Module[] modules = chunk.getModules();
     if (modules.length > 0) {
       final Project project = modules[0].getProject();
       final PsiManager manager = PsiManager.getInstance(project);
+//      printNicePrinter(printer);
       for (VirtualFile file : files) {
         final PsiFile psiFile = manager.findFile(file);
         if (psiFile != null && (psiFile instanceof ClojureFile)) {
@@ -279,9 +276,12 @@ public class ClojureBackendCompiler  extends ExternalCompiler {
           final String ns = clojureFile.getNamespace();
           // Compile all compilable files
           if (ns != null) {
-            printer.print("(compile '");
-            printer.print(ns);
-            printer.print(")\n");
+            printer.print("(try ");
+            printCompileFile(printer, ns);
+            //(let [st (.getStackTrace e)] (intellij-nice-printer st))
+            printer.print("(catch Exception e (. *err* println (str \"comp_err:" + file.getPath() +
+                ":" + ns + "@" + "\" (let [msg (.getMessage e)] msg)  ) ) )");
+            printer.print(")");
           }
         }
       }
@@ -291,15 +291,22 @@ public class ClojureBackendCompiler  extends ExternalCompiler {
     printer.close();
   }
 
-  private static void addJavaSourceFiles(PrintStream stream, VirtualFile src) {
-    if (src.getPath().contains("!/")) return;
-    if (src.isDirectory()) {
-      for (VirtualFile file : src.getChildren()) {
-        addJavaSourceFiles(stream, file);
-      }
-    } else if (src.getFileType() == StdFileTypes.JAVA) {
-      stream.println(src.getPath());
-    }
+  private static void printCompileFile(PrintStream printer, String ns) {
+    printer.println("(println \"Going to throw ...\")");
+
+    printer.print("(compile '");
+    printer.print(ns);
+    printer.print(")\n");
+
+    //Diagnostic log
+    printer.print("(. *err* println ");
+    printer.print("\"compiled:" + ns + ".class\"");
+    printer.print(")\n");
+  }
+
+  private static void printNicePrinter(PrintStream printer) {
+    printer.println("(defn intellij-nice-printer [arr]\n" +
+        "  (reduce (fn [x y] (str (.toString x) \"^^\" y)) (. java.util.Arrays asList arr)))");
   }
 
   public void compileFinished() {
