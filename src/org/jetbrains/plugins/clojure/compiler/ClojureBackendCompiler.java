@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.clojure.compiler;
 
-import clojure.main;
 import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.javaCompiler.DependencyProcessor;
@@ -25,12 +24,11 @@ import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
-import org.jetbrains.plugins.clojure.util.ClojureConfigUtil;
 import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import java.io.*;
@@ -47,6 +45,7 @@ public class ClojureBackendCompiler extends ExternalCompiler {
   private final List<File> myTempFiles = new ArrayList<File>();
 
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ClojureFileType.CLOJURE_FILE_TYPE));
+  private static final String CLOJURE_MAIN = "clojure.main";
 
   public ClojureBackendCompiler(Project project) {
     myProject = project;
@@ -75,8 +74,6 @@ public class ClojureBackendCompiler extends ExternalCompiler {
 
     for (Module module : modules) {
       if (!(ClojureConfigUtil.isClojureConfigured(module) && ClojureUtils.isSuitableModule(module))) {
-
-        //todo add facet!
         Messages.showErrorDialog(myProject, ClojureBundle.message("cannot.compile.clojure.files.no.facet", module.getName()), ClojureBundle.message("cannot.compile"));
         return false;
       }
@@ -131,10 +128,7 @@ public class ClojureBackendCompiler extends ExternalCompiler {
     return new OutputParser() {
       @Override
       public boolean processMessageLine(Callback callback) {
-        if (super.processMessageLine(callback)) {
-          return true;
-        }
-        return callback.getCurrentLine() != null;
+        return super.processMessageLine(callback) || callback.getCurrentLine() != null;
       }
     };
   }
@@ -200,10 +194,7 @@ public class ClojureBackendCompiler extends ExternalCompiler {
 //    commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=127.0.0.1:5448");
 
 
-    //Get repl
-    String rtJarPath = PathUtil.getJarPathForClass(main.class);
     final StringBuilder classPathBuilder = new StringBuilder();
-    classPathBuilder.append(rtJarPath).append(File.pathSeparator);
     classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
 
     // Add classpath and sources
@@ -238,7 +229,7 @@ public class ClojureBackendCompiler extends ExternalCompiler {
     commandLine.add(classPathBuilder.toString());
 
     //Add REPL class runner
-    commandLine.add(main.class.getName());
+    commandLine.add(CLOJURE_MAIN);
 
 
     try {

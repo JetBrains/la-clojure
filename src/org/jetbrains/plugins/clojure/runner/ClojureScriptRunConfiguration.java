@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
-import org.jetbrains.plugins.clojure.util.ClojureConfigUtil;
 
 import java.io.File;
 import java.util.*;
@@ -211,7 +210,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
       throw CantRunException.noJdkForModule(getModule());
     }
 
-    if (!ClojureConfigUtil.isClojureConfigured(module)) {
+    if (!org.jetbrains.plugins.clojure.config.ClojureConfigUtil.isClojureConfigured(module)) {
       Messages.showErrorDialog(module.getProject(),
           ExecutionBundle.message("error.running.configuration.with.error.error.message", getName(),
               ClojureBundle.message("clojure.lib.is.not.attached")),
