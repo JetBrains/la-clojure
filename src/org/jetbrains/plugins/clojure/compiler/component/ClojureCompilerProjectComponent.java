@@ -1,26 +1,25 @@
 package org.jetbrains.plugins.clojure.compiler.component;
 
-import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.compiler.CompilerManager;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.StdFileTypes;
-
-import java.util.HashSet;
-import java.util.Arrays;
-
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettings;
 import org.jetbrains.plugins.clojure.compiler.ClojureCompiler;
+import org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettings;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * @author ilyas
  */
-public class CompilerProjectComponent implements ProjectComponent {
+public class ClojureCompilerProjectComponent implements ProjectComponent {
   private Project myProject;
 
-  public CompilerProjectComponent(Project project) {
+  public ClojureCompilerProjectComponent(Project project) {
     myProject = project;
   }
 
@@ -46,7 +45,7 @@ public class CompilerProjectComponent implements ProjectComponent {
 
   @NotNull
   public String getComponentName() {
-    return "Component to change compilers order";
+    return "ClojureCompilerComponent";
   }
 
   public void initComponent() {

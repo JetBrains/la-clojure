@@ -75,7 +75,7 @@
             <implementation-class>org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettings</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.plugins.clojure.compiler.component.CompilerProjectComponent
+            <implementation-class>org.jetbrains.plugins.clojure.compiler.component.ClojureCompilerProjectComponent
             </implementation-class>
         </component>
     </project-components>
