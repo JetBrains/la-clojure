@@ -18,7 +18,8 @@ import java.util.Arrays;
  */
 public class ClojureCompilerConfigurable implements Configurable {
   private JPanel myPanel;
-  private JCheckBox clojureBeforeCheckBox;
+  private JCheckBox myClojureBeforeCheckBox;
+  private JCheckBox myCompileTaggedCb;
   private ClojureCompilerSettings mySettings;
   private Project myProject;
 
@@ -45,28 +46,32 @@ public class ClojureCompilerConfigurable implements Configurable {
   }
 
   public boolean isModified() {
-    return mySettings.CLOJURE_BEFORE != clojureBeforeCheckBox.isSelected();
+    return mySettings.CLOJURE_BEFORE != myClojureBeforeCheckBox.isSelected() ||
+        mySettings.COMPILE_CLOJURE != myCompileTaggedCb.isSelected();
   }
 
   public void apply() throws ConfigurationException {
-    if (clojureBeforeCheckBox.isSelected() && mySettings.CLOJURE_BEFORE != clojureBeforeCheckBox.isSelected()) {
+    if (myClojureBeforeCheckBox.isSelected() && mySettings.CLOJURE_BEFORE != myClojureBeforeCheckBox.isSelected()) {
       for (ClojureCompiler compiler: CompilerManager.getInstance(myProject).getCompilers(ClojureCompiler.class)) {
         CompilerManager.getInstance(myProject).removeCompiler(compiler);
       }
       HashSet<FileType> inputSet = new HashSet<FileType>(Arrays.asList(ClojureFileType.CLOJURE_FILE_TYPE, StdFileTypes.JAVA));
       HashSet<FileType> outputSet = new HashSet<FileType>(Arrays.asList(StdFileTypes.JAVA, StdFileTypes.CLASS));
       CompilerManager.getInstance(myProject).addTranslatingCompiler(new ClojureCompiler(myProject), inputSet, outputSet);
-    } else if (!clojureBeforeCheckBox.isSelected() && mySettings.CLOJURE_BEFORE != clojureBeforeCheckBox.isSelected()){
+    } else if (!myClojureBeforeCheckBox.isSelected() && mySettings.CLOJURE_BEFORE != myClojureBeforeCheckBox.isSelected()){
       for (ClojureCompiler compiler: CompilerManager.getInstance(myProject).getCompilers(ClojureCompiler.class)) {
         CompilerManager.getInstance(myProject).removeCompiler(compiler);
       }
       CompilerManager.getInstance(myProject).addCompiler(new ClojureCompiler(myProject));
     }
-    mySettings.CLOJURE_BEFORE = clojureBeforeCheckBox.isSelected();
+
+    mySettings.CLOJURE_BEFORE = myClojureBeforeCheckBox.isSelected();
+    mySettings.COMPILE_CLOJURE = myCompileTaggedCb.isSelected();
   }
 
   public void reset() {
-    clojureBeforeCheckBox.setSelected(mySettings.CLOJURE_BEFORE);
+    myClojureBeforeCheckBox.setSelected(mySettings.CLOJURE_BEFORE);
+    myCompileTaggedCb.setSelected(mySettings.COMPILE_CLOJURE);
   }
 
   public void disposeUIResources() {

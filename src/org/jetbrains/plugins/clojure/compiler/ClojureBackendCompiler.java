@@ -283,7 +283,10 @@ public class ClojureBackendCompiler extends ExternalCompiler {
   }
 
   private static void printCompileFile(PrintStream printer, String ns) {
-    printer.println("(println \"Going to throw ...\")");
+    printer.print("(. *err* println ");
+    printer.print("\"compiling:" + ns + "\"");
+    printer.print(")\n");
+
 
     printer.print("(compile '");
     printer.print(ns);

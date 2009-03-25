@@ -41,6 +41,7 @@ public class ClojureCompiler implements TranslatingCompiler {
   }
 
   public boolean isCompilableFile(final VirtualFile file, CompileContext context) {
+    final ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(context.getProject());
     final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
     PsiFile psi = ApplicationManager.getApplication().runReadAction(new Computable<PsiFile>() {
       public PsiFile compute() {
@@ -48,7 +49,8 @@ public class ClojureCompiler implements TranslatingCompiler {
       }
     });
 
-    return fileType.equals(ClojureFileType.CLOJURE_FILE_TYPE) && psi instanceof ClojureFile && !((ClojureFile) psi).isClassDefiningFile();
+    return settings.COMPILE_CLOJURE &&
+        fileType.equals(ClojureFileType.CLOJURE_FILE_TYPE) && psi instanceof ClojureFile && !((ClojureFile) psi).isClassDefiningFile();
   }
 
   public ExitStatus compile(CompileContext context, VirtualFile[] files) {

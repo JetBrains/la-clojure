@@ -17,6 +17,8 @@ public class ClojureOutputParser extends OutputParser {
   @NonNls
   private static final String ourErrorMarker = "comp_err:";
   @NonNls
+  private static final String ourCompilingMarker = "compiling:";
+  @NonNls
   private static final String ourCompiledMarker = "compiled:";
 
 
@@ -31,6 +33,13 @@ public class ClojureOutputParser extends OutputParser {
     if (text.startsWith(ourCompiledMarker)) {
       final String clazz = StringUtil.trimStart(text, ourCompiledMarker);
       callback.setProgressText("Compiled " + clazz);
+      callback.fileProcessed(clazz);
+      return true;
+    }
+
+    if (text.startsWith(ourCompilingMarker)) {
+      String clazz = StringUtil.trimStart(text, ourCompilingMarker);
+      callback.setProgressText("Compiling " + clazz);
       callback.fileProcessed(clazz);
       return true;
     }
