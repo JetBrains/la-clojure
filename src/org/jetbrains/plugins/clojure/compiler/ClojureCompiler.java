@@ -43,7 +43,7 @@ public class ClojureCompiler implements TranslatingCompiler {
   }
 
   public boolean isCompilableFile(final VirtualFile file, CompileContext context) {
-    final ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(context.getProject());
+    final ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(myProject);
     final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
     PsiFile psi = ApplicationManager.getApplication().runReadAction(new Computable<PsiFile>() {
       public PsiFile compute() {
