@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.clojure.compiler;
 
+import com.intellij.compiler.CompilerConfiguration;
 import com.intellij.compiler.CompilerException;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.BackendCompilerWrapper;
+import com.intellij.compiler.impl.resourceCompiler.ResourceCompiler;
 import com.intellij.compiler.make.CacheCorruptedException;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
@@ -49,25 +51,39 @@ public class ClojureCompiler implements TranslatingCompiler {
       }
     });
 
-    return settings.COMPILE_CLOJURE &&
-        fileType.equals(ClojureFileType.CLOJURE_FILE_TYPE) && psi instanceof ClojureFile && !((ClojureFile) psi).isClassDefiningFile();
+    final boolean isClojureFile = fileType.equals(ClojureFileType.CLOJURE_FILE_TYPE) &&
+        psi instanceof ClojureFile;
+
+    return isClojureFile && (settings.COPY_CLJ_SOURCES ||
+        settings.COMPILE_CLOJURE && ((ClojureFile) psi).isClassDefiningFile());
   }
 
   public ExitStatus compile(CompileContext context, VirtualFile[] files) {
     final BackendCompiler backEndCompiler = getBackEndCompiler();
     final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, files, (CompileContextEx) context, backEndCompiler);
-    OutputItem[] outputItems;
-    try {
-      outputItems = wrapper.compile();
+    OutputItem[] outputItems = new OutputItem[0];
+    final ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(context.getProject());
+
+    if (settings.COMPILE_CLOJURE) {
+      // Compile Clojure classes
+      try {
+        outputItems = wrapper.compile();
+      }
+      catch (CompilerException e) {
+        outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
+        context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
+      }
+      catch (CacheCorruptedException e) {
+        LOG.info(e);
+        context.requestRebuildNextTime(e.getMessage());
+        outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
+      }
     }
-    catch (CompilerException e) {
-      outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
-      context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
-    }
-    catch (CacheCorruptedException e) {
-      LOG.info(e);
-      context.requestRebuildNextTime(e.getMessage());
-      outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
+
+    // Copy clojure sources to output path
+    if (settings.COPY_CLJ_SOURCES) {
+      final ResourceCompiler resourceCompiler = new ResourceCompiler(myProject, CompilerConfiguration.getInstance(myProject));
+      resourceCompiler.compile(context, files);
     }
 
     return new ExitStatusImpl(outputItems, wrapper.getFilesToRecompile());

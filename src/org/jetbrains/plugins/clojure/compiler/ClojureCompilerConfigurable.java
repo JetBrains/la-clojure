@@ -20,6 +20,7 @@ public class ClojureCompilerConfigurable implements Configurable {
   private JPanel myPanel;
   private JCheckBox myClojureBeforeCheckBox;
   private JCheckBox myCompileTaggedCb;
+  private JCheckBox myCopySourcesCb;
   private ClojureCompilerSettings mySettings;
   private Project myProject;
 
@@ -47,7 +48,8 @@ public class ClojureCompilerConfigurable implements Configurable {
 
   public boolean isModified() {
     return mySettings.CLOJURE_BEFORE != myClojureBeforeCheckBox.isSelected() ||
-        mySettings.COMPILE_CLOJURE != myCompileTaggedCb.isSelected();
+        mySettings.COMPILE_CLOJURE != myCompileTaggedCb.isSelected() ||
+        mySettings.COPY_CLJ_SOURCES != myCopySourcesCb.isSelected();
   }
 
   public void apply() throws ConfigurationException {
@@ -67,11 +69,13 @@ public class ClojureCompilerConfigurable implements Configurable {
 
     mySettings.CLOJURE_BEFORE = myClojureBeforeCheckBox.isSelected();
     mySettings.COMPILE_CLOJURE = myCompileTaggedCb.isSelected();
+    mySettings.COPY_CLJ_SOURCES = myCopySourcesCb.isSelected();
   }
 
   public void reset() {
     myClojureBeforeCheckBox.setSelected(mySettings.CLOJURE_BEFORE);
     myCompileTaggedCb.setSelected(mySettings.COMPILE_CLOJURE);
+    myCopySourcesCb.setSelected(mySettings.COPY_CLJ_SOURCES);
   }
 
   public void disposeUIResources() {

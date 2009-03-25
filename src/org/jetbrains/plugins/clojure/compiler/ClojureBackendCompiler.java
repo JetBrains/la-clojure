@@ -266,13 +266,16 @@ public class ClojureBackendCompiler extends ExternalCompiler {
           final ClojureFile clojureFile = (ClojureFile) psiFile;
           final String ns = clojureFile.getNamespace();
           // Compile all compilable files
-          if (ns != null) {
+          // Compile only files with classes!
+          if (ns != null && clojureFile.isClassDefiningFile()) {
+
             printer.print("(try ");
             printCompileFile(printer, ns);
             //(let [st (.getStackTrace e)] (intellij-nice-printer st))
             printer.print("(catch Exception e (. *err* println (str \"comp_err:" + file.getPath() +
                 ":" + ns + "@" + "\" (let [msg (.getMessage e)] msg)  ) ) )");
             printer.print(")");
+
           }
         }
       }

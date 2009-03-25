@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 public class ClojureCompilerSettings implements PersistentStateComponent<ClojureCompilerSettings>, ProjectComponent {
   public boolean COMPILE_CLOJURE = false;
   public boolean CLOJURE_BEFORE = true;
+  public boolean COPY_CLJ_SOURCES = false;
 
   public ClojureCompilerSettings getState() {
     return this;
