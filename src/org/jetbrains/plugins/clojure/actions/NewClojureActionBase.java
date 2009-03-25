@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.clojure.actions;
 
 import com.intellij.CommonBundle;
+import com.intellij.facet.FacetManager;
 import com.intellij.ide.IdeView;
 import com.intellij.ide.actions.CreateElementActionBase;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -20,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 import org.jetbrains.plugins.clojure.utils.ClojureNamesUtil;
 import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.config.ClojureFacetType;
+import org.jetbrains.plugins.clojure.config.ClojureFacet;
 
 import javax.swing.*;
 
@@ -53,7 +56,16 @@ public abstract class NewClojureActionBase extends CreateElementActionBase {
     final DataContext context = event.getDataContext();
     Module module = (Module) context.getData(DataKeys.MODULE.getName());
 
-    if (module != null &&
+    if (module == null) {
+      presentation.setEnabled(false);
+      presentation.setVisible(false);
+      return;
+    }
+
+    final FacetManager manager = FacetManager.getInstance(module);
+    final ClojureFacet facet = manager.getFacetByType(ClojureFacetType.INSTANCE.getId());
+
+    if (facet == null ||
         !ClojureUtils.isSuitableModule(module) ||
         !presentation.isEnabled() ||
         !isUnderSourceRoots(event)) {

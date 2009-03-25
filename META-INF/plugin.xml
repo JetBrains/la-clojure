@@ -1,5 +1,10 @@
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin>
+    <module-components>
+        <component>
+            <implementation-class>org.jetbrains.plugins.clojure.config.ClojureFacetListener</implementation-class>
+        </component>
+    </module-components>
 
     <name>La Clojure</name>
     <id>org.intellij.clojure</id>
@@ -52,11 +57,16 @@
         <debugger.codeFragmentFactory
                 implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragementFactory"/>
         <compilerSettingsFactory implementation="org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettingsFactory"/>
+        <frameworkSupport implementation="org.jetbrains.plugins.clojure.config.ClojureFacetSupportProvider"/>
     </extensions>
 
     <application-components>
         <component>
             <implementation-class>org.jetbrains.plugins.clojure.ClojureLoader</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.clojure.config.ClojureFacetLoader</implementation-class>
+            <interface-class>org.jetbrains.plugins.clojure.config.ClojureFacetLoader</interface-class>
         </component>
     </application-components>
 
