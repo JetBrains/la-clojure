@@ -12,6 +12,7 @@ import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
+import org.jetbrains.plugins.clojure.psi.util.ClojureTextUtil;
 
 /**
  * User: peter
@@ -60,7 +61,12 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
 
   @NotNull
   public String getPackageName() {
-    return "";
+    String ns = getNamespace();
+    if (ns == null) {
+      return "";
+    } else {
+      return ClojureTextUtil.getSymbolPrefix(ns);
+    }
   }
 
   public boolean isScript() {
@@ -69,7 +75,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
 
   private boolean isWrongElement(PsiElement element) {
     return element == null ||
-        (element instanceof LeafPsiElement || element instanceof PsiWhiteSpace || element instanceof PsiComment);
+            (element instanceof LeafPsiElement || element instanceof PsiWhiteSpace || element instanceof PsiComment);
   }
 
   public PsiElement getFirstNonLeafElement() {
@@ -93,7 +99,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     while (element != null && !aClass.isInstance(element)) {
       element = element.getNextSibling();
     }
-    return (T)element;
+    return (T) element;
   }
 
   public PsiElement getSecondNonLeafElement() {

@@ -12,7 +12,10 @@ import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.lang.Language;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.navigation.ItemPresentation;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Collection;
 import java.util.ArrayList;
@@ -26,15 +29,27 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   @NotNull
   private final ClojureFile myFile;
+  private String myQualifiedName;
+  private String myName;
 
   protected ClSyntheticClassImpl(@NotNull ClojureFile file) {
     super(file.getManager(), ClojureFileType.CLOJURE_LANGUAGE);
     myFile = file;
     assert myFile.isClassDefiningFile();
+    cachesNames();
   }
 
+  private void cachesNames() {
+    String name = myFile.getName();
+    int i = name.indexOf('.');
+    myName = i > 0 ? name.substring(0, i) : name;
+    String packageName = myFile.getPackageName();
+    myQualifiedName = packageName.length() > 0 ? packageName + "." + myName : myName;
+  }
+
+
   public String getText() {
-    return "";
+    return "class " + myName + " {}";
   }
 
   @Override
@@ -45,13 +60,34 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
   public void accept(@NotNull PsiElementVisitor psiElementVisitor) {
   }
 
+
+  @Override
+  public ItemPresentation getPresentation() {
+    return new ItemPresentation() {
+      public String getPresentableText() {
+        return getName();
+      }
+
+      public String getLocationString() {
+        return myFile.getName();
+      }
+
+      public TextAttributesKey getTextAttributesKey() {
+        return null;
+      }
+
+      public Icon getIcon(boolean open) {
+        return myFile.getIcon(0);
+      }
+    };
+  }
+
   public PsiElement copy() {
     throw new IncorrectOperationException("nonphysical element");
   }
 
   public String getQualifiedName() {
-    //todo implement me!
-    return null;
+    return myQualifiedName;
   }
 
   public boolean isInterface() {
@@ -77,7 +113,12 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   @NotNull
   public PsiClassType[] getExtendsListTypes() {
-    return new PsiClassType[0];
+    return PsiClassType.EMPTY_ARRAY;
+  }
+
+  @Override
+   public void delete() throws IncorrectOperationException {
+    myFile.delete();
   }
 
   @NotNull
@@ -111,7 +152,8 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   @NotNull
   public PsiMethod[] getMethods() {
-    return new PsiMethod[0];
+    //todo implement me!
+    return PsiMethod.EMPTY_ARRAY;
   }
 
   @NotNull
@@ -210,7 +252,7 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
   }
 
   public String getName() {
-    return myFile.getClassName();
+    return myName;
   }
 
   public PsiElement setName(@NonNls String s) throws IncorrectOperationException {
@@ -247,4 +289,10 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
   public PsiTypeParameter[] getTypeParameters() {
     return new PsiTypeParameter[0];
   }
+
+  @Nullable
+  public Icon getIcon(int flags) {
+    return myFile.getIcon(flags);
+  }
+
 }

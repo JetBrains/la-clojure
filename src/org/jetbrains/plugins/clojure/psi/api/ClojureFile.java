@@ -18,6 +18,9 @@ public interface ClojureFile extends PsiFile, ClojurePsiElement, PsiFileWithStub
   @Nullable
   String getNamespace();
 
+  @NotNull
+  String getPackageName();
+
   @Nullable
   String getClassName();
 
