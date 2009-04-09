@@ -45,10 +45,15 @@
                 implementation="org.jetbrains.plugins.clojure.formatter.ClojureIndentOptionsProvider"/>
         <quoteHandler fileType="Clojure" className="org.jetbrains.plugins.clojure.editor.ClojureQuoteHandler"/>
         <annotator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.annotator.ClojureAnnotator"/>
-        <gotoSymbolContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClGoToSymbolContributor"/>
+
+        <gotoSymbolContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToSymbolContributor"/>
+        <gotoClassContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToClassContributor"/>
 
         <stubElementTypeHolder class="org.jetbrains.plugins.clojure.parser.ClojureElementTypes"/>
+
         <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClojureClassNameIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClojureFullScriptNameIndex"/>
 
         <extendWordSelectionHandler
                 implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureListSelectioner"/>
@@ -77,6 +82,13 @@
         <component>
             <implementation-class>org.jetbrains.plugins.clojure.compiler.component.ClojureCompilerProjectComponent
             </implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder
+            </implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.clojure.psi.impl.ClojurePsiManager</implementation-class>
         </component>
     </project-components>
 

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex;
 /**
  * @author ilyas
  */
-public class ClGoToSymbolContributor implements ChooseByNameContributor {
+public class ClojureGoToSymbolContributor implements ChooseByNameContributor {
   public String[] getNames(Project project, boolean includeNonProjectItems) {
     Set<String> symbols = new HashSet<String>();
     symbols.addAll(StubIndex.getInstance().getAllKeys(ClDefNameIndex.KEY));

@@ -27,12 +27,17 @@ import java.util.ArrayList;
  */
 public class ClSyntheticClassImpl extends LightElement implements ClSyntheticClass {
 
+  @Override
+  public PsiElement getNavigationElement() {
+    return myFile.getNamespaceElement();
+  }
+
   @NotNull
   private final ClojureFile myFile;
   private String myQualifiedName;
   private String myName;
 
-  protected ClSyntheticClassImpl(@NotNull ClojureFile file) {
+  public ClSyntheticClassImpl(@NotNull ClojureFile file) {
     super(file.getManager(), ClojureFileType.CLOJURE_LANGUAGE);
     myFile = file;
     assert myFile.isClassDefiningFile();
@@ -69,7 +74,8 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
       }
 
       public String getLocationString() {
-        return myFile.getName();
+        String pn = myFile.getPackageName();
+        return "(" + (pn.equals("") ? "<default package>" : pn) + ") in " + myFile.getName();
       }
 
       public TextAttributesKey getTextAttributesKey() {
@@ -83,7 +89,7 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
   }
 
   public PsiElement copy() {
-    throw new IncorrectOperationException("nonphysical element");
+    return new ClSyntheticClassImpl(myFile);
   }
 
   public String getQualifiedName() {

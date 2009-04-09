@@ -13,6 +13,7 @@ import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.util.ClojureTextUtil;
+import org.jetbrains.plugins.clojure.psi.impl.synthetic.ClSyntheticClassImpl;
 
 /**
  * User: peter
@@ -30,6 +31,8 @@ import org.jetbrains.plugins.clojure.psi.util.ClojureTextUtil;
  */
 public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
   private PsiElement myContext = null;
+  private PsiClass myClass;
+  private boolean myScriptClassInitialized = false;
 
   @Override
   public String toString() {
@@ -47,6 +50,18 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     }
     return super.getContext();
   }
+
+  public PsiClass getDefinedClass() {
+    if (!myScriptClassInitialized) {
+      if (isScript()) {
+        myClass = new ClSyntheticClassImpl(this);
+      }
+
+      myScriptClassInitialized = true;
+    }
+    return myClass;
+  }
+
 
   protected PsiFileImpl clone() {
     final ClojureFileImpl clone = (ClojureFileImpl) super.clone();
@@ -134,7 +149,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
   }
 
   public String getNamespace() {
-    final ClList ns = ClojurePsiUtil.findFormByName(this, "ns");
+    final ClList ns = getNamespaceElement();
     if (ns == null) return null;
     final ClSymbol first = ns.findFirstChildByClass(ClSymbol.class);
     if (first == null) return null;
@@ -142,6 +157,10 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     if (snd == null) return null;
 
     return snd.getNameString();
+  }
+
+  public ClList getNamespaceElement() {
+    return ClojurePsiUtil.findFormByName(this, "ns");
   }
 
   public String getClassName() {

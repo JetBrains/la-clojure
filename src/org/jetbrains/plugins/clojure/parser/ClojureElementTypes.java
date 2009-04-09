@@ -8,6 +8,7 @@ import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefMethodElementType;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ClStubFileElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.ClDefStub;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.ClStubElementType;
@@ -27,7 +28,7 @@ import org.jetbrains.plugins.clojure.psi.ClStubElementType;
  * limitations under the License.
  */
 public interface ClojureElementTypes extends ClojureTokenTypes {
-  final IFileElementType FILE = new IStubFileElementType(ClojureFileType.CLOJURE_LANGUAGE);
+  final IStubFileElementType FILE = new ClStubFileElementType();
 
   final IElementType TOPLIST = new ClojureElementType("toplist");
   final IElementType LIST = new ClojureElementType("list");
