@@ -6,6 +6,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.impl.source.PsiFileImpl;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
@@ -135,5 +136,17 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     if (snd == null) return null;
 
     return snd.getNameString();
+  }
+
+  public String getClassName() {
+    String namespace = getNamespace();
+    if (namespace == null) return null;
+    int i = namespace.lastIndexOf(".");
+    return i > 0 && i < namespace.length() - 1 ? namespace.substring(i + 1) : namespace;
+  }
+
+  public PsiElement setClassName(@NonNls String s) {
+    //todo implement me!
+    return null;
   }
 }

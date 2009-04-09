@@ -73,6 +73,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
 
   @NotNull
   public String getNameString() {
+    //todo is it safe?
     return getText();
   }
 }

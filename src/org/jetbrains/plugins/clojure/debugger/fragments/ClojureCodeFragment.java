@@ -2,6 +2,7 @@ package org.jetbrains.plugins.clojure.debugger.fragments;
 
 import org.jetbrains.plugins.clojure.psi.impl.ClojureFileImpl;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
+import org.jetbrains.annotations.NonNls;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.openapi.project.Project;
@@ -90,5 +91,13 @@ public class ClojureCodeFragment extends ClojureFileImpl implements JavaCodeFrag
 
   public String getNamespace() {
     return null; 
+  }
+
+  public String getClassName() {
+    return null;
+  }
+
+  public PsiElement setClassName(@NonNls String s) {
+    return null;
   }
 }
