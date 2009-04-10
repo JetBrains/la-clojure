@@ -91,8 +91,7 @@ public class ClojureBlockGenerator {
   }
 
   private static boolean applicationStart(PsiElement first) {
-    return first instanceof ClSymbol ||
-        first instanceof ClKey;
+    return first instanceof ClSymbol;
   }
 
   private static boolean canBeCorrectBlock(final ASTNode node) {
