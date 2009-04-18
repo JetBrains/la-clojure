@@ -135,17 +135,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     final ClSymbol snd = ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
     if (snd == null) return false;
 
-    final ClList list = ns.findFirstChildByClass(ClList.class);
-    if (list == null) return false;
-    for (PsiElement element : list.getChildren()) {
-      if (element instanceof ClKey) {
-        ClKey key = (ClKey) element;
-        if (":gen-class".equals(key.getText())) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return ClojurePsiUtil.findNamespaceKeyByName(ns, ClojurePsiUtil.GEN_CLASS) != null;
   }
 
   public String getNamespace() {

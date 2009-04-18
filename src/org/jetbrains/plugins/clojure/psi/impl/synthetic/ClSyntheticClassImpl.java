@@ -2,14 +2,21 @@ package org.jetbrains.plugins.clojure.psi.impl.synthetic;
 
 import org.jetbrains.plugins.clojure.psi.api.synthetic.ClSyntheticClass;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClVector;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
+import org.jetbrains.plugins.clojure.psi.impl.ClKey;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.psi.impl.light.LightElement;
+import com.intellij.psi.impl.InheritanceImplUtil;
 import com.intellij.psi.*;
+import com.intellij.psi.scope.PsiScopeProcessor;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.javadoc.PsiDocComment;
-import com.intellij.lang.Language;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -19,6 +26,7 @@ import javax.swing.*;
 import java.util.List;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author ilyas
@@ -37,10 +45,16 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
   private String myQualifiedName;
   private String myName;
 
+  @Override
+  public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
+    return super.processDeclarations(processor, state, lastParent, place);
+  }
+
   public ClSyntheticClassImpl(@NotNull ClojureFile file) {
     super(file.getManager(), ClojureFileType.CLOJURE_LANGUAGE);
     myFile = file;
     assert myFile.isClassDefiningFile();
+    assert myFile.getNamespaceElement() != null;
     cachesNames();
   }
 
@@ -119,11 +133,18 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   @NotNull
   public PsiClassType[] getExtendsListTypes() {
+    final PsiClass superClass = getSuperClass();
+    final PsiElementFactory factory = JavaPsiFacade.getInstance(getProject()).getElementFactory();
+    final GlobalSearchScope scope = GlobalSearchScope.allScope(getProject());
+    if (superClass != null && superClass.getQualifiedName() != null) {
+      return new PsiClassType[]{factory.createTypeByFQClassName(superClass.getQualifiedName(), scope)};
+    }
+
     return PsiClassType.EMPTY_ARRAY;
   }
 
   @Override
-   public void delete() throws IncorrectOperationException {
+  public void delete() throws IncorrectOperationException {
     myFile.delete();
   }
 
@@ -133,22 +154,74 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
   }
 
   public PsiClass getSuperClass() {
+    final ClList ns = getNsElement();
+    final ClKey key = ClojurePsiUtil.findNamespaceKeyByName(ns, ClojurePsiUtil.EXTENDS);
+    if (key != null) {
+      final PsiElement next = ClojurePsiUtil.getNextNonWhiteSpace(key);
+      if (next instanceof ClSymbol) {
+        ClSymbol symbol = (ClSymbol) next;
+        return JavaPsiFacade.getInstance(getProject()).findClass(symbol.getText(), GlobalSearchScope.allScope(getProject()));
+      }
+    }
     return null;
   }
 
+  @NotNull
+  private ClList getNsElement() {
+    return myFile.getNamespaceElement();
+  }
+
   public PsiClass[] getInterfaces() {
-    //todo implement me!
+    final ClList ns = getNsElement();
+    final ClKey key = ClojurePsiUtil.findNamespaceKeyByName(ns, ClojurePsiUtil.IMPLEMENTS);
+    final ArrayList<PsiClass> classes = new ArrayList<PsiClass>();
+    final GlobalSearchScope scope = GlobalSearchScope.allScope(getProject());
+    final JavaPsiFacade facade = JavaPsiFacade.getInstance(getProject());
+    if (key != null) {
+      final PsiElement next = ClojurePsiUtil.getNextNonWhiteSpace(key);
+      if (next instanceof ClVector) {
+        ClVector vector = (ClVector) next;
+        for (PsiElement element : vector.getChildren()) {
+          if (element instanceof ClSymbol) {
+            ClSymbol symbol = (ClSymbol) element;
+            final PsiClass clazz = facade.findClass(symbol.getText(), scope);
+            if (clazz != null)  classes.add(clazz);
+          }
+        }
+        return classes.toArray(PsiClass.EMPTY_ARRAY);
+      }
+    }
     return new PsiClass[0];
   }
 
   @NotNull
   public PsiClass[] getSupers() {
-    return new PsiClass[0];
+    final ArrayList<PsiClass> list = new ArrayList<PsiClass>();
+    final PsiClass psiClass = getSuperClass();
+    if (psiClass != null) {
+      list.add(psiClass);
+    }
+    list.addAll(Arrays.asList(getInterfaces()));
+    return list.toArray(PsiClass.EMPTY_ARRAY);
   }
 
   @NotNull
   public PsiClassType[] getSuperTypes() {
-    return new PsiClassType[0];
+    final ArrayList<PsiClassType> types = new ArrayList<PsiClassType>();
+    final PsiClass superClass = getSuperClass();
+    final PsiElementFactory factory = JavaPsiFacade.getInstance(getProject()).getElementFactory();
+    final GlobalSearchScope scope = GlobalSearchScope.allScope(getProject());
+    if (superClass != null && superClass.getQualifiedName() != null) {
+      types.add(factory.createTypeByFQClassName(superClass.getQualifiedName(), scope));
+    }
+
+    for (PsiClass clazz : getInterfaces()) {
+      final String qName = clazz.getQualifiedName();
+      if (qName != null) {
+        types.add(factory.createTypeByFQClassName(qName, scope));
+      }
+    }
+    return types.toArray(PsiClassType.EMPTY_ARRAY);
   }
 
   @NotNull
@@ -184,7 +257,15 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   @NotNull
   public PsiMethod[] getAllMethods() {
-    return new PsiMethod[0];
+    final ArrayList<PsiMethod> list = new ArrayList<PsiMethod>();
+    for (PsiClass clazz : getInterfaces()) {
+      list.addAll(Arrays.asList(clazz.getAllMethods()));
+    }
+    final PsiClass aClass = getSuperClass();
+    if (aClass != null) {
+      list.addAll(Arrays.asList(aClass.getAllMethods()));
+    }
+    return list.toArray(PsiMethod.EMPTY_ARRAY);
   }
 
   @NotNull
@@ -241,11 +322,11 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
   }
 
   public boolean isInheritor(@NotNull PsiClass psiClass, boolean b) {
-    return false;
+    return InheritanceImplUtil.isInheritor(this, psiClass, b);
   }
 
-  public boolean isInheritorDeep(PsiClass psiClass, @Nullable PsiClass psiClass1) {
-    return false;
+  public boolean isInheritorDeep(PsiClass baseClass, @Nullable PsiClass classToByPass) {
+    return InheritanceImplUtil.isInheritorDeep(this, baseClass, classToByPass);
   }
 
   public PsiClass getContainingClass() {
