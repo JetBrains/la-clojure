@@ -223,6 +223,7 @@ public class ClojureParser implements PsiParser, ClojureTokenTypes {
     PsiBuilder.Marker marker = builder.mark();
     builder.advanceLexer();
     assert builder.getTokenType() != null;
+    builder.eof();
     builder.advanceLexer();
     for (IElementType token = builder.getTokenType(); token != RIGHT_CURLY && token != null; token = builder.getTokenType()) {
       parseExpression(builder); //entry
