@@ -6,7 +6,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.PsiShortNamesCache;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.Function;
 import com.intellij.util.ArrayUtil;
@@ -34,7 +36,9 @@ public class CompleteSymbol {
       ClList list = (ClList) parent;
       final boolean isFirst = list.getFirstSymbol() == symbol;
 
-      variants.addAll(getDefVariants(isFirst));
+      if (symbol.findFirstChildByClass(ClSymbol.class) == null) {
+        variants.addAll(getDefVariants(isFirst));
+      }
       variants.addAll(getJavaCompletionVariants(symbol, isFirst));
     }
     return variants.toArray(new Object[variants.size()]);
@@ -90,6 +94,16 @@ public class CompleteSymbol {
       list.addAll(fields);
     } else {
 
+      //todo remove me!
+      final ClSymbol first = symbol.findFirstChildByClass(ClSymbol.class);
+      if (first != null && "MathUtils".equals(first.getNameString())) {
+        final PsiClass clazz = facade.findClass("org.jetbrains.benchmark.math.java.MathUtils", GlobalSearchScope.allScope(symbol.getProject()));
+        if (clazz != null) {
+          list.addAll(Arrays.asList(clazz.getAllMethods()));
+          return list;
+        }
+      }
+
       // add default classes
       final PsiPackage javaLang = facade.findPackage("java.lang");
       if (javaLang != null) {
@@ -99,6 +113,12 @@ public class CompleteSymbol {
       final PsiPackage clojureCore = facade.findPackage("clojure.lang");
       if (clojureCore != null) {
         list.addAll(Arrays.asList(clojureCore.getClasses()));
+      }
+
+      //todo remove me!
+      final PsiPackage util = facade.findPackage("org.jetbrains.benchmark.math.java");
+      if (util != null) {
+        list.addAll(Arrays.asList(util.getClasses()));
       }
 
 
