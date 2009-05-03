@@ -15,7 +15,7 @@ import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.list.ClListBaseImpl;
-import org.jetbrains.plugins.clojure.psi.stubs.ClDefStub;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 
 import javax.swing.*;
 

@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.clojure.psi.stubs.elements;
 
-import org.jetbrains.plugins.clojure.psi.stubs.ClDefStub;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 import org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex;
 import org.jetbrains.plugins.clojure.psi.stubs.impl.ClDefStubImpl;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.ClStubElementType;
-import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefImpl;
 import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefnMethodImpl;
 import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
 import com.intellij.psi.stubs.StubOutputStream;

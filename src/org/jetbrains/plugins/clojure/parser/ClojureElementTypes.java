@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.clojure.parser;
 
 import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.psi.tree.TokenSet;
-import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefMethodElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClStubFileElementType;
-import org.jetbrains.plugins.clojure.psi.stubs.ClDefStub;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ClNsElementType;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.ClStubElementType;
 
 /**
@@ -38,6 +39,7 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
 
   final ClStubElementType<ClDefStub, ClDef> DEF = new ClDefElementType();
   final ClStubElementType<ClDefStub, ClDef> DEFMETHOD = new ClDefMethodElementType();
+  final ClStubElementType<ClNsStub, ClNs> NS = new ClNsElementType();
 
   final IElementType MAP_ENTRY = new ClojureElementType("map");
 
@@ -62,7 +64,7 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
   final IElementType TILDAAT_EXPRESSION = new ClojureElementType("tildaat expression");
 
 
-  TokenSet LIST_LIKE_FORMS = TokenSet.create(LIST, VECTOR, MAP, SET, DEF, DEFMETHOD);
+  TokenSet LIST_LIKE_FORMS = TokenSet.create(LIST, VECTOR, MAP, SET, DEF, DEFMETHOD, NS);
 
   TokenSet BRACES = TokenSet.create(LEFT_CURLY, LEFT_PAREN, LEFT_SQUARE,
       RIGHT_CURLY, RIGHT_PAREN, RIGHT_SQUARE);

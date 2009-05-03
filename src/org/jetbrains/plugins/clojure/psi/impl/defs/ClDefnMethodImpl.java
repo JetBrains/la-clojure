@@ -6,7 +6,7 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDefMethod;
-import org.jetbrains.plugins.clojure.psi.stubs.ClDefStub;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

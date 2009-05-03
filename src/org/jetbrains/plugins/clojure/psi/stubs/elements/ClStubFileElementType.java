@@ -19,6 +19,7 @@ import org.jetbrains.plugins.clojure.file.ClojureFileType;
  * @author ilyas
  */
 public class ClStubFileElementType extends IStubFileElementType<ClFileStub> {
+  private static final int CURRENT_VERSION = 4;
 
   public ClStubFileElementType() {
     super(ClojureFileType.CLOJURE_LANGUAGE);
@@ -30,7 +31,7 @@ public class ClStubFileElementType extends IStubFileElementType<ClFileStub> {
 
   @Override
   public int getStubVersion() {
-    return super.getStubVersion() + 2;
+    return super.getStubVersion() + CURRENT_VERSION;
   }
 
   public String getExternalId() {

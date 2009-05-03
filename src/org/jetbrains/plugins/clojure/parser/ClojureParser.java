@@ -304,6 +304,8 @@ public class ClojureParser implements PsiParser, ClojureTokenTypes {
     final String tokenText = builder.getTokenText();
     if (builder.getTokenType() == symATOM && DEF_TOKENS.contains(tokenText)) {
       parseDef(builder, marker);
+    } else if (builder.getTokenType() == symATOM && "ns".contains(tokenText)) {
+      parseNs(builder, marker);
     } else {
       parseExpressions(RIGHT_PAREN, builder);
       marker.done(LIST);
@@ -363,6 +365,27 @@ public class ClojureParser implements PsiParser, ClojureTokenTypes {
     }
     marker.done("defmethod".equals(text) ? ClojureElementTypes.DEFMETHOD : ClojureElementTypes.DEF);
   }
+
+  private void parseNs(PsiBuilder builder, PsiBuilder.Marker marker) {
+    final String text = builder.getTokenText();
+    if (!"ns".equals(text) || builder.getTokenType() != symATOM) {
+      internalError(ClojureBundle.message("expected.element"));
+    }
+
+    parseSymbol(builder);
+    for (IElementType token = builder.getTokenType(); token != RIGHT_PAREN && token != null; token = builder.getTokenType()) {
+      parseExpression(builder);
+    }
+
+    if (builder.getTokenType() != RIGHT_PAREN) {
+      builder.error(ClojureBundle.message("expected.token", RIGHT_PAREN.toString()));
+    } else {
+      advanceLexerOrEOF(builder);
+    }
+    marker.done(ClojureElementTypes.NS);
+  }
+
+
 
   /**
    * Enter: Lexer is pointed at the opening left square

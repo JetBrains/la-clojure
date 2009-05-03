@@ -4,16 +4,16 @@ import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.StubBase;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.util.io.StringRef;
-import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
-import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
 
 /**
  * @author ilyas
  */
-public class ClDefStubImpl extends StubBase<ClDef> implements ClDefStub {
+public class ClNsStubImpl extends StubBase<ClNs> implements ClNsStub {
   private final StringRef myName;
 
-  public ClDefStubImpl(StubElement parent, StringRef name, final IStubElementType elementType) {
+  public ClNsStubImpl(StubElement parent, StringRef name, final IStubElementType elementType) {
     super(parent, elementType);
     myName = name;
   }
