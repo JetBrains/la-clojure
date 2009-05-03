@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.psi.impl;
 import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.*;
+import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.impl.source.PsiFileImpl;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +15,9 @@ import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.util.ClojureTextUtil;
 import org.jetbrains.plugins.clojure.psi.impl.synthetic.ClSyntheticClassImpl;
+import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
+
+import java.util.Arrays;
 
 /**
  * User: peter
@@ -158,6 +162,34 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     if (namespace == null) return null;
     int i = namespace.lastIndexOf(".");
     return i > 0 && i < namespace.length() - 1 ? namespace.substring(i + 1) : namespace;
+  }
+
+  @Override
+  public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
+
+    final JavaPsiFacade facade = JavaPsiFacade.getInstance(getProject());
+
+    // Add all java.lang classes
+    final PsiPackage javaLang = facade.findPackage("java.lang");
+    if (javaLang != null) {
+      for (PsiClass clazz : javaLang.getClasses()) {
+        if (!ResolveUtil.processElement(processor, clazz)) {
+          return false;
+        }
+      }
+    }
+
+    // Add all clojure.lang classes
+    final PsiPackage clojureCore = facade.findPackage("clojure.lang");
+    if (clojureCore != null) {
+      for (PsiClass clazz : clojureCore.getClasses()) {
+        if (!ResolveUtil.processElement(processor, clazz)) {
+          return false;
+        }
+      }
+    }
+
+    return super.processDeclarations(processor, state, lastParent, place);
   }
 
   public PsiElement setClassName(@NonNls String s) {

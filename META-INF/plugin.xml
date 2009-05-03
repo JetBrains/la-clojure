@@ -1,103 +1,107 @@
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin>
-    <module-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.clojure.config.ClojureFacetListener</implementation-class>
-        </component>
-    </module-components>
+  <module-components>
+    <component>
+      <implementation-class>org.jetbrains.plugins.clojure.config.ClojureFacetListener</implementation-class>
+    </component>
+  </module-components>
 
-    <name>La Clojure</name>
-    <id>org.intellij.clojure</id>
-    <description>Plugin for Clojure language support</description>
-    <category>Custom Languages</category>
-    <version>VERSION</version>
-    <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains
-        Inc.
-    </vendor>
-    <idea-version since-build="9100"/>
+  <name>La Clojure</name>
+  <id>org.intellij.clojure</id>
+  <description>Plugin for Clojure language support</description>
+  <category>Custom Languages</category>
+  <version>VERSION</version>
+  <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains
+    Inc.
+  </vendor>
+  <idea-version since-build="9100"/>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
-        <fileTypeFactory implementation="org.jetbrains.plugins.clojure.file.ClojureFileTypeLoader"/>
-        <lang.braceMatcher language="Clojure"
-                           implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureBraceMatcher"/>
-        <syntaxHighlighter key="Clojure"
-                           implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureSyntaxHighlighter"/>
-        <colorSettingsPage implementation="org.jetbrains.plugins.clojure.highlighter.ClojureColorsAndFontsPage"/>
-        <lang.commenter language="Clojure"
-                        implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureCommenter"/>
-        <lang.parserDefinition language="Clojure"
-                               implementationClass="org.jetbrains.plugins.clojure.parser.ClojureParserDefinition"/>
-        <lang.foldingBuilder language="Clojure"
-                             implementationClass="org.jetbrains.plugins.clojure.ClojureFoldingBuilder"/>
-        <lang.psiStructureViewFactory language="Clojure"
-                                      implementationClass="org.jetbrains.plugins.clojure.structure.ClojureStructureViewBuilderFactory"/>
-        <lang.formatter language="Clojure"
-                        implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
-        <consoleFilterProvider
-                implementation="org.jetbrains.plugins.clojure.runner.console.ClojureConsoleFilterProvider"/>
+  <extensions defaultExtensionNs="com.intellij">
+    <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
+    <fileTypeFactory implementation="org.jetbrains.plugins.clojure.file.ClojureFileTypeLoader"/>
+    <lang.braceMatcher language="Clojure"
+                       implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureBraceMatcher"/>
+    <syntaxHighlighter key="Clojure"
+                       implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureSyntaxHighlighter"/>
+    <colorSettingsPage implementation="org.jetbrains.plugins.clojure.highlighter.ClojureColorsAndFontsPage"/>
+    <lang.commenter language="Clojure"
+                    implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureCommenter"/>
+    <lang.parserDefinition language="Clojure"
+                           implementationClass="org.jetbrains.plugins.clojure.parser.ClojureParserDefinition"/>
+    <lang.foldingBuilder language="Clojure"
+                         implementationClass="org.jetbrains.plugins.clojure.ClojureFoldingBuilder"/>
+    <lang.psiStructureViewFactory language="Clojure"
+                                  implementationClass="org.jetbrains.plugins.clojure.structure.ClojureStructureViewBuilderFactory"/>
+    <lang.formatter language="Clojure"
+                    implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
+    <consoleFilterProvider
+        implementation="org.jetbrains.plugins.clojure.runner.console.ClojureConsoleFilterProvider"/>
+    <completion.contributor implementation="org.jetbrains.plugins.clojure.completion.ClojureCompletionContributor"/>
+    <configurationType implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationType"/>
+    <configurationProducer
+        implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>
+    <fileTemplateGroup implementation="org.jetbrains.plugins.clojure.actions.ClojureTemplatesFactory"/>
+    <fileTypeIndentOptionsProvider
+        implementation="org.jetbrains.plugins.clojure.formatter.ClojureIndentOptionsProvider"/>
+    <quoteHandler fileType="Clojure" className="org.jetbrains.plugins.clojure.editor.ClojureQuoteHandler"/>
+    <annotator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.annotator.ClojureAnnotator"/>
 
-        <configurationType implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationType"/>
-        <configurationProducer
-                implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>
-        <fileTemplateGroup implementation="org.jetbrains.plugins.clojure.actions.ClojureTemplatesFactory"/>
-        <fileTypeIndentOptionsProvider
-                implementation="org.jetbrains.plugins.clojure.formatter.ClojureIndentOptionsProvider"/>
-        <quoteHandler fileType="Clojure" className="org.jetbrains.plugins.clojure.editor.ClojureQuoteHandler"/>
-        <annotator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.annotator.ClojureAnnotator"/>
+    <gotoSymbolContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToSymbolContributor"/>
+    <gotoClassContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToClassContributor"/>
 
-        <gotoSymbolContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToSymbolContributor"/>
-        <gotoClassContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToClassContributor"/>
+    <stubElementTypeHolder class="org.jetbrains.plugins.clojure.parser.ClojureElementTypes"/>
 
-        <stubElementTypeHolder class="org.jetbrains.plugins.clojure.parser.ClojureElementTypes"/>
+    <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex"/>
+    <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClojureClassNameIndex"/>
+    <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClojureFullScriptNameIndex"/>
 
-        <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex"/>
-        <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClojureClassNameIndex"/>
-        <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClojureFullScriptNameIndex"/>
+    <extendWordSelectionHandler
+        implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureListSelectioner"/>
+    <extendWordSelectionHandler
+        implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureLiteralSelectioner"/>
+    <debugger.codeFragmentFactory
+        implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragementFactory"/>
+    <compilerSettingsFactory implementation="org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettingsFactory"/>
+    <frameworkSupport implementation="org.jetbrains.plugins.clojure.config.ClojureFacetSupportProvider"/>
 
-        <extendWordSelectionHandler
-                implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureListSelectioner"/>
-        <extendWordSelectionHandler
-                implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureLiteralSelectioner"/>
-        <debugger.codeFragmentFactory
-                implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragementFactory"/>
-        <compilerSettingsFactory implementation="org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettingsFactory"/>
-        <frameworkSupport implementation="org.jetbrains.plugins.clojure.config.ClojureFacetSupportProvider"/>
-    </extensions>
+    <projectService serviceInterface="org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory"
+                    serviceImplementation="org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactoryImpl"/>
 
-    <application-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.clojure.ClojureLoader</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.clojure.config.ClojureFacetLoader</implementation-class>
-            <interface-class>org.jetbrains.plugins.clojure.config.ClojureFacetLoader</interface-class>
-        </component>
-    </application-components>
+  </extensions>
 
-    <project-components>
-        <component>
-            <implementation-class>org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettings</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.clojure.compiler.component.ClojureCompilerProjectComponent
-            </implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder
-            </implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.clojure.psi.impl.ClojurePsiManager</implementation-class>
-        </component>
-    </project-components>
+  <application-components>
+    <component>
+      <implementation-class>org.jetbrains.plugins.clojure.ClojureLoader</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.clojure.config.ClojureFacetLoader</implementation-class>
+      <interface-class>org.jetbrains.plugins.clojure.config.ClojureFacetLoader</interface-class>
+    </component>
+  </application-components>
 
-    <actions>
-        <action id="Clojure.ClojureFile" class="org.jetbrains.plugins.clojure.actions.NewClojureFileAction"
-                text="Clojure File" description="Create new Clojure File">
-            <add-to-group group-id="NewGroup" anchor="last"/>
-        </action>
-    </actions>
+  <project-components>
+    <component>
+      <implementation-class>org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettings</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.clojure.compiler.component.ClojureCompilerProjectComponent
+      </implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder
+      </implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.clojure.psi.impl.ClojurePsiManager</implementation-class>
+    </component>
+  </project-components>
+
+  <actions>
+    <action id="Clojure.ClojureFile" class="org.jetbrains.plugins.clojure.actions.NewClojureFileAction"
+            text="Clojure File" description="Create new Clojure File">
+      <add-to-group group-id="NewGroup" anchor="last"/>
+    </action>
+  </actions>
 
 
 </idea-plugin>

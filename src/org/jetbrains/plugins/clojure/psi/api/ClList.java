@@ -18,4 +18,6 @@ public interface ClList extends ClojurePsiElement, ClBraced {
   @Nullable
   PsiElement getSecondNonLeafElement();
 
+  @Nullable
+  String getHeadText();
 }

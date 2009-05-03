@@ -3,45 +3,109 @@ package org.jetbrains.plugins.clojure.psi.impl.symbols;
 import com.intellij.codeInsight.lookup.LookupItem;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiPackage;
-import com.intellij.psi.PsiClass;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.*;
+import com.intellij.psi.util.MethodSignature;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.Function;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.containers.HashMap;
+import com.intellij.util.containers.HashSet;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex;
+import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
+import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
+import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * @author ilyas
  */
 public class CompleteSymbol {
+
   public static Object[] getVariants(ClSymbol symbol) {
-    final PsiElement parent = symbol.getParent();
+    final CompletionProcessor processor = new CompletionProcessor(symbol);
+    ResolveUtil.treeWalkUp(symbol, processor);
+
+    final ClojureResolveResult[] candidates = processor.getCandidates();
+    if (candidates.length == 0) return PsiNamedElement.EMPTY_ARRAY;
+
     Collection<Object> variants = new ArrayList<Object>();
 
-    if (parent instanceof ClList) {
+    final PsiElement[] psiElements = ResolveUtil.mapToElements(candidates);
+    variants.addAll(Arrays.asList(psiElements));
 
-      ClList list = (ClList) parent;
-      final boolean isFirst = list.getFirstSymbol() == symbol;
-
-      if (symbol.findFirstChildByClass(ClSymbol.class) == null) {
-        variants.addAll(getDefVariants(isFirst));
-      }
-      variants.addAll(getJavaCompletionVariants(symbol, isFirst));
+    if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".")) {
+      addJavaMethods(psiElements, variants);
     }
+
     return variants.toArray(new Object[variants.size()]);
+  }
+
+  private static void addJavaMethods(PsiElement[] psiElements, Collection<Object> variants) {
+    final HashMap<MethodSignature, HashSet<PsiMethod>> sig2Methods = collectAvailableMethods(psiElements);
+
+    for (Map.Entry<MethodSignature, HashSet<PsiMethod>> entry : sig2Methods.entrySet()) {
+      final MethodSignature sig = entry.getKey();
+      final String name = sig.getName();
+
+      final StringBuffer buffer = new StringBuffer();
+      buffer.append(name).append("(");
+      buffer.append(StringUtil.join(ContainerUtil.map2Array(sig.getParameterTypes(), String.class, new Function<PsiType, String>() {
+        public String fun(PsiType psiType) {
+          return psiType.getPresentableText();
+        }
+      }), ", ")
+      ).append(")");
+
+      final String methodText = buffer.toString();
+
+      final StringBuffer tailBuffer = new StringBuffer();
+      tailBuffer.append(" in ");
+      final ArrayList<String> list = new ArrayList<String>();
+      for (PsiMethod method : entry.getValue()) {
+        final PsiClass clazz = method.getContainingClass();
+        if (clazz != null) {
+          list.add(clazz.getQualifiedName());
+        }
+      }
+      tailBuffer.append(StringUtil.join(list, ", "));
+
+      final LookupItem item = new LookupItem(methodText, "." + name);
+      item.setIcon(ClojureIcons.JAVA_METHOD);
+      item.setTailText(tailBuffer.toString(), true);
+
+      variants.add(item);
+    }
+  }
+
+  public static HashMap<MethodSignature, HashSet<PsiMethod>> collectAvailableMethods(PsiElement[] psiElements) {
+    final HashMap<MethodSignature, HashSet<PsiMethod>> sig2Methods = new HashMap<MethodSignature, HashSet<PsiMethod>>();
+    for (PsiElement element : psiElements) {
+      if (element instanceof PsiClass) {
+        PsiClass clazz = (PsiClass) element;
+        for (PsiMethod method : clazz.getMethods()) {
+          if (!method.isConstructor() && !method.hasModifierProperty(PsiModifier.PRIVATE)) {
+            final MethodSignature sig = method.getSignature(PsiSubstitutor.EMPTY);
+            final HashSet<PsiMethod> set = sig2Methods.get(sig);
+            if (set == null) {
+              final HashSet<PsiMethod> newSet = new HashSet<PsiMethod>();
+              newSet.add(method);
+              sig2Methods.put(sig, newSet);
+            } else {
+              set.add(method);
+            }
+          }
+        }
+      }
+    }
+    return sig2Methods;
   }
 
   private static Collection<LookupItem> getDefVariants(final boolean first) {
@@ -93,33 +157,6 @@ public class CompleteSymbol {
 
       list.addAll(fields);
     } else {
-
-      //todo remove me!
-      final ClSymbol first = symbol.findFirstChildByClass(ClSymbol.class);
-      if (first != null && "MathUtils".equals(first.getNameString())) {
-        final PsiClass clazz = facade.findClass("org.jetbrains.benchmark.math.java.MathUtils", GlobalSearchScope.allScope(symbol.getProject()));
-        if (clazz != null) {
-          list.addAll(Arrays.asList(clazz.getAllMethods()));
-          return list;
-        }
-      }
-
-      // add default classes
-      final PsiPackage javaLang = facade.findPackage("java.lang");
-      if (javaLang != null) {
-        list.addAll(Arrays.asList(javaLang.getClasses()));
-      }
-
-      final PsiPackage clojureCore = facade.findPackage("clojure.lang");
-      if (clojureCore != null) {
-        list.addAll(Arrays.asList(clojureCore.getClasses()));
-      }
-
-      //todo remove me!
-      final PsiPackage util = facade.findPackage("org.jetbrains.benchmark.math.java");
-      if (util != null) {
-        list.addAll(Arrays.asList(util.getClasses()));
-      }
 
 
     }

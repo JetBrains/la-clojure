@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.clojure.psi.impl.list;
 
 import org.jetbrains.plugins.clojure.psi.ClojureBaseElementImpl;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
@@ -29,10 +30,17 @@ public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseEle
   public String getPresentableText() {
     final ClSymbol first = findChildByClass(ClSymbol.class);
     if (first == null) return null;
-    PsiElement next = org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
-    final String text1 = first.getText();
+    final String text1 = getHeadText();
+    PsiElement next = ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
     if (next == null) return text1;
     else return text1 + " " + next.getText();
+  }
+
+  @Nullable
+  public String getHeadText() {
+    final ClSymbol first = findChildByClass(ClSymbol.class);
+    if (first == null) return null;
+    return first.getText();
   }
 
   @Nullable
@@ -59,10 +67,11 @@ public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseEle
     while (first != null && isWrongElement(first)) {
       first = first.getNextSibling();
     }
-    while (first != null && isWrongElement(first)) {
-      first = first.getNextSibling();
+    PsiElement second = first.getNextSibling();
+    while (second != null && isWrongElement(second)) {
+      second = second.getNextSibling();
     }
-    return first;
+    return second;
   }
 
   public PsiElement getLastBrace() {
