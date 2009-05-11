@@ -16,7 +16,6 @@ import com.intellij.util.containers.HashMap;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.navigation.ItemPresentation;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
-import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactoryImpl;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.SymbolResolveProcessor;
@@ -34,8 +33,6 @@ import org.jetbrains.annotations.NonNls;
 
 import javax.swing.*;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * @author ilyas
@@ -100,7 +97,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
     return newNode.getPsi();
   }
 
-  private static class MyResolver implements ResolveCache.PolyVariantResolver<ClSymbol> {
+  public static class MyResolver implements ResolveCache.PolyVariantResolver<ClSymbol> {
     public ResolveResult[] resolve(ClSymbol symbol, boolean incompleteCode) {
       final String name = symbol.getReferenceName();
       if (name == null) return null;
@@ -110,7 +107,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
       // Resolve Java methods invocations
       ClSymbol qualifier = symbol.getQualifierSymbol();
       if (qualifier == null && symbol.getNameString().startsWith(".")) {
-        return resolveJavaMethodReference(symbol);
+        return resolveJavaMethodReference(symbol, null, false);
       }
 
       ResolveProcessor processor = new SymbolResolveProcessor(name, symbol, incompleteCode);
@@ -123,9 +120,10 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
       return ClojureResolveResult.EMPTY_ARRAY;
     }
 
-    private ResolveResult[] resolveJavaMethodReference(final ClSymbol symbol) {
+    public static ResolveResult[] resolveJavaMethodReference(final ClSymbol symbol, @Nullable PsiElement start, final boolean forCompletion) {
       final CompletionProcessor processor = new CompletionProcessor(symbol);
-      ResolveUtil.treeWalkUp(symbol, processor);
+      if (start == null) start = symbol;
+      ResolveUtil.treeWalkUp(start, processor);
       final String name = symbol.getReferenceName();
       assert name != null;
 
@@ -134,7 +132,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
       final HashMap<MethodSignature, HashSet<PsiMethod>> sig2Method = CompleteSymbol.collectAvailableMethods(elements);
       final List<MethodSignature> goodSignatures = ContainerUtil.findAll(sig2Method.keySet(), new Condition<MethodSignature>() {
         public boolean value(MethodSignature methodSignature) {
-          return originalName.equals(methodSignature.getName());
+          return forCompletion || originalName.equals(methodSignature.getName());
         }
       });
 

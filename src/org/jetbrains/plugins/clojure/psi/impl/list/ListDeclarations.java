@@ -10,6 +10,7 @@ import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
+import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbolImpl;
 
 /**
  * @author ilyas
@@ -20,6 +21,7 @@ public class ListDeclarations {
   public static final String FN = "fn";
   public static final String DEFN = "defn";
   public static final String IMPORT = "import";
+  private static final String MEMFN = "memfn";
 
   public static boolean get(PsiScopeProcessor processor,
                             ResolveState state,
@@ -31,6 +33,22 @@ public class ListDeclarations {
     if (headText.equals(FN)) return processFnDeclaration(processor, list, place);
     if (headText.equals(LET)) return processLetDeclaration(processor, list, place);
     if (headText.equals(IMPORT)) return processImportDeclaration(processor, list, place);
+    if (headText.equals(MEMFN)) return processMemFnDeclaration(processor, list, place);
+
+    return true;
+  }
+
+  private static boolean processMemFnDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
+    if (place instanceof ClSymbol && place.getParent() == list && ((ClSymbol)place).getQualifierSymbol() == null) {
+      ClSymbol symbol = (ClSymbol) place;
+      ResolveResult[] results = ClSymbolImpl.MyResolver.resolveJavaMethodReference(symbol, list.getParent(), true);
+      for (ResolveResult result : results) {
+        final PsiElement element = result.getElement();
+        if (element instanceof PsiNamedElement && !ResolveUtil.processElement(processor, (PsiNamedElement) element)) {
+          return false;
+        }
+      }
+    }
 
     return true;
   }
@@ -38,7 +56,7 @@ public class ListDeclarations {
   private static boolean processImportDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
     final PsiElement second = list.getSecondNonLeafElement();
     final Project project = list.getProject();
-    final JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
+     final JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
     if (second instanceof ClSymbol) {
       ClSymbol symbol = (ClSymbol) second;
       final String symbolName = symbol.getNameString();
