@@ -4,12 +4,16 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import static org.jetbrains.plugins.clojure.parser.ClojureElementTypes.*;
 import org.jetbrains.plugins.clojure.parser.util.ParserUtils;
 import static org.jetbrains.plugins.clojure.parser.ClojureSpecialFormTokens.DEF_TOKENS;
+
+import java.util.Arrays;
+import java.util.Set;
 
 
 /**
@@ -27,6 +31,15 @@ import static org.jetbrains.plugins.clojure.parser.ClojureSpecialFormTokens.DEF_
  * limitations under the License.
  */
 public class ClojureParser implements PsiParser, ClojureTokenTypes {
+
+  private static final String CREATE_NS = "create-ns";
+  private static final String IN_NS = "in-ns";
+  private static final String NS = "ns";
+  public static final Set<String> NS_TOKENS = new HashSet<String>();
+
+  static {
+    NS_TOKENS.addAll(Arrays.asList(NS, IN_NS, CREATE_NS));
+  }
 
   @NotNull
   public ASTNode parse(IElementType root, PsiBuilder builder) {
@@ -304,7 +317,7 @@ public class ClojureParser implements PsiParser, ClojureTokenTypes {
     final String tokenText = builder.getTokenText();
     if (builder.getTokenType() == symATOM && DEF_TOKENS.contains(tokenText)) {
       parseDef(builder, marker);
-    } else if (builder.getTokenType() == symATOM && "ns".contains(tokenText)) {
+    } else if (builder.getTokenType() == symATOM && NS_TOKENS.contains(tokenText)) {
       parseNs(builder, marker);
     } else {
       parseExpressions(RIGHT_PAREN, builder);
@@ -368,7 +381,7 @@ public class ClojureParser implements PsiParser, ClojureTokenTypes {
 
   private void parseNs(PsiBuilder builder, PsiBuilder.Marker marker) {
     final String text = builder.getTokenText();
-    if (!"ns".equals(text) || builder.getTokenType() != symATOM) {
+    if (!NS_TOKENS.contains(text) || builder.getTokenType() != symATOM) {
       internalError(ClojureBundle.message("expected.element"));
     }
 
@@ -382,7 +395,9 @@ public class ClojureParser implements PsiParser, ClojureTokenTypes {
     } else {
       advanceLexerOrEOF(builder);
     }
-    marker.done(ClojureElementTypes.NS);
+    if (CREATE_NS.equals(text)) marker.done(ClojureElementTypes.CREATE_NS);
+    else if (IN_NS.equals(text)) marker.done(ClojureElementTypes.IN_NS);
+    else marker.done(ClojureElementTypes.NS);
   }
 
 

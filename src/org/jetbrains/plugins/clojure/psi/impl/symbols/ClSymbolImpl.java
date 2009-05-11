@@ -18,6 +18,7 @@ import com.intellij.navigation.ItemPresentation;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactoryImpl;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.SymbolResolveProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.ResolveProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
@@ -102,18 +103,22 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
       final String name = symbol.getReferenceName();
       if (name == null) return null;
 
+      if (ClojurePsiUtil.isDefinitionSymbol(symbol)) return null;
+
       // Resolve Java methods invocations
-      if (symbol.getQualifierSymbol() == null && symbol.getNameString().startsWith(".")) {
-        return resolveJavaMethodReference(symbol);
+      ClSymbol qualifier = symbol.getQualifierSymbol();
+      if (qualifier == null) {
+        if (symbol.getNameString().startsWith(".")) {
+          return resolveJavaMethodReference(symbol);
+        }
 
+        ResolveProcessor processor = new SymbolResolveProcessor(name, symbol, incompleteCode);
+
+        resolveImpl(symbol, processor);
+
+        ClojureResolveResult[] candidates = processor.getCandidates();
+        if (candidates.length > 0) return candidates;
       }
-
-      ResolveProcessor processor = new SymbolResolveProcessor(name, symbol, incompleteCode);
-
-      resolveImpl(symbol, processor);
-
-      ClojureResolveResult[] candidates = processor.getCandidates();
-      if (candidates.length > 0) return candidates;
 
       return ClojureResolveResult.EMPTY_ARRAY;
     }

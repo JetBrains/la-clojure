@@ -7,7 +7,9 @@ import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefMethodElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClStubFileElementType;
-import org.jetbrains.plugins.clojure.psi.stubs.elements.ClNsElementType;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClNsElementType;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClInNsElementType;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClCreateNsElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
@@ -39,7 +41,10 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
 
   final ClStubElementType<ClDefStub, ClDef> DEF = new ClDefElementType();
   final ClStubElementType<ClDefStub, ClDef> DEFMETHOD = new ClDefMethodElementType();
+
   final ClStubElementType<ClNsStub, ClNs> NS = new ClNsElementType();
+  final ClStubElementType<ClNsStub, ClNs> IN_NS = new ClInNsElementType();
+  final ClStubElementType<ClNsStub, ClNs> CREATE_NS = new ClCreateNsElementType();
 
   final IElementType MAP_ENTRY = new ClojureElementType("map");
 

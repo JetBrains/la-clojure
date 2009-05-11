@@ -7,7 +7,7 @@ import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 /**
  * @author ilyas
  */
-public class ClNsNameIndex extends StringStubIndexExtension<ClNs> {
+public class ClojureNsNameIndex extends StringStubIndexExtension<ClNs> {
   public static final StubIndexKey<String, ClNs> KEY = StubIndexKey.createIndexKey("clj.ns.name");
 
   public StubIndexKey<String, ClNs> getKey() {

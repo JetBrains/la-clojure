@@ -30,19 +30,28 @@ import java.util.*;
 public class CompleteSymbol {
 
   public static Object[] getVariants(ClSymbol symbol) {
-    final CompletionProcessor processor = new CompletionProcessor(symbol);
-    ResolveUtil.treeWalkUp(symbol, processor);
-
-    final ClojureResolveResult[] candidates = processor.getCandidates();
-    if (candidates.length == 0) return PsiNamedElement.EMPTY_ARRAY;
-
     Collection<Object> variants = new ArrayList<Object>();
 
-    final PsiElement[] psiElements = ResolveUtil.mapToElements(candidates);
-    variants.addAll(Arrays.asList(psiElements));
+    ClSymbol qualifier = symbol.getQualifierSymbol();
+    if (qualifier == null) {
+      final CompletionProcessor processor = new CompletionProcessor(symbol);
+      ResolveUtil.treeWalkUp(symbol, processor);
 
-    if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".")) {
-      addJavaMethods(psiElements, variants);
+      final ClojureResolveResult[] candidates = processor.getCandidates();
+      if (candidates.length == 0) return PsiNamedElement.EMPTY_ARRAY;
+
+      // Add everything resolved
+      final PsiElement[] psiElements = ResolveUtil.mapToElements(candidates);
+      variants.addAll(Arrays.asList(psiElements));
+
+      // Add Java methods for all imported classes
+      if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".")) {
+        addJavaMethods(psiElements, variants);
+      }
+    } else {
+//      for (ResolveResult result : qualifier.multiResolve(false)) {
+//
+//      }
     }
 
     return variants.toArray(new Object[variants.size()]);

@@ -43,9 +43,11 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
    */
   @Nullable
   public ClSymbol getNameSymbol() {
-    final ClSymbol first = findChildByClass(ClSymbol.class);
-    if (first == null) return null;
-    return ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
+    final PsiElement element = getSecondNonLeafElement();
+    if (element instanceof ClSymbol) {
+      return (ClSymbol) element;
+    }
+    return null;
   }
 
   public String getDefinedName() {

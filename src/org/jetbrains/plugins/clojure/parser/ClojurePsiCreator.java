@@ -5,6 +5,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.clojure.psi.impl.*;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClNsImpl;
+import org.jetbrains.plugins.clojure.psi.impl.ns.ClInNsImpl;
+import org.jetbrains.plugins.clojure.psi.impl.ns.ClCreateNsImpl;
 import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefImpl;
 import org.jetbrains.plugins.clojure.psi.impl.defs.ClDefnMethodImpl;
 import org.jetbrains.plugins.clojure.psi.impl.list.ClListImpl;
@@ -26,7 +28,7 @@ public class ClojurePsiCreator {
 
     if (elementType == ClojureElementTypes.MAP_ENTRY) return new ClMapEntry(node);
 
-    if (elementType == ClojureElementTypes.QUOTED_FORM) return new ClQuotedForm(node);
+    if (elementType == ClojureElementTypes.QUOTED_FORM) return new ClQuotedFormImpl(node);
     if (elementType == ClojureElementTypes.META_FORM) return new ClMetaForm(node);
     if (elementType == ClojureElementTypes.METADATA) return new ClMetadataImpl(node);
 
@@ -35,7 +37,10 @@ public class ClojurePsiCreator {
 
     if (elementType == ClojureElementTypes.DEF) return new ClDefImpl(node);
     if (elementType == ClojureElementTypes.DEFMETHOD) return new ClDefnMethodImpl(node);
+
     if (elementType == ClojureElementTypes.NS) return new ClNsImpl(node);
+    if (elementType == ClojureElementTypes.IN_NS) return new ClInNsImpl(node);
+    if (elementType == ClojureElementTypes.CREATE_NS) return new ClCreateNsImpl(node);
 
     if (elementType == ClojureElementTypes.BINDINGS) return new ClBindings(node);
     if (elementType == ClojureElementTypes.KEYWORD) return new ClKey(node);

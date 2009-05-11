@@ -15,9 +15,9 @@ import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.util.ClojureTextUtil;
 import org.jetbrains.plugins.clojure.psi.impl.synthetic.ClSyntheticClassImpl;
+import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
-
-import java.util.Arrays;
+import org.jetbrains.plugins.clojure.parser.ClojureParser;
 
 /**
  * User: peter
@@ -154,7 +154,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
   }
 
   public ClList getNamespaceElement() {
-    return ClojurePsiUtil.findFormByName(this, "ns");
+    return ClojurePsiUtil.findFormByNameSet(this, ClojureParser.NS_TOKENS);
   }
 
   public String getClassName() {
@@ -170,7 +170,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     final JavaPsiFacade facade = JavaPsiFacade.getInstance(getProject());
 
     // Add all java.lang classes
-    final PsiPackage javaLang = facade.findPackage("java.lang");
+    final PsiPackage javaLang = facade.findPackage(ClojurePsiUtil.JAVA_LANG);
     if (javaLang != null) {
       for (PsiClass clazz : javaLang.getClasses()) {
         if (!ResolveUtil.processElement(processor, clazz)) {
@@ -180,7 +180,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     }
 
     // Add all clojure.lang classes
-    final PsiPackage clojureCore = facade.findPackage("clojure.lang");
+    final PsiPackage clojureCore = facade.findPackage(ClojurePsiUtil.CLOJURE_LANG);
     if (clojureCore != null) {
       for (PsiClass clazz : clojureCore.getClasses()) {
         if (!ResolveUtil.processElement(processor, clazz)) {
@@ -188,6 +188,24 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
         }
       }
     }
+
+    //Add top-level package names
+    final PsiPackage rootPackage = JavaPsiFacade.getInstance(getProject()).findPackage("");
+    if (rootPackage != null) {
+      rootPackage.processDeclarations(processor,  state, null, place);
+    }
+
+
+    // Add all symbols from default namespaces
+    for (PsiNamedElement element : NamespaceUtil.getDefaultDefinitions(getProject())) {
+      if (!ResolveUtil.processElement(processor, element)) {
+        return false;
+      }
+    }
+
+
+    //todo Add all namespaces, available in project
+    
 
     return super.processDeclarations(processor, state, lastParent, place);
   }

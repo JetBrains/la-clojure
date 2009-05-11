@@ -23,7 +23,7 @@ import java.io.IOException;
 public class ClDefElementType extends ClStubElementType<ClDefStub, ClDef> {
 
   public ClDefElementType() {
-    super("element");
+    super("def-element");
   }
 
   public void serialize(ClDefStub stub, StubOutputStream dataStream) throws IOException {

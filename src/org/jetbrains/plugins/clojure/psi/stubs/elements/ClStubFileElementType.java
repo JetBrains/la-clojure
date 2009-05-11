@@ -3,7 +3,6 @@ package org.jetbrains.plugins.clojure.psi.stubs.elements;
 import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.psi.StubBuilder;
 import com.intellij.psi.stubs.*;
-import com.intellij.lang.Language;
 import com.intellij.util.io.StringRef;
 
 import java.io.IOException;
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.clojure.file.ClojureFileType;
  * @author ilyas
  */
 public class ClStubFileElementType extends IStubFileElementType<ClFileStub> {
-  private static final int CURRENT_VERSION = 4;
+  private static final int CACHES_VERSION = 9;
 
   public ClStubFileElementType() {
     super(ClojureFileType.CLOJURE_LANGUAGE);
@@ -31,7 +30,7 @@ public class ClStubFileElementType extends IStubFileElementType<ClFileStub> {
 
   @Override
   public int getStubVersion() {
-    return super.getStubVersion() + CURRENT_VERSION;
+    return super.getStubVersion() + CACHES_VERSION;
   }
 
   public String getExternalId() {

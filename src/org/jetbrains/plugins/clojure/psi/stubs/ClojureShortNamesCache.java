@@ -18,7 +18,9 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureClassNameIndex;
 import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureFullScriptNameIndex;
+import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureNsNameIndex;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettings;
 
 import java.util.Collection;
@@ -95,6 +97,14 @@ public class ClojureShortNamesCache implements PsiShortNamesCache {
       }
     });
   }
+
+/*
+  public Collection<ClNs> getAllNameSpaces(final GlobalSearchScope scope) {
+    final Collection<String> nsNames = StubIndex.getInstance().getAllKeys(ClojureNsNameIndex.KEY);
+
+    StubIndex.getInstance().get(ClojureNsNameIndex.KEY, name.hashCode(), myProject, scope)
+  }
+*/
 
 
   @NotNull

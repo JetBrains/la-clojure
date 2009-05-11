@@ -52,6 +52,7 @@
     <stubElementTypeHolder class="org.jetbrains.plugins.clojure.parser.ClojureElementTypes"/>
 
     <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex"/>
+    <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClojureNsNameIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClojureClassNameIndex"/>
     <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClojureFullScriptNameIndex"/>
 
