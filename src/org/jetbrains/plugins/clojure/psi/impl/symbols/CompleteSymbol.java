@@ -40,7 +40,14 @@ public class CompleteSymbol {
       for (ResolveResult result : qualifier.multiResolve(false)) {
         final PsiElement element = result.getElement();
         if (element != null) {
-          element.processDeclarations(processor, ResolveState.initial(), null, symbol);
+          final PsiElement sep = symbol.getSeparatorToken();
+          if (sep != null) {
+            if ("/".equals(sep.getText()) && (element instanceof PsiClass)) {
+              element.processDeclarations(processor, ResolveState.initial(), null, symbol);
+            } else if (".".equals(sep.getText())) {
+              element.processDeclarations(processor, ResolveState.initial(), null, symbol);
+            }
+          }
         }
       }
     }
