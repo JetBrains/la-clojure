@@ -33,25 +33,28 @@ public class CompleteSymbol {
     Collection<Object> variants = new ArrayList<Object>();
 
     ClSymbol qualifier = symbol.getQualifierSymbol();
+    final CompletionProcessor processor = new CompletionProcessor(symbol);
     if (qualifier == null) {
-      final CompletionProcessor processor = new CompletionProcessor(symbol);
       ResolveUtil.treeWalkUp(symbol, processor);
-
-      final ClojureResolveResult[] candidates = processor.getCandidates();
-      if (candidates.length == 0) return PsiNamedElement.EMPTY_ARRAY;
-
-      // Add everything resolved
-      final PsiElement[] psiElements = ResolveUtil.mapToElements(candidates);
-      variants.addAll(Arrays.asList(psiElements));
-
-      // Add Java methods for all imported classes
-      if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".")) {
-        addJavaMethods(psiElements, variants);
-      }
     } else {
-//      for (ResolveResult result : qualifier.multiResolve(false)) {
-//
-//      }
+      for (ResolveResult result : qualifier.multiResolve(false)) {
+        final PsiElement element = result.getElement();
+        if (element != null) {
+          element.processDeclarations(processor, ResolveState.initial(), null, symbol);
+        }
+      }
+    }
+
+    final ClojureResolveResult[] candidates = processor.getCandidates();
+    if (candidates.length == 0) return PsiNamedElement.EMPTY_ARRAY;
+
+    // Add everything resolved
+    final PsiElement[] psiElements = ResolveUtil.mapToElements(candidates);
+    variants.addAll(Arrays.asList(psiElements));
+
+    // Add Java methods for all imported classes
+    if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".")) {
+      addJavaMethods(psiElements, variants);
     }
 
     return variants.toArray(new Object[variants.size()]);

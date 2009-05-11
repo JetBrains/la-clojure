@@ -34,6 +34,8 @@ import org.jetbrains.annotations.NonNls;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author ilyas
@@ -107,18 +109,16 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
 
       // Resolve Java methods invocations
       ClSymbol qualifier = symbol.getQualifierSymbol();
-      if (qualifier == null) {
-        if (symbol.getNameString().startsWith(".")) {
-          return resolveJavaMethodReference(symbol);
-        }
-
-        ResolveProcessor processor = new SymbolResolveProcessor(name, symbol, incompleteCode);
-
-        resolveImpl(symbol, processor);
-
-        ClojureResolveResult[] candidates = processor.getCandidates();
-        if (candidates.length > 0) return candidates;
+      if (qualifier == null && symbol.getNameString().startsWith(".")) {
+        return resolveJavaMethodReference(symbol);
       }
+
+      ResolveProcessor processor = new SymbolResolveProcessor(name, symbol, incompleteCode);
+
+      resolveImpl(symbol, processor);
+
+      ClojureResolveResult[] candidates = processor.getCandidates();
+      if (candidates.length > 0) return candidates;
 
       return ClojureResolveResult.EMPTY_ARRAY;
     }
@@ -131,7 +131,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
 
       final String originalName = StringUtil.trimStart(name, ".");
       final PsiElement[] elements = ResolveUtil.mapToElements(processor.getCandidates());
-      final HashMap<MethodSignature,HashSet<PsiMethod>> sig2Method = CompleteSymbol.collectAvailableMethods(elements);
+      final HashMap<MethodSignature, HashSet<PsiMethod>> sig2Method = CompleteSymbol.collectAvailableMethods(elements);
       final List<MethodSignature> goodSignatures = ContainerUtil.findAll(sig2Method.keySet(), new Condition<MethodSignature>() {
         public boolean value(MethodSignature methodSignature) {
           return originalName.equals(methodSignature.getName());
@@ -142,7 +142,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
       for (MethodSignature signature : goodSignatures) {
         final HashSet<PsiMethod> methodSet = sig2Method.get(signature);
         for (PsiMethod method : methodSet) {
-          results.add(new ClojureResolveResultImpl(method,  true));
+          results.add(new ClojureResolveResultImpl(method, true));
         }
       }
 
@@ -154,7 +154,12 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
       if (qualifier == null) {
         ResolveUtil.treeWalkUp(symbol, processor);
       } else {
-        // todo implement for qualified expressions
+        for (ResolveResult result : qualifier.multiResolve(false)) {
+          final PsiElement element = result.getElement();
+          if (element != null) {
+            element.processDeclarations(processor, ResolveState.initial(), null, symbol);
+          }
+        }
       }
     }
   }
