@@ -167,6 +167,9 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
   @Override
   public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
 
+    //Process precedent read forms
+    ResolveUtil.processChildren(this, processor, state, lastParent, place);
+
     final JavaPsiFacade facade = JavaPsiFacade.getInstance(getProject());
 
     // Add all java.lang classes
