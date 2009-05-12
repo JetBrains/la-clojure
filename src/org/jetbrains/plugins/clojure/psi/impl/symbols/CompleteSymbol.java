@@ -62,11 +62,21 @@ public class CompleteSymbol {
     variants.addAll(Arrays.asList(mapToLookupItems(psiElements)));
 
     // Add Java methods for all imported classes
-    if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".")) {
-      addJavaMethods(psiElements, variants);
+    final boolean withoutDot = mayBeMethodReference(symbol);
+    if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".") ||
+            withoutDot) {
+      addJavaMethods(psiElements, variants, withoutDot);
     }
 
     return variants.toArray(new Object[variants.size()]);
+  }
+
+  private static boolean mayBeMethodReference(ClSymbol symbol) {
+    final PsiElement parent = symbol.getParent();
+    if (parent == null) return false;
+
+    if (parent.getParent() instanceof ClList && ".".equals(((ClList) parent.getParent()).getHeadText())) return true;
+    return false;
   }
 
   private static LookupItem[] mapToLookupItems(PsiElement[] elements) {
@@ -85,7 +95,7 @@ public class CompleteSymbol {
     return list.toArray(LookupItem.EMPTY_ARRAY);
   }
 
-  private static void addJavaMethods(PsiElement[] psiElements, Collection<Object> variants) {
+  private static void addJavaMethods(PsiElement[] psiElements, Collection<Object> variants, boolean withoutDot) {
     final HashMap<MethodSignature, HashSet<PsiMethod>> sig2Methods = collectAvailableMethods(psiElements);
 
     for (Map.Entry<MethodSignature, HashSet<PsiMethod>> entry : sig2Methods.entrySet()) {
@@ -114,7 +124,7 @@ public class CompleteSymbol {
       }
       tailBuffer.append(StringUtil.join(list, ", "));
 
-      final LookupItem item = new LookupItem(methodText, "." + name);
+      final LookupItem item = new LookupItem(methodText, (!withoutDot ? "." : "") + name);
       item.setIcon(ClojureIcons.JAVA_METHOD);
       item.setTailText(tailBuffer.toString(), true);
 

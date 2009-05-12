@@ -42,15 +42,28 @@ public class ListDeclarations {
 
   private static boolean processDotDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
     final PsiElement parent = place.getParent();
-    if (parent == null || parent.getParent() != list) return true;
-    
-    if (place instanceof ClSymbol && ((ClSymbol)place).getQualifierSymbol() == null) {
-      ClSymbol symbol = (ClSymbol) place;
-      ResolveResult[] results = ClSymbolImpl.MyResolver.resolveJavaMethodReference(symbol, list.getParent(), true);
-      for (ResolveResult result : results) {
+    if (parent == null || list == parent) return true;
+
+    final PsiElement second = list.getSecondNonLeafElement();
+    if (second instanceof ClSymbol && place != second) {
+      ClSymbol symbol = (ClSymbol) second;
+      for (ResolveResult result : symbol.multiResolve(false)) {
         final PsiElement element = result.getElement();
         if (element instanceof PsiNamedElement && !ResolveUtil.processElement(processor, (PsiNamedElement) element)) {
           return false;
+        }
+      }
+    }
+
+    if (parent.getParent() == list) {
+      if (place instanceof ClSymbol && ((ClSymbol) place).getQualifierSymbol() == null) {
+        ClSymbol symbol = (ClSymbol) place;
+        ResolveResult[] results = ClSymbolImpl.MyResolver.resolveJavaMethodReference(symbol, list.getParent(), true);
+        for (ResolveResult result : results) {
+          final PsiElement element = result.getElement();
+          if (element instanceof PsiNamedElement && !ResolveUtil.processElement(processor, (PsiNamedElement) element)) {
+            return false;
+          }
         }
       }
     }
@@ -58,7 +71,7 @@ public class ListDeclarations {
   }
 
   private static boolean processMemFnDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
-    if (place instanceof ClSymbol && place.getParent() == list && ((ClSymbol)place).getQualifierSymbol() == null) {
+    if (place instanceof ClSymbol && place.getParent() == list && ((ClSymbol) place).getQualifierSymbol() == null) {
       ClSymbol symbol = (ClSymbol) place;
       ResolveResult[] results = ClSymbolImpl.MyResolver.resolveJavaMethodReference(symbol, list.getParent(), true);
       for (ResolveResult result : results) {
@@ -75,7 +88,7 @@ public class ListDeclarations {
   private static boolean processImportDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
     final PsiElement second = list.getSecondNonLeafElement();
     final Project project = list.getProject();
-     final JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
+    final JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
     if (second instanceof ClSymbol) {
       ClSymbol symbol = (ClSymbol) second;
       final String symbolName = symbol.getNameString();
