@@ -137,7 +137,7 @@ public class CompleteSymbol {
     for (PsiElement element : psiElements) {
       if (element instanceof PsiClass) {
         PsiClass clazz = (PsiClass) element;
-        for (PsiMethod method : clazz.getMethods()) {
+        for (PsiMethod method : clazz.getAllMethods()) {
           if (!method.isConstructor() && method.hasModifierProperty(PsiModifier.PUBLIC)) {
             final MethodSignature sig = method.getSignature(PsiSubstitutor.EMPTY);
             final HashSet<PsiMethod> set = sig2Methods.get(sig);

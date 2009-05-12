@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.clojure.psi.impl.list;
 
-import com.intellij.psi.scope.PsiScopeProcessor;
-import com.intellij.psi.*;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.*;
+import com.intellij.psi.scope.PsiScopeProcessor;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
-import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
-import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbolImpl;
+import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 
 /**
  * @author ilyas
@@ -19,6 +19,7 @@ public class ListDeclarations {
 
   public static final String LET = "let";
   public static final String FN = "fn";
+  public static final String NS = "ns";
   public static final String DEFN = "defn";
   public static final String IMPORT = "import";
   private static final String MEMFN = "memfn";
@@ -39,6 +40,9 @@ public class ListDeclarations {
 
     return true;
   }
+
+
+  
 
   private static boolean processDotDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
     final PsiElement parent = place.getParent();

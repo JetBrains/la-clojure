@@ -5,7 +5,7 @@ import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
-import org.jetbrains.plugins.clojure.psi.impl.ClKey;
+import org.jetbrains.plugins.clojure.psi.impl.ClKeyImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.psi.PsiElement;
@@ -70,12 +70,12 @@ public class ClojurePsiUtil {
     return (T) next;
   }
 
-  public static ClKey findNamespaceKeyByName(ClList ns, String keyName) {
+  public static ClKeyImpl findNamespaceKeyByName(ClList ns, String keyName) {
     final ClList list = ns.findFirstChildByClass(ClList.class);
     if (list == null) return null;
     for (PsiElement element : list.getChildren()) {
-      if (element instanceof ClKey) {
-        ClKey key = (ClKey) element;
+      if (element instanceof ClKeyImpl) {
+        ClKeyImpl key = (ClKeyImpl) element;
         if (keyName.equals(key.getText())) {
           return key;
         }

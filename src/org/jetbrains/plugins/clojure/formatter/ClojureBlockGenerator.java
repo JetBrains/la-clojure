@@ -13,7 +13,6 @@ import org.jetbrains.plugins.clojure.formatter.processors.ClojureIndentProcessor
 import org.jetbrains.plugins.clojure.psi.api.*;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
-import org.jetbrains.plugins.clojure.psi.impl.ClKey;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 
 import java.util.ArrayList;

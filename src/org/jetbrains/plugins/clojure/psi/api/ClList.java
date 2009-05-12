@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 /**
  * @author ilyas
  */
-public interface ClList extends ClojurePsiElement, ClBraced {
+public interface ClList extends ClojurePsiElement, ClBraced, ClListLike {
   @Nullable
   String getPresentableText();
 

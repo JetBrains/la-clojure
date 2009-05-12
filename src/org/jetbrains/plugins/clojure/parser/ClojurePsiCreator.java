@@ -43,7 +43,7 @@ public class ClojurePsiCreator {
     if (elementType == ClojureElementTypes.CREATE_NS) return new ClCreateNsImpl(node);
 
     if (elementType == ClojureElementTypes.BINDINGS) return new ClBindings(node);
-    if (elementType == ClojureElementTypes.KEYWORD) return new ClKey(node);
+    if (elementType == ClojureElementTypes.KEYWORD) return new ClKeyImpl(node);
     if (elementType == ClojureElementTypes.LITERAL) return new ClLiteralImpl(node);
     if (elementType == ClojureElementTypes.BACKQUOTED_EXPRESSION) return new ClBackQuotedExpression(node);
     if (elementType == ClojureElementTypes.SHARP_EXPRESSION) return new ClSharp(node);
