@@ -2,6 +2,7 @@ package org.jetbrains.plugins.clojure.psi.impl.symbols;
 
 import com.intellij.codeInsight.lookup.LookupItem;
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.TailType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
@@ -16,6 +17,7 @@ import com.intellij.util.containers.HashMap;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex;
 import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
@@ -57,7 +59,7 @@ public class CompleteSymbol {
 
     // Add everything resolved
     final PsiElement[] psiElements = ResolveUtil.mapToElements(candidates);
-    variants.addAll(Arrays.asList(psiElements));
+    variants.addAll(Arrays.asList(mapToLookupItems(psiElements)));
 
     // Add Java methods for all imported classes
     if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".")) {
@@ -65,6 +67,22 @@ public class CompleteSymbol {
     }
 
     return variants.toArray(new Object[variants.size()]);
+  }
+
+  private static LookupItem[] mapToLookupItems(PsiElement[] elements) {
+    final List<LookupItem> list = ContainerUtil.map(elements, new Function<PsiElement, LookupItem>() {
+      public LookupItem fun(PsiElement element) {
+        final LookupItem item = new LookupItem<PsiElement>(element, element instanceof PsiNamedElement ? ((PsiNamedElement) element).getName() : element.toString());
+        if (element instanceof ClDef) {
+          ClDef def = (ClDef) element;
+          item.setTailType(TailType.SPACE);
+          item.setAttribute(LookupItem.TAIL_TEXT_ATTR, " " + def.getParameterString());
+          item.setAttribute(LookupItem.TYPE_TEXT_ATTR, def.getContainingFile().getName());
+        }
+        return item;
+      }
+    });
+    return list.toArray(LookupItem.EMPTY_ARRAY);
   }
 
   private static void addJavaMethods(PsiElement[] psiElements, Collection<Object> variants) {
@@ -127,58 +145,4 @@ public class CompleteSymbol {
     return sig2Methods;
   }
 
-  private static Collection<LookupItem> getDefVariants(final boolean first) {
-    // Completion only for first symbols
-    final Collection<String> keys = StubIndex.getInstance().getAllKeys(ClDefNameIndex.KEY);
-    return ContainerUtil.map(keys, new Function<String, LookupItem>() {
-      public LookupItem fun(String s) {
-        final LookupItem item = new LookupItem(s, s);
-        item.setIcon(ClojureIcons.FUNCTION);
-        if (first) {
-          item.setBold();
-        }
-        return item;
-      }
-    });
-  }
-
-  private static List<Object> getJavaCompletionVariants(ClSymbol symbol, final boolean isFirst) {
-    //Processing Java methods
-    List<Object> list = new ArrayList<Object>();
-    final JavaPsiFacade facade = JavaPsiFacade.getInstance(symbol.getProject());
-
-    if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".")) {
-      final PsiShortNamesCache shortNamesCache = facade.getShortNamesCache();
-      final List<Object> methods = ContainerUtil.map(shortNamesCache.getAllMethodNames(), new Function<String, Object>() {
-        public LookupItem fun(String s) {
-          final LookupItem item = new LookupItem(s, "." + s);
-          item.setIcon(ClojureIcons.JAVA_METHOD);
-          if (isFirst) {
-            item.setBold();
-          }
-          return item;
-        }
-      });
-
-      list.addAll(methods);
-
-
-      final List<Object> fields = ContainerUtil.map(shortNamesCache.getAllFieldNames(), new Function<String, Object>() {
-        public LookupItem fun(String s) {
-          final LookupItem item = new LookupItem(s, "." + s);
-          item.setIcon(ClojureIcons.JAVA_FIELD);
-          if (isFirst) {
-            item.setBold();
-          }
-          return item;
-        }
-      });
-
-      list.addAll(fields);
-    } else {
-
-
-    }
-    return list;
-  }
 }
