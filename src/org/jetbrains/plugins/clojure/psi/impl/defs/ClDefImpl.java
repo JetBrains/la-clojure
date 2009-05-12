@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.api.ClVector;
 import org.jetbrains.plugins.clojure.psi.impl.list.ClListBaseImpl;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 
@@ -67,13 +68,13 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
   public ItemPresentation getPresentation() {
     return new ItemPresentation() {
       public String getPresentableText() {
-        final String name = getName();
-        return name == null ? "" : name;
+        return getPresentationText();
       }
 
       @Nullable
       public String getLocationString() {
         String name = getContainingFile().getName();
+        //todo show namespace
         return "(in " + name + ")";
       }
 
@@ -87,6 +88,16 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
         return null;
       }
     };
+  }
+
+  public String getPresentationText() {
+    final StringBuffer buffer = new StringBuffer();
+    final String name = getName();
+    if (name == null) return "<undefined>";
+    buffer.append(name).append(" ");
+    buffer.append(getParameterString());
+
+    return buffer.toString();
   }
 
   @Override
@@ -105,5 +116,10 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
       return symbol.getTextRange().getStartOffset();
     }
     return super.getTextOffset();
+  }
+
+  public String getParameterString() {
+    final ClVector params = findChildByClass(ClVector.class);
+    return params == null ? "" : params.getText();
   }
 }

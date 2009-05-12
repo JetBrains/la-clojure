@@ -14,4 +14,6 @@ public interface ClDef extends ClojurePsiElement, PsiNamedElement, NavigationIte
   ClSymbol getNameSymbol();
 
   String getDefinedName();
+
+  String getPresentationText();
 }

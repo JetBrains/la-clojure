@@ -31,7 +31,7 @@
                     (assoc m argsig (assoc (m argsig {}) rtype meth))))
           {} coll)))
 
-(defn proxy-name
+(defn =proxy-name
  {:tag String} 
  [#^Class super interfaces]
   (apply str "clojure.proxy."

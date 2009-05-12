@@ -26,8 +26,14 @@ import java.util.List;
  */
 public class NamespaceUtil {
 
-  public static final String[] DEFAULT_NSES = new String[]{"clojure.core", "clojure.inspector",
-          "clojure.main", "clojure.parallel", "clojure.set", "clojure.zip", "clojure.xml"};
+  public static final String[] DEFAULT_NSES = new String[]{"clojure.core",
+//          "clojure.inspector",
+//          "clojure.main",
+//          "clojure.parallel",
+//          "clojure.set",
+//          "clojure.zip",
+//          "clojure.xml"
+  };
 
   public static PsiNamedElement[] getDeclaredElements(@NotNull String nsFqn, @NotNull Project project) {
     final Collection<ClNs> nses = StubIndex.getInstance().get(ClojureNsNameIndex.KEY, nsFqn, project, GlobalSearchScope.allScope(project));

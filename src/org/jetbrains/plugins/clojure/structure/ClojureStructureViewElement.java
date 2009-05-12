@@ -19,70 +19,73 @@ import java.util.List;
  * @author ilyas
  */
 public class ClojureStructureViewElement implements StructureViewTreeElement {
-    private PsiElement myElement;
+  private PsiElement myElement;
 
-    public ClojureStructureViewElement(PsiElement element) {
-        myElement = element;
-    }
+  public ClojureStructureViewElement(PsiElement element) {
+    myElement = element;
+  }
 
-    public PsiElement getValue() {
-        return myElement;
-    }
+  public PsiElement getValue() {
+    return myElement;
+  }
 
-    public void navigate(boolean requestFocus) {
-        ((NavigationItem) myElement).navigate(requestFocus);
-    }
+  public void navigate(boolean requestFocus) {
+    ((NavigationItem) myElement).navigate(requestFocus);
+  }
 
-    public boolean canNavigate() {
-        return ((NavigationItem) myElement).canNavigate();
-    }
+  public boolean canNavigate() {
+    return ((NavigationItem) myElement).canNavigate();
+  }
 
-    public boolean canNavigateToSource() {
-        return ((NavigationItem) myElement).canNavigateToSource();
-    }
+  public boolean canNavigateToSource() {
+    return ((NavigationItem) myElement).canNavigateToSource();
+  }
 
-    public StructureViewTreeElement[] getChildren() {
-        final List<ClojurePsiElement> childrenElements = new ArrayList<ClojurePsiElement>();
-        myElement.acceptChildren(new PsiElementVisitor() {
-            public void visitElement(PsiElement element) {
-                if (isBrowsableElement(element)) {
-                    childrenElements.add((ClojurePsiElement) element);
-                } else {
-                    element.acceptChildren(this);
-                }
-            }
-        });
-
-        StructureViewTreeElement[] children = new StructureViewTreeElement[childrenElements.size()];
-        for (int i = 0; i < children.length; i++) {
-            children[i] = new ClojureStructureViewElement(childrenElements.get(i));
+  public StructureViewTreeElement[] getChildren() {
+    final List<ClojurePsiElement> childrenElements = new ArrayList<ClojurePsiElement>();
+    myElement.acceptChildren(new PsiElementVisitor() {
+      public void visitElement(PsiElement element) {
+        if (isBrowsableElement(element)) {
+          childrenElements.add((ClojurePsiElement) element);
+        } else {
+          element.acceptChildren(this);
         }
+      }
+    });
 
-        return children;
+    StructureViewTreeElement[] children = new StructureViewTreeElement[childrenElements.size()];
+    for (int i = 0; i < children.length; i++) {
+      children[i] = new ClojureStructureViewElement(childrenElements.get(i));
     }
 
-    private boolean isBrowsableElement(PsiElement element) {
-        return element instanceof ClDef &&
+    return children;
+  }
+
+  private boolean isBrowsableElement(PsiElement element) {
+    return element instanceof ClDef &&
             ((ClDef) element).getNameSymbol() != null;
-    }
+  }
 
-    public ItemPresentation getPresentation() {
-        return new ItemPresentation() {
-            public String getPresentableText() {
-                return ((PsiNamedElement) myElement).getName();
-            }
+  public ItemPresentation getPresentation() {
+    return new ItemPresentation() {
+      public String getPresentableText() {
+        if (myElement instanceof ClDef) {
+          return ((ClDef) myElement).getPresentationText();
+        }
+        return ((PsiNamedElement) myElement).getName();
+      }
 
-            public TextAttributesKey getTextAttributesKey() {
-                return null;
-            }
+      public TextAttributesKey getTextAttributesKey() {
+        return null;
+      }
 
-            public String getLocationString() {
-                return null;
-            }
+      public String getLocationString() {
+        return null;
+      }
 
-            public Icon getIcon(boolean open) {
-                return myElement.getIcon(Iconable.ICON_FLAG_OPEN);
-            }
-        };
-    }
+      public Icon getIcon(boolean open) {
+        return myElement.getIcon(Iconable.ICON_FLAG_OPEN);
+      }
+    };
+  }
 }
