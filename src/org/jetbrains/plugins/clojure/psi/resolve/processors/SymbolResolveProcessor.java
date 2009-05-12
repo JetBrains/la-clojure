@@ -31,7 +31,8 @@ public class SymbolResolveProcessor extends ResolveProcessor {
       PsiNamedElement namedElement = (PsiNamedElement) element;
       boolean isAccessible = isAccessible(namedElement);
       myCandidates.add(new ClojureResolveResultImpl(namedElement, isAccessible));
-      return !isAccessible;
+
+      //todo specify as it's possible!
     }
 
     return true;
