@@ -20,7 +20,7 @@ public class ClojureAnnotator implements Annotator {
 
   private void annotateList(ClList list, AnnotationHolder holder) {
     final ClSymbol first = list.getFirstSymbol();
-    if (first != null) {
+    if (first != null && first.multiResolve(false).length > 0) {
       Annotation annotation = holder.createInfoAnnotation(first, null);
       annotation.setTextAttributes(ClojureSyntaxHighlighter.DEF);
     }
