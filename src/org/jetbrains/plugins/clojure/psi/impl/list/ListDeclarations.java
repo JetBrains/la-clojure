@@ -22,6 +22,7 @@ public class ListDeclarations {
   public static final String DEFN = "defn";
   public static final String IMPORT = "import";
   private static final String MEMFN = "memfn";
+  private static final String DOT = ".";
 
   public static boolean get(PsiScopeProcessor processor,
                             ResolveState state,
@@ -34,7 +35,25 @@ public class ListDeclarations {
     if (headText.equals(LET)) return processLetDeclaration(processor, list, place);
     if (headText.equals(IMPORT)) return processImportDeclaration(processor, list, place);
     if (headText.equals(MEMFN)) return processMemFnDeclaration(processor, list, place);
+    if (headText.equals(DOT)) return processDotDeclaration(processor, list, place);
 
+    return true;
+  }
+
+  private static boolean processDotDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
+    final PsiElement parent = place.getParent();
+    if (parent == null || parent.getParent() != list) return true;
+    
+    if (place instanceof ClSymbol && ((ClSymbol)place).getQualifierSymbol() == null) {
+      ClSymbol symbol = (ClSymbol) place;
+      ResolveResult[] results = ClSymbolImpl.MyResolver.resolveJavaMethodReference(symbol, list.getParent(), true);
+      for (ResolveResult result : results) {
+        final PsiElement element = result.getElement();
+        if (element instanceof PsiNamedElement && !ResolveUtil.processElement(processor, (PsiNamedElement) element)) {
+          return false;
+        }
+      }
+    }
     return true;
   }
 

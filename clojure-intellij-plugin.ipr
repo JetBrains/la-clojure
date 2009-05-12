@@ -269,7 +269,10 @@
   <component name="ProjectDetails">
     <option name="projectName" value="clojure-intellij-plugin" />
   </component>
-  <component name="ProjectFileVersion" converted="true" />
+  <component name="ProjectFileVersion" converted="true">
+    <converter id="ror-modules" />
+    <converter id="SelenaRunConfToDiana" />
+  </component>
   <component name="ProjectKey">
     <option name="state" value="http://svn.jetbrains.org/idea/Trunk/clojure-plugin/clojure-intellij-plugin.ipr" />
   </component>

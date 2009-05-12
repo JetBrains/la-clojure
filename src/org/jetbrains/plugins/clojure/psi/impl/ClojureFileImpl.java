@@ -182,18 +182,6 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
       }
     }
 
-    // Add all clojure.lang classes
-/*
-    final PsiPackage clojureCore = facade.findPackage(ClojurePsiUtil.CLOJURE_LANG);
-    if (clojureCore != null) {
-      for (PsiClass clazz : clojureCore.getClasses()) {
-        if (!ResolveUtil.processElement(processor, clazz)) {
-          return false;
-        }
-      }
-    }
-*/
-
     //Add top-level package names
     final PsiPackage rootPackage = JavaPsiFacade.getInstance(getProject()).findPackage("");
     if (rootPackage != null) {
