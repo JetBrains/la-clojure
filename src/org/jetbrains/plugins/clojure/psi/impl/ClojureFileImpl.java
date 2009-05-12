@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.psi.impl;
 import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.*;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.impl.source.PsiFileImpl;
@@ -191,7 +192,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
 
     // Add all symbols from default namespaces
     for (PsiNamedElement element : NamespaceUtil.getDefaultDefinitions(getProject())) {
-      if (!ResolveUtil.processElement(processor, element)) {
+      if (PsiTreeUtil.findCommonParent(element, place) != element && !ResolveUtil.processElement(processor, element)) {
         return false;
       }
     }

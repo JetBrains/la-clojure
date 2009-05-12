@@ -330,7 +330,9 @@
         <root url="jar://$PROJECT_DIR$/lib/clojure.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES />
+      <SOURCES>
+        <root url="file://$PROJECT_DIR$/lib/src/jvm" />
+      </SOURCES>
     </library>
   </component>
 </project>

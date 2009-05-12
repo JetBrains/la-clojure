@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.psi.resolve;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.scope.NameHint;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
@@ -30,7 +31,7 @@ public abstract class ResolveUtil {
                                         ResolveState substitutor, PsiElement lastParent, PsiElement place) {
     PsiElement run = lastParent == null ? element.getLastChild() : lastParent.getPrevSibling();
     while (run != null) {
-      if (!run.processDeclarations(processor, substitutor, null, place)) return false;
+      if (PsiTreeUtil.findCommonParent(place, run) != run && !run.processDeclarations(processor, substitutor, null, place)) return false;
       run = run.getPrevSibling();
     }
 

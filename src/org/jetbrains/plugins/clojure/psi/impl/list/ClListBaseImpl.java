@@ -79,4 +79,7 @@ public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseEle
   }
 
 
+  public ClSymbol[] getAllSymbols() {
+    return findChildrenByClass(ClSymbol.class);
+  }
 }

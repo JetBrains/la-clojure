@@ -20,4 +20,5 @@ public interface ClList extends ClojurePsiElement, ClBraced, ClListLike {
 
   @Nullable
   String getHeadText();
+
 }

@@ -2,12 +2,15 @@ package org.jetbrains.plugins.clojure.psi.impl.list;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
+import org.jetbrains.plugins.clojure.psi.api.ClVector;
+import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbolImpl;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
@@ -37,6 +40,7 @@ public class ListDeclarations {
     if (headText.equals(IMPORT)) return processImportDeclaration(processor, list, place);
     if (headText.equals(MEMFN)) return processMemFnDeclaration(processor, list, place);
     if (headText.equals(DOT)) return processDotDeclaration(processor, list, place);
+    if (headText.equals(LET)) return processLetDeclaration(processor, list, place);
 
     return true;
   }
@@ -135,6 +139,15 @@ public class ListDeclarations {
   }
 
   private static boolean processLetDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
+    if (PsiTreeUtil.findCommonParent(place, list) == list) {
+      final ClVector paramVector = list.findFirstChildByClass(ClVector.class);
+      if (paramVector != null) {
+        for (ClSymbol symbol : paramVector.getOddSymbols()) {
+          if (!ResolveUtil.processElement(processor, symbol)) return false;
+        }
+      }
+      return true;
+    }
     return true;
   }
 
@@ -152,6 +165,10 @@ public class ListDeclarations {
       if (parent instanceof ClList) {
         ClList list = (ClList) parent;
         if (FN.equals(list.getHeadText())) return true;
+      } else if (parent instanceof ClVector) {
+        final PsiElement par = parent.getParent();
+        if (par instanceof ClDef) return true;
+        if (par instanceof ClList && LET.equals(((ClList) par).getHeadText())) return true;
       }
     }
 

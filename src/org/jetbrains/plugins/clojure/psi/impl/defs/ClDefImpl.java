@@ -4,9 +4,11 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.util.Iconable;
+import com.intellij.openapi.util.Trinity;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.StubBasedPsiElement;
 import com.intellij.psi.ResolveState;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.util.IncorrectOperationException;
@@ -17,15 +19,18 @@ import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.api.ClVector;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.impl.list.ClListBaseImpl;
+import org.jetbrains.plugins.clojure.psi.impl.ClVectorImpl;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 
 import javax.swing.*;
 
 /**
  * @author ilyas
-*/
+ */
 public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubBasedPsiElement<ClDefStub> {
 
   public ClDefImpl(ClDefStub stub, @NotNull IStubElementType nodeType) {
@@ -69,9 +74,31 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
 
   @Override
   public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
-    if (lastParent != null && lastParent.getParent() == this) return true;
-    return ResolveUtil.processElement(processor, this);
+    // Do not resolve identifier
+    if (lastParent != null && lastParent.getParent() == this && lastParent instanceof ClSymbol) return true;
+    //process parameters
+    if (PsiTreeUtil.findCommonParent(place, this) == this) {
+      final ClVector paramVector = findChildByClass(ClVector.class);
+      if (paramVector != null) {
+        for (ClSymbol symbol : paramVector.getAllSymbols()) {
+          if (!ResolveUtil.processElement(processor, symbol)) return false;
+        }
+      }
+      // overloaded function
+      else if (lastParent instanceof ClList) {
+        ClList list = (ClList) lastParent;
+        final ClVector params = list.findFirstChildByClass(ClVector.class);
+        if (params != null) {
+          for (ClSymbol symbol : params.getAllSymbols()) {
+            if (!ResolveUtil.processElement(processor, symbol)) return false;
+          }
+        }
+      }
 
+      return true;
+    } else {
+      return ResolveUtil.processElement(processor, this);
+    }
   }
 
   @Override
@@ -120,7 +147,7 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
   }
 
   @Override
-   public int getTextOffset() {
+  public int getTextOffset() {
     final ClSymbol symbol = getNameSymbol();
     if (symbol != null) {
       return symbol.getTextRange().getStartOffset();

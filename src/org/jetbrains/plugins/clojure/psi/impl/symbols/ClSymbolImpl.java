@@ -106,11 +106,12 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
 
       // Resolve Java methods invocations
       ClSymbol qualifier = symbol.getQualifierSymbol();
-      if (qualifier == null && symbol.getNameString().startsWith(".")) {
+      final String nameString = symbol.getNameString();
+      if (qualifier == null && nameString.startsWith(".")) {
         return resolveJavaMethodReference(symbol, null, false);
       }
 
-      ResolveProcessor processor = new SymbolResolveProcessor(name, symbol, incompleteCode);
+      ResolveProcessor processor = new SymbolResolveProcessor(StringUtil.trimEnd(name, "."), symbol, incompleteCode, nameString.endsWith("."));
 
       resolveImpl(symbol, processor);
 
