@@ -21,6 +21,7 @@ import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 public class ListDeclarations {
 
   public static final String LET = "let";
+  public static final String WHEN_LET = "when-let";
   public static final String FN = "fn";
   public static final String NS = "ns";
   public static final String DEFN = "defn";
@@ -36,17 +37,14 @@ public class ListDeclarations {
                             @Nullable String headText) {
     if (headText == null) return true;
     if (headText.equals(FN)) return processFnDeclaration(processor, list, place);
-    if (headText.equals(LET)) return processLetDeclaration(processor, list, place);
     if (headText.equals(IMPORT)) return processImportDeclaration(processor, list, place);
     if (headText.equals(MEMFN)) return processMemFnDeclaration(processor, list, place);
     if (headText.equals(DOT)) return processDotDeclaration(processor, list, place);
-    if (headText.equals(LET)) return processLetDeclaration(processor, list, place);
+    if (headText.equals(LET) || headText.equals(WHEN_LET)) return processLetDeclaration(processor, list, place);
 
     return true;
   }
 
-
-  
 
   private static boolean processDotDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
     final PsiElement parent = place.getParent();
@@ -168,7 +166,11 @@ public class ListDeclarations {
       } else if (parent instanceof ClVector) {
         final PsiElement par = parent.getParent();
         if (par instanceof ClDef) return true;
-        if (par instanceof ClList && LET.equals(((ClList) par).getHeadText())) return true;
+        if (par instanceof ClList) {
+          final String ht = ((ClList) par).getHeadText();
+          if (LET.equals(ht)) return true;
+          if (WHEN_LET.equals(ht)) return true;
+        }
       }
     }
 
