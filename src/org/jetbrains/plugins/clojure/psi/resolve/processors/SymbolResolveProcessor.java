@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResultImpl;
+import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
 
 /**
  * @author ilyas
@@ -32,6 +33,7 @@ public class SymbolResolveProcessor extends ResolveProcessor {
       boolean isAccessible = isAccessible(namedElement);
       myCandidates.add(new ClojureResolveResultImpl(namedElement, isAccessible));
 
+      return !ListDeclarations.isLocal(element);
       //todo specify as it's possible!
     }
 

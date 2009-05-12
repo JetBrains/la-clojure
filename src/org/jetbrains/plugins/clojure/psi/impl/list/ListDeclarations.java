@@ -107,4 +107,18 @@ public class ListDeclarations {
     if (!(second instanceof ClSymbol) || place == second) return true;
     return ResolveUtil.processElement(processor, ((ClSymbol) second));
   }
+
+  public static boolean isLocal(PsiElement element) {
+    if (element instanceof ClSymbol) {
+      ClSymbol symbol = (ClSymbol) element;
+      final PsiElement parent = symbol.getParent();
+
+      if (parent instanceof ClList) {
+        ClList list = (ClList) parent;
+        if (FN.equals(list.getHeadText())) return true;
+      }
+    }
+
+    return false;
+  }
 }
