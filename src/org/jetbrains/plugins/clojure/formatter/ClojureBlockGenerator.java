@@ -7,9 +7,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.plugins.clojure.formatter.processors.ClojureIndentProcessor;
+import org.jetbrains.plugins.clojure.formatter.codeStyle.ClojureCodeStyleSettings;
 import org.jetbrains.plugins.clojure.psi.api.*;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
@@ -47,7 +49,7 @@ public class ClojureBlockGenerator {
     final Alignment childAlignment = Alignment.createAlignment();
     for (ASTNode childNode : children) {
       if (canBeCorrectBlock(childNode)) {
-        final Alignment align = mustAlign(blockPsi, childNode.getPsi()) ? childAlignment : null;
+        final Alignment align = mustAlign(blockPsi, childNode.getPsi(), block.getSettings().getCustomSettings(ClojureCodeStyleSettings.class)) ? childAlignment : null;
         if (align != null) myBlock.setAlignment(align);
         final Indent indent = ClojureIndentProcessor.getChildIndent(myBlock, prevChildNode, childNode);
         subBlocks.add(new ClojureBlock(childNode, align, indent, myWrap, mySettings));
@@ -57,27 +59,32 @@ public class ClojureBlockGenerator {
     return subBlocks;
   }
 
-  public static boolean mustAlign(PsiElement blockPsi, PsiElement child) {
+  public static boolean mustAlign(PsiElement blockPsi, PsiElement child, ClojureCodeStyleSettings settings) {
 
     if (blockPsi instanceof ClVector || blockPsi instanceof ClMap) {
-      return !(child instanceof LeafPsiElement) || RIGHT_BRACES.contains(child.getNode().getElementType());
+      return !(child instanceof LeafPsiElement) || RIGHT_BRACES.contains(child.getNode().getElementType()) ||
+              (child instanceof PsiComment);
     }
-    if (blockPsi instanceof ClList &&
-        !(blockPsi instanceof ClDef)) {
-      final ClList list = (ClList) blockPsi;
-      PsiElement first = list.getFirstNonLeafElement();
-      if (first == child && !applicationStart(first)) return true;
-      if (first != null &&
-          !applicationStart(first) &&
-          first.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
-        return true;
-      }
-      final PsiElement second = list.getSecondNonLeafElement();
-      if (second != null &&
-          second.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
-        return true;
+
+    if (settings.ALIGN_CLOJURE_FORMS) {
+      if (blockPsi instanceof ClList &&
+          !(blockPsi instanceof ClDef)) {
+        final ClList list = (ClList) blockPsi;
+        PsiElement first = list.getFirstNonLeafElement();
+        if (first == child && !applicationStart(first)) return true;
+        if (first != null &&
+            !applicationStart(first) &&
+            first.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
+          return true;
+        }
+        final PsiElement second = list.getSecondNonLeafElement();
+        if (second != null &&
+            second.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
+          return true;
+        }
       }
     }
+
     if (blockPsi instanceof ClLiteral) {
       ASTNode node = blockPsi.getNode();
       assert node != null;
