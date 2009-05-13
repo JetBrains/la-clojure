@@ -16,7 +16,6 @@ import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
 import org.jetbrains.plugins.clojure.psi.api.ClListLike;
 import org.jetbrains.plugins.clojure.psi.impl.list.ClListBaseImpl;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
-import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 
 /**
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBasedPsiElement<ClNsStub> {
 
   private static final String IMPORT_KEY = ":import";
+  private static final String USE_KEY = ":use";
 
   public ClNsImpl(ClNsStub stub, @NotNull IStubElementType nodeType) {
     super(stub, nodeType);
@@ -79,40 +79,57 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
     final GlobalSearchScope scope = GlobalSearchScope.allScope(getProject());
     for (PsiElement element : getChildren()) {
       if (element instanceof ClList) {
-        ClList child = (ClList) element;
-        final PsiElement first = child.getFirstNonLeafElement();
-        if (first instanceof ClKeyword && IMPORT_KEY.equals(first.getText())) {
-          for (PsiElement stmt : child.getChildren()) {
-            if (stmt instanceof ClListLike) {
-              final ClListLike listLike = (ClListLike) stmt;
-              final PsiElement fst = listLike.getFirstNonLeafElement();
-              if (fst instanceof ClSymbol) {
-                final PsiPackage pack = facade.findPackage(((ClSymbol) fst).getNameString());
-                if (pack != null) {
-                  if (place.getParent() == listLike && place != fst) {
-                    pack.processDeclarations(processor, ResolveState.initial(), null, place);
-                  } else {
-                    PsiElement next = fst.getNextSibling();
-                    while (next != null) {
-                      if (next instanceof ClSymbol) {
-                        ClSymbol clazzSym = (ClSymbol) next;
-                        final PsiClass clazz = facade.findClass(pack.getQualifiedName() + "." + clazzSym.getNameString(), GlobalSearchScope.allScope(getProject()));
-                        if (clazz != null && !ResolveUtil.processElement(processor, clazz)) {
-                          return false;
-                        }
-                      }
-                      next = next.getNextSibling();
-                    }
-                  }
-                }
-              }
-            }
-          }
-          break;
+        ClList directive = (ClList) element;
+        final PsiElement first = directive.getFirstNonLeafElement();
+        if (first instanceof ClKeyword) {
+          final String keyText = first.getText();
+          if (IMPORT_KEY.equals(keyText) && processImports(processor, place, facade, directive)) return false;
+          if (USE_KEY.equals(keyText) && processUses(processor, place, facade, directive)) return false;
         }
       }
     }
     return true;
+  }
+
+  private boolean processUses(PsiScopeProcessor processor, PsiElement place, JavaPsiFacade facade, ClList directive) {
+    for (ClSymbol symbol : directive.getAllSymbols()) {
+      for (PsiNamedElement element : NamespaceUtil.getDeclaredElements(symbol.getNameString(), directive.getProject())) {
+        if (element != null && !ResolveUtil.processElement(processor, element)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private boolean processImports(PsiScopeProcessor processor, PsiElement place, JavaPsiFacade facade, ClList child) {
+    for (PsiElement stmt : child.getChildren()) {
+      if (stmt instanceof ClListLike) {
+        final ClListLike listLike = (ClListLike) stmt;
+        final PsiElement fst = listLike.getFirstNonLeafElement();
+        if (fst instanceof ClSymbol) {
+          final PsiPackage pack = facade.findPackage(((ClSymbol) fst).getNameString());
+          if (pack != null) {
+            if (place.getParent() == listLike && place != fst) {
+              pack.processDeclarations(processor, ResolveState.initial(), null, place);
+            } else {
+              PsiElement next = fst.getNextSibling();
+              while (next != null) {
+                if (next instanceof ClSymbol) {
+                  ClSymbol clazzSym = (ClSymbol) next;
+                  final PsiClass clazz = facade.findClass(pack.getQualifiedName() + "." + clazzSym.getNameString(), GlobalSearchScope.allScope(getProject()));
+                  if (clazz != null && !ResolveUtil.processElement(processor, clazz)) {
+                    return true;
+                  }
+                }
+                next = next.getNextSibling();
+              }
+            }
+          }
+        }
+      }
+    }
+    return false;
   }
 
   @Override

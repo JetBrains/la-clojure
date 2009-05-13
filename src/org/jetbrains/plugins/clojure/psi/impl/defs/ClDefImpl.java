@@ -77,13 +77,16 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
     // Do not resolve identifier
     if (lastParent != null && lastParent.getParent() == this && lastParent instanceof ClSymbol) return true;
     //process parameters
-    if (PsiTreeUtil.findCommonParent(place, this) == this) {
+    if (lastParent != null && lastParent.getParent() == this) {
       final ClVector paramVector = findChildByClass(ClVector.class);
       if (paramVector != null) {
         for (ClSymbol symbol : paramVector.getAllSymbols()) {
           if (!ResolveUtil.processElement(processor, symbol)) return false;
         }
       }
+      // for recursive functions
+      if (lastParent != getNameSymbol() && !ResolveUtil.processElement(processor, getNameSymbol())) return false;
+
       // overloaded function
       else if (lastParent instanceof ClList) {
         ClList list = (ClList) lastParent;
