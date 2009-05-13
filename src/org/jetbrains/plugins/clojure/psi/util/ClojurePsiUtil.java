@@ -137,26 +137,6 @@ public class ClojurePsiUtil {
     return parents;
   }
 
-
-  public static boolean isDefinitionSymbol(ClSymbol symbol) {
-    final PsiElement parent = symbol.getParent();
-
-    if (parent instanceof ClList) {
-      ClList list = (ClList) parent;
-
-      if (list.getFirstSymbol() != symbol) {
-        if (list instanceof ClNs ||
-                parent instanceof ClDef) return true;
-
-        if (DEFINITION_FROM_NAMES.contains(list.getHeadText())) {
-          return true;
-        }
-      }
-    }
-
-    return isParameterSymbol(symbol);
-  }
-
   private static boolean isParameterSymbol(ClSymbol symbol) {
     //todo implement me!
     return false;

@@ -211,11 +211,12 @@ public class ListDeclarations {
         if (FN.equals(list.getHeadText())) return true;
       } else if (parent instanceof ClVector) {
         final PsiElement par = parent.getParent();
-        if (par instanceof ClDef) return true;
+        if (par instanceof ClDef && ((ClDef) par).getSecondNonLeafElement() == element) return true;
         if (par instanceof ClList) {
           final String ht = ((ClList) par).getHeadText();
           if (LET.equals(ht)) return true;
           if (WHEN_LET.equals(ht)) return true;
+          if (IF_LET.equals(ht)) return true;
           if (LOOP.equals(ht)) return true;
         }
       }

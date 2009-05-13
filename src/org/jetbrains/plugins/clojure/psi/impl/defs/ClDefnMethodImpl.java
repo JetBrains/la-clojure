@@ -40,13 +40,24 @@ public class ClDefnMethodImpl extends ClDefImpl implements ClDefMethod {
     return ClojureIcons.METHOD;
   }
 
+  public String getPresentationText() {
+    final StringBuffer buffer = new StringBuffer();
+    final String name = getName();
+    if (name == null) return "<undefined>";
+    buffer.append(name).append(" ");
+    buffer.append(getMethodInfo()).append(" ");
+    buffer.append(getParameterString());
+
+    return buffer.toString();
+  }
+
+
 
   @Override
   public ItemPresentation getPresentation() {
     return new ItemPresentation() {
       public String getPresentableText() {
-        final String name = getName();
-        return name == null ? "" : name;
+        return getPresentationText();
       }
 
       @Nullable

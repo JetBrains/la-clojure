@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Trinity;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.StubBasedPsiElement;
 import com.intellij.psi.ResolveState;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.stubs.IStubElementType;
@@ -32,7 +33,6 @@ import javax.swing.*;
  * @author ilyas
  */
 public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubBasedPsiElement<ClDefStub> {
-
   public ClDefImpl(ClDefStub stub, @NotNull IStubElementType nodeType) {
     super(stub, nodeType);
   }
@@ -140,6 +140,7 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
     return buffer.toString();
   }
 
+
   @Override
   public Icon getIcon(int flags) {
     return ClojureIcons.FUNCTION;
@@ -163,5 +164,13 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
   public String getParameterString() {
     final ClVector params = findChildByClass(ClVector.class);
     return params == null ? "" : params.getText();
+  }
+
+  public String getMethodInfo() {
+    final ClSymbol sym = getNameSymbol();
+    if (sym == null) return "";
+    PsiElement next = sym.getNextSibling();
+    while (next instanceof LeafPsiElement) next = next.getNextSibling();
+    return next == null ? "" : next.getText();
   }
 }

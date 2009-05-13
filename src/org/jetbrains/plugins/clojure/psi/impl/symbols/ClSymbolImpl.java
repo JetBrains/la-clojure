@@ -139,8 +139,6 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
       final String name = symbol.getReferenceName();
       if (name == null) return null;
 
-      if (ClojurePsiUtil.isDefinitionSymbol(symbol)) return null;
-
       // Resolve Java methods invocations
       ClSymbol qualifier = symbol.getQualifierSymbol();
       final String nameString = symbol.getNameString();
