@@ -5,8 +5,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.psi.stubs.ClojureShortNamesCache;
+import org.jetbrains.plugins.clojure.file.ClojureFileType;
 
 /**
  * @author ilyas
@@ -14,6 +17,7 @@ import org.jetbrains.plugins.clojure.psi.stubs.ClojureShortNamesCache;
 public class ClojurePsiManager implements ProjectComponent {
   private final Project myProject;
   private ClojureShortNamesCache myCache;
+  private PsiFile myDummyFile;
 
   public ClojurePsiManager(Project project) {
     myProject = project;
@@ -44,6 +48,7 @@ public class ClojurePsiManager implements ProjectComponent {
       }
     });
 
+    myDummyFile = PsiFileFactory.getInstance(myProject).createFileFromText("dummy." + ClojureFileType.CLOJURE_FILE_TYPE.getDefaultExtension(), "");
   }
 
   public void disposeComponent() {
@@ -55,5 +60,9 @@ public class ClojurePsiManager implements ProjectComponent {
 
   public ClojureShortNamesCache getNamesCache() {
     return myCache;
+  }
+
+  public PsiFile getDummyFile() {
+    return myDummyFile;
   }
 }

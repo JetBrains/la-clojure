@@ -16,6 +16,7 @@ import com.intellij.util.containers.HashMap;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.navigation.ItemPresentation;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
+import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.SymbolResolveProcessor;
@@ -25,8 +26,10 @@ import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResultImpl;
 import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.plugins.clojure.lexer.TokenSets;
+import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NonNls;
@@ -97,6 +100,39 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
     return newNode.getPsi();
   }
 
+  @Override
+  public Icon getIcon(int flags) {
+    return ClojureIcons.SYMBOL;
+  }
+
+  @Override
+  public ItemPresentation getPresentation() {
+    return new ItemPresentation() {
+      public String getPresentableText() {
+        final String name = getName();
+        return name == null ? "<undefined>" : name;
+      }
+
+      @Nullable
+      public String getLocationString() {
+        String name = getContainingFile().getName();
+        //todo show namespace
+        return "(in " + name + ")";
+      }
+
+      @Nullable
+      public Icon getIcon(boolean open) {
+        return ClSymbolImpl.this.getIcon(Iconable.ICON_FLAG_VISIBILITY | Iconable.ICON_FLAG_READ_STATUS);
+      }
+
+      @Nullable
+      public TextAttributesKey getTextAttributesKey() {
+        return null;
+      }
+    };
+  }
+  
+
   public static class MyResolver implements ResolveCache.PolyVariantResolver<ClSymbol> {
     public ResolveResult[] resolve(ClSymbol symbol, boolean incompleteCode) {
       final String name = symbol.getReferenceName();
@@ -158,8 +194,23 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
           if (element != null) {
             final PsiElement sep = symbol.getSeparatorToken();
             if (sep != null) {
-              if ("/".equals(sep.getText()) && (element instanceof PsiClass)) {
-                element.processDeclarations(processor, ResolveState.initial(), null, symbol);
+              if ("/".equals(sep.getText())) {
+
+                //get class elemets
+                if (element instanceof PsiClass) {
+                  element.processDeclarations(processor, ResolveState.initial(), null, symbol);
+                }
+
+                //get namespace declarations
+                if (element instanceof ClNs) {
+                  final String fqn = ((ClNs) element).getName();
+                  if (fqn != null) {
+                    for (PsiNamedElement named : NamespaceUtil.getDeclaredElements(fqn, element.getProject())) {
+                      if (!ResolveUtil.processElement(processor, named)) return;
+                    }
+                  }
+                }
+
               } else if (".".equals(sep.getText())) {
                 element.processDeclarations(processor, ResolveState.initial(), null, symbol);
               }
@@ -230,32 +281,6 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
   @NotNull
   public String getNameString() {
     return getText();
-  }
-
-  @Override
-  public ItemPresentation getPresentation() {
-    return new ItemPresentation() {
-      public String getPresentableText() {
-        final String name = getName();
-        return name == null ? "" : name;
-      }
-
-      @Nullable
-      public String getLocationString() {
-        String name = getContainingFile().getName();
-        return "(in " + name + ")";
-      }
-
-      @Nullable
-      public Icon getIcon(boolean open) {
-        return SymbolUtils.getIcon(ClSymbolImpl.this, Iconable.ICON_FLAG_VISIBILITY | Iconable.ICON_FLAG_READ_STATUS);
-      }
-
-      @Nullable
-      public TextAttributesKey getTextAttributesKey() {
-        return null;
-      }
-    };
   }
 
 }

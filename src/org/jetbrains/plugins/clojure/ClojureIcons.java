@@ -24,4 +24,6 @@ public interface ClojureIcons {
   final Icon METHOD = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/meth_tmp.png");
   final Icon JAVA_METHOD = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/method.png");
   final Icon JAVA_FIELD = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/field.png");
+  final Icon SYMBOL = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/symbol.png");
+  final Icon NAMESPACE = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/namespace.png");
 }

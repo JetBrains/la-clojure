@@ -17,6 +17,7 @@ import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.util.ClojureTextUtil;
 import org.jetbrains.plugins.clojure.psi.impl.synthetic.ClSyntheticClassImpl;
 import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
+import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.parser.ClojureParser;
 
@@ -186,9 +187,8 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     //Add top-level package names
     final PsiPackage rootPackage = JavaPsiFacade.getInstance(getProject()).findPackage("");
     if (rootPackage != null) {
-      rootPackage.processDeclarations(processor,  state, null, place);
+      rootPackage.processDeclarations(processor, state, null, place);
     }
-
 
     // Add all symbols from default namespaces
     for (PsiNamedElement element : NamespaceUtil.getDefaultDefinitions(getProject())) {
@@ -197,9 +197,12 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
       }
     }
 
-
     //todo Add all namespaces, available in project
-    
+    for (ClSyntheticNamespace ns : NamespaceUtil.getTopLevelNamespaces(getProject())) {
+      if (!ResolveUtil.processElement(processor, ns)) {
+        return false;
+      }
+    }
 
     return super.processDeclarations(processor, state, lastParent, place);
   }

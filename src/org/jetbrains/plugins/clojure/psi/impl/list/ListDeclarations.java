@@ -39,10 +39,10 @@ public class ListDeclarations {
                             ClList list,
                             @Nullable String headText) {
     if (headText == null) return true;
-    if (headText.equals(FN)) return processFnDeclaration(processor, list, place);
+    if (headText.equals(FN)) return processFnDeclaration(processor, list, place, lastParent);
     if (headText.equals(IMPORT)) return processImportDeclaration(processor, list, place);
     if (headText.equals(MEMFN)) return processMemFnDeclaration(processor, list, place);
-    if (headText.equals(DOT)) return processDotDeclaration(processor, list, place, lastParent);
+    if (headText.equals(DOT)) return processDotDeclaration(processor, list, place, lastParent);     
     if (headText.equals(LET) || headText.equals(WHEN_LET)) return processLetDeclaration(processor, list, place);
     if (headText.equals(LOOP)) return processLoopDeclaration(processor, list, place, lastParent);
     if (headText.equals(DECLARE)) return processDeclareDeclaration(processor, list, place, lastParent);
@@ -61,8 +61,14 @@ public class ListDeclarations {
   }
 
   private static boolean processLoopDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place, PsiElement lastParent) {
-    for (ClSymbol symbol : list.getAllSymbols()) {
-      if (symbol != list.getFirstSymbol() && !ResolveUtil.processElement(processor, symbol)) return false;
+    if (lastParent != null && lastParent.getParent() == list) {
+      final ClVector paramVector = list.findFirstChildByClass(ClVector.class);
+      if (paramVector != null) {
+        for (ClSymbol symbol : paramVector.getOddSymbols()) {
+          if (!ResolveUtil.processElement(processor, symbol)) return false;
+        }
+      }
+      return true;
     }
     return true;
   }
@@ -174,10 +180,25 @@ public class ListDeclarations {
     return true;
   }
 
-  private static boolean processFnDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
+  private static boolean processFnDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place, PsiElement lastParent) {
     final PsiElement second = list.getSecondNonLeafElement();
-    if (!(second instanceof ClSymbol) || place == second) return true;
-    return ResolveUtil.processElement(processor, ((ClSymbol) second));
+    if ((second instanceof ClSymbol) && place != second && !ResolveUtil.processElement(processor, ((ClSymbol) second))) return false;
+
+    if (PsiTreeUtil.findCommonParent(place, list) == list) {
+      ClVector paramVector = list.findFirstChildByClass(ClVector.class);
+      if (paramVector == null && lastParent instanceof ClList) {
+        paramVector = ((ClList) lastParent).findFirstChildByClass(ClVector.class);
+      }
+
+      if (paramVector != null) {
+        for (ClSymbol symbol : paramVector.getOddSymbols()) {
+          if (!ResolveUtil.processElement(processor, symbol)) return false;
+        }
+      }
+      return true;
+    }
+    return true;
+
   }
 
   public static boolean isLocal(PsiElement element) {
