@@ -24,6 +24,7 @@ import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
 import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
+import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
 
 import java.util.*;
 
@@ -45,7 +46,7 @@ public class CompleteSymbol {
         if (element != null) {
           final PsiElement sep = symbol.getSeparatorToken();
           if (sep != null) {
-            if ("/".equals(sep.getText()) && (element instanceof PsiClass)) {
+            if ("/".equals(sep.getText()) && isNamespaceLike(element)) {
               element.processDeclarations(processor, ResolveState.initial(), null, symbol);
             } else if (".".equals(sep.getText())) {
               element.processDeclarations(processor, ResolveState.initial(), null, symbol);
@@ -70,6 +71,10 @@ public class CompleteSymbol {
     }
 
     return variants.toArray(new Object[variants.size()]);
+  }
+
+  private static boolean isNamespaceLike(PsiElement element) {
+    return element instanceof PsiClass || element instanceof ClSyntheticNamespace;
   }
 
   private static boolean mayBeMethodReference(ClSymbol symbol) {

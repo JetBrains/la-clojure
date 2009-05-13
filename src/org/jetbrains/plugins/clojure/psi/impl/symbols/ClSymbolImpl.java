@@ -17,6 +17,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.navigation.ItemPresentation;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
 import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
+import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.SymbolResolveProcessor;
@@ -202,12 +203,10 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
                 }
 
                 //get namespace declarations
-                if (element instanceof ClNs) {
-                  final String fqn = ((ClNs) element).getName();
-                  if (fqn != null) {
-                    for (PsiNamedElement named : NamespaceUtil.getDeclaredElements(fqn, element.getProject())) {
-                      if (!ResolveUtil.processElement(processor, named)) return;
-                    }
+                if (element instanceof ClSyntheticNamespace) {
+                  final String fqn = ((ClSyntheticNamespace) element).getQualifiedName();
+                  for (PsiNamedElement named : NamespaceUtil.getDeclaredElements(fqn, element.getProject())) {
+                    if (!ResolveUtil.processElement(processor, named)) return;
                   }
                 }
 

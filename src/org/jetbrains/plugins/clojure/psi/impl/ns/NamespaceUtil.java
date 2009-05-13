@@ -43,21 +43,23 @@ public class NamespaceUtil {
     ArrayList<PsiNamedElement> result = new ArrayList<PsiNamedElement>();
 
     for (ClNs ns : nses) {
-      final PsiFile file = ns.getContainingFile();
-      if (file instanceof ClojureFile) {
-        ClojureFile clf = (ClojureFile) file;
-        final PsiElement[] elems = PsiTreeUtil.collectElements(clf, new PsiElementFilter() {
-          public boolean isAccepted(PsiElement element) {
-            return element instanceof ClDef;
-          }
-        });
+      if (nsFqn.equals(ns.getName())) {
+        final PsiFile file = ns.getContainingFile();
+        if (file instanceof ClojureFile) {
+          ClojureFile clf = (ClojureFile) file;
+          final PsiElement[] elems = PsiTreeUtil.collectElements(clf, new PsiElementFilter() {
+            public boolean isAccepted(PsiElement element) {
+              return element instanceof ClDef;
+            }
+          });
 
-        for (PsiElement elem : elems) {
-          if (elem instanceof PsiNamedElement &&
-                  ((PsiNamedElement) elem).getName() != null &&
-                  ((PsiNamedElement) elem).getName().length() > 0 &&
-                  suitsByPosition(((PsiNamedElement) elem), ns)) {
-            result.add(((PsiNamedElement) elem));
+          for (PsiElement elem : elems) {
+            if (elem instanceof PsiNamedElement &&
+                    ((PsiNamedElement) elem).getName() != null &&
+                    ((PsiNamedElement) elem).getName().length() > 0 &&
+                    suitsByPosition(((PsiNamedElement) elem), ns)) {
+              result.add(((PsiNamedElement) elem));
+            }
           }
         }
       }
@@ -108,7 +110,7 @@ public class NamespaceUtil {
           for (String fqn : StubIndex.getInstance().getAllKeys(ClojureNsNameIndex.KEY)) {
             final String outerName = getQualifiedName();
             if (fqn.startsWith(outerName) && !fqn.equals(outerName) &&
-                    !StringUtil.trimStart(fqn, outerName + ".").contains(".") ) {
+                    !StringUtil.trimStart(fqn, outerName + ".").contains(".")) {
               final ClSyntheticNamespace inner = getNamespace(fqn, project);
               if (!ResolveUtil.processElement(processor, inner)) {
                 return false;
@@ -116,6 +118,14 @@ public class NamespaceUtil {
 
             }
           }
+
+          // Add declared elements
+          for (PsiNamedElement element : getDeclaredElements(getQualifiedName(), getProject())) {
+            if (!ResolveUtil.processElement(processor, element)) {
+              return false;
+            }
+          }
+
           return true;
         }
 
