@@ -23,6 +23,7 @@ import org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex;
 import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
+import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
 
 import java.util.*;
 
@@ -75,7 +76,7 @@ public class CompleteSymbol {
     final PsiElement parent = symbol.getParent();
     if (parent == null) return false;
 
-    if (parent.getParent() instanceof ClList && ".".equals(((ClList) parent.getParent()).getHeadText())) return true;
+//    if (parent.getParent() instanceof ClList && ".".equals(((ClList) parent.getParent()).getHeadText())) return true;
     return false;
   }
 
@@ -137,6 +138,9 @@ public class CompleteSymbol {
     for (PsiElement element : psiElements) {
       if (element instanceof PsiClass) {
         PsiClass clazz = (PsiClass) element;
+        if (clazz.getName().equals("Pattern")) {
+          System.out.println("");
+        }
         for (PsiMethod method : clazz.getAllMethods()) {
           if (!method.isConstructor() && method.hasModifierProperty(PsiModifier.PUBLIC)) {
             final MethodSignature sig = method.getSignature(PsiSubstitutor.EMPTY);

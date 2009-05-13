@@ -22,6 +22,9 @@ public class ListDeclarations {
 
   public static final String LET = "let";
   public static final String WHEN_LET = "when-let";
+  public static final String IF_LET = "if-let";
+  public static final String LOOP = "loop";
+  public static final String DECLARE = "declare";
   public static final String FN = "fn";
   public static final String NS = "ns";
   public static final String DEFN = "defn";
@@ -39,14 +42,33 @@ public class ListDeclarations {
     if (headText.equals(FN)) return processFnDeclaration(processor, list, place);
     if (headText.equals(IMPORT)) return processImportDeclaration(processor, list, place);
     if (headText.equals(MEMFN)) return processMemFnDeclaration(processor, list, place);
-    if (headText.equals(DOT)) return processDotDeclaration(processor, list, place);
+    if (headText.equals(DOT)) return processDotDeclaration(processor, list, place, lastParent);
     if (headText.equals(LET) || headText.equals(WHEN_LET)) return processLetDeclaration(processor, list, place);
+    if (headText.equals(LOOP)) return processLoopDeclaration(processor, list, place, lastParent);
+    if (headText.equals(DECLARE)) return processDeclareDeclaration(processor, list, place, lastParent);
 
     return true;
   }
 
+  private static boolean processDeclareDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place, PsiElement lastParent) {
+    final ClVector paramVector = list.findFirstChildByClass(ClVector.class);
+    if (paramVector != null) {
+      for (ClSymbol symbol : paramVector.getOddSymbols()) {
+        if (!ResolveUtil.processElement(processor, symbol)) return false;
+      }
+    }
+    return true;
+  }
 
-  private static boolean processDotDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
+  private static boolean processLoopDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place, PsiElement lastParent) {
+    for (ClSymbol symbol : list.getAllSymbols()) {
+      if (symbol != list.getFirstSymbol() && !ResolveUtil.processElement(processor, symbol)) return false;
+    }
+    return true;
+  }
+
+
+  private static boolean processDotDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place, PsiElement lastParent) {
     final PsiElement parent = place.getParent();
     if (parent == null || list == parent) return true;
 
@@ -59,16 +81,19 @@ public class ListDeclarations {
           return false;
         }
       }
-    }
 
-    if (parent.getParent() == list) {
-      if (place instanceof ClSymbol && ((ClSymbol) place).getQualifierSymbol() == null) {
-        ClSymbol symbol = (ClSymbol) place;
-        ResolveResult[] results = ClSymbolImpl.MyResolver.resolveJavaMethodReference(symbol, list.getParent(), true);
-        for (ResolveResult result : results) {
-          final PsiElement element = result.getElement();
-          if (element instanceof PsiNamedElement && !ResolveUtil.processElement(processor, (PsiNamedElement) element)) {
-            return false;
+      if (lastParent == null || lastParent == list) {
+        return true;
+      }
+      if (parent.getParent() == list) {
+        if (place instanceof ClSymbol && ((ClSymbol) place).getQualifierSymbol() == null) {
+          ClSymbol symbol2 = (ClSymbol) place;
+          ResolveResult[] results = ClSymbolImpl.MyResolver.resolveJavaMethodReference(symbol2, list, true);
+          for (ResolveResult result : results) {
+            final PsiElement element = result.getElement();
+            if (element instanceof PsiNamedElement && !ResolveUtil.processElement(processor, (PsiNamedElement) element)) {
+              return false;
+            }
           }
         }
       }
@@ -170,6 +195,7 @@ public class ListDeclarations {
           final String ht = ((ClList) par).getHeadText();
           if (LET.equals(ht)) return true;
           if (WHEN_LET.equals(ht)) return true;
+          if (LOOP.equals(ht)) return true;
         }
       }
     }
