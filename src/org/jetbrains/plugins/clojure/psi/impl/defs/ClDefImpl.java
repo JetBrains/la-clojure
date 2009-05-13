@@ -143,7 +143,9 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
   }
 
   public PsiElement setName(@NotNull @NonNls String name) throws IncorrectOperationException {
-    return null;
+    final ClSymbol sym = getNameSymbol();
+    if (sym != null) sym.setName(name);
+    return this;
   }
 
   @Override
