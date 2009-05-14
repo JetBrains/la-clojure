@@ -191,7 +191,7 @@ public class ListDeclarations {
       }
 
       if (paramVector != null) {
-        for (ClSymbol symbol : paramVector.getOddSymbols()) {
+        for (ClSymbol symbol : paramVector.getAllSymbols()) {
           if (!ResolveUtil.processElement(processor, symbol)) return false;
         }
       }
