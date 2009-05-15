@@ -85,7 +85,7 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
         }
       }
       // for recursive functions
-      if (lastParent != getNameSymbol() && !ResolveUtil.processElement(processor, getNameSymbol())) return false;
+      if (getNameSymbol() != null && lastParent != getNameSymbol() && !ResolveUtil.processElement(processor, getNameSymbol())) return false;
 
       // overloaded function
       else if (lastParent instanceof ClList) {

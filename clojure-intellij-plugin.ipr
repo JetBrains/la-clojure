@@ -14,6 +14,9 @@
   <component name="BuildJarProjectSettings">
     <option name="BUILD_JARS_ON_MAKE" value="false" />
   </component>
+  <component name="ClojureCompilerSettings">
+    <option name="COMPILE_CLOJURE" value="true" />
+  </component>
   <component name="CodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS">
       <value>
