@@ -4,8 +4,11 @@ import com.intellij.execution.CantRunException;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
+import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.configurations.*;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.filters.TextConsoleBuilderImpl;
+import com.intellij.execution.filters.Filter;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -27,6 +30,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.runner.console.ClojureConsoleViewImpl;
 
 import java.io.File;
 import java.util.*;
@@ -58,6 +62,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
   private static final String CLOJURE_MAIN = "clojure.main";
   private static final String CLOJURE_REPL = "clojure.lang.Repl";
   private static final String JLINE_CONSOLE_RUNNER = "jline.ConsoleRunner";
+
 
   public ClojureScriptRunConfiguration(ClojureScriptConfigurationFactory factory, Project project, String name) {
     super(name, new RunConfigurationModule(project), factory);
@@ -210,16 +215,36 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
       throw CantRunException.noJdkForModule(getModule());
     }
 
+    final Project project = module.getProject();
     if (!org.jetbrains.plugins.clojure.config.ClojureConfigUtil.isClojureConfigured(module)) {
-      Messages.showErrorDialog(module.getProject(),
-          ExecutionBundle.message("error.running.configuration.with.error.error.message", getName(),
+      Messages.showErrorDialog(project,
+          ClojureBundle.message("error.running.configuration.with.error.error.message", getName(),
               ClojureBundle.message("clojure.lib.is.not.attached")),
-          ExecutionBundle.message("run.error.message.title"));
+          ClojureBundle.message("run.error.message.title"));
 
-      ModulesConfigurator.showDialog(module.getProject(), module.getName(), ClasspathEditor.NAME, false);
+      ModulesConfigurator.showDialog(project, module.getName(), ClasspathEditor.NAME, false);
       return null;
     }
 
+
+    /*
+    val consoleBuilder = new TextConsoleBuilderImpl(project) {
+      val filters = new ArrayBuffer[Filter]
+      override def getConsole: ConsoleView = {
+        val consoleView = new ClojureConsoleViewImpl(project)
+        for (filter <- filters) {
+          consoleView.addMessageFilter(filter)
+        }
+        return consoleView
+      }
+
+      override def addFilter(filter: Filter): Unit = {
+        filters += filter
+      }
+    }
+    state.setConsoleBuilder(consoleBuilder);
+
+     */
 
     final JavaCommandLineState state = new JavaCommandLineState(environment) {
       protected JavaParameters createJavaParameters() throws ExecutionException {
@@ -230,7 +255,25 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
       }
     };
 
-    state.setConsoleBuilder(TextConsoleBuilderFactory.getInstance().createBuilder(getProject()));
+    final TextConsoleBuilderImpl builder = new TextConsoleBuilderImpl(project) {
+      private final ArrayList<Filter> filters = new ArrayList<Filter>();
+
+      @Override
+      public ConsoleView getConsole() {
+        final ClojureConsoleViewImpl view = new ClojureConsoleViewImpl(project);
+        for (Filter filter : filters) {
+          view.addMessageFilter(filter);
+        }
+        return view;
+      }
+
+      @Override
+      public void addFilter(Filter filter) {
+        filters.add(filter);
+      }
+    };
+
+    state.setConsoleBuilder(builder);
     return state;
 
   }

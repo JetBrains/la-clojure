@@ -65,6 +65,8 @@
         implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragementFactory"/>
     <compilerSettingsFactory implementation="org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettingsFactory"/>
     <frameworkSupport implementation="org.jetbrains.plugins.clojure.config.ClojureFacetSupportProvider"/>
+    <applicationService serviceInterface="org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings"
+        serviceImplementation="org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings"/>
 
     <projectService serviceInterface="org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory"
                     serviceImplementation="org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactoryImpl"/>
