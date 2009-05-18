@@ -142,8 +142,15 @@
     </action>
     <action id="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction"
             class="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction" text="Rename REPL"
-            description="Rename current Clojure REPL">
-      <keyboard-shortcut keymap="$default" first-keystroke="ctrl L" second-keystroke="meta L"/>
+            description="Renamce current Clojure REPL">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="alt BACK_SLASH"/>
+    </action>
+    <action id="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentfileInReplAction"
+            class="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentfileInReplAction" text="Load file to REPL"
+            description="Load current file to REPL">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="alt L"/>
     </action>
 
     <group id="ClojureReplActionGroup"
