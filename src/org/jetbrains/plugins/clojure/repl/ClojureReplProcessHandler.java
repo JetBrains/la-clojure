@@ -59,14 +59,9 @@ public class ClojureReplProcessHandler extends ProcessHandler {
     }
   }
 
-  public ClojureReplProcessHandler(String path, String myClassPath) throws IOException, ConfigurationException {
+  public ClojureReplProcessHandler(String path, String cp) throws IOException, ConfigurationException {
     myExecPath = path;
-    this.myClassPath = myClassPath;
-/* TODO - This is broken for some stupid reason...
-        if (notConfigured()) {
-            ShowSettingsUtil.getInstance().showSettingsDialog(project, CloJetConfigurable.class);
-        }
-*/
+    myClassPath = cp;
 
     if (notConfigured()) {
       throw new ConfigurationException("Can't create Clojure REPL process");

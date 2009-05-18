@@ -228,8 +228,7 @@ public class ReplToolWindow implements ProjectComponent {
         return virtualFile.getPath();
       }
     });
-
-    return StringUtil.join(paths, File.pathSeparator);
+    return "\"" + StringUtil.join(paths, File.pathSeparator) + "\"";
   }
 
   public void removeCurrentRepl() {
