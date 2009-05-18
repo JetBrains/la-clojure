@@ -83,7 +83,7 @@ public class ReplToolWindow implements ProjectComponent {
     return writeToCurrentRepl(s, true);
   }
 
-  public String writeToCurrentRepl(String s, boolean requestFocus) {
+  public String writeToCurrentRepl(String input, boolean requestFocus) {
     if (tabbedPane.getSelectedIndex() > -1) {
       final PipedWriter pipeOut;
       PipedReader pipeIn = null;
@@ -109,7 +109,8 @@ public class ReplToolWindow implements ProjectComponent {
         };
         repl.processHandler.addProcessListener(processListener);
 
-        repl.view.print(s + "\r\n", ConsoleViewContentType.USER_INPUT);
+        ClojureConsoleViewImpl.putToHistory(input);
+        repl.view.print(input + "\r\n", ConsoleViewContentType.USER_INPUT);
 
         StringBuffer buf = new StringBuffer();
         //if (pipeIn.ready()) {

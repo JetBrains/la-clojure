@@ -7,6 +7,10 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
+import org.jetbrains.plugins.clojure.ClojureBundle;
 
 /**
  * @author ilyas, Kurt Christensen
@@ -23,6 +27,16 @@ public class RunSelectedTextAction extends ClojureAction {
     if (selectedText == null || selectedText.trim().length() == 0) {
       return;
     }
-    getReplToolWindow(e).writeToCurrentRepl(selectedText.trim());
+    final String text = selectedText.trim();
+    final Project project = editor.getProject();
+
+    if (ClojurePsiElementFactory.getInstance(project).hasSyntacticalErrors(text)) {
+      Messages.showErrorDialog(project,
+              ClojureBundle.message("evaluate.incorrect.form"),
+              ClojureBundle.message("evaluate.incorrect.cannot.evaluate"));
+      return;
+    }
+
+    getReplToolWindow(e).writeToCurrentRepl(text);
   }
 }

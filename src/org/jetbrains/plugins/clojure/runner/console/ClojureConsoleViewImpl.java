@@ -84,6 +84,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   private static final int FLUSH_DELAY = 200; //TODO : make it an option
 
   private static final Key<ClojureConsoleViewImpl> CONSOLE_VIEW_IN_EDITOR_VIEW = Key.create("CONSOLE_VIEW_IN_EDITOR_VIEW");
+
   static {
     final EditorActionManager actionManager = EditorActionManager.getInstance();
     final TypedAction typedAction = actionManager.getTypedAction();
@@ -123,7 +124,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   private final Set<ConsoleViewContentType> myDeferredTypes = new HashSet<ConsoleViewContentType>();
 
 
-  private static class TokenInfo{
+  private static class TokenInfo {
     private final ConsoleViewContentType contentType;
     private int startOffset;
     private int endOffset;
@@ -180,7 +181,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     Disposer.register(project, this);
   }
 
-  public void attachToProcess(final ProcessHandler processHandler){
+  public void attachToProcess(final ProcessHandler processHandler) {
     myState = myState.attachTo(this, processHandler);
   }
 
@@ -188,12 +189,11 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     assertIsDispatchThread();
 
     final Document document;
-    synchronized(LOCK){
+    synchronized (LOCK) {
       myContentSize = 0;
       if (USE_CYCLIC_BUFFER) {
         myDeferredOutput = new StringBuffer(Math.min(myDeferredOutput.length(), CYCLIC_BUFFER_SIZE));
-      }
-      else {
+      } else {
         myDeferredOutput = new StringBuffer();
       }
       myDeferredTypes.clear();
@@ -201,9 +201,9 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       myHyperlinks.clear();
       myEditor.getMarkupModel().removeAllHighlighters();
       myTokens.clear();
-      document = myEditor == null? null : myEditor.getDocument();
+      document = myEditor == null ? null : myEditor.getDocument();
     }
-    if (document != null){
+    if (document != null) {
       ApplicationManager.getApplication().runWriteAction(new Runnable() {
         public void run() {
           CommandProcessor.getInstance().executeCommand(myProject, new Runnable() {
@@ -230,7 +230,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
 
   public void setOutputPaused(final boolean value) {
     myOutputPaused = value;
-    if (!value){
+    if (!value) {
       requestFlushImmediately();
     }
   }
@@ -240,30 +240,29 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   }
 
   public boolean hasDeferredOutput() {
-    synchronized(LOCK){
+    synchronized (LOCK) {
       return myDeferredOutput.length() > 0;
     }
   }
 
   public void performWhenNoDeferredOutput(final Runnable runnable) {
     //Q: implement in another way without timer?
-    if (!hasDeferredOutput()){
+    if (!hasDeferredOutput()) {
       runnable.run();
-    }
-    else{
+    } else {
       mySpareTimeAlarm.addRequest(
-        new Runnable() {
-          public void run() {
-            performWhenNoDeferredOutput(runnable);
-          }
-        },
-        100
+              new Runnable() {
+                public void run() {
+                  performWhenNoDeferredOutput(runnable);
+                }
+              },
+              100
       );
     }
   }
 
   public JComponent getComponent() {
-    if (myEditor == null){
+    if (myEditor == null) {
       myEditor = createEditor();
       requestFlushImmediately();
       add(myEditor.getComponent(), BorderLayout.CENTER);
@@ -293,9 +292,9 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     return this;
   }
 
-  public void dispose(){
+  public void dispose() {
     myState = myState.dispose();
-    if (myEditor != null){
+    if (myEditor != null) {
       myFlushAlarm.cancelAllRequests();
       mySpareTimeAlarm.cancelAllRequests();
       if (!myEditor.isDisposed()) {
@@ -309,10 +308,10 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   }
 
   public void print(String s, final ConsoleViewContentType contentType) {
-    synchronized(LOCK){
+    synchronized (LOCK) {
       myDeferredTypes.add(contentType);
 
-      s = StringUtil.convertLineSeparators(s,  "\n");
+      s = StringUtil.convertLineSeparators(s, "\n");
       myContentSize += s.length();
       myDeferredOutput.append(s);
       if (contentType == ConsoleViewContentType.USER_INPUT) {
@@ -320,14 +319,14 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       }
 
       boolean needNew = true;
-      if (!myTokens.isEmpty()){
+      if (!myTokens.isEmpty()) {
         final TokenInfo lastToken = myTokens.get(myTokens.size() - 1);
-        if (lastToken.contentType == contentType){
+        if (lastToken.contentType == contentType) {
           lastToken.endOffset = myContentSize; // optimization
           needNew = false;
         }
       }
-      if (needNew){
+      if (needNew) {
         myTokens.add(new TokenInfo(contentType, myContentSize - s.length(), myContentSize));
       }
 
@@ -348,7 +347,9 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     }
   }
 
-  public int getContentSize() { return myContentSize; }
+  public int getContentSize() {
+    return myContentSize;
+  }
 
   public boolean canPause() {
     return true;
@@ -369,8 +370,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       text = myDeferredOutput.substring(0, myDeferredOutput.length());
       if (USE_CYCLIC_BUFFER) {
         myDeferredOutput = new StringBuffer(Math.min(myDeferredOutput.length(), CYCLIC_BUFFER_SIZE));
-      }
-      else {
+      } else {
         myDeferredOutput.setLength(0);
       }
     }
@@ -410,14 +410,14 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   }
 
   private void flushDeferredUserInput() {
-    if (myState.isRunning()){
+    if (myState.isRunning()) {
       final String text = myDeferredUserInput.substring(0, myDeferredUserInput.length());
       final int index = Math.max(text.lastIndexOf('\n'), text.lastIndexOf('\r'));
       if (index < 0) return;
-      try{
+      try {
         myState.sendUserInput(text.substring(0, index + 1));
       }
-      catch(IOException e){
+      catch (IOException e) {
         return;
       }
       myDeferredUserInput.setLength(0);
@@ -426,13 +426,13 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   }
 
   public Object getData(final String dataId) {
-    if (DataConstants.NAVIGATABLE.equals(dataId)){
+    if (DataConstants.NAVIGATABLE.equals(dataId)) {
       if (myEditor == null) {
         return null;
       }
       final LogicalPosition pos = myEditor.getCaretModel().getLogicalPosition();
       final HyperlinkInfo info = getHyperlinkInfoByLineAndCol(pos.line, pos.column);
-      final OpenFileDescriptor openFileDescriptor = info instanceof FileHyperlinkInfo ? ((FileHyperlinkInfo)info).getDescriptor() : null;
+      final OpenFileDescriptor openFileDescriptor = info instanceof FileHyperlinkInfo ? ((FileHyperlinkInfo) info).getDescriptor() : null;
       if (openFileDescriptor == null || !openFileDescriptor.getFile().isValid()) {
         return null;
       }
@@ -479,7 +479,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     final int bufferSize = USE_CYCLIC_BUFFER ? CYCLIC_BUFFER_SIZE : 0;
     editorDocument.setCyclicBufferSize(bufferSize);
 
-    final EditorEx editor = (EditorEx) editorFactory.createViewer(editorDocument,myProject);
+    final EditorEx editor = (EditorEx) editorFactory.createViewer(editorDocument, myProject);
     final EditorHighlighter highlighter = new MyHighghlighter();
     editor.setHighlighter(highlighter);
     editor.putUserData(CONSOLE_VIEW_IN_EDITOR_VIEW, this);
@@ -497,7 +497,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     scheme.setColor(EditorColors.CARET_ROW_COLOR, null);
     scheme.setColor(EditorColors.RIGHT_MARGIN_COLOR, null);
 
-    editor.addEditorMouseListener(new EditorPopupHandler(){
+    editor.addEditorMouseListener(new EditorPopupHandler() {
       public void invokePopup(final EditorMouseEvent event) {
         final MouseEvent mouseEvent = event.getMouseEvent();
         popupInvoked(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
@@ -505,32 +505,32 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     });
 
     editor.addEditorMouseListener(
-          new EditorMouseAdapter(){
-        public void mouseReleased(final EditorMouseEvent e){
-          final MouseEvent mouseEvent = e.getMouseEvent();
-          if (!mouseEvent.isPopupTrigger()){
-            navigate(e);
-          }
-        }
-      }
+            new EditorMouseAdapter() {
+              public void mouseReleased(final EditorMouseEvent e) {
+                final MouseEvent mouseEvent = e.getMouseEvent();
+                if (!mouseEvent.isPopupTrigger()) {
+                  navigate(e);
+                }
+              }
+            }
     );
 
     editor.getContentComponent().addMouseMotionListener(
-          new MouseMotionAdapter(){
-        public void mouseMoved(final MouseEvent e){
-          final HyperlinkInfo info = getHyperlinkInfoByPoint(e.getPoint());
-          if (info != null){
-            editor.getContentComponent().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-          }
-          else{
-            editor.getContentComponent().setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
-          }
-        }
-      }
+            new MouseMotionAdapter() {
+              public void mouseMoved(final MouseEvent e) {
+                final HyperlinkInfo info = getHyperlinkInfoByPoint(e.getPoint());
+                if (info != null) {
+                  editor.getContentComponent().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                } else {
+                  editor.getContentComponent().setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+                }
+              }
+            }
     );
 
     editor.getContentComponent().addKeyListener(new KeyListener() {
       private int x = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+
       public void keyTyped(KeyEvent e) {
 
       }
@@ -546,7 +546,8 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
             replaceString();
           } else if (e.getKeyCode() == 40) {
             x++;
-            if (x > ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length) x = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+            if (x > ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length)
+              x = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length;
             replaceString();
           }
         } else {
@@ -603,12 +604,12 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   }
 
   private static void registerActionHandler(final Editor editor, final String actionId, final AnAction action) {
-    final Keymap keymap= KeymapManager.getInstance().getActiveKeymap();
+    final Keymap keymap = KeymapManager.getInstance().getActiveKeymap();
     final Shortcut[] shortcuts = keymap.getShortcuts(actionId);
     action.registerCustomShortcutSet(new CustomShortcutSet(shortcuts), editor.getContentComponent());
   }
 
-  private void popupInvoked(final Component component, final int x, final int y){
+  private void popupInvoked(final Component component, final int x, final int y) {
     final DefaultActionGroup group = new DefaultActionGroup();
     group.add(new ClearAllAction());
     group.add(new CopyAction());
@@ -619,20 +620,21 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     menu.getComponent().show(component, x, y);
   }
 
-  private void navigate(final EditorMouseEvent event){
+  private void navigate(final EditorMouseEvent event) {
     if (event.getMouseEvent().isPopupTrigger()) return;
     final Point p = event.getMouseEvent().getPoint();
     final HyperlinkInfo info = getHyperlinkInfoByPoint(p);
-    if (info != null){
+    if (info != null) {
       info.navigate(myProject);
       linkFollowed(info);
     }
   }
 
   private static final Key<TextAttributes> OLD_HYPERLINK_TEXT_ATTRIBUTES = Key.create("OLD_HYPERLINK_TEXT_ATTRIBUTES");
+
   private void linkFollowed(final HyperlinkInfo info) {
-    MarkupModelEx markupModel = (MarkupModelEx)myEditor.getMarkupModel();
-    for (Map.Entry<RangeHighlighter,HyperlinkInfo> entry : myHyperlinks.getRanges().entrySet()) {
+    MarkupModelEx markupModel = (MarkupModelEx) myEditor.getMarkupModel();
+    for (Map.Entry<RangeHighlighter, HyperlinkInfo> entry : myHyperlinks.getRanges().entrySet()) {
       RangeHighlighter range = entry.getKey();
       TextAttributes oldAttr = range.getUserData(OLD_HYPERLINK_TEXT_ATTRIBUTES);
       if (oldAttr != null) {
@@ -656,7 +658,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     markupModel.removeHighlighter(dummy);
   }
 
-  private HyperlinkInfo getHyperlinkInfoByPoint(final Point p){
+  private HyperlinkInfo getHyperlinkInfoByPoint(final Point p) {
     if (myEditor == null) return null;
     final LogicalPosition pos = myEditor.xyToLogicalPosition(new Point(p.x, p.y));
     return getHyperlinkInfoByLineAndCol(pos.line, pos.column);
@@ -667,22 +669,22 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     return myHyperlinks.getHyperlinkAt(offset);
   }
 
-  private void highlightHyperlinks(final int line1, final int line2){
-    if (myMessageFilter != null){
+  private void highlightHyperlinks(final int line1, final int line2) {
+    if (myMessageFilter != null) {
       ApplicationManager.getApplication().assertIsDispatchThread();
       PsiDocumentManager.getInstance(myProject).commitAllDocuments();
       final Document document = myEditor.getDocument();
       final CharSequence chars = document.getCharsSequence();
-      for(int line = line1; line <= line2; line++){
+      for (int line = line1; line <= line2; line++) {
         if (line < 0) continue;
         final int startOffset = document.getLineStartOffset(line);
         int endOffset = document.getLineEndOffset(line);
-        if (endOffset < document.getTextLength()){
+        if (endOffset < document.getTextLength()) {
           endOffset++; // add '\n'
         }
         final String text = chars.subSequence(startOffset, endOffset).toString();
         final Filter.Result result = myMessageFilter.applyFilter(text, endOffset);
-        if (result != null){
+        if (result != null) {
           final int highlightStartOffset = result.highlightStartOffset;
           final int highlightEndOffset = result.highlightEndOffset;
           final HyperlinkInfo hyperlinkInfo = result.hyperlinkInfo;
@@ -698,35 +700,34 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
                             final HyperlinkInfo hyperlinkInfo) {
     TextAttributes textAttributes = highlightAttributes != null ? highlightAttributes : HYPERLINK_ATTRIBUTES;
     final RangeHighlighter highlighter = myEditor.getMarkupModel().addRangeHighlighter(highlightStartOffset,
-                                                                                       highlightEndOffset,
-                                                                                       HYPERLINK_LAYER,
-                                                                                       textAttributes,
-                                                                                       HighlighterTargetArea.EXACT_RANGE);
+            highlightEndOffset,
+            HYPERLINK_LAYER,
+            textAttributes,
+            HighlighterTargetArea.EXACT_RANGE);
     myHyperlinks.add(highlighter, hyperlinkInfo);
   }
 
-  private class ClearAllAction extends AnAction{
-    public ClearAllAction(){
+  private class ClearAllAction extends AnAction {
+    public ClearAllAction() {
       super(ClojureBundle.message("clear.all.from.console.action.name"));
     }
 
-    public void actionPerformed(final AnActionEvent e){
+    public void actionPerformed(final AnActionEvent e) {
       clear();
     }
   }
 
-  private class CopyAction extends AnAction{
-    public CopyAction(){
+  private class CopyAction extends AnAction {
+    public CopyAction() {
       super(myEditor != null && myEditor.getSelectionModel().hasSelection() ? ClojureBundle.message("copy.selected.content.action.name") :
               ClojureBundle.message("copy.content.action.name"));
     }
 
-    public void actionPerformed(final AnActionEvent e){
+    public void actionPerformed(final AnActionEvent e) {
       if (myEditor == null) return;
-      if (myEditor.getSelectionModel().hasSelection()){
+      if (myEditor.getSelectionModel().hasSelection()) {
         myEditor.getSelectionModel().copySelectionToClipboard();
-      }
-      else{
+      } else {
         myEditor.getSelectionModel().setSelection(0, myEditor.getDocument().getTextLength());
         myEditor.getSelectionModel().copySelectionToClipboard();
         myEditor.getSelectionModel().removeSelection();
@@ -740,7 +741,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     public HighlighterIterator createIterator(final int startOffset) {
       final int startIndex = findTokenInfoIndexByOffset(startOffset);
 
-      return new HighlighterIterator(){
+      return new HighlighterIterator() {
         private int myIndex = startIndex;
 
         public TextAttributes getTextAttributes() {
@@ -793,16 +794,14 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     int low = 0;
     int high = myTokens.size() - 1;
 
-    while(low <= high){
+    while (low <= high) {
       final int mid = (low + high) / 2;
       final TokenInfo midVal = myTokens.get(mid);
-      if (offset < midVal.startOffset){
+      if (offset < midVal.startOffset) {
         high = mid - 1;
-      }
-      else if (offset >= midVal.endOffset){
+      } else if (offset >= midVal.endOffset) {
         low = mid + 1;
-      }
-      else{
+      } else {
         return mid;
       }
     }
@@ -818,10 +817,9 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
 
     public void execute(final Editor editor, final char charTyped, final DataContext dataContext) {
       final ClojureConsoleViewImpl consoleView = editor.getUserData(CONSOLE_VIEW_IN_EDITOR_VIEW);
-      if (consoleView == null || !consoleView.myState.isRunning()){
+      if (consoleView == null || !consoleView.myState.isRunning()) {
         myOriginalHandler.execute(editor, charTyped, dataContext);
-      }
-      else{
+      } else {
         final String s = String.valueOf(charTyped);
         final Document document = editor.getDocument();
         synchronized (consoleView.LOCK) {
@@ -851,7 +849,8 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
           } else {
 
             int offset = editor.getCaretModel().getOffset();
-            if (offset < info.startOffset || offset > info.endOffset) editor.getCaretModel().moveToOffset(info.endOffset);
+            if (offset < info.startOffset || offset > info.endOffset)
+              editor.getCaretModel().moveToOffset(info.endOffset);
             deleteTokens = -1;
             if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
             consoleView.myDeferredUserInput.insert(offset - info.startOffset, s);
@@ -920,21 +919,12 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       }
       return false;
     }
+
     public void execute(final ClojureConsoleViewImpl consoleView, final DataContext context) {
       synchronized (consoleView.LOCK) {
         String str = consoleView.myDeferredUserInput.toString();
         if (str.startsWith(":") || !contains(ClojureApplicationSettings.getInstance().CONSOLE_HISTORY, str)) {
-          String[] buffer = new String[Math.min(ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length + 1, 20)];
-          int i = buffer.length - 1;
-          buffer[i] = str;
-          i--;
-          int j = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length - 1;
-          while (i >= 0) {
-            buffer[i] = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY[j];
-            i--;
-            j--;
-          }
-          ClojureApplicationSettings.getInstance().CONSOLE_HISTORY = buffer;
+          putToHistory(str);
         }
       }
       consoleView.print("\n", ConsoleViewContentType.USER_INPUT);
@@ -943,17 +933,33 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       editor.getCaretModel().moveToOffset(editor.getDocument().getTextLength());
       editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
     }
+
+  }
+
+  public static void putToHistory(String str) {
+    String[] buffer = new String[Math.min(ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length + 1, 20)];
+    int i = buffer.length - 1;
+    buffer[i] = str.trim();
+    i--;
+    int j = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length - 1;
+    while (i >= 0) {
+      buffer[i] = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY[j];
+      i--;
+      j--;
+    }
+    ClojureApplicationSettings.getInstance().CONSOLE_HISTORY = buffer;
   }
 
   private static class PasteHandler extends ConsoleAction {
+
     public void execute(final ClojureConsoleViewImpl consoleView, final DataContext context) {
       final Transferable content = CopyPasteManager.getInstance().getContents();
       if (content == null) return;
       String s = null;
       try {
-        s = (String)content.getTransferData(DataFlavor.stringFlavor);
+        s = (String) content.getTransferData(DataFlavor.stringFlavor);
       }
-      catch(Exception e) {
+      catch (Exception e) {
         consoleView.myEditor.getComponent().getToolkit().beep();
       }
       if (s == null) return;
@@ -978,7 +984,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       }
 
 
-      synchronized(consoleView.LOCK) {
+      synchronized (consoleView.LOCK) {
         if (consoleView.myTokens.isEmpty()) return;
         final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
         if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
@@ -1054,7 +1060,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       }
 
 
-      synchronized(consoleView.LOCK) {
+      synchronized (consoleView.LOCK) {
         if (consoleView.myTokens.isEmpty()) return;
         final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
         if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
@@ -1076,7 +1082,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
         } else {
           int offset = editor.getCaretModel().getOffset();
           if (offset < info.startOffset) return;
-          if (offset >= info.endOffset)  return;
+          if (offset >= info.endOffset) return;
           deleteTokens = 1;
           consoleView.myDeferredUserInput.deleteCharAt(offset - info.startOffset);
         }
@@ -1114,7 +1120,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
 
   private static class Hyperlinks {
     private static final int NO_INDEX = Integer.MIN_VALUE;
-    private final Map<RangeHighlighter,HyperlinkInfo> myHighlighterToMessageInfoMap = new com.intellij.util.containers.HashMap<RangeHighlighter, HyperlinkInfo>();
+    private final Map<RangeHighlighter, HyperlinkInfo> myHighlighterToMessageInfoMap = new com.intellij.util.containers.HashMap<RangeHighlighter, HyperlinkInfo>();
     private int myLastIndex = NO_INDEX;
 
     public void clear() {
@@ -1140,7 +1146,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       if (myLastIndex != NO_INDEX && containsOffset(myLastIndex, highlighter)) myLastIndex = NO_INDEX;
     }
 
-    private Map<RangeHighlighter,HyperlinkInfo> getRanges() {
+    private Map<RangeHighlighter, HyperlinkInfo> getRanges() {
       return myHighlighterToMessageInfoMap;
     }
   }
@@ -1173,7 +1179,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       }
     });
     int i;
-    for (i = 0; i<ranges.size(); i++) {
+    for (i = 0; i < ranges.size(); i++) {
       RangeHighlighter range = ranges.get(i);
       if (range.getUserData(OLD_HYPERLINK_TEXT_ATTRIBUTES) != null) {
         break;
@@ -1222,7 +1228,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     AnAction nextAction = actionsManager.createNextOccurenceAction(this);
     nextAction.getTemplatePresentation().setText(getNextOccurenceActionName());
     return new AnAction[]{
-      prevAction, nextAction
+            prevAction, nextAction
     };
   }
 
