@@ -2,6 +2,7 @@ package org.jetbrains.plugins.clojure.actions.repl;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEntry;
@@ -30,6 +31,18 @@ public class AddReplAction extends ClojureAction {
     getTemplatePresentation().setIcon(Icons.ADD_ICON);
   }
 
+  @Override
+  public void update(AnActionEvent e) {
+    final Module module = e.getData(DataKeys.MODULE);
+    final Presentation pres = e.getPresentation();
+    if (module == null) {
+      pres.setEnabled(false);
+      return;
+    }
+    pres.setEnabled(true);
+    super.update(e);
+  }
+
   public void actionPerformed(AnActionEvent e) {
     final Module module = e.getData(DataKeys.MODULE);
     if (module == null) return;
@@ -51,9 +64,6 @@ public class AddReplAction extends ClojureAction {
         return virtualFile.getPath();
       }
     });
-
-    final String classPath = StringUtil.join(paths, File.pathSeparator);
-
 
     getReplToolWindow(e).createRepl(module);
     getReplToolWindow(e).requestFocus();
