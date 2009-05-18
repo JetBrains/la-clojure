@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.clojure.repl;
 
 import com.intellij.execution.ExecutionException;
+import com.intellij.execution.CantRunException;
 import com.intellij.execution.filters.Filter;
 import com.intellij.execution.filters.TextConsoleBuilderImpl;
 import com.intellij.execution.process.*;
@@ -30,6 +31,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.Function;
+import com.intellij.util.PathsList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.ClojureIcons;
@@ -190,20 +192,23 @@ public class ReplToolWindow implements ProjectComponent {
   }
 
   public void createRepl(Module module) {
-    final String classPath = getClassPath(module);
-
     try {
-      Repl repl = new Repl(classPath);
+      Repl repl = new Repl(module);
       replList.add(repl);
 
       final int numOfRepls = tabbedPane.getTabCount();
       tabbedPane.addTab(ClojureBundle.message("repl.title") +
-              "(" + module.getName() + ")" +
-              (numOfRepls < 1 ? "" : ("-" + numOfRepls)), repl.view.getComponent());
+              "-" + module.getName() +
+              (numOfRepls < 2 ? "" : ("-" + numOfRepls)), repl.view.getComponent());
       tabbedPane.setSelectedIndex(numOfRepls - 1);
     } catch (IOException e) {
       e.printStackTrace();
     } catch (ConfigurationException e) {
+      JOptionPane.showMessageDialog(null,
+              ClojureBundle.message("config.error.replNotConfiguredMessage"),
+              ClojureBundle.message("config.error.replNotConfiguredTitle"),
+              JOptionPane.WARNING_MESSAGE);
+    } catch (CantRunException e) {
       JOptionPane.showMessageDialog(null,
               ClojureBundle.message("config.error.replNotConfiguredMessage"),
               ClojureBundle.message("config.error.replNotConfiguredTitle"),
@@ -228,7 +233,11 @@ public class ReplToolWindow implements ProjectComponent {
         return virtualFile.getPath();
       }
     });
-    return "\"" + StringUtil.join(paths, File.pathSeparator) + "\"";
+
+    final PathsList list = new PathsList();
+    list.addAll(paths);
+
+    return list.getPathsString();
   }
 
   public void removeCurrentRepl() {
@@ -258,10 +267,10 @@ public class ReplToolWindow implements ProjectComponent {
   private class Repl {
     public ConsoleView view;
     private ProcessHandler processHandler;
-    private final String myClassPath;
+    private final Module myModule;
 
-    public Repl(String classPath) throws IOException, ConfigurationException {
-      myClassPath = classPath;
+    public Repl(Module module) throws IOException, ConfigurationException, CantRunException {
+      myModule = module;
       final TextConsoleBuilderImpl builder = new TextConsoleBuilderImpl(myProject) {
         private final ArrayList<Filter> filters = new ArrayList<Filter>();
 
@@ -283,8 +292,9 @@ public class ReplToolWindow implements ProjectComponent {
 
       // TODO - What does the "help ID" give us??
 
-      final VirtualFile baseDir = myProject.getBaseDir();
-      processHandler = new ClojureReplProcessHandler(baseDir.getPath(), myClassPath);
+//      final VirtualFile baseDir = myProject.getBaseDir();
+      final String baseDir = module.getModuleFile().getParent().getPath();
+      processHandler = new ClojureReplProcessHandler(baseDir, module);
       ProcessTerminatedListener.attach(processHandler);
       processHandler.startNotify();
       view.attachToProcess(processHandler);

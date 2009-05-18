@@ -4,18 +4,36 @@ import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessOutputTypes;
+import com.intellij.execution.configurations.JavaParameters;
+import com.intellij.execution.configurations.CommandLineBuilder;
+import com.intellij.execution.configurations.GeneralCommandLine;
+import com.intellij.execution.CantRunException;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.encoding.EncodingManager;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.roots.OrderEntry;
+import com.intellij.openapi.roots.ModuleSourceOrderEntry;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl;
+import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.ex.JavaSdkUtil;
 import com.intellij.util.Alarm;
 import com.intellij.util.PathUtil;
+import com.intellij.ide.DataManager;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.StringTokenizer;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 import java.util.concurrent.*;
 
 import clojure.lang.Repl;
@@ -31,7 +49,8 @@ public class ClojureReplProcessHandler extends ProcessHandler {
   private final Process myProcess;
   private final ProcessWaitFor myWaitFor;
   private final String myExecPath;
-  private final String myClassPath;
+  private final Module myModule;
+  private static final String CLOJURE_LANG_REPL = "clojure.lang.Repl";
 
   public static Future<?> executeOnPooledThread(Runnable task) {
     final Application application = ApplicationManager.getApplication();
@@ -59,9 +78,9 @@ public class ClojureReplProcessHandler extends ProcessHandler {
     }
   }
 
-  public ClojureReplProcessHandler(String path, String cp) throws IOException, ConfigurationException {
+  public ClojureReplProcessHandler(String path, Module cp) throws IOException, ConfigurationException, CantRunException {
     myExecPath = path;
-    myClassPath = cp;
+    myModule = cp;
 
     if (notConfigured()) {
       throw new ConfigurationException("Can't create Clojure REPL process");
@@ -71,8 +90,38 @@ public class ClojureReplProcessHandler extends ProcessHandler {
       final String jarPath = PathUtil.getJarPathForClass(Repl.class);
       assert jarPath != null;
 
-      final String command = "java -cp " + myClassPath + File.pathSeparator + jarPath + " clojure.lang.Repl";
-      myProcess = Runtime.getRuntime().exec(command, null, new File(myExecPath));
+      final JavaParameters params = new JavaParameters();
+      params.configureByModule(myModule, JavaParameters.JDK_AND_CLASSES);
+      Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
+      ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(myModule);
+      OrderEntry[] entries = moduleRootManager.getOrderEntries();
+      for (OrderEntry orderEntry : entries) {
+        // Add module sources to classpath
+        if (orderEntry instanceof ModuleSourceOrderEntry) {
+          cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
+        }
+      }
+
+      for (VirtualFile file : cpVFiles) {
+        params.getClassPath().add(file.getPath());
+      }
+
+
+      params.setMainClass(CLOJURE_LANG_REPL);
+      params.setWorkingDirectory(path);
+
+      final GeneralCommandLine line = CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true);
+
+      final String javaExe = JavaSdk.getInstance().getVMExecutablePath(params.getJdk());
+      final StringBuffer buffer = new StringBuffer(javaExe);
+
+      for (String param : line.getParametersList().getList()) {
+        buffer.append(" ").append(param.contains(" ") ? param.replace(' ','\u00A0') : param);
+      }
+
+
+      final String command = buffer.toString();
+      myProcess = Runtime.getRuntime().exec(command, new String[0], new File(myExecPath));
       myWaitFor = new ProcessWaitFor(myProcess);
     }
 
