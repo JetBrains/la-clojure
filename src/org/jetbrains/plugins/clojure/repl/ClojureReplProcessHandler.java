@@ -23,6 +23,9 @@ import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl;
 import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.SdkType;
+import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.ex.JavaSdkUtil;
 import com.intellij.util.Alarm;
 import com.intellij.util.PathUtil;
@@ -112,13 +115,14 @@ public class ClojureReplProcessHandler extends ProcessHandler {
 
       final GeneralCommandLine line = CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true);
 
-      final String javaExe = JavaSdk.getInstance().getVMExecutablePath(params.getJdk());
-      final StringBuffer buffer = new StringBuffer(javaExe);
+      final Sdk sdk = params.getJdk();
+      final SdkType type = sdk.getSdkType();
+      final String executablePath = ((JavaSdkType) type).getVMExecutablePath(sdk);
+      final StringBuffer buffer = new StringBuffer(executablePath);
 
       for (String param : line.getParametersList().getList()) {
-        buffer.append(" ").append(param.contains(" ") ? param.replace(' ','\u00A0') : param);
+        buffer.append(" ").append(param.contains(" ") ? param.replace(' ', '\u00A0') : param);
       }
-
 
       final String command = buffer.toString();
       myProcess = Runtime.getRuntime().exec(command, new String[0], new File(myExecPath));
