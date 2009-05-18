@@ -226,26 +226,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
       return null;
     }
 
-
-    /*
-    val consoleBuilder = new TextConsoleBuilderImpl(project) {
-      val filters = new ArrayBuffer[Filter]
-      override def getConsole: ConsoleView = {
-        val consoleView = new ClojureConsoleViewImpl(project)
-        for (filter <- filters) {
-          consoleView.addMessageFilter(filter)
-        }
-        return consoleView
-      }
-
-      override def addFilter(filter: Filter): Unit = {
-        filters += filter
-      }
-    }
-    state.setConsoleBuilder(consoleBuilder);
-
-     */
-
     final JavaCommandLineState state = new JavaCommandLineState(environment) {
       protected JavaParameters createJavaParameters() throws ExecutionException {
         JavaParameters params = new JavaParameters();
