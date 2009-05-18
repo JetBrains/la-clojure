@@ -218,6 +218,9 @@ public class ReplToolWindow implements ProjectComponent {
     for (OrderEntry orderEntry : entries) {
       // Add module sources to classpath
       cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.CLASSES_AND_OUTPUT)));
+      if (orderEntry instanceof ModuleSourceOrderEntry) {
+        cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
+      }
     }
 
     final List<String> paths = ContainerUtil.map(cpVFiles, new Function<VirtualFile, String>() {
