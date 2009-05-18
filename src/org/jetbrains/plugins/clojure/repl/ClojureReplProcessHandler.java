@@ -30,7 +30,8 @@ public class ClojureReplProcessHandler extends ProcessHandler {
 
   private final Process myProcess;
   private final ProcessWaitFor myWaitFor;
-  private final String myPath;
+  private final String myExecPath;
+  private final String myClassPath;
 
   public static Future<?> executeOnPooledThread(Runnable task) {
     final Application application = ApplicationManager.getApplication();
@@ -58,8 +59,9 @@ public class ClojureReplProcessHandler extends ProcessHandler {
     }
   }
 
-  public ClojureReplProcessHandler(String path) throws IOException, ConfigurationException {
-    myPath = path;
+  public ClojureReplProcessHandler(String path, String myClassPath) throws IOException, ConfigurationException {
+    myExecPath = path;
+    this.myClassPath = myClassPath;
 /* TODO - This is broken for some stupid reason...
         if (notConfigured()) {
             ShowSettingsUtil.getInstance().showSettingsDialog(project, CloJetConfigurable.class);
@@ -74,8 +76,8 @@ public class ClojureReplProcessHandler extends ProcessHandler {
       final String jarPath = PathUtil.getJarPathForClass(Repl.class);
       assert jarPath != null;
 
-      final String command = "java -cp " + jarPath + " clojure.lang.Repl";
-      myProcess = Runtime.getRuntime().exec(command, null, new File(myPath));
+      final String command = "java -cp " + myClassPath + File.pathSeparator + jarPath + " clojure.lang.Repl";
+      myProcess = Runtime.getRuntime().exec(command, null, new File(myExecPath));
       myWaitFor = new ProcessWaitFor(myProcess);
     }
 

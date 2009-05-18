@@ -16,12 +16,20 @@ import com.intellij.openapi.editor.impl.EditorComponentImpl;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.OrderEntry;
+import com.intellij.openapi.roots.ModuleSourceOrderEntry;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.module.Module;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.Function;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.ClojureIcons;
@@ -31,11 +39,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PipedReader;
-import java.io.PipedWriter;
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -184,13 +189,17 @@ public class ReplToolWindow implements ProjectComponent {
     }
   }
 
-  public void createRepl() {
+  public void createRepl(Module module) {
+    final String classPath = getClassPath(module);
+
     try {
-      Repl repl = new Repl();
+      Repl repl = new Repl(classPath);
       replList.add(repl);
 
       final int numOfRepls = tabbedPane.getTabCount();
-      tabbedPane.addTab(ClojureBundle.message("repl.title") + numOfRepls, repl.view.getComponent());
+      tabbedPane.addTab(ClojureBundle.message("repl.title") +
+              "(" + module.getName() + ")" +
+              (numOfRepls < 1 ? "" : ("-" + numOfRepls)), repl.view.getComponent());
       tabbedPane.setSelectedIndex(numOfRepls - 1);
     } catch (IOException e) {
       e.printStackTrace();
@@ -200,6 +209,24 @@ public class ReplToolWindow implements ProjectComponent {
               ClojureBundle.message("config.error.replNotConfiguredTitle"),
               JOptionPane.WARNING_MESSAGE);
     }
+  }
+
+  private static String getClassPath(Module module) {
+    ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
+    OrderEntry[] entries = moduleRootManager.getOrderEntries();
+    Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
+    for (OrderEntry orderEntry : entries) {
+      // Add module sources to classpath
+      cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.CLASSES_AND_OUTPUT)));
+    }
+
+    final List<String> paths = ContainerUtil.map(cpVFiles, new Function<VirtualFile, String>() {
+      public String fun(VirtualFile virtualFile) {
+        return virtualFile.getPath();
+      }
+    });
+
+    return StringUtil.join(paths, File.pathSeparator);
   }
 
   public void removeCurrentRepl() {
@@ -229,8 +256,10 @@ public class ReplToolWindow implements ProjectComponent {
   private class Repl {
     public ConsoleView view;
     private ProcessHandler processHandler;
+    private final String myClassPath;
 
-    public Repl() throws IOException, ConfigurationException {
+    public Repl(String classPath) throws IOException, ConfigurationException {
+      myClassPath = classPath;
       final TextConsoleBuilderImpl builder = new TextConsoleBuilderImpl(myProject) {
         private final ArrayList<Filter> filters = new ArrayList<Filter>();
 
@@ -253,7 +282,7 @@ public class ReplToolWindow implements ProjectComponent {
       // TODO - What does the "help ID" give us??
 
       final VirtualFile baseDir = myProject.getBaseDir();
-      processHandler = new ClojureReplProcessHandler(baseDir.getPath());
+      processHandler = new ClojureReplProcessHandler(baseDir.getPath(), myClassPath);
       ProcessTerminatedListener.attach(processHandler);
       processHandler.startNotify();
       view.attachToProcess(processHandler);
