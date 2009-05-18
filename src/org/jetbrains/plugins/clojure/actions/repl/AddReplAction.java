@@ -46,25 +46,6 @@ public class AddReplAction extends ClojureAction {
   public void actionPerformed(AnActionEvent e) {
     final Module module = e.getData(DataKeys.MODULE);
     if (module == null) return;
-
-    ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
-    OrderEntry[] entries = moduleRootManager.getOrderEntries();
-    Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
-    for (OrderEntry orderEntry : entries) {
-      // Add module sources to classpath
-      if (orderEntry instanceof ModuleSourceOrderEntry) {
-        cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
-      } else {
-        cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.CLASSES_AND_OUTPUT)));
-      }
-    }
-
-    final List<String> paths = ContainerUtil.map(cpVFiles, new Function<VirtualFile, String>() {
-      public String fun(VirtualFile virtualFile) {
-        return virtualFile.getPath();
-      }
-    });
-
     getReplToolWindow(e).createRepl(module);
     getReplToolWindow(e).requestFocus();
   }
