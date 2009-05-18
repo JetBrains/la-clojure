@@ -118,7 +118,7 @@
             class="org.jetbrains.plugins.clojure.actions.repl.GoToReplAction" text="Go To REPL"
     description="Go to the last Clojure REPL">
       <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="alt R"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="ctrl BACK_SLASH"/>
     </action>
 
     <action id="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction"
@@ -132,19 +132,19 @@
             class="org.jetbrains.plugins.clojure.actions.repl.AddReplAction" text="Add new Clojure REPL"
             description="Add REPL">
       <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="alt A"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt A"/>
     </action>
     <action id="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction"
             class="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction" text="Remove REPL"
             description="Remove current Clojure REPL">
       <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="alt M"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt M"/>
     </action>
     <action id="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction"
             class="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction" text="Rename REPL"
             description="Renamce current Clojure REPL">
       <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="alt BACK_SLASH"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt SLASH"/>
     </action>
     <action id="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentfileInReplAction"
             class="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentfileInReplAction" text="Load file to REPL"

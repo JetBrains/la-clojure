@@ -256,7 +256,7 @@ public class ReplToolWindow implements ProjectComponent {
       // TODO - Should build my own small tool window dialog, positioned wherever the user clicked
       String newTitle = (String) JOptionPane.showInputDialog(
               tabbedPane.getSelectedComponent(), null, ClojureBundle.message("repl.rename"),
-              JOptionPane.PLAIN_MESSAGE, null, null, null);
+              JOptionPane.PLAIN_MESSAGE, null, null, oldTitle);
       if (newTitle != null) {
         tabbedPane.setTitleAt(tabIndex, newTitle);
       }

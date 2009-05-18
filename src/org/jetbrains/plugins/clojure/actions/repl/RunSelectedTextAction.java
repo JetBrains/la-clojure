@@ -18,22 +18,11 @@ public class RunSelectedTextAction extends ClojureAction {
     if (editor == null) {
       return;
     }
-    final CaretModel caretModel = editor.getCaretModel();
     final SelectionModel selectionModel = editor.getSelectionModel();
     String selectedText = selectionModel.getSelectedText();
-    if (selectedText == null || selectedText.length() == 0) {
-      final int line = caretModel.getLogicalPosition().line;
-      final Document document = editor.getDocument();
-      final int start = document.getLineStartOffset(line);
-      final int end = document.getLineStartOffset(line);
-      final String text = document.getText();
-      selectedText = (end < text.length() - 1) ? text.substring(start, end) : text.substring(start);
-      selectedText = selectedText.trim();
-    }
-
-    if (StringUtil.isEmptyOrSpaces(selectedText)) {
+    if (selectedText == null || selectedText.trim().length() == 0) {
       return;
     }
-    getReplToolWindow(e).writeToCurrentRepl(selectedText);
+    getReplToolWindow(e).writeToCurrentRepl(selectedText.trim());
   }
 }
