@@ -34,7 +34,8 @@
                                   implementationClass="org.jetbrains.plugins.clojure.structure.ClojureStructureViewBuilderFactory"/>
     <lang.formatter language="Clojure"
                     implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
-    <codeStyleSettingsProvider language="Clojure" implementation="org.jetbrains.plugins.clojure.formatter.codeStyle.ClojureCodeStyleSettingsProvider"/>
+    <codeStyleSettingsProvider language="Clojure"
+                               implementation="org.jetbrains.plugins.clojure.formatter.codeStyle.ClojureCodeStyleSettingsProvider"/>
     <consoleFilterProvider
         implementation="org.jetbrains.plugins.clojure.runner.console.ClojureConsoleFilterProvider"/>
     <completion.contributor implementation="org.jetbrains.plugins.clojure.completion.ClojureCompletionContributor"/>
@@ -66,7 +67,7 @@
     <compilerSettingsFactory implementation="org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettingsFactory"/>
     <frameworkSupport implementation="org.jetbrains.plugins.clojure.config.ClojureFacetSupportProvider"/>
     <applicationService serviceInterface="org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings"
-        serviceImplementation="org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings"/>
+                        serviceImplementation="org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings"/>
 
     <projectService serviceInterface="org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory"
                     serviceImplementation="org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactoryImpl"/>
@@ -98,13 +99,58 @@
     <component>
       <implementation-class>org.jetbrains.plugins.clojure.psi.impl.ClojurePsiManager</implementation-class>
     </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.clojure.repl.ReplToolWindow</implementation-class>
+    </component>
   </project-components>
 
   <actions>
+    <!-- Create file actions -->
     <action id="Clojure.ClojureFile" class="org.jetbrains.plugins.clojure.actions.NewClojureFileAction"
             text="Clojure File" description="Create new Clojure File">
       <add-to-group group-id="NewGroup" anchor="last"/>
     </action>
+
+
+
+    <!-- REPL-related actions -->
+    <action id="org.jetbrains.plugins.clojure.actions.repl.GoToReplAction"
+            class="org.jetbrains.plugins.clojure.actions.repl.GoToReplAction" text="Go To REPL"
+    description="Go to the last Clojure REPL">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="alt R"/>
+    </action>
+
+    <action id="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction"
+            class="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction" text="Run selected in REPL"
+            description="Run selected Clojure text in REPL">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="alt S"/>
+    </action>
+
+    <action id="org.jetbrains.plugins.clojure.actions.repl.AddReplAction"
+            class="org.jetbrains.plugins.clojure.actions.repl.AddReplAction" text="Add new Clojure REPL"
+            description="Add REPL">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="alt A"/>
+    </action>
+    <action id="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction"
+            class="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction" text="Remove REPL"
+            description="Remove current Clojure REPL">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="alt M"/>
+    </action>
+    <action id="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction"
+            class="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction" text="Rename REPL"
+            description="Rename current Clojure REPL">
+      <keyboard-shortcut keymap="$default" first-keystroke="ctrl L" second-keystroke="meta L"/>
+    </action>
+
+    <group id="ClojureReplActionGroup"
+           class="org.jetbrains.plugins.clojure.repl.ClojureReplActionGroup" text="Clojure REPL" description="Clojure">
+    </group>
+
+
   </actions>
 
 

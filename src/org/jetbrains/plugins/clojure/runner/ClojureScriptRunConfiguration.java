@@ -131,7 +131,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     OrderEntry[] entries = moduleRootManager.getOrderEntries();
     Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
     for (OrderEntry orderEntry : entries) {
-      // Add module sources to classpathy
+      // Add module sources to classpath
       if (orderEntry instanceof ModuleSourceOrderEntry) {
         cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
       }
