@@ -123,47 +123,53 @@ public class ListDeclarations {
   }
 
   private static boolean processImportDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
-    final PsiElement second = list.getSecondNonLeafElement();
+    final PsiElement[] children = list.getChildren();
     final Project project = list.getProject();
     final JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
-    if (second instanceof ClSymbol) {
-      ClSymbol symbol = (ClSymbol) second;
-      final String symbolName = symbol.getNameString();
-      final PsiClass clazz = facade.findClass(symbolName, GlobalSearchScope.allScope(project));
-      if (clazz != null && !ResolveUtil.processElement(processor, clazz)) {
-        return false;
-      }
-    } else if (second instanceof ClQuotedForm) {
-      // process import of form (import '(java.util List Set))
-      ClQuotedForm quotedForm = (ClQuotedForm) second;
-      final ClojurePsiElement element = quotedForm.getQuotedElement();
-      if (element instanceof ClList) {
-        ClList inner = (ClList) element;
-        final PsiElement first = inner.getFirstNonLeafElement();
-        if (first instanceof ClSymbol) {
-          final ClSymbol packSym = (ClSymbol) first;
 
-          final PsiPackage pack = facade.findPackage(packSym.getNameString());
-          if (pack != null) {
-            if (place.getParent() == inner && place != packSym) {
-              pack.processDeclarations(processor, ResolveState.initial(), null, place);
-            } else {
-              PsiElement next = packSym.getNextSibling();
-              while (next != null) {
-                if (next instanceof ClSymbol) {
-                  ClSymbol clazzSym = (ClSymbol) next;
-                  final PsiClass clazz = facade.findClass(pack.getQualifiedName() + "." + clazzSym.getNameString(), GlobalSearchScope.allScope(project));
-                  if (clazz != null && !ResolveUtil.processElement(processor, clazz)) {
-                    return false;
+    for (PsiElement child : children) {
+      if (child instanceof ClSymbol) {
+        ClSymbol symbol = (ClSymbol) child;
+        final String symbolName = symbol.getNameString();
+        final PsiClass clazz = facade.findClass(symbolName, GlobalSearchScope.allScope(project));
+        if (clazz != null && !ResolveUtil.processElement(processor, clazz)) {
+          return false;
+        }
+      } else if (child instanceof ClQuotedForm) {
+        // process import of form (import '(java.util List Set))
+        ClQuotedForm quotedForm = (ClQuotedForm) child;
+        final ClojurePsiElement element = quotedForm.getQuotedElement();
+        if (element instanceof ClList) {
+          ClList inner = (ClList) element;
+          final PsiElement first = inner.getFirstNonLeafElement();
+          if (first instanceof ClSymbol) {
+            final ClSymbol packSym = (ClSymbol) first;
+
+            final PsiPackage pack = facade.findPackage(packSym.getNameString());
+            if (pack != null) {
+              if (place.getParent() == inner && place != packSym) {
+                pack.processDeclarations(processor, ResolveState.initial(), null, place);
+              } else {
+                PsiElement next = packSym.getNextSibling();
+                while (next != null) {
+                  if (next instanceof ClSymbol) {
+                    ClSymbol clazzSym = (ClSymbol) next;
+                    final PsiClass clazz = facade.findClass(pack.getQualifiedName() + "." + clazzSym.getNameString(), GlobalSearchScope.allScope(project));
+                    if (clazz != null && !ResolveUtil.processElement(processor, clazz)) {
+                      return false;
+                    }
                   }
+                  next = next.getNextSibling();
                 }
-                next = next.getNextSibling();
               }
             }
           }
         }
       }
+
     }
+
+
     return true;
   }
 
