@@ -36,6 +36,7 @@
                     implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
     <codeStyleSettingsProvider language="Clojure"
                                implementation="org.jetbrains.plugins.clojure.formatter.codeStyle.ClojureCodeStyleSettingsProvider"/>
+    <lang.findUsagesProvider language="Clojure" implementationClass="org.jetbrains.plugins.clojure.findUsages.ClojureFindUsagesProvider"/>
     <consoleFilterProvider
         implementation="org.jetbrains.plugins.clojure.runner.console.ClojureConsoleFilterProvider"/>
     <completion.contributor implementation="org.jetbrains.plugins.clojure.completion.ClojureCompletionContributor"/>
