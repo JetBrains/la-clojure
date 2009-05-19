@@ -10,13 +10,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.Icons;
 import org.jetbrains.plugins.clojure.config.ClojureFacet;
 import org.jetbrains.plugins.clojure.config.ClojureFacetType;
+import org.jetbrains.plugins.clojure.ClojureIcons;
 
 /**
  * @author Kurt Christensen, ilyas
  */
 public class AddReplAction extends ClojureAction {
   public AddReplAction() {
-    getTemplatePresentation().setIcon(Icons.ADD_ICON);
+    getTemplatePresentation().setIcon(ClojureIcons.REPL_ADD);
   }
 
   @Override

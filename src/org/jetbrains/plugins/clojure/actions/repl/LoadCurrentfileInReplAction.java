@@ -10,11 +10,17 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.ClojureIcons;
 
 /**
  * @author ilyas
  */
 public class LoadCurrentfileInReplAction extends ClojureAction {
+
+  public LoadCurrentfileInReplAction(){
+    getTemplatePresentation().setIcon(ClojureIcons.REPL_LOAD);
+  }
+
   @Override
   public void update(AnActionEvent e) {
     final Presentation presentation = e.getPresentation();

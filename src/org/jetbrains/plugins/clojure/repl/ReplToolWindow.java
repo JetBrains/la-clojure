@@ -179,7 +179,7 @@ public class ReplToolWindow implements ProjectComponent {
       ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
       Content content = contentFactory.createContent(panel, null, true);
       toolWindow.getContentManager().addContent(content);
-      toolWindow.setIcon(ClojureIcons.CLOJURE_ICON_16x16);
+      toolWindow.setIcon(ClojureIcons.REPL_CONSOLE);
       // toolWindow.setToHideOnEmptyContent(true);
 
       popup = am.createActionPopupMenu(ClojureBundle.message("repl.toolWindowName"), group);

@@ -11,11 +11,16 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
 import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.ClojureIcons;
 
 /**
  * @author Kurt Christensen, ilyas
  */
 public class RunSelectedTextAction extends ClojureAction {
+
+  public RunSelectedTextAction(){
+    getTemplatePresentation().setIcon(ClojureIcons.REPL_EVAL);
+  }
 
   public void actionPerformed(final AnActionEvent e) {
     final Editor editor = e.getData(DataKeys.EDITOR);
