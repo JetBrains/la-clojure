@@ -571,7 +571,11 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
             return;
           } else {
             int deleteTokens = myDeferredUserInput.length() - str.length();
-            editor.getSelectionModel().setSelection(info.startOffset, info.endOffset);
+            final Document doc = editor.getDocument();
+            if (info.endOffset < doc.getTextLength() && info.startOffset > 0) {
+              final SelectionModel selectionModel = editor.getSelectionModel();
+              selectionModel.setSelection(info.startOffset, info.endOffset);
+            }
             info.endOffset -= deleteTokens;
             if (info.startOffset == info.endOffset) {
               myTokens.remove(myTokens.size() - 1);
