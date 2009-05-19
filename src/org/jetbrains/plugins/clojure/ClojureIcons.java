@@ -28,9 +28,9 @@ public interface ClojureIcons {
   final Icon NAMESPACE = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/namespace.png");
 
   final Icon REPL_CONSOLE = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/repl_console.png");
-  final Icon REPL_ADD = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/repl_add.png.png");
-  final Icon REPL_CLOSE = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/repl_close.png.png");
+  final Icon REPL_ADD = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/repl_add.png");
+  final Icon REPL_CLOSE = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/repl_close.png");
   final Icon REPL_LOAD = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/repl_run.png");
   final Icon REPL_GO = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/repl_go.png");
-  final Icon REPL_EVAL = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/repl_eval.png.png");
+  final Icon REPL_EVAL = IconLoader.findIcon("/org/jetbrains/plugins/clojure/icons/repl_eval.png");
 }
