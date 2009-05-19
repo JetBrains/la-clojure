@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.util.IconLoader;
 
 /**
- * @author ilyas, Kurt Christensen
+ * @author Kurt Christensen, ilyas
  */
 public class RemoveReplAction extends ClojureAction {
   public RemoveReplAction() {

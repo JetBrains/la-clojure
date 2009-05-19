@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.plugins.clojure.repl.ReplToolWindow;
 
 /**
- * @author ilyas, Kurt Christensen
+ * @author Kurt Christensen, ilyas
  */
 public class GoToReplAction extends ClojureAction {
 

@@ -42,7 +42,7 @@ import java.util.concurrent.*;
 import clojure.lang.Repl;
 
 /**
- * @author ilyas, Kurt Christensen
+ * @author Kurt Christensen, ilyas
  */
 public class ClojureReplProcessHandler extends ProcessHandler {
 

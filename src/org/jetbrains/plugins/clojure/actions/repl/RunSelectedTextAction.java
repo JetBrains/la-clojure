@@ -13,7 +13,7 @@ import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 
 /**
- * @author ilyas, Kurt Christensen
+ * @author Kurt Christensen, ilyas
  */
 public class RunSelectedTextAction extends ClojureAction {
 

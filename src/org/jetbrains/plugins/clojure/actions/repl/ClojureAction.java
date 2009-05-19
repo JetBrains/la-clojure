@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.plugins.clojure.repl.ReplToolWindow;
 
 /**
- * @author ilyas, Kurt Christensen
+ * @author Kurt Christensen, ilyas
  */
 public abstract class ClojureAction extends AnAction {
   private static final String REPL_TOOL_WINDOW_ID = "repl.toolWindow";

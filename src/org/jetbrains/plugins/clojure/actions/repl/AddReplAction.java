@@ -4,27 +4,30 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.ModuleSourceOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.Icons;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.util.JavaParametersUtil;
 import com.intellij.execution.application.ApplicationConfiguration;
+import com.intellij.facet.FacetManager;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.io.File;
 
+import org.jetbrains.plugins.clojure.config.ClojureFacetType;
+import org.jetbrains.plugins.clojure.config.ClojureFacet;
+
 /**
- * @author ilyas, Kurt Christensen
+ * @author Kurt Christensen, ilyas
  */
 public class AddReplAction extends ClojureAction {
   public AddReplAction() {
@@ -33,20 +36,46 @@ public class AddReplAction extends ClojureAction {
 
   @Override
   public void update(AnActionEvent e) {
-    final Module module = e.getData(DataKeys.MODULE);
-    final Presentation pres = e.getPresentation();
-    if (module == null) {
-      pres.setEnabled(false);
+    final Module m = getModule(e);
+    final Presentation presentation = e.getPresentation();
+    if (m == null) {
+      presentation.setEnabled(false);
       return;
     }
-    pres.setEnabled(true);
+    presentation.setEnabled(true);
     super.update(e);
   }
 
   public void actionPerformed(AnActionEvent e) {
-    final Module module = e.getData(DataKeys.MODULE);
-    if (module == null) return;
-    getReplToolWindow(e).createRepl(module);
-    getReplToolWindow(e).requestFocus();
+    Module module = getModule(e);
+    if (module != null) {
+      getReplToolWindow(e).createRepl(module);
+      getReplToolWindow(e).requestFocus();
+    }
+  }
+
+  private static Module getModule(AnActionEvent e) {
+    Module module = e.getData(DataKeys.MODULE);
+    if (module == null) {
+      final Project project = e.getData(DataKeys.PROJECT);
+      if (project == null) return null;
+      final Module[] modules = ModuleManager.getInstance(project).getModules();
+      if (modules.length == 1) {
+        module = modules[0];
+      } else {
+        for (Module m : modules) {
+          final FacetManager manager = FacetManager.getInstance(m);
+          final Collection<ClojureFacet> clFacet = manager.getFacetsByType(ClojureFacetType.INSTANCE.getId());
+          if (clFacet != null) {
+            module = m;
+            break;
+          }
+        }
+        if (module == null) {
+          module = modules[0];
+        }
+      }
+    }
+    return module;
   }
 }

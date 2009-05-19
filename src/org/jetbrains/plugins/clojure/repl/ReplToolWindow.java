@@ -46,7 +46,7 @@ import java.util.*;
 import java.util.List;
 
 /**
- * @author ilyas, Kurt Christensen
+ * @author Kurt Christensen, ilyas
  */
 
 public class ReplToolWindow implements ProjectComponent {
