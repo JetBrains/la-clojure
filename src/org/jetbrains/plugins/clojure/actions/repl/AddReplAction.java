@@ -1,30 +1,15 @@
 package org.jetbrains.plugins.clojure.actions.repl;
 
+import com.intellij.facet.FacetManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.OrderEntry;
-import com.intellij.openapi.roots.ModuleSourceOrderEntry;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Icons;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.execution.configurations.JavaParameters;
-import com.intellij.execution.util.JavaParametersUtil;
-import com.intellij.execution.application.ApplicationConfiguration;
-import com.intellij.facet.FacetManager;
-
-import java.util.*;
-import java.io.File;
-
-import org.jetbrains.plugins.clojure.config.ClojureFacetType;
 import org.jetbrains.plugins.clojure.config.ClojureFacet;
+import org.jetbrains.plugins.clojure.config.ClojureFacetType;
 
 /**
  * @author Kurt Christensen, ilyas
@@ -65,7 +50,7 @@ public class AddReplAction extends ClojureAction {
       } else {
         for (Module m : modules) {
           final FacetManager manager = FacetManager.getInstance(m);
-          final Collection<ClojureFacet> clFacet = manager.getFacetsByType(ClojureFacetType.INSTANCE.getId());
+          final ClojureFacet clFacet = manager.getFacetByType(ClojureFacetType.INSTANCE.getId());
           if (clFacet != null) {
             module = m;
             break;
