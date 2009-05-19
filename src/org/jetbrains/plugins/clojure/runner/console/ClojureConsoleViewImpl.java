@@ -333,16 +333,8 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       }
 
       if (s.indexOf('\n') >= 0 || s.indexOf('\r') >= 0) {
-        final String text = myDeferredUserInput.substring(0, myDeferredUserInput.length());
         if (contentType == ConsoleViewContentType.USER_INPUT) {
-          if (ClojurePsiElementFactory.getInstance(myProject).hasSyntacticalErrors(text)) {
-            Messages.showErrorDialog(myProject,
-                    ClojureBundle.message("evaluate.incorrect.form"),
-                    ClojureBundle.message("evaluate.incorrect.cannot.evaluate"));
-            return;
-          } else {
-            flushDeferredUserInput();
-          }
+          flushDeferredUserInput();
         }
       }
       if (myFlushAlarm.getActiveRequestCount() == 0 && myEditor != null) {
