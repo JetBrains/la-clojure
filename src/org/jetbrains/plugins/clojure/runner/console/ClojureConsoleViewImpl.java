@@ -48,6 +48,7 @@ import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.diff.actions.DiffActions;
 import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ide.OccurenceNavigator;
 import com.intellij.ide.DataAccessor;
 import com.intellij.ide.DataAccessors;
@@ -74,6 +75,7 @@ import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings;
 import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
 
 /**
  * @author ilyas
@@ -331,8 +333,16 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       }
 
       if (s.indexOf('\n') >= 0 || s.indexOf('\r') >= 0) {
+        final String text = myDeferredUserInput.substring(0, myDeferredUserInput.length());
         if (contentType == ConsoleViewContentType.USER_INPUT) {
-          flushDeferredUserInput();
+          if (ClojurePsiElementFactory.getInstance(myProject).hasSyntacticalErrors(text)) {
+            Messages.showErrorDialog(myProject,
+                    ClojureBundle.message("evaluate.incorrect.form"),
+                    ClojureBundle.message("evaluate.incorrect.cannot.evaluate"));
+            return;
+          } else {
+            flushDeferredUserInput();
+          }
         }
       }
       if (myFlushAlarm.getActiveRequestCount() == 0 && myEditor != null) {
