@@ -35,6 +35,8 @@ import com.intellij.util.PathsList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.ClojureIcons;
+import org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings;
+import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.runner.console.ClojureConsoleViewImpl;
 
 import javax.swing.*;
@@ -108,8 +110,9 @@ public class ReplToolWindow implements ProjectComponent {
           }
         };
         repl.processHandler.addProcessListener(processListener);
-
-        ClojureConsoleViewImpl.putToHistory(input);
+        if (repl.view instanceof ClojureConsoleViewImpl) {
+          ((ClojureConsoleViewImpl) repl.view).addToHistory(input);
+        }
         repl.view.print(input + "\r\n", ConsoleViewContentType.USER_INPUT);
 
         StringBuffer buf = new StringBuffer();
@@ -278,6 +281,9 @@ public class ReplToolWindow implements ProjectComponent {
         @Override
         public ConsoleView getConsole() {
           final ClojureConsoleViewImpl view = new ClojureConsoleViewImpl(myProject);
+          view.setFileType(ClojureFileType.CLOJURE_FILE_TYPE);
+          view.setHistory(new ArrayList<String>(Arrays.asList(ClojureApplicationSettings.getInstance().CONSOLE_HISTORY)));
+
           for (Filter filter : filters) {
             view.addMessageFilter(filter);
           }

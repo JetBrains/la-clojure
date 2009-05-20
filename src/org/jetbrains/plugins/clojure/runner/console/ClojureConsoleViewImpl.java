@@ -1,81 +1,81 @@
 package org.jetbrains.plugins.clojure.runner.console;
 
-import com.intellij.execution.ui.ConsoleView;
-import com.intellij.execution.ui.ObservableConsoleView;
-import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.execution.impl.DisposedPsiManagerCheck;
+import com.intellij.codeInsight.navigation.IncrementalSearchHandler;
 import com.intellij.execution.filters.*;
+import com.intellij.execution.impl.DisposedPsiManagerCheck;
 import com.intellij.execution.process.ProcessHandler;
-import com.intellij.execution.ExecutionBundle;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.execution.ui.ObservableConsoleView;
+import com.intellij.ide.CommonActionsManager;
+import com.intellij.ide.DataAccessor;
+import com.intellij.ide.DataAccessors;
+import com.intellij.ide.OccurenceNavigator;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.util.text.LineTokenizer;
-import com.intellij.openapi.editor.actionSystem.EditorActionManager;
-import com.intellij.openapi.editor.actionSystem.TypedAction;
-import com.intellij.openapi.editor.actionSystem.TypedActionHandler;
-import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
-import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.editor.markup.HighlighterLayer;
-import com.intellij.openapi.editor.markup.RangeHighlighter;
-import com.intellij.openapi.editor.markup.HighlighterTargetArea;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.CodeInsightColors;
-import com.intellij.openapi.editor.colors.EditorColorsScheme;
-import com.intellij.openapi.editor.colors.EditorColors;
-import com.intellij.openapi.editor.*;
-import com.intellij.openapi.editor.highlighter.EditorHighlighter;
-import com.intellij.openapi.editor.highlighter.HighlighterIterator;
-import com.intellij.openapi.editor.highlighter.HighlighterClient;
-import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.editor.ex.MarkupModelEx;
-import com.intellij.openapi.editor.event.DocumentAdapter;
-import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.editor.event.EditorMouseEvent;
-import com.intellij.openapi.editor.event.EditorMouseAdapter;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.diff.actions.DiffActions;
+import com.intellij.openapi.editor.*;
+import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
+import com.intellij.openapi.editor.actionSystem.EditorActionManager;
+import com.intellij.openapi.editor.actionSystem.TypedAction;
+import com.intellij.openapi.editor.actionSystem.TypedActionHandler;
+import com.intellij.openapi.editor.colors.CodeInsightColors;
+import com.intellij.openapi.editor.colors.EditorColors;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.event.*;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.ex.MarkupModelEx;
+import com.intellij.openapi.editor.highlighter.EditorHighlighter;
+import com.intellij.openapi.editor.highlighter.HighlighterClient;
+import com.intellij.openapi.editor.highlighter.HighlighterIterator;
+import com.intellij.openapi.editor.impl.EditorFactoryImpl;
+import com.intellij.openapi.editor.markup.HighlighterLayer;
+import com.intellij.openapi.editor.markup.HighlighterTargetArea;
+import com.intellij.openapi.editor.markup.RangeHighlighter;
+import com.intellij.openapi.editor.markup.TextAttributes;
+import com.intellij.openapi.extensions.Extensions;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.keymap.Keymap;
 import com.intellij.openapi.keymap.KeymapManager;
-import com.intellij.openapi.diff.actions.DiffActions;
-import com.intellij.openapi.ide.CopyPasteManager;
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.ide.OccurenceNavigator;
-import com.intellij.ide.DataAccessor;
-import com.intellij.ide.DataAccessors;
-import com.intellij.ide.CommonActionsManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.text.LineTokenizer;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.pom.Navigatable;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.util.Alarm;
 import com.intellij.util.EditorPopupHandler;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.codeInsight.navigation.IncrementalSearchHandler;
-import com.intellij.pom.Navigatable;
+import com.intellij.util.LocalTimeCounter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.KeyListener;
-import java.awt.event.KeyEvent;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.*;
 import java.io.IOException;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings;
-import org.jetbrains.plugins.clojure.ClojureBundle;
-import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * @author ilyas
@@ -86,7 +86,6 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   private static final int FLUSH_DELAY = 200; //TODO : make it an option
 
   private static final Key<ClojureConsoleViewImpl> CONSOLE_VIEW_IN_EDITOR_VIEW = Key.create("CONSOLE_VIEW_IN_EDITOR_VIEW");
-
   static {
     final EditorActionManager actionManager = EditorActionManager.getInstance();
     final TypedAction typedAction = actionManager.getTypedAction();
@@ -126,7 +125,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   private final Set<ConsoleViewContentType> myDeferredTypes = new HashSet<ConsoleViewContentType>();
 
 
-  private static class TokenInfo {
+  private static class TokenInfo{
     private final ConsoleViewContentType contentType;
     private int startOffset;
     private int endOffset;
@@ -140,7 +139,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     }
   }
 
-  private final Project myProject;
+  protected final Project myProject;
 
   private boolean myOutputPaused;
 
@@ -167,6 +166,41 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
 
   private final CompositeFilter myMessageFilter = new CompositeFilter();
 
+  private ArrayList<String> history = new ArrayList<String>();
+  private static final int HISTORY_SIZE = 20;
+
+  /**
+   * By default history works for one session. If
+   * you want to save it for next session, set it up here.
+   * @param history where you can save history
+   */
+  public void setHistory(ArrayList<String> history) {
+    this.history = history;
+  }
+
+  public void addToHistory(String st) {
+    if (st != null && st.trim().length() > 0) {
+      history.add(st);
+    }
+  }
+
+  private ArrayList<String> sessionHistory = new ArrayList<String>();
+
+  public ArrayList<String> getSessionHistory() {
+    return sessionHistory;
+  }
+
+  private FileType fileType = null;
+
+  /**
+   * Use it for custom highlighting for user text.
+   * This will be highlighted as appropriate file to this file type.
+   * @param fileType according to which use highlighting
+   */
+  public void setFileType(FileType fileType) {
+    this.fileType = fileType;
+  }
+
   public ClojureConsoleViewImpl(final Project project) {
     super(new BorderLayout());
     myPsiDisposedCheck = new DisposedPsiManagerCheck(project);
@@ -183,7 +217,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     Disposer.register(project, this);
   }
 
-  public void attachToProcess(final ProcessHandler processHandler) {
+  public void attachToProcess(final ProcessHandler processHandler){
     myState = myState.attachTo(this, processHandler);
   }
 
@@ -191,11 +225,12 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     assertIsDispatchThread();
 
     final Document document;
-    synchronized (LOCK) {
+    synchronized(LOCK){
       myContentSize = 0;
       if (USE_CYCLIC_BUFFER) {
         myDeferredOutput = new StringBuffer(Math.min(myDeferredOutput.length(), CYCLIC_BUFFER_SIZE));
-      } else {
+      }
+      else {
         myDeferredOutput = new StringBuffer();
       }
       myDeferredTypes.clear();
@@ -203,9 +238,9 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       myHyperlinks.clear();
       myEditor.getMarkupModel().removeAllHighlighters();
       myTokens.clear();
-      document = myEditor == null ? null : myEditor.getDocument();
+      document = myEditor == null? null : myEditor.getDocument();
     }
-    if (document != null) {
+    if (document != null){
       ApplicationManager.getApplication().runWriteAction(new Runnable() {
         public void run() {
           CommandProcessor.getInstance().executeCommand(myProject, new Runnable() {
@@ -232,7 +267,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
 
   public void setOutputPaused(final boolean value) {
     myOutputPaused = value;
-    if (!value) {
+    if (!value){
       requestFlushImmediately();
     }
   }
@@ -242,29 +277,30 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   }
 
   public boolean hasDeferredOutput() {
-    synchronized (LOCK) {
+    synchronized(LOCK){
       return myDeferredOutput.length() > 0;
     }
   }
 
   public void performWhenNoDeferredOutput(final Runnable runnable) {
     //Q: implement in another way without timer?
-    if (!hasDeferredOutput()) {
+    if (!hasDeferredOutput()){
       runnable.run();
-    } else {
+    }
+    else{
       mySpareTimeAlarm.addRequest(
-              new Runnable() {
-                public void run() {
-                  performWhenNoDeferredOutput(runnable);
-                }
-              },
-              100
+        new Runnable() {
+          public void run() {
+            performWhenNoDeferredOutput(runnable);
+          }
+        },
+        100
       );
     }
   }
 
   public JComponent getComponent() {
-    if (myEditor == null) {
+    if (myEditor == null){
       myEditor = createEditor();
       requestFlushImmediately();
       add(myEditor.getComponent(), BorderLayout.CENTER);
@@ -294,9 +330,9 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     return this;
   }
 
-  public void dispose() {
+  public void dispose(){
     myState = myState.dispose();
-    if (myEditor != null) {
+    if (myEditor != null){
       myFlushAlarm.cancelAllRequests();
       mySpareTimeAlarm.cancelAllRequests();
       if (!myEditor.isDisposed()) {
@@ -310,10 +346,10 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   }
 
   public void print(String s, final ConsoleViewContentType contentType) {
-    synchronized (LOCK) {
+    synchronized(LOCK){
       myDeferredTypes.add(contentType);
 
-      s = StringUtil.convertLineSeparators(s, "\n");
+      s = StringUtil.convertLineSeparators(s,  "\n");
       myContentSize += s.length();
       myDeferredOutput.append(s);
       if (contentType == ConsoleViewContentType.USER_INPUT) {
@@ -321,14 +357,14 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       }
 
       boolean needNew = true;
-      if (!myTokens.isEmpty()) {
+      if (!myTokens.isEmpty()){
         final TokenInfo lastToken = myTokens.get(myTokens.size() - 1);
-        if (lastToken.contentType == contentType) {
+        if (lastToken.contentType == contentType){
           lastToken.endOffset = myContentSize; // optimization
           needNew = false;
         }
       }
-      if (needNew) {
+      if (needNew){
         myTokens.add(new TokenInfo(contentType, myContentSize - s.length(), myContentSize));
       }
 
@@ -349,9 +385,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     }
   }
 
-  public int getContentSize() {
-    return myContentSize;
-  }
+  public int getContentSize() { return myContentSize; }
 
   public boolean canPause() {
     return true;
@@ -372,7 +406,8 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       text = myDeferredOutput.substring(0, myDeferredOutput.length());
       if (USE_CYCLIC_BUFFER) {
         myDeferredOutput = new StringBuffer(Math.min(myDeferredOutput.length(), CYCLIC_BUFFER_SIZE));
-      } else {
+      }
+      else {
         myDeferredOutput.setLength(0);
       }
     }
@@ -412,14 +447,14 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   }
 
   private void flushDeferredUserInput() {
-    if (myState.isRunning()) {
+    if (myState.isRunning()){
       final String text = myDeferredUserInput.substring(0, myDeferredUserInput.length());
       final int index = Math.max(text.lastIndexOf('\n'), text.lastIndexOf('\r'));
       if (index < 0) return;
-      try {
+      try{
         myState.sendUserInput(text.substring(0, index + 1));
       }
-      catch (IOException e) {
+      catch(IOException e){
         return;
       }
       myDeferredUserInput.setLength(0);
@@ -428,13 +463,13 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   }
 
   public Object getData(final String dataId) {
-    if (DataConstants.NAVIGATABLE.equals(dataId)) {
+    if (DataConstants.NAVIGATABLE.equals(dataId)){
       if (myEditor == null) {
         return null;
       }
       final LogicalPosition pos = myEditor.getCaretModel().getLogicalPosition();
       final HyperlinkInfo info = getHyperlinkInfoByLineAndCol(pos.line, pos.column);
-      final OpenFileDescriptor openFileDescriptor = info instanceof FileHyperlinkInfo ? ((FileHyperlinkInfo) info).getDescriptor() : null;
+      final OpenFileDescriptor openFileDescriptor = info instanceof FileHyperlinkInfo ? ((FileHyperlinkInfo)info).getDescriptor() : null;
       if (openFileDescriptor == null || !openFileDescriptor.getFile().isValid()) {
         return null;
       }
@@ -474,15 +509,27 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     });
   }
 
+
+
   private Editor doCreateEditor() {
     final EditorFactory editorFactory = EditorFactory.getInstance();
     final Document editorDocument = editorFactory.createDocument("");
+    editorDocument.addDocumentListener(new DocumentListener() {
+      public void beforeDocumentChange(DocumentEvent event) {
+      }
+
+      public void documentChanged(DocumentEvent event) {
+        if (fileType != null) {
+          highlighUserTokens();
+        }
+      }
+    });
 
     final int bufferSize = USE_CYCLIC_BUFFER ? CYCLIC_BUFFER_SIZE : 0;
     editorDocument.setCyclicBufferSize(bufferSize);
 
-    final EditorEx editor = (EditorEx) editorFactory.createViewer(editorDocument, myProject);
-    final EditorHighlighter highlighter = new MyHighghlighter();
+    final EditorEx editor = (EditorEx) editorFactory.createViewer(editorDocument,myProject);
+    final EditorHighlighter highlighter = new MyHighlighter();
     editor.setHighlighter(highlighter);
     editor.putUserData(CONSOLE_VIEW_IN_EDITOR_VIEW, this);
 
@@ -499,7 +546,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     scheme.setColor(EditorColors.CARET_ROW_COLOR, null);
     scheme.setColor(EditorColors.RIGHT_MARGIN_COLOR, null);
 
-    editor.addEditorMouseListener(new EditorPopupHandler() {
+    editor.addEditorMouseListener(new EditorPopupHandler(){
       public void invokePopup(final EditorMouseEvent event) {
         final MouseEvent mouseEvent = event.getMouseEvent();
         popupInvoked(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
@@ -507,31 +554,33 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     });
 
     editor.addEditorMouseListener(
-            new EditorMouseAdapter() {
-              public void mouseReleased(final EditorMouseEvent e) {
-                final MouseEvent mouseEvent = e.getMouseEvent();
-                if (!mouseEvent.isPopupTrigger()) {
-                  navigate(e);
-                }
-              }
-            }
+          new EditorMouseAdapter(){
+        public void mouseReleased(final EditorMouseEvent e){
+          final MouseEvent mouseEvent = e.getMouseEvent();
+          if (!mouseEvent.isPopupTrigger()){
+            navigate(e);
+          }
+        }
+      }
     );
 
     editor.getContentComponent().addMouseMotionListener(
-            new MouseMotionAdapter() {
-              public void mouseMoved(final MouseEvent e) {
-                final HyperlinkInfo info = getHyperlinkInfoByPoint(e.getPoint());
-                if (info != null) {
-                  editor.getContentComponent().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                } else {
-                  editor.getContentComponent().setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
-                }
-              }
-            }
+          new MouseMotionAdapter(){
+        public void mouseMoved(final MouseEvent e){
+          final HyperlinkInfo info = getHyperlinkInfoByPoint(e.getPoint());
+          if (info != null){
+            editor.getContentComponent().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+          }
+          else{
+            editor.getContentComponent().setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+          }
+        }
+      }
     );
 
+    final ClojureConsoleViewImpl consoleView = this;
     editor.getContentComponent().addKeyListener(new KeyListener() {
-      private int x = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+      private int historyPosition = history.size();
 
       public void keyTyped(KeyEvent e) {
 
@@ -543,57 +592,33 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       public void keyReleased(KeyEvent e) {
         if (e.isAltDown()) {
           if (e.getKeyCode() == 38) {
-            x--;
-            if (x < 0) x = 0;
+            historyPosition--;
+            if (historyPosition < 0) historyPosition = 0;
             replaceString();
           } else if (e.getKeyCode() == 40) {
-            x++;
-            if (x > ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length)
-              x = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+            historyPosition++;
+            if (historyPosition > history.size()) historyPosition = history.size();
             replaceString();
           }
         } else {
-          x = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length;
+          historyPosition = history.size();
         }
       }
 
       private void replaceString() {
-        final Document document = editor.getDocument();
         final String str;
-        if (ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length == x) str = "";
-        else str = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY[x];
+
+        if (history.size() == historyPosition) str = "";
+        else str = history.get(historyPosition);
         synchronized (LOCK) {
           if (myTokens.isEmpty()) return;
           final TokenInfo info = myTokens.get(myTokens.size() - 1);
           if (info.contentType != ConsoleViewContentType.USER_INPUT) {
-            print(str, ConsoleViewContentType.USER_INPUT);
-            flushDeferredText();
-            editor.getCaretModel().moveToOffset(document.getTextLength());
-            editor.getSelectionModel().removeSelection();
-            return;
+            consoleView.insertUserText(str, 0);
           } else {
-            int deleteTokens = myDeferredUserInput.length() - str.length();
-            final Document doc = editor.getDocument();
-            if (info.endOffset < doc.getTextLength() && info.startOffset > 0) {
-              final SelectionModel selectionModel = editor.getSelectionModel();
-              selectionModel.setSelection(info.startOffset, info.endOffset);
-            }
-            info.endOffset -= deleteTokens;
-            if (info.startOffset == info.endOffset) {
-              myTokens.remove(myTokens.size() - 1);
-            }
-            myContentSize -= deleteTokens;
-            myDeferredUserInput = new StringBuffer(str);
+            consoleView.replaceUserText(str, info.startOffset, info.endOffset);
           }
         }
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            document.replaceString(editor.getSelectionModel().getSelectionStart(), editor.getSelectionModel().getSelectionEnd(), str);
-            editor.getCaretModel().moveToOffset(document.getTextLength());
-            editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
-            editor.getSelectionModel().removeSelection();
-          }
-        });
       }
     });
 
@@ -602,7 +627,26 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     return editor;
   }
 
-  private static void setEditorUpActions(final Editor editor) {
+  private void highlighUserTokens() {
+    if (myTokens.isEmpty()) return;
+    final TokenInfo token = myTokens.get(myTokens.size() - 1);
+    if (token.contentType == ConsoleViewContentType.USER_INPUT) {
+      String text = myEditor.getDocument().getText().substring(token.startOffset, token.endOffset);
+      PsiFile file = PsiFileFactory.getInstance(myProject).
+          createFileFromText("dummy", fileType, text, LocalTimeCounter.currentTime(), true);
+      @SuppressWarnings({"ConstantConditions"})
+      Editor editor = new EditorFactoryImpl(ProjectManager.getInstance()).createEditor(
+          FileDocumentManager.getInstance().getDocument(file.getVirtualFile()), myProject, fileType, false
+      );
+      for (int i = 0; i < text.length(); ++i) {
+        myEditor.getMarkupModel().addRangeHighlighter(i + token.startOffset, i + 1 + token.startOffset, 5500,
+            ((EditorEx) editor).getHighlighter().createIterator(i).getTextAttributes(),
+            HighlighterTargetArea.EXACT_RANGE);
+      }
+    }
+  }
+
+  private void setEditorUpActions(final Editor editor) {
     new EnterHandler().registerCustomShortcutSet(CommonShortcuts.ENTER, editor.getContentComponent());
     registerActionHandler(editor, IdeActions.ACTION_EDITOR_PASTE, new PasteHandler());
     registerActionHandler(editor, IdeActions.ACTION_EDITOR_BACKSPACE, new BackSpaceHandler());
@@ -610,12 +654,12 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
   }
 
   private static void registerActionHandler(final Editor editor, final String actionId, final AnAction action) {
-    final Keymap keymap = KeymapManager.getInstance().getActiveKeymap();
+    final Keymap keymap= KeymapManager.getInstance().getActiveKeymap();
     final Shortcut[] shortcuts = keymap.getShortcuts(actionId);
     action.registerCustomShortcutSet(new CustomShortcutSet(shortcuts), editor.getContentComponent());
   }
 
-  private void popupInvoked(final Component component, final int x, final int y) {
+  private void popupInvoked(final Component component, final int x, final int y){
     final DefaultActionGroup group = new DefaultActionGroup();
     group.add(new ClearAllAction());
     group.add(new CopyAction());
@@ -626,21 +670,20 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     menu.getComponent().show(component, x, y);
   }
 
-  private void navigate(final EditorMouseEvent event) {
+  private void navigate(final EditorMouseEvent event){
     if (event.getMouseEvent().isPopupTrigger()) return;
     final Point p = event.getMouseEvent().getPoint();
     final HyperlinkInfo info = getHyperlinkInfoByPoint(p);
-    if (info != null) {
+    if (info != null){
       info.navigate(myProject);
       linkFollowed(info);
     }
   }
 
   private static final Key<TextAttributes> OLD_HYPERLINK_TEXT_ATTRIBUTES = Key.create("OLD_HYPERLINK_TEXT_ATTRIBUTES");
-
   private void linkFollowed(final HyperlinkInfo info) {
-    MarkupModelEx markupModel = (MarkupModelEx) myEditor.getMarkupModel();
-    for (Map.Entry<RangeHighlighter, HyperlinkInfo> entry : myHyperlinks.getRanges().entrySet()) {
+    MarkupModelEx markupModel = (MarkupModelEx)myEditor.getMarkupModel();
+    for (Map.Entry<RangeHighlighter,HyperlinkInfo> entry : myHyperlinks.getRanges().entrySet()) {
       RangeHighlighter range = entry.getKey();
       TextAttributes oldAttr = range.getUserData(OLD_HYPERLINK_TEXT_ATTRIBUTES);
       if (oldAttr != null) {
@@ -664,7 +707,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     markupModel.removeHighlighter(dummy);
   }
 
-  private HyperlinkInfo getHyperlinkInfoByPoint(final Point p) {
+  private HyperlinkInfo getHyperlinkInfoByPoint(final Point p){
     if (myEditor == null) return null;
     final LogicalPosition pos = myEditor.xyToLogicalPosition(new Point(p.x, p.y));
     return getHyperlinkInfoByLineAndCol(pos.line, pos.column);
@@ -675,22 +718,22 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     return myHyperlinks.getHyperlinkAt(offset);
   }
 
-  private void highlightHyperlinks(final int line1, final int line2) {
-    if (myMessageFilter != null) {
+  private void highlightHyperlinks(final int line1, final int line2){
+    if (myMessageFilter != null){
       ApplicationManager.getApplication().assertIsDispatchThread();
       PsiDocumentManager.getInstance(myProject).commitAllDocuments();
       final Document document = myEditor.getDocument();
       final CharSequence chars = document.getCharsSequence();
-      for (int line = line1; line <= line2; line++) {
+      for(int line = line1; line <= line2; line++){
         if (line < 0) continue;
         final int startOffset = document.getLineStartOffset(line);
         int endOffset = document.getLineEndOffset(line);
-        if (endOffset < document.getTextLength()) {
+        if (endOffset < document.getTextLength()){
           endOffset++; // add '\n'
         }
         final String text = chars.subSequence(startOffset, endOffset).toString();
         final Filter.Result result = myMessageFilter.applyFilter(text, endOffset);
-        if (result != null) {
+        if (result != null){
           final int highlightStartOffset = result.highlightStartOffset;
           final int highlightEndOffset = result.highlightEndOffset;
           final HyperlinkInfo hyperlinkInfo = result.hyperlinkInfo;
@@ -706,34 +749,34 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
                             final HyperlinkInfo hyperlinkInfo) {
     TextAttributes textAttributes = highlightAttributes != null ? highlightAttributes : HYPERLINK_ATTRIBUTES;
     final RangeHighlighter highlighter = myEditor.getMarkupModel().addRangeHighlighter(highlightStartOffset,
-            highlightEndOffset,
-            HYPERLINK_LAYER,
-            textAttributes,
-            HighlighterTargetArea.EXACT_RANGE);
+                                                                                       highlightEndOffset,
+                                                                                       HYPERLINK_LAYER,
+                                                                                       textAttributes,
+                                                                                       HighlighterTargetArea.EXACT_RANGE);
     myHyperlinks.add(highlighter, hyperlinkInfo);
   }
 
-  private class ClearAllAction extends AnAction {
-    public ClearAllAction() {
+  private class ClearAllAction extends AnAction{
+    public ClearAllAction(){
       super(ClojureBundle.message("clear.all.from.console.action.name"));
     }
 
-    public void actionPerformed(final AnActionEvent e) {
+    public void actionPerformed(final AnActionEvent e){
       clear();
     }
   }
 
-  private class CopyAction extends AnAction {
-    public CopyAction() {
-      super(myEditor != null && myEditor.getSelectionModel().hasSelection() ? ClojureBundle.message("copy.selected.content.action.name") :
-              ClojureBundle.message("copy.content.action.name"));
+  private class CopyAction extends AnAction{
+    public CopyAction(){
+      super(myEditor != null && myEditor.getSelectionModel().hasSelection() ? ClojureBundle.message("copy.selected.content.action.name") : ClojureBundle.message("copy.content.action.name"));
     }
 
-    public void actionPerformed(final AnActionEvent e) {
+    public void actionPerformed(final AnActionEvent e){
       if (myEditor == null) return;
-      if (myEditor.getSelectionModel().hasSelection()) {
+      if (myEditor.getSelectionModel().hasSelection()){
         myEditor.getSelectionModel().copySelectionToClipboard();
-      } else {
+      }
+      else{
         myEditor.getSelectionModel().setSelection(0, myEditor.getDocument().getTextLength());
         myEditor.getSelectionModel().copySelectionToClipboard();
         myEditor.getSelectionModel().removeSelection();
@@ -741,7 +784,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     }
   }
 
-  private class MyHighghlighter extends DocumentAdapter implements EditorHighlighter {
+  private class MyHighlighter extends DocumentAdapter implements EditorHighlighter {
     private boolean myHasEditor;
 
     public HighlighterIterator createIterator(final int startOffset) {
@@ -751,6 +794,9 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
         private int myIndex = startIndex;
 
         public TextAttributes getTextAttributes() {
+          if (fileType != null && getTokenInfo().contentType == ConsoleViewContentType.USER_INPUT) {
+            return ConsoleViewContentType.NORMAL_OUTPUT.getAttributes();
+          }
           return getTokenInfo() == null ? null : getTokenInfo().attributes;
         }
 
@@ -800,14 +846,16 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     int low = 0;
     int high = myTokens.size() - 1;
 
-    while (low <= high) {
+    while(low <= high){
       final int mid = (low + high) / 2;
       final TokenInfo midVal = myTokens.get(mid);
-      if (offset < midVal.startOffset) {
+      if (offset < midVal.startOffset){
         high = mid - 1;
-      } else if (offset >= midVal.endOffset) {
+      }
+      else if (offset >= midVal.endOffset){
         low = mid + 1;
-      } else {
+      }
+      else{
         return mid;
       }
     }
@@ -823,68 +871,19 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
 
     public void execute(final Editor editor, final char charTyped, final DataContext dataContext) {
       final ClojureConsoleViewImpl consoleView = editor.getUserData(CONSOLE_VIEW_IN_EDITOR_VIEW);
-      if (consoleView == null || !consoleView.myState.isRunning()) {
+      if (consoleView == null || !consoleView.myState.isRunning()){
         myOriginalHandler.execute(editor, charTyped, dataContext);
-      } else {
+      }
+      else{
         final String s = String.valueOf(charTyped);
         final Document document = editor.getDocument();
-        synchronized (consoleView.LOCK) {
-          if (consoleView.myTokens.isEmpty()) return;
-          final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
-          if (info.contentType != ConsoleViewContentType.USER_INPUT) {
-            consoleView.print(s, ConsoleViewContentType.USER_INPUT);
-            consoleView.flushDeferredText();
-            editor.getCaretModel().moveToOffset(document.getTextLength());
-            editor.getSelectionModel().removeSelection();
-            return;
-          }
-          int deleteTokens;
-          if (editor.getSelectionModel().hasSelection()) {
-            int selectionStart = editor.getSelectionModel().getSelectionStart();
-            int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-            if (selectionStart < info.startOffset) selectionStart = info.startOffset;
-            if (selectionEnd > info.endOffset) selectionEnd = info.endOffset;
-            if (selectionStart >= selectionEnd) {
-              editor.getCaretModel().moveToOffset(editor.getSelectionModel().getSelectionStart());
-              editor.getSelectionModel().removeSelection();
-              return;
-            }
-            editor.getSelectionModel().setSelection(selectionStart, selectionEnd);
-            deleteTokens = selectionEnd - selectionStart - 1;
-            consoleView.myDeferredUserInput.replace(selectionStart - info.startOffset, selectionEnd - info.startOffset, s);
-          } else {
 
-            int offset = editor.getCaretModel().getOffset();
-            if (offset < info.startOffset || offset > info.endOffset)
-              editor.getCaretModel().moveToOffset(info.endOffset);
-            deleteTokens = -1;
-            if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
-            consoleView.myDeferredUserInput.insert(offset - info.startOffset, s);
-          }
-
-          info.endOffset -= deleteTokens;
-          if (info.startOffset == info.endOffset) {
-            consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
-          }
-          consoleView.myContentSize -= deleteTokens;
+        SelectionModel selectionModel = editor.getSelectionModel();
+        if (selectionModel.hasSelection()) {
+          consoleView.replaceUserText(s, selectionModel.getSelectionStart(), selectionModel.getSelectionEnd());
+        } else {
+          consoleView.insertUserText(s, editor.getCaretModel().getOffset());
         }
-
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            if (editor.getSelectionModel().hasSelection()) {
-              int selectionStart = editor.getSelectionModel().getSelectionStart();
-              int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-              document.replaceString(selectionStart, selectionEnd, s);
-              editor.getCaretModel().moveToOffset(selectionStart + 1);
-            } else {
-              int offset = editor.getCaretModel().getOffset();
-              document.insertString(offset, s);
-              editor.getCaretModel().moveToOffset(offset + 1);
-            }
-            editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
-            editor.getSelectionModel().removeSelection();
-          }
-        });
       }
     }
   }
@@ -918,19 +917,25 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     }
   }
 
-  private static class EnterHandler extends ConsoleAction {
+  private class EnterHandler extends ConsoleAction {
     private boolean contains(String[] array, String str) {
       for (String s : array) {
         if (s.equals(str)) return true;
       }
       return false;
     }
-
     public void execute(final ClojureConsoleViewImpl consoleView, final DataContext context) {
       synchronized (consoleView.LOCK) {
         String str = consoleView.myDeferredUserInput.toString();
-        if (str.startsWith(":") || !contains(ClojureApplicationSettings.getInstance().CONSOLE_HISTORY, str)) {
-          putToHistory(str);
+        if (str != null && !str.trim().equals("") && !ClojurePsiElementFactory.getInstance(myProject).hasSyntacticalErrors(str)) {
+          if (consoleView.history.contains(str)) {
+            consoleView.history.remove(str);
+            consoleView.history.add(str);
+          } else {
+            consoleView.history.add(str);
+          }
+          consoleView.sessionHistory.add(str);
+          if (consoleView.history.size() > HISTORY_SIZE) consoleView.history.remove(0);
         }
       }
       consoleView.print("\n", ConsoleViewContentType.USER_INPUT);
@@ -939,38 +944,27 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       editor.getCaretModel().moveToOffset(editor.getDocument().getTextLength());
       editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
     }
-
-  }
-
-  public static void putToHistory(String str) {
-    String[] buffer = new String[Math.min(ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length + 1, 20)];
-    int i = buffer.length - 1;
-    buffer[i] = str.trim();
-    i--;
-    int j = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY.length - 1;
-    while (i >= 0) {
-      buffer[i] = ClojureApplicationSettings.getInstance().CONSOLE_HISTORY[j];
-      i--;
-      j--;
-    }
-    ClojureApplicationSettings.getInstance().CONSOLE_HISTORY = buffer;
   }
 
   private static class PasteHandler extends ConsoleAction {
-
     public void execute(final ClojureConsoleViewImpl consoleView, final DataContext context) {
       final Transferable content = CopyPasteManager.getInstance().getContents();
       if (content == null) return;
       String s = null;
       try {
-        s = (String) content.getTransferData(DataFlavor.stringFlavor);
+        s = (String)content.getTransferData(DataFlavor.stringFlavor);
       }
-      catch (Exception e) {
+      catch(Exception e) {
         consoleView.myEditor.getComponent().getToolkit().beep();
       }
       if (s == null) return;
-      consoleView.print(s, ConsoleViewContentType.USER_INPUT);
-      consoleView.flushDeferredText();
+      Editor editor = consoleView.myEditor;
+      SelectionModel selectionModel = editor.getSelectionModel();
+      if (selectionModel.hasSelection()) {
+        consoleView.replaceUserText(s, selectionModel.getSelectionStart(), selectionModel.getSelectionEnd());
+      } else {
+        consoleView.insertUserText(s, editor.getCaretModel().getOffset());
+      }
     }
   }
 
@@ -989,60 +983,13 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
         return;
       }
 
-
-      synchronized (consoleView.LOCK) {
-        if (consoleView.myTokens.isEmpty()) return;
-        final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
-        if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
-        if (consoleView.myDeferredUserInput.length() == 0) return;
-        int deleteTokens;
-        if (editor.getSelectionModel().hasSelection()) {
-          int selectionStart = editor.getSelectionModel().getSelectionStart();
-          int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-          if (selectionStart < info.startOffset) selectionStart = info.startOffset;
-          if (selectionEnd > info.endOffset) selectionEnd = info.endOffset;
-          if (selectionStart >= selectionEnd) {
-            editor.getCaretModel().moveToOffset(editor.getSelectionModel().getSelectionStart());
-            editor.getSelectionModel().removeSelection();
-            return;
-          }
-          editor.getSelectionModel().setSelection(selectionStart, selectionEnd);
-          deleteTokens = selectionEnd - selectionStart;
-          consoleView.myDeferredUserInput.delete(selectionStart - info.startOffset, selectionEnd - info.startOffset);
-        } else {
-          int offset = editor.getCaretModel().getOffset();
-          if (offset <= info.startOffset) return;
-          if (offset > info.endOffset) {
-            editor.getCaretModel().moveToOffset(offset - 1);
-            return;
-          }
-          deleteTokens = 1;
-          consoleView.myDeferredUserInput.deleteCharAt(offset - info.startOffset - 1);
-        }
-
-        info.endOffset -= deleteTokens;
-        if (info.startOffset == info.endOffset) {
-          consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
-        }
-        consoleView.myContentSize -= deleteTokens;
+      SelectionModel selectionModel = editor.getSelectionModel();
+      if (selectionModel.hasSelection()) {
+        consoleView.deleteUserText(selectionModel.getSelectionStart(),
+            selectionModel.getSelectionEnd() - selectionModel.getSelectionStart());
+      } else if (editor.getCaretModel().getOffset() > 0) {
+        consoleView.deleteUserText(editor.getCaretModel().getOffset() - 1, 1);
       }
-
-      ApplicationManager.getApplication().runWriteAction(new Runnable() {
-        public void run() {
-          if (editor.getSelectionModel().hasSelection()) {
-            int selectionStart = editor.getSelectionModel().getSelectionStart();
-            int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-            document.deleteString(selectionStart, selectionEnd);
-            editor.getCaretModel().moveToOffset(selectionStart);
-          } else {
-            int offset = editor.getCaretModel().getOffset();
-            document.deleteString(offset - 1, offset);
-            editor.getCaretModel().moveToOffset(offset - 1);
-          }
-          editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
-          editor.getSelectionModel().removeSelection();
-        }
-      });
     }
 
     private static EditorActionHandler getDefaultActionHandler() {
@@ -1065,57 +1012,13 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
         return;
       }
 
-
-      synchronized (consoleView.LOCK) {
-        if (consoleView.myTokens.isEmpty()) return;
-        final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
-        if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
-        if (consoleView.myDeferredUserInput.length() == 0) return;
-        int deleteTokens;
-        if (editor.getSelectionModel().hasSelection()) {
-          int selectionStart = editor.getSelectionModel().getSelectionStart();
-          int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-          if (selectionStart < info.startOffset) selectionStart = info.startOffset;
-          if (selectionEnd > info.endOffset) selectionEnd = info.endOffset;
-          if (selectionStart >= selectionEnd) {
-            editor.getCaretModel().moveToOffset(editor.getSelectionModel().getSelectionStart());
-            editor.getSelectionModel().removeSelection();
-            return;
-          }
-          editor.getSelectionModel().setSelection(selectionStart, selectionEnd);
-          deleteTokens = selectionEnd - selectionStart;
-          consoleView.myDeferredUserInput.delete(selectionStart - info.startOffset, selectionEnd - info.startOffset);
-        } else {
-          int offset = editor.getCaretModel().getOffset();
-          if (offset < info.startOffset) return;
-          if (offset >= info.endOffset) return;
-          deleteTokens = 1;
-          consoleView.myDeferredUserInput.deleteCharAt(offset - info.startOffset);
-        }
-
-        info.endOffset -= deleteTokens;
-        if (info.startOffset == info.endOffset) {
-          consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
-        }
-        consoleView.myContentSize -= deleteTokens;
+      SelectionModel selectionModel = editor.getSelectionModel();
+      if (selectionModel.hasSelection()) {
+        consoleView.deleteUserText(selectionModel.getSelectionStart(),
+            selectionModel.getSelectionEnd() - selectionModel.getSelectionStart());
+      } else {
+        consoleView.deleteUserText(editor.getCaretModel().getOffset(), 1);
       }
-
-      ApplicationManager.getApplication().runWriteAction(new Runnable() {
-        public void run() {
-          if (editor.getSelectionModel().hasSelection()) {
-            int selectionStart = editor.getSelectionModel().getSelectionStart();
-            int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-            document.deleteString(selectionStart, selectionEnd);
-            editor.getCaretModel().moveToOffset(selectionStart);
-          } else {
-            int offset = editor.getCaretModel().getOffset();
-            document.deleteString(offset, offset + 1);
-            editor.getCaretModel().moveToOffset(offset);
-          }
-          editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
-          editor.getSelectionModel().removeSelection();
-        }
-      });
     }
 
     private static EditorActionHandler getDefaultActionHandler() {
@@ -1126,7 +1029,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
 
   private static class Hyperlinks {
     private static final int NO_INDEX = Integer.MIN_VALUE;
-    private final Map<RangeHighlighter, HyperlinkInfo> myHighlighterToMessageInfoMap = new com.intellij.util.containers.HashMap<RangeHighlighter, HyperlinkInfo>();
+    private final Map<RangeHighlighter,HyperlinkInfo> myHighlighterToMessageInfoMap = new com.intellij.util.containers.HashMap<RangeHighlighter, HyperlinkInfo>();
     private int myLastIndex = NO_INDEX;
 
     public void clear() {
@@ -1152,7 +1055,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       if (myLastIndex != NO_INDEX && containsOffset(myLastIndex, highlighter)) myLastIndex = NO_INDEX;
     }
 
-    private Map<RangeHighlighter, HyperlinkInfo> getRanges() {
+    private Map<RangeHighlighter,HyperlinkInfo> getRanges() {
       return myHighlighterToMessageInfoMap;
     }
   }
@@ -1185,7 +1088,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
       }
     });
     int i;
-    for (i = 0; i < ranges.size(); i++) {
+    for (i = 0; i<ranges.size(); i++) {
       RangeHighlighter range = ranges.get(i);
       if (range.getUserData(OLD_HYPERLINK_TEXT_ATTRIBUTES) != null) {
         break;
@@ -1234,7 +1137,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     AnAction nextAction = actionsManager.createNextOccurenceAction(this);
     nextAction.getTemplatePresentation().setText(getNextOccurenceActionName());
     return new AnAction[]{
-            prevAction, nextAction
+      prevAction, nextAction
     };
   }
 
@@ -1254,6 +1157,195 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     Disposer.register(parent, new Disposable() {
       public void dispose() {
         myListeners.remove(listener);
+      }
+    });
+  }
+
+  /**
+   * insert text to document
+   * @param s inserted text
+   * @param offset relativly to all document text
+   */
+  private void insertUserText(final String s, int offset) {
+    final ClojureConsoleViewImpl consoleView = this;
+    final Editor editor = consoleView.myEditor;
+    final Document document = editor.getDocument();
+    final int startOffset;
+
+    synchronized (consoleView.LOCK) {
+      if (consoleView.myTokens.isEmpty()) return;
+      final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
+      if (info.contentType != ConsoleViewContentType.USER_INPUT) {
+        consoleView.print(s, ConsoleViewContentType.USER_INPUT);
+        consoleView.flushDeferredText();
+        editor.getCaretModel().moveToOffset(document.getTextLength());
+        editor.getSelectionModel().removeSelection();
+        return;
+      }
+      int addTokens;
+
+
+      if (offset > info.endOffset) startOffset = info.endOffset;
+      else if (offset < info.startOffset) {
+        editor.getCaretModel().moveToOffset(offset + 1);
+        return;
+      } else startOffset = offset;
+      addTokens = s.length();
+
+      if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
+
+      consoleView.myDeferredUserInput.insert(startOffset - info.startOffset, s);
+
+      info.endOffset += addTokens;
+      consoleView.myContentSize += addTokens;
+    }
+
+    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+      public void run() {
+        document.insertString(startOffset, s);
+        editor.getCaretModel().moveToOffset(startOffset + s.length());
+        editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+      }
+    });
+  }
+
+  /**
+   * replace text
+   * @param s text for replace
+   * @param start relativly to all document text
+   * @param end relativly to all document text
+   */
+  private void replaceUserText(final String s, int start, int end) {
+    if (start == end) {
+      insertUserText(s, start);
+      return;
+    }
+    final ClojureConsoleViewImpl consoleView = this;
+    final Editor editor = consoleView.myEditor;
+    final Document document = editor.getDocument();
+    final int startOffset;
+    final int endOffset;
+
+    synchronized (consoleView.LOCK) {
+      if (consoleView.myTokens.isEmpty()) return;
+      final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
+      if (info.contentType != ConsoleViewContentType.USER_INPUT) {
+        consoleView.print(s, ConsoleViewContentType.USER_INPUT);
+        consoleView.flushDeferredText();
+        editor.getCaretModel().moveToOffset(document.getTextLength());
+        editor.getSelectionModel().removeSelection();
+        return;
+      }
+      if (consoleView.myDeferredUserInput.length() == 0) return;
+      int replaceTokens;
+
+      if (start >= info.startOffset && start < info.endOffset) {
+        startOffset = start;
+      } else if (start < info.startOffset) {
+        startOffset = info.startOffset;
+      } else {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(start);
+        return;
+      }
+      if (end > info.endOffset) {
+        endOffset = info.endOffset;
+      } else if (end <= info.startOffset) {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(start);
+        return;
+      } else {
+        endOffset = end;
+      }
+
+      if (endOffset <= startOffset) {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(start);
+        return;
+      }
+      replaceTokens = s.length() - endOffset + startOffset;
+
+      if (consoleView.myDeferredUserInput.length() < info.endOffset - info.startOffset) return; //user was quick
+
+      consoleView.myDeferredUserInput.replace(startOffset - info.startOffset, endOffset - info.startOffset, s);
+
+      info.endOffset += replaceTokens;
+      if (info.startOffset == info.endOffset) {
+        consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
+      }
+      consoleView.myContentSize += replaceTokens;
+    }
+
+    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+      public void run() {
+        document.replaceString(startOffset, endOffset, s);
+        editor.getCaretModel().moveToOffset(startOffset + s.length());
+        editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+        editor.getSelectionModel().removeSelection();
+      }
+    });
+  }
+
+  /**
+   * delete text
+   * @param offset relativly to all document text
+   * @param length lenght of deleted text
+   */
+  private void deleteUserText(int offset, int length) {
+    ClojureConsoleViewImpl consoleView = this;
+    final Editor editor = consoleView.myEditor;
+    final Document document = editor.getDocument();
+    final int startOffset;
+    final int endOffset;
+
+    synchronized (consoleView.LOCK) {
+      if (consoleView.myTokens.isEmpty()) return;
+      final TokenInfo info = consoleView.myTokens.get(consoleView.myTokens.size() - 1);
+      if (info.contentType != ConsoleViewContentType.USER_INPUT) return;
+      if (consoleView.myDeferredUserInput.length() == 0) return;
+      int deleteTokens;
+
+      if (offset >=info.startOffset && offset < info.endOffset) {
+        startOffset = offset;
+      } else if (offset < info.startOffset) {
+        startOffset = info.startOffset;
+      } else {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(offset);
+        return;
+      }
+      if (offset + length > info.endOffset) {
+        endOffset = info.endOffset;
+      } else if (offset + length <= info.startOffset) {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(offset);
+        return;
+      } else {
+        endOffset = offset + length;
+      }
+
+      if (endOffset <= startOffset) {
+        editor.getSelectionModel().removeSelection();
+        editor.getCaretModel().moveToOffset(offset);
+        return;
+      }
+
+      consoleView.myDeferredUserInput.delete(startOffset - info.startOffset, endOffset - info.startOffset);
+      deleteTokens = endOffset - startOffset;
+
+      info.endOffset -= deleteTokens;
+      if (info.startOffset == info.endOffset) {
+        consoleView.myTokens.remove(consoleView.myTokens.size() - 1);
+      }
+      consoleView.myContentSize -= deleteTokens;
+    }
+
+    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+      public void run() {
+        document.deleteString(startOffset, endOffset);
+        editor.getCaretModel().moveToOffset(startOffset);
+        editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
+        editor.getSelectionModel().removeSelection();
       }
     });
   }

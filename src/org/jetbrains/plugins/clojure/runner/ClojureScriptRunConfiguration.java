@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.runner.console.ClojureConsoleViewImpl;
 
 import java.io.File;
@@ -241,6 +242,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
       @Override
       public ConsoleView getConsole() {
         final ClojureConsoleViewImpl view = new ClojureConsoleViewImpl(project);
+        view.setFileType(ClojureFileType.CLOJURE_FILE_TYPE);
         for (Filter filter : filters) {
           view.addMessageFilter(filter);
         }

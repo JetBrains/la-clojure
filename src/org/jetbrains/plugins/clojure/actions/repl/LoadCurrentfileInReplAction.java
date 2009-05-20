@@ -75,6 +75,7 @@ public class LoadCurrentfileInReplAction extends ClojureAction {
     final String filePath = virtualFile.getPath();
     if (filePath == null) return;
 
+    PsiDocumentManager.getInstance(project).commitAllDocuments();
     getReplToolWindow(e).writeToCurrentRepl("(load-file \"" + filePath + "\")");
   }
 }
