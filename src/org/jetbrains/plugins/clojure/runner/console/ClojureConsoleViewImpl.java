@@ -927,7 +927,7 @@ public final class ClojureConsoleViewImpl extends JPanel implements ConsoleView,
     public void execute(final ClojureConsoleViewImpl consoleView, final DataContext context) {
       synchronized (consoleView.LOCK) {
         String str = consoleView.myDeferredUserInput.toString();
-        if (str != null && !str.trim().equals("") && !ClojurePsiElementFactory.getInstance(myProject).hasSyntacticalErrors(str)) {
+        if (str != null && !str.trim().equals("") && !str.contains("\n")) {
           if (consoleView.history.contains(str)) {
             consoleView.history.remove(str);
             consoleView.history.add(str);
