@@ -126,11 +126,13 @@
       </fileset>
     </copy>
 
-    <zip destfile="${project.dir}/clojure-intellij-bin-${plugin.version}.zip" basedir="${project.dir}/tempjar"/>
+    <mkdir dir="${output}"/>
+
+    <zip destfile="${output}/clojure-intellij-bin-${plugin.version}.zip" basedir="${project.dir}/tempjar"/>
     <delete dir="${project.dir}/tempjar"/>
 
     <!-- Zip sources-->
-    <zip destfile="${project.dir}/clojure-intellij-src-${plugin.version}.zip" basedir="${project.dir}"
+    <zip destfile="${output}/clojure-intellij-src-${plugin.version}.zip" basedir="${project.dir}"
          includes="src/**/*.java,
          src/**/*.properties,
          src/**/*.flex,
