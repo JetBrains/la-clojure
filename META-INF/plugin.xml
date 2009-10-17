@@ -8,7 +8,7 @@
 
   <name>La Clojure</name>
   <id>org.intellij.clojure</id>
-  <description>Plugin for Clojure language support</description>
+  <description>Provides Clojure language support: syntax and error highlighting, completion, navigation and refactorings</description>
   <category>Custom Languages</category>
   <version>VERSION</version>
   <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains
