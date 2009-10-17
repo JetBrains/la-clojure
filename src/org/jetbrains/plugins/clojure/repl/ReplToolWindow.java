@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.clojure.repl;
 
-import com.intellij.execution.ExecutionException;
 import com.intellij.execution.CantRunException;
+import com.intellij.execution.ExecutionException;
 import com.intellij.execution.filters.Filter;
 import com.intellij.execution.filters.TextConsoleBuilderImpl;
 import com.intellij.execution.impl.ConsoleViewImpl;
@@ -15,35 +15,37 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.impl.EditorComponentImpl;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ModuleSourceOrderEntry;
+import com.intellij.openapi.roots.OrderEntry;
+import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.OrderEntry;
-import com.intellij.openapi.roots.ModuleSourceOrderEntry;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.module.Module;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.Function;
 import com.intellij.util.PathsList;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.ClojureIcons;
-import org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
+import org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PipedReader;
+import java.io.PipedWriter;
 import java.util.*;
 import java.util.List;
 
@@ -110,11 +112,17 @@ public class ReplToolWindow implements ProjectComponent {
           }
         };
         repl.processHandler.addProcessListener(processListener);
-//       todo add to history
-//        if (repl.view instanceof ConsoleView) {
-//          ((ConsoleView) repl.view).addToHistory(input);
-//        }
-        repl.view.print(input + "\r\n", ConsoleViewContentType.USER_INPUT);
+        final ConsoleView consoleView = repl.view;
+        if (consoleView instanceof ConsoleViewImpl) {
+          final ConsoleViewImpl cView = (ConsoleViewImpl) consoleView;
+          final List<String> oldHistory = cView.getHistory();
+          final ArrayList<String> newHistory = new ArrayList<String>(oldHistory.size() + 1);
+          newHistory.addAll(oldHistory);
+          newHistory.add(input);
+          cView.importHistory(newHistory);
+        }
+
+        consoleView.print(input + "\r\n", ConsoleViewContentType.USER_INPUT);
 
         StringBuffer buf = new StringBuffer();
         //if (pipeIn.ready()) {
