@@ -89,12 +89,12 @@
     <!-- Read SINCE and UNTIL properties -->
     <loadfile property="idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
 
-    <script language="javascript">
-      project.setProperty("since.idea.build", project.getProperty("idea.build").substring(3))
-      project.setProperty("until.idea.build", project.getProperty("idea.build").substring(3))
-    </script>
+    <!--<script language="javascript">-->
+      <!--project.setProperty("since.idea.build", project.getProperty("idea.build").substring(3))-->
+      <!--project.setProperty("until.idea.build", project.getProperty("idea.build").substring(3))-->
+    <!--</script>-->
 
-    <echo message="Target IntelliJ IDEA version: ${since.idea.build}"/>
+    <!--<echo message="Target IntelliJ IDEA version: ${since.idea.build}"/>-->
 
     <!--Copy descriptor-->
     <copy todir="${project.dest}/META-INF">
