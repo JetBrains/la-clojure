@@ -36,7 +36,7 @@ public abstract class ClNsElementTypeBase extends ClStubElementType<ClNsStub, Cl
   @Override
   public void indexStub(ClNsStub stub, IndexSink sink) {
     final String name = stub.getName();
-    if (name != null) {
+    if (name != null && name.trim().length() > 0) {
       final List<String> parcels = StringUtil.split(name, ".");
       final StringBuffer buffer = new StringBuffer();
       buffer.append(parcels.remove(0));
