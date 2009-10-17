@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.clojure.repl;
 
+import clojure.lang.AFn;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
@@ -54,6 +55,7 @@ public class ClojureReplProcessHandler extends ProcessHandler {
   private final String myExecPath;
   private final Module myModule;
   private static final String CLOJURE_LANG_REPL = "clojure.lang.Repl";
+  private static final String CLOJURE_SDK = PathUtil.getJarPathForClass(AFn.class);
 
   public static Future<?> executeOnPooledThread(Runnable task) {
     final Application application = ApplicationManager.getApplication();
@@ -95,6 +97,10 @@ public class ClojureReplProcessHandler extends ProcessHandler {
 
       final JavaParameters params = new JavaParameters();
       params.configureByModule(myModule, JavaParameters.JDK_AND_CLASSES);
+
+      // To avoid NCDFE while starting REPL
+      params.getClassPath().add(CLOJURE_SDK);
+
       Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
       ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(myModule);
       OrderEntry[] entries = moduleRootManager.getOrderEntries();
