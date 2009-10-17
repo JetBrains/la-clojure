@@ -25,6 +25,8 @@ import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
+import java.util.Arrays;
+
 /**
  * @author ilyas
  */
@@ -58,35 +60,31 @@ public class ClojureCompiler implements TranslatingCompiler {
         settings.COMPILE_CLOJURE && ((ClojureFile) psi).isClassDefiningFile());
   }
 
-  public ExitStatus compile(CompileContext context, VirtualFile[] files) {
+  public void compile(CompileContext context, VirtualFile[] files, OutputSink outputSink) {
     final BackendCompiler backEndCompiler = getBackEndCompiler();
-    final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, files, (CompileContextEx) context, backEndCompiler);
-    OutputItem[] outputItems = new OutputItem[0];
+    final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, Arrays.asList(files),
+        (CompileContextEx) context, backEndCompiler, outputSink);
     final ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(context.getProject());
 
     if (settings.COMPILE_CLOJURE) {
       // Compile Clojure classes
       try {
-        outputItems = wrapper.compile();
+        wrapper.compile();
       }
       catch (CompilerException e) {
-        outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
         context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
       }
       catch (CacheCorruptedException e) {
         LOG.info(e);
         context.requestRebuildNextTime(e.getMessage());
-        outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
       }
     }
 
     // Copy clojure sources to output path
     if (settings.COPY_CLJ_SOURCES) {
       final ResourceCompiler resourceCompiler = new ResourceCompiler(myProject, CompilerConfiguration.getInstance(myProject));
-      resourceCompiler.compile(context, files);
+      resourceCompiler.compile(context, files, outputSink);
     }
-
-    return new ExitStatusImpl(outputItems, wrapper.getFilesToRecompile());
   }
 
   public boolean validateConfiguration(CompileScope scope) {
@@ -95,24 +93,5 @@ public class ClojureCompiler implements TranslatingCompiler {
 
   private BackendCompiler getBackEndCompiler() {
     return new ClojureBackendCompiler(myProject);
-  }
-
-  private static class ExitStatusImpl implements ExitStatus {
-
-    private OutputItem[] myOuitputItems;
-    private VirtualFile[] myMyFilesToRecompile;
-
-    public ExitStatusImpl(OutputItem[] ouitputItems, VirtualFile[] myFilesToRecompile) {
-      myOuitputItems = ouitputItems;
-      myMyFilesToRecompile = myFilesToRecompile;
-    }
-
-    public OutputItem[] getSuccessfullyCompiled() {
-      return myOuitputItems;
-    }
-
-    public VirtualFile[] getFilesToRecompile() {
-      return myMyFilesToRecompile;
-    }
   }
 }

@@ -23,7 +23,7 @@ public class ClojureGoToClassContributor implements ChooseByNameContributor {
   public String[] getNames(Project project, boolean includeNonProjectItems) {
     if (!ClojureCompilerSettings.getInstance(project).COMPILE_CLOJURE) return new String[0];
     
-    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ClojureClassNameIndex.KEY);
+    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ClojureClassNameIndex.KEY, project);
     return classNames.toArray(new String[classNames.size()]);
   }
 

@@ -29,7 +29,7 @@ import java.util.ArrayList;
 /**
  * @author ilyas
  */
-public class ClojureShortNamesCache implements PsiShortNamesCache {
+public class ClojureShortNamesCache extends PsiShortNamesCache {
 
   Project myProject;
 
@@ -48,7 +48,7 @@ public class ClojureShortNamesCache implements PsiShortNamesCache {
 
   @NotNull
   public String[] getAllFileNames() {
-    return FilenameIndex.getAllFilenames();
+    return FilenameIndex.getAllFilenames(myProject);
   }
 
   private boolean areClassesCompiled() {
@@ -111,14 +111,14 @@ public class ClojureShortNamesCache implements PsiShortNamesCache {
   public String[] getAllClassNames() {
     if (!areClassesCompiled()) return new String[0];
 
-    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ClojureClassNameIndex.KEY);
+    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ClojureClassNameIndex.KEY, myProject);
     return classNames.toArray(new String[classNames.size()]);
   }
 
   public void getAllClassNames(@NotNull HashSet<String> dest) {
     if (!areClassesCompiled()) return;
 
-    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ClojureClassNameIndex.KEY);
+    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ClojureClassNameIndex.KEY, myProject);
     dest.addAll(classNames);
   }
 

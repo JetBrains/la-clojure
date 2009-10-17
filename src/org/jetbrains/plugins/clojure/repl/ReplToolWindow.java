@@ -4,6 +4,7 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.CantRunException;
 import com.intellij.execution.filters.Filter;
 import com.intellij.execution.filters.TextConsoleBuilderImpl;
+import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.process.*;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
@@ -37,7 +38,6 @@ import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
-import org.jetbrains.plugins.clojure.runner.console.ClojureConsoleViewImpl;
 
 import javax.swing.*;
 import java.awt.*;
@@ -110,9 +110,10 @@ public class ReplToolWindow implements ProjectComponent {
           }
         };
         repl.processHandler.addProcessListener(processListener);
-        if (repl.view instanceof ClojureConsoleViewImpl) {
-          ((ClojureConsoleViewImpl) repl.view).addToHistory(input);
-        }
+//       todo add to history
+//        if (repl.view instanceof ConsoleView) {
+//          ((ConsoleView) repl.view).addToHistory(input);
+//        }
         repl.view.print(input + "\r\n", ConsoleViewContentType.USER_INPUT);
 
         StringBuffer buf = new StringBuffer();
@@ -280,9 +281,9 @@ public class ReplToolWindow implements ProjectComponent {
 
         @Override
         public ConsoleView getConsole() {
-          final ClojureConsoleViewImpl view = new ClojureConsoleViewImpl(myProject);
+          final ConsoleViewImpl view = new ConsoleViewImpl(myProject, false);
           view.setFileType(ClojureFileType.CLOJURE_FILE_TYPE);
-          view.setHistory(new ArrayList<String>(Arrays.asList(ClojureApplicationSettings.getInstance().CONSOLE_HISTORY)));
+          view.importHistory(new ArrayList<String>(Arrays.asList(ClojureApplicationSettings.getInstance().CONSOLE_HISTORY)));
 
           for (Filter filter : filters) {
             view.addMessageFilter(filter);

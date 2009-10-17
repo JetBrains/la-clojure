@@ -1,5 +1,8 @@
 <project name="Build Clojure plugin for IntelliJ IDEA" default="deploy.plugin">
+  <!-- Properties file -->
   <property file="clojure.properties"/>
+
+  <property name="jdk.home" value="${java.home}"/>
   <property name="project.dir" value="."/>
   <property name="project.lib" value="${project.dir}/lib"/>
   <property name="project.dest" value="${project.dir}/out/production/clojure-plugin"/>
@@ -17,7 +20,8 @@
   <property name="0" value="unknown"/>
   <property name="build.vcs.number.clojure_svn" value="unknown"/>
   <property name="plugin.revision" value="${build.vcs.number.clojure_svn}"/>
-  <property name="plugin.version" value="${clojure.plugin.version}.${plugin.revision}"/>
+  <property name="plugin.build.number" value="${build.number}"/>
+  <property name="plugin.version" value="${clojure.plugin.version}.${plugin.build.number}"/>
 
   <path id="jdk.classpath">
     <fileset dir="${java.home}" id="jdk.fileset">
@@ -38,12 +42,15 @@
   </path>
 
 
-  <path id="clojure.plugin.classpath">
+  <path id="base.path">
     <path refid="jdk.classpath"/>
     <path refid="idea.classpath"/>
     <path refid="tools.path"/>
-    <fileset dir="${project.lib}">
-      <include name="**/clojure.jar"/>
+    <fileset dir="${clojure.lib}">
+      <include name="clojure.jar"/>
+    </fileset>
+    <fileset dir="${clojure.contrib}">
+      <include name="clojure-contrib.jar"/>
     </fileset>
   </path>
 
@@ -98,7 +105,7 @@
             verbose="yes"
             debug="true"
             target="1.5">
-      <classpath refid="clojure.plugin.classpath"/>
+      <classpath refid="base.path"/>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>
     </javac2>
@@ -116,13 +123,17 @@
 
       <manifest>
         <attribute name="Revision" value="${plugin.revision}"/>
+        <attribute name="Build number" value="${plugin.build.number}"/>
         <attribute name="Build" value="${plugin.version}"/>
       </manifest>
     </jar>
 
     <copy todir="${project.dir}/tempjar/clojure-plugin/lib">
-      <fileset dir="${project.lib}">
+      <fileset dir="${clojure.lib}">
         <include name="clojure.jar"/>
+      </fileset>
+      <fileset dir="${clojure.contrib}">
+        <include name="clojure-contrib.jar"/>
       </fileset>
     </copy>
 
@@ -156,7 +167,7 @@
     <javac srcdir="${project.dir}"
            destdir="${test.dest}"
            debug="true">
-      <classpath refid="clojure.plugin.classpath"/>
+      <classpath refid="base.path"/>
       <classpath>
         <path location="${project.dest}"/>
       </classpath>
@@ -187,7 +198,7 @@
         <path location="${project.dest}"/>
         <path location="${test.dest}"/>
         <path refid="tools.path"/>
-        <path refid="clojure.plugin.classpath"/>
+        <path refid="base.path"/>
       </classpath>
 
       <jvmarg value="-Xbootclasspath/p:./lib/boot/boot.jar"/>

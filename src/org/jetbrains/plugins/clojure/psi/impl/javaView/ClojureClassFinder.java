@@ -18,7 +18,7 @@ import java.util.Arrays;
 /**
  * @author ilyas
  */
-public class ClojureClassFinder implements ProjectComponent, PsiElementFinder {
+public class ClojureClassFinder extends  PsiElementFinder implements ProjectComponent {
   private final Project myProject;
 
   public ClojureClassFinder(Project project) {

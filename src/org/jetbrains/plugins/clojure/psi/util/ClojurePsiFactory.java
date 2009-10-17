@@ -8,10 +8,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author ilyas
  */
-public abstract class ClojurePsiElementFactory {
+public abstract class ClojurePsiFactory {
 
-  public static ClojurePsiElementFactory getInstance(Project project) {
-    return ServiceManager.getService(project, ClojurePsiElementFactory.class);
+  public static ClojurePsiFactory getInstance(Project project) {
+    return ServiceManager.getService(project, ClojurePsiFactory.class);
   }
 
   public abstract ASTNode createSymbolNodeFromText(@NotNull String newName); 

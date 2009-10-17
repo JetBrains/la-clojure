@@ -84,7 +84,7 @@ public class NamespaceUtil {
 
   public static ClSyntheticNamespace[] getTopLevelNamespaces(@NotNull Project project) {
     ArrayList<ClSyntheticNamespace> result = new ArrayList<ClSyntheticNamespace>();
-    for (String fqn : StubIndex.getInstance().getAllKeys(ClojureNsNameIndex.KEY)) {
+    for (String fqn : StubIndex.getInstance().getAllKeys(ClojureNsNameIndex.KEY, project)) {
       if (!fqn.contains(".")) {
         result.add(getNamespace(fqn, project));
       }
@@ -107,7 +107,7 @@ public class NamespaceUtil {
         public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
 
           // Add inner namespaces
-          for (String fqn : StubIndex.getInstance().getAllKeys(ClojureNsNameIndex.KEY)) {
+          for (String fqn : StubIndex.getInstance().getAllKeys(ClojureNsNameIndex.KEY, project)) {
             final String outerName = getQualifiedName();
             if (fqn.startsWith(outerName) && !fqn.equals(outerName) &&
                     !StringUtil.trimStart(fqn, outerName + ".").contains(".")) {

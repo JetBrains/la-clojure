@@ -40,7 +40,7 @@ public abstract class ResolveUtil {
 
   public static boolean processElement(PsiScopeProcessor processor, PsiNamedElement namedElement) {
     if (namedElement == null) return true;
-    NameHint nameHint = processor.getHint(NameHint.class);
+    NameHint nameHint = processor.getHint(NameHint.KEY);
     String name = nameHint == null ? null : nameHint.getName(ResolveState.initial());
     if (name == null || name.equals(namedElement.getName())) {
       return processor.execute(namedElement, ResolveState.initial());

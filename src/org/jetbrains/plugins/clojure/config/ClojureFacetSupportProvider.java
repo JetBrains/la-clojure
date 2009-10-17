@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.clojure.config;
 
-import com.intellij.facet.impl.ui.FacetTypeFrameworkSupportProvider;
+import com.intellij.facet.ui.FacetBasedFrameworkSupportProvider;
 import com.intellij.facet.ui.libraries.LibraryInfo;
+import com.intellij.ide.util.frameworkSupport.FrameworkVersion;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import org.jetbrains.annotations.NonNls;
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * @author ilyas
  */
-public class ClojureFacetSupportProvider extends FacetTypeFrameworkSupportProvider<ClojureFacet> {
+public class ClojureFacetSupportProvider extends FacetBasedFrameworkSupportProvider<ClojureFacet> {
 
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.clojure.config.ClojureFacetSupportProvider");
 
@@ -34,12 +35,12 @@ public class ClojureFacetSupportProvider extends FacetTypeFrameworkSupportProvid
   }
 
   @NotNull
-  public String[] getVersions() {
-    List<String> versions = new ArrayList<String>();
+  public List<FrameworkVersion> getVersions() {
+    List<FrameworkVersion> versions = new ArrayList<FrameworkVersion>();
     for (ClojureVersion version : ClojureVersion.values()) {
-      versions.add(version.toString());
+      versions.add(new FrameworkVersion(version.toString(), getLibraryName(version.toString()), getLibraries(version.toString())));;
     }
-    return versions.toArray(new String[versions.size()]);
+    return versions;
   }
 
   private static ClojureVersion getVersion(String versionName) {
@@ -60,8 +61,8 @@ public class ClojureFacetSupportProvider extends FacetTypeFrameworkSupportProvid
   }
 
 
-  protected void setupConfiguration(ClojureFacet facet, ModifiableRootModel rootModel, String v) {
-    //do nothing
+  @Override
+  protected void setupConfiguration(ClojureFacet facet, ModifiableRootModel rootModel, FrameworkVersion version) {
+    // do nothing
   }
-
 }

@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.clojure.psi.impl.synthetic;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.PsiSuperMethodImplUtil;
 import com.intellij.psi.impl.light.LightElement;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.util.MethodSignature;
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod;
 import com.intellij.util.IncorrectOperationException;
-import com.intellij.lang.Language;
-import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.clojure.psi.api.synthetic.ClSyntheticMethod;
-import org.jetbrains.plugins.clojure.psi.api.synthetic.ClSyntheticClass;
-import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
+import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
+import org.jetbrains.plugins.clojure.psi.api.synthetic.ClSyntheticClass;
+import org.jetbrains.plugins.clojure.psi.api.synthetic.ClSyntheticMethod;
 
 import java.util.List;
 
@@ -42,6 +42,10 @@ public class ClSynteticMethodImpl extends LightElement implements ClSyntheticMet
   @Override
   public String toString() {
     return "ClojureSyntheticMethod[" + getName() + "]";
+  }
+
+  public PsiType getReturnTypeNoResolve() {
+    return null;
   }
 
   public String getText() {
@@ -128,7 +132,7 @@ public class ClSynteticMethodImpl extends LightElement implements ClSyntheticMet
     return null;
   }
 
-  public boolean hasModifierProperty(@Modifier String name) {
+  public boolean hasModifierProperty(@NotNull @Modifier String name) {
     return false;
   }
 
@@ -143,6 +147,10 @@ public class ClSynteticMethodImpl extends LightElement implements ClSyntheticMet
 
   @NotNull
   public HierarchicalMethodSignature getHierarchicalMethodSignature() {
+    return PsiSuperMethodImplUtil.getHierarchicalMethodSignature(this);
+  }
+
+  public PsiMethodReceiver getMethodReceiver() {
     return null;
   }
 

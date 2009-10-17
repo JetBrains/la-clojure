@@ -22,6 +22,14 @@ public class ClojureCommenter implements CodeDocumentationAwareCommenter, Clojur
     return null;
   }
 
+  public String getCommentedBlockCommentPrefix() {
+    return null;
+  }
+
+  public String getCommentedBlockCommentSuffix() {
+    return null;
+  }
+
   @Nullable
   public IElementType getLineCommentTokenType() {
     return LINE_COMMENT;

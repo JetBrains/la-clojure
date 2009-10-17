@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.clojure.runner.console;
 
+import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
+import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.openapi.util.Key;
@@ -19,7 +21,7 @@ import org.jetbrains.plugins.clojure.ClojureBundle;
  */
 public abstract class ConsoleState {
   public static final ConsoleState NOT_STARTED = new ConsoleState(){
-    public ConsoleState attachTo(final ClojureConsoleViewImpl console, final ProcessHandler processHandler) {
+    public ConsoleState attachTo(final ConsoleView console, final ProcessHandler processHandler) {
       return new RunningState(console, processHandler);
     }
   };
@@ -38,10 +40,10 @@ public abstract class ConsoleState {
 
   public void sendUserInput(final String input) throws IOException {}
 
-  public abstract ConsoleState attachTo(ClojureConsoleViewImpl console, ProcessHandler processHandler);
+  public abstract ConsoleState attachTo(ConsoleView console, ProcessHandler processHandler);
 
   private static class RunningState extends ConsoleState {
-    private final ClojureConsoleViewImpl myConsole;
+    private final ConsoleView myConsole;
     private final ProcessAdapter myProcessListener = new ProcessAdapter() {
       public void onTextAvailable(final ProcessEvent event, final Key outputType) {
             myConsole.print(event.getText(), ConsoleViewContentType.getConsoleViewType(outputType));
@@ -50,7 +52,7 @@ public abstract class ConsoleState {
     private final ProcessHandler myProcessHandler;
     private final Writer myUserInputWriter;
 
-    public RunningState(final ClojureConsoleViewImpl console, final ProcessHandler processHandler) {
+    public RunningState(final ConsoleView console, final ProcessHandler processHandler) {
       myConsole = console;
       myProcessHandler = processHandler;
       processHandler.addProcessListener(myProcessListener);
@@ -80,7 +82,7 @@ public abstract class ConsoleState {
       myUserInputWriter.flush();
     }
 
-    public ConsoleState attachTo(final ClojureConsoleViewImpl console, final ProcessHandler processHandler) {
+    public ConsoleState attachTo(final ConsoleView console, final ProcessHandler processHandler) {
       return dispose().attachTo(console, processHandler);
     }
   }

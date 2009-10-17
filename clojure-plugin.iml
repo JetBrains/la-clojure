@@ -15,7 +15,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="clojure_lib" level="project" />
+    <orderEntry type="library" name="Clojure SDK" level="application" />
   </component>
 </module>
 

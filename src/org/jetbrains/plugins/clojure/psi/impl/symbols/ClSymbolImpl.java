@@ -18,8 +18,7 @@ import com.intellij.navigation.ItemPresentation;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
 import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
-import org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactory;
-import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.SymbolResolveProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.ResolveProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
@@ -27,7 +26,6 @@ import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResultImpl;
 import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
-import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.plugins.clojure.lexer.TokenSets;
 import org.jetbrains.plugins.clojure.ClojureIcons;
@@ -96,7 +94,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
   }
 
   public PsiElement setName(@NotNull @NonNls String newName) throws IncorrectOperationException {
-    final ASTNode newNode = ClojurePsiElementFactory.getInstance(getProject()).createSymbolNodeFromText(newName);
+    final ASTNode newNode = ClojurePsiFactory.getInstance(getProject()).createSymbolNodeFromText(newName);
     getParent().getNode().replaceChild(getNode(), newNode);
     return newNode.getPsi();
   }
@@ -251,7 +249,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
     PsiElement nameElement = getReferenceNameElement();
     if (nameElement != null) {
       ASTNode node = nameElement.getNode();
-      ASTNode newNameNode = ClojurePsiElementFactory.getInstance(getProject()).createSymbolNodeFromText(newElementName);
+      ASTNode newNameNode = ClojurePsiFactory.getInstance(getProject()).createSymbolNodeFromText(newElementName);
       assert newNameNode != null && node != null;
       node.getTreeParent().replaceChild(node, newNameNode);
     }

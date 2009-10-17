@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.clojure.runner;
 
+import clojure.lang.AFn;
 import com.intellij.execution.CantRunException;
-import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
-import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.configurations.*;
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.filters.TextConsoleBuilderImpl;
 import com.intellij.execution.filters.Filter;
+import com.intellij.execution.filters.TextConsoleBuilderImpl;
+import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.options.SettingsEditor;
@@ -25,13 +25,13 @@ import com.intellij.openapi.util.JDOMExternalizer;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.util.PathUtil;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
-import org.jetbrains.plugins.clojure.runner.console.ClojureConsoleViewImpl;
 
 import java.io.File;
 import java.util.*;
@@ -62,7 +62,8 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
   @NonNls
   private static final String CLOJURE_MAIN = "clojure.main";
   private static final String CLOJURE_REPL = "clojure.lang.Repl";
-  private static final String JLINE_CONSOLE_RUNNER = "jline.ConsoleRunner";
+  private static String CLOJURE_SDK = PathUtil.getJarPathForClass(AFn.class);
+  //  private static final String JLINE_CONSOLE_RUNNER = "jline.ConsoleRunner";
 
 
   public ClojureScriptRunConfiguration(ClojureScriptConfigurationFactory factory, Project project, String name) {
@@ -125,7 +126,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
 
   public static void configureScriptSystemClassPath(final JavaParameters params, final Module module) throws CantRunException {
     params.configureByModule(module, JavaParameters.JDK_ONLY);
-    //params.getClassPath().add(CLOJURE_SDK);
+    params.getClassPath().add(CLOJURE_SDK);
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
 
     ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
@@ -150,7 +151,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     // Setting up classpath
     configureScriptSystemClassPath(params, module);
 
-    //Setworking dir
+    //Set up working dir
     params.setWorkingDirectory(getAbsoluteWorkDir());
 
     // add user parameters
@@ -241,7 +242,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
 
       @Override
       public ConsoleView getConsole() {
-        final ClojureConsoleViewImpl view = new ClojureConsoleViewImpl(project);
+        final ConsoleViewImpl view = new ConsoleViewImpl(project, false);
         view.setFileType(ClojureFileType.CLOJURE_FILE_TYPE);
         for (Filter filter : filters) {
           view.addMessageFilter(filter);

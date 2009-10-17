@@ -8,8 +8,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.impl.source.tree.ChameleonElement;
-import com.intellij.psi.tree.IChameleonElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.formatter.processors.ClojureSpacingProcessor;
@@ -111,14 +109,12 @@ public class ClojureBlock implements Block, ClojureElementTypes{
    * @return true if node is incomplete
    */
   public boolean isIncomplete(@NotNull final ASTNode node) {
-    if (node.getElementType() instanceof IChameleonElementType) return false;
     ASTNode lastChild = node.getLastChildNode();
     while (lastChild != null &&
-        !(lastChild.getElementType() instanceof IChameleonElementType) &&
         (lastChild.getPsi() instanceof PsiWhiteSpace || lastChild.getPsi() instanceof PsiComment)) {
       lastChild = lastChild.getTreePrev();
     }
-    return lastChild != null && !(lastChild instanceof ChameleonElement) &&
+    return lastChild != null &&
         (lastChild.getPsi() instanceof PsiErrorElement || isIncomplete(lastChild));
   }
 

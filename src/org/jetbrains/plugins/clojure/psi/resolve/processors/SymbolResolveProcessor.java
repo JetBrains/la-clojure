@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.clojure.psi.resolve.processors;
 
+import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.ResolveState;
@@ -8,13 +9,15 @@ import com.intellij.psi.PsiClass;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.intellij.psi.scope.ElementClassHint;
+import com.intellij.psi.scope.NameHint;
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResultImpl;
 import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
 
 /**
  * @author ilyas
  */
-public class SymbolResolveProcessor extends ResolveProcessor {
+public class SymbolResolveProcessor extends ResolveProcessor implements NameHint {
 
   private final Set<PsiElement> myProcessedElements = new HashSet<PsiElement>();
   private final PsiElement myPlace;
@@ -44,6 +47,17 @@ public class SymbolResolveProcessor extends ResolveProcessor {
     return true;
   }
 
+  /*
+  todo: add ElementClassHints
+   */
+  public <T> T getHint(Key<T> hintKey) {
+    if (hintKey == NameHint.KEY && myName != null) {
+      return (T) this;
+    }
+
+    return null;
+  }
+
   public PsiElement getPlace() {
     return myPlace;
   }
@@ -52,7 +66,7 @@ public class SymbolResolveProcessor extends ResolveProcessor {
     return myName;
   }
 
-  public boolean shouldProcess(Class aClass) {
+  public boolean shouldProcess(ElementClassHint.DeclaractionKind kind) {
     return true;
   }
 
@@ -60,5 +74,4 @@ public class SymbolResolveProcessor extends ResolveProcessor {
     //todo implement me
     return true;
   }
-
 }

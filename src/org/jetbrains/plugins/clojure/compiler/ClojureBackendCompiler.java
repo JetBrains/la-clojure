@@ -33,6 +33,7 @@ import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author ilyas
@@ -120,7 +121,7 @@ public class ClojureBackendCompiler extends ExternalCompiler {
     return null;
   }
 
-  public OutputParser createErrorParser(String outputDir) {
+  public OutputParser createErrorParser(@NotNull String outputDir, Process process) {
     return new ClojureOutputParser();
   }
 

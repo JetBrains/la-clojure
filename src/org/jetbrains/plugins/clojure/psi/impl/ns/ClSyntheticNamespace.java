@@ -91,6 +91,10 @@ public class ClSyntheticNamespace extends LightElement implements PsiPackage {
     return myName;
   }
 
+  public PsiQualifiedNamedElement getContainer() {
+    return null;
+  }
+
   public PsiElement setName(@NonNls String name) throws IncorrectOperationException {
     throw new IncorrectOperationException("cannot set name: nonphysical element");
   }
