@@ -61,6 +61,10 @@
         <include name="*.zip"/>
       </fileset>
     </unzip>
+
+    <!-- Read SINCE and UNTIL properties -->
+    <loadfile property="since.idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
+    <loadfile property="until.idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
   </target>
 
 
@@ -111,7 +115,8 @@
     </javac2>
 
     <replace file="${project.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
-
+    <replace file="${project.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${since.idea.build}"/>
+    <replace file="${project.dest}/META-INF/plugin.xml" token="UNTIL_IDEA" value="${until.idea.build}"/>
   </target>
 
   <target name="deploy.plugin" depends="clean, make.plugin">
