@@ -22,12 +22,9 @@ import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.ModuleSourceOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl;
-import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkType;
 import com.intellij.openapi.projectRoots.JavaSdkType;
-import com.intellij.openapi.projectRoots.ex.JavaSdkUtil;
 import com.intellij.util.Alarm;
 import com.intellij.util.PathUtil;
 import com.intellij.ide.DataManager;
@@ -97,9 +94,9 @@ public class ClojureReplProcessHandler extends ProcessHandler {
 
       final JavaParameters params = new JavaParameters();
       params.configureByModule(myModule, JavaParameters.JDK_AND_CLASSES);
-
       // To avoid NCDFE while starting REPL
-      params.getClassPath().add(CLOJURE_SDK);
+
+      params.getClassPath().add(PathUtil.getJarPathForClass(AFn.class));
 
       Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
       ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(myModule);
