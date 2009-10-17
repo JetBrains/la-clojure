@@ -54,17 +54,17 @@
     </fileset>
   </path>
 
-  <target name="unzip.last.successful.IDEA.build">
+  <condition property="need.to.unzip">
+    <available file="${idea.pack}"/>
+  </condition>
+
+  <target name="unzip.last.successful.IDEA.build" if="need.to.unzip">
     <mkdir dir="${idea.home}"/>
     <unzip dest="${idea.home}">
       <fileset dir="${idea.pack}">
         <include name="*.zip"/>
       </fileset>
     </unzip>
-
-    <!-- Read SINCE and UNTIL properties -->
-    <loadfile property="since.idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
-    <loadfile property="until.idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
   </target>
 
 
@@ -83,10 +83,19 @@
       <arg value="${project.lib}/idea-flex.skeleton"/>
       <arg value="src/org/jetbrains/plugins/clojure/lexer/clojure.flex"/>
     </java>
-
   </target>
 
-  <target name="make.plugin" depends="make.lexer">
+  <target name="make.plugin" depends="make.lexer, unzip.last.successful.IDEA.build">
+    <!-- Read SINCE and UNTIL properties -->
+    <loadfile property="idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
+
+    <script language="javascript">
+      project.setProperty("since.idea.build", project.getProperty("idea.build").substring(3))
+      project.setProperty("until.idea.build", project.getProperty("idea.build").substring(3))
+    </script>
+
+    <echo message="Target IntelliJ IDEA version: ${since.idea.build}"/>
+
     <!--Copy descriptor-->
     <copy todir="${project.dest}/META-INF">
       <fileset dir="${project.dir}/META-INF"/>
@@ -106,7 +115,6 @@
     <!--Compile project files-->
     <javac2 srcdir="${project.dir}"
             destdir="${project.dest}"
-            verbose="yes"
             debug="true"
             target="1.5">
       <classpath refid="base.path"/>
