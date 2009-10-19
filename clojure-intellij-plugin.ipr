@@ -265,6 +265,7 @@
       <words>
         <w>clojure</w>
         <w>namespace</w>
+        <w>refactorings</w>
       </words>
     </dictionary>
   </component>

@@ -123,8 +123,8 @@
     </javac2>
 
     <replace file="${project.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
-    <replace file="${project.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${since.idea.build}"/>
-    <replace file="${project.dest}/META-INF/plugin.xml" token="UNTIL_IDEA" value="${until.idea.build}"/>
+    <replace file="${project.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${idea.build}"/>
+    <replace file="${project.dest}/META-INF/plugin.xml" token="UNTIL_IDEA" value="${idea.build}"/>
   </target>
 
   <target name="deploy.plugin" depends="clean, make.plugin">
