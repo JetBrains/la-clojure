@@ -14,7 +14,7 @@
   <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains
     Inc.
   </vendor>
-   <idea-version since-build="SINCE_IDEA" until-build="UNTIL_IDEA"/>
+   <!--<idea-version since-build="SINCE_IDEA" until-build="UNTIL_IDEA"/>-->
 
   <extensions defaultExtensionNs="com.intellij">
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
@@ -73,6 +73,8 @@
     <projectService serviceInterface="org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory"
                     serviceImplementation="org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactoryImpl"/>
 
+    <java.elementFinder implementation="org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder"/>
+
   </extensions>
 
   <application-components>
@@ -91,10 +93,6 @@
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.clojure.compiler.component.ClojureCompilerProjectComponent
-      </implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder
       </implementation-class>
     </component>
     <component>

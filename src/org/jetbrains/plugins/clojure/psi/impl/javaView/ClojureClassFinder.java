@@ -18,7 +18,7 @@ import java.util.Arrays;
 /**
  * @author ilyas
  */
-public class ClojureClassFinder extends  PsiElementFinder implements ProjectComponent {
+public class ClojureClassFinder extends PsiElementFinder {
   private final Project myProject;
 
   public ClojureClassFinder(Project project) {
@@ -62,23 +62,5 @@ public class ClojureClassFinder extends  PsiElementFinder implements ProjectComp
     }
 
     return result.toArray(new PsiClass[result.size()]);
-  }
-
-  public void projectOpened() {
-  }
-
-  public void projectClosed() {
-  }
-
-  @NonNls
-  @NotNull
-  public String getComponentName() {
-    return "ClojureClassFinder";
-  }
-
-  public void initComponent() {
-  }
-
-  public void disposeComponent() {
   }
 }
