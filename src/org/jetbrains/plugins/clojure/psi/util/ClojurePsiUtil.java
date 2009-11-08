@@ -1,8 +1,26 @@
+/*
+ * Copyright 2009 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jetbrains.plugins.clojure.psi.util;
 
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiManager;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
-import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
-import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.impl.ClKeyImpl;
@@ -20,6 +38,7 @@ import java.util.Arrays;
 
 /**
  * @author ilyas
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  */
 public class ClojurePsiUtil {
   public static final String GEN_CLASS = ":gen-class";
@@ -141,4 +160,65 @@ public class ClojurePsiUtil {
     //todo implement me!
     return false;
   }
+
+  /**
+   * Find the s-expression at the caret in a given editor.
+   *
+   * @param editor the editor to search in.
+   * @param previous should the s-exp <i>behind</i> the caret be returned 9rather than <i>around</i> the caret).
+   * @return the s-expression, or {@code null} if none could be found.
+   */
+  public static @Nullable ClList findSexpAtCaret(@NotNull Editor editor, boolean previous) {
+    Project project = editor.getProject();
+    if (project == null) { return null; }
+
+    VirtualFile vfile = FileDocumentManager.getInstance().getFile(editor.getDocument());
+
+    if (vfile == null) return null;
+
+    PsiFile file = PsiManager.getInstance(project).findFile(vfile);
+    if (file == null) { return null; }
+
+    CharSequence chars = editor.getDocument().getCharsSequence();
+    int offset = editor.getCaretModel().getOffset();
+    if (previous) {
+      while (offset != 0 && chars.charAt(offset) != ')') { --offset; }
+    }
+    if (offset == 0) { return null; }
+
+    PsiElement element = file.findElementAt(offset);
+    while (element != null && !(element instanceof ClList)) {
+      element = element.getParent();
+    }
+    return (ClList) element;
+  }
+
+  public static PsiElement previousSiblingSexp(PsiElement element) {
+    PsiElement previous = null;
+    for (PsiElement child : element.getParent().getChildren()) {
+      if (child == element) { return previous; }
+      previous = child;
+    }
+    return null;
+  }
+
+  public static PsiElement nextSiblingSexp(PsiElement element) {
+    boolean next = false;
+    for (PsiElement child : element.getParent().getChildren()) {
+      if (next) { return child; }
+      if (child == element) { next = true; }
+    }
+    return null;
+  }
+
+  public static PsiElement firstChildSexp(PsiElement element) {
+    PsiElement[] children = element.getChildren();
+    return children.length != 0 ? children[0] : null;
+  }
+
+  public static PsiElement lastChildSexp(PsiElement element) {
+    PsiElement[] children = element.getChildren();
+    return children[children.length - 1];
+  }
+
 }

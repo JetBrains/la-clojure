@@ -39,6 +39,7 @@ public class RunSelectedTextAction extends ClojureAction {
       return;
     }
 
-    getReplToolWindow(e).writeToCurrentRepl(text);
+    getReplToolWindow(e).writeToCurrentRepl(text, false);
   }
+
 }

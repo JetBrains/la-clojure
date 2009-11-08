@@ -14,7 +14,7 @@
   <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains
     Inc.
   </vendor>
-   <idea-version since-build="SINCE_IDEA" until-build="UNTIL_IDEA"/>
+  <idea-version since-build="SINCE_IDEA" until-build="UNTIL_IDEA"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
@@ -96,6 +96,10 @@
       </implementation-class>
     </component>
     <component>
+      <implementation-class>org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder
+      </implementation-class>
+    </component>
+    <component>
       <implementation-class>org.jetbrains.plugins.clojure.psi.impl.ClojurePsiManager</implementation-class>
     </component>
     <component>
@@ -123,6 +127,13 @@
     <action id="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction"
             class="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction" text="Run selected in REPL"
             description="Run selected Clojure text in REPL">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="alt shift S"/>
+    </action>
+
+    <action id="org.jetbrains.plugins.clojure.actions.repl.RunLastSexpAction"
+            class="org.jetbrains.plugins.clojure.actions.repl.RunLastSexpAction" text="Run last s-expression in REPL"
+            description="Run the s-expression behind the caret in the REPL">
       <add-to-group group-id="ToolsMenu" anchor="last"/>
       <keyboard-shortcut keymap="$default" first-keystroke="alt S"/>
     </action>
@@ -156,6 +167,40 @@
            class="org.jetbrains.plugins.clojure.repl.ClojureReplActionGroup" text="Clojure REPL" description="Clojure">
     </group>
 
+
+    <!-- Structural Editing -->
+
+    <group id="ClojureStructuralEditingActionGroup"
+           class="org.jetbrains.plugins.clojure.editor.ClojureEditorActionGroup"
+           text="Clojure Editor" description="Clojure"/>
+
+    <action id="org.jetbrains.plugins.clojure.actions.editor.BarfBackwardsAction"
+            class="org.jetbrains.plugins.clojure.actions.editor.BarfBackwardsAction"
+            text="Barf Backwards" description="Spit out the first element in the current s-exp">
+      <add-to-group group-id="ClojureStructuralEditingActionGroup" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="alt meta LEFT"/>
+    </action>
+
+    <action id="org.jetbrains.plugins.clojure.actions.editor.BarfForwardsAction"
+            class="org.jetbrains.plugins.clojure.actions.editor.BarfForwardsAction"
+            text="Barf Forwards" description="Spit out the last element in the current s-exp">
+      <add-to-group group-id="ClojureStructuralEditingActionGroup" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="alt meta RIGHT"/>
+    </action>
+
+    <action id="org.jetbrains.plugins.clojure.actions.editor.SlurpBackwardsAction"
+            class="org.jetbrains.plugins.clojure.actions.editor.SlurpBackwardsAction"
+            text="Slurp Backwards" description="Swallow the element preceeding the current s-exp">
+      <add-to-group group-id="ClojureStructuralEditingActionGroup" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="meta LEFT"/>
+    </action>
+
+    <action id="org.jetbrains.plugins.clojure.actions.editor.SlurpForwardsAction"
+            class="org.jetbrains.plugins.clojure.actions.editor.SlurpForwardsAction"
+            text="Slurp Forwards" description="Swallow the element following the current s-exp">
+      <add-to-group group-id="ClojureStructuralEditingActionGroup" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="meta RIGHT"/>
+    </action>
 
   </actions>
 
