@@ -47,6 +47,14 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   @Override
   public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
+    for (PsiMethod method : getAllMethods()) {
+      if (!processor.execute(method, state)) return false;
+    }
+
+    for (PsiField field : getAllFields()) {
+      if (!processor.execute(field, state)) return false;
+    }
+    
     return super.processDeclarations(processor, state, lastParent, place);
   }
 
@@ -73,7 +81,7 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   @Override
   public String toString() {
-    return "ClojureSynteticClass[" + getQualifiedName() + "]";
+    return "ClojureSyntheticClass[" + getQualifiedName() + "]";
   }
 
   public void accept(@NotNull PsiElementVisitor psiElementVisitor) {
@@ -160,7 +168,8 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
       final PsiElement next = ClojurePsiUtil.getNextNonWhiteSpace(key);
       if (next instanceof ClSymbol) {
         ClSymbol symbol = (ClSymbol) next;
-        return JavaPsiFacade.getInstance(getProject()).findClass(symbol.getText(), GlobalSearchScope.allScope(getProject()));
+        final PsiClass psiClass = JavaPsiFacade.getInstance(getProject()).findClass(symbol.getText(), GlobalSearchScope.allScope(getProject()));
+        return psiClass;
       }
     }
     return null;
@@ -226,13 +235,28 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   @NotNull
   public PsiField[] getFields() {
-    return new PsiField[0];
+    final ArrayList<PsiField> list = new ArrayList<PsiField>();
+    final PsiClass psiClass = getSuperClass();
+    if (psiClass != null) {
+      list.addAll(Arrays.asList(psiClass.getAllFields()));
+    }
+    for (PsiClass aClass : getInterfaces()) {
+      list.addAll(Arrays.asList(aClass.getFields()));
+    }
+    return list.toArray(new PsiField[list.size()]);
   }
 
   @NotNull
   public PsiMethod[] getMethods() {
-    //todo implement me!
-    return PsiMethod.EMPTY_ARRAY;
+    final ArrayList<PsiMethod> methods = new ArrayList<PsiMethod>();
+    final PsiClass psiClass = getSuperClass();
+    if (psiClass != null) {
+      methods.addAll(Arrays.asList(psiClass.getAllMethods()));
+    }
+    for (PsiClass iface : getInterfaces()) {
+      methods.addAll(Arrays.asList(iface.getMethods()));
+    }
+    return methods.toArray(new PsiMethod[methods.size()]);
   }
 
   @NotNull
@@ -252,20 +276,12 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   @NotNull
   public PsiField[] getAllFields() {
-    return new PsiField[0];
+    return getFields();
   }
 
   @NotNull
   public PsiMethod[] getAllMethods() {
-    final ArrayList<PsiMethod> list = new ArrayList<PsiMethod>();
-    for (PsiClass clazz : getInterfaces()) {
-      list.addAll(Arrays.asList(clazz.getAllMethods()));
-    }
-    final PsiClass aClass = getSuperClass();
-    if (aClass != null) {
-      list.addAll(Arrays.asList(aClass.getAllMethods()));
-    }
-    return list.toArray(PsiMethod.EMPTY_ARRAY);
+    return getMethods();
   }
 
   @NotNull
