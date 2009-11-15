@@ -19,7 +19,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.openapi.module.Module;
 import com.intellij.psi.PsiManager;
+import com.intellij.util.Chunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
@@ -60,9 +62,10 @@ public class ClojureCompiler implements TranslatingCompiler {
         settings.COMPILE_CLOJURE && ((ClojureFile) psi).isClassDefiningFile());
   }
 
-  public void compile(CompileContext context, VirtualFile[] files, OutputSink outputSink) {
+
+  public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink outputSink) {
     final BackendCompiler backEndCompiler = getBackEndCompiler();
-    final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, Arrays.asList(files),
+    final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(moduleChunk, myProject, Arrays.asList(files),
         (CompileContextEx) context, backEndCompiler, outputSink);
     final ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(context.getProject());
 
@@ -83,7 +86,7 @@ public class ClojureCompiler implements TranslatingCompiler {
     // Copy clojure sources to output path
     if (settings.COPY_CLJ_SOURCES) {
       final ResourceCompiler resourceCompiler = new ResourceCompiler(myProject, CompilerConfiguration.getInstance(myProject));
-      resourceCompiler.compile(context, files, outputSink);
+      resourceCompiler.compile(context, moduleChunk, files, outputSink);
     }
   }
 
