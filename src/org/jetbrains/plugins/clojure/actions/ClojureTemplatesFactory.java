@@ -33,7 +33,7 @@ public class ClojureTemplatesFactory implements FileTemplateGroupDescriptorFacto
 
   public static PsiFile createFromTemplate(final PsiDirectory directory, final String name, String fileName, String templateName,
                                            @NonNls String... parameters) throws IncorrectOperationException {
-    final FileTemplate template = FileTemplateManager.getInstance().getInternalTemplate(templateName);
+    final FileTemplate template = FileTemplateManager.getInstance().getJ2eeTemplate(templateName);
     Properties properties = new Properties(FileTemplateManager.getInstance().getDefaultProperties());
     JavaTemplateUtil.setPackageNameAttribute(properties, directory);
     properties.setProperty(NAME_TEMPLATE_PROPERTY, name);
