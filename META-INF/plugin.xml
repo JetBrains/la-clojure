@@ -74,6 +74,9 @@
     <projectService serviceInterface="org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory"
                     serviceImplementation="org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactoryImpl"/>
 
+    <projectService serviceInterface="org.jetbrains.plugins.clojure.repl.ReplManager"
+                    serviceImplementation="org.jetbrains.plugins.clojure.repl.ReplManager"/>
+
     <java.elementFinder implementation="org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder"/>
 
   </extensions>
@@ -103,71 +106,66 @@
     <component>
       <implementation-class>org.jetbrains.plugins.clojure.psi.impl.ClojurePsiManager</implementation-class>
     </component>
-    <component>
-      <implementation-class>org.jetbrains.plugins.clojure.repl.ReplToolWindow</implementation-class>
-    </component>
   </project-components>
 
   <actions>
     <!-- Create file actions -->
     <action id="Clojure.ClojureFile" class="org.jetbrains.plugins.clojure.actions.NewClojureFileAction"
             text="Clojure File" description="Create new Clojure File">
-      <add-to-group group-id="NewGroup" anchor="last"/>
+      <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
     </action>
-
-
 
     <!-- REPL-related actions -->
-    <action id="org.jetbrains.plugins.clojure.actions.repl.GoToReplAction"
-            class="org.jetbrains.plugins.clojure.actions.repl.GoToReplAction" text="Go To REPL"
-    description="Go to the last Clojure REPL">
-      <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="ctrl BACK_SLASH"/>
-    </action>
+    <group id="Clojure.REPL.Group" text="Clojure REPL Actions" popup="true">
+      <action id="org.jetbrains.plugins.clojure.actions.repl.GoToReplAction"
+              class="org.jetbrains.plugins.clojure.actions.repl.GoToReplAction" text="Go To REPL"
+              description="Go to the last Clojure REPL">
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl BACK_SLASH"/>
+      </action>
 
-    <action id="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction"
-            class="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction" text="Run selected in REPL"
-            description="Run selected Clojure text in REPL">
-      <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="alt shift S"/>
-    </action>
+      <action id="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction"
+              class="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction" text="Run selected in REPL"
+              description="Run selected Clojure text in REPL">
+        <keyboard-shortcut keymap="$default" first-keystroke="alt shift S"/>
+      </action>
 
-    <action id="org.jetbrains.plugins.clojure.actions.repl.RunLastSexpAction"
-            class="org.jetbrains.plugins.clojure.actions.repl.RunLastSexpAction" text="Run last s-expression in REPL"
-            description="Run the s-expression behind the caret in the REPL">
-      <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="alt S"/>
-    </action>
+      <action id="org.jetbrains.plugins.clojure.actions.repl.RunLastSexpAction"
+              class="org.jetbrains.plugins.clojure.actions.repl.RunLastSexpAction" text="Run last s-expression in REPL"
+              description="Run the s-expression behind the caret in the REPL">
+        <keyboard-shortcut keymap="$default" first-keystroke="alt S"/>
+      </action>
 
-    <action id="org.jetbrains.plugins.clojure.actions.repl.AddReplAction"
-            class="org.jetbrains.plugins.clojure.actions.repl.AddReplAction" text="Add new Clojure REPL"
-            description="Add REPL">
+      <action id="org.jetbrains.plugins.clojure.actions.repl.AddReplAction"
+              class="org.jetbrains.plugins.clojure.actions.repl.AddReplAction" text="Add new Clojure REPL"
+              description="Add REPL">
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt A"/>
+      </action>
+      <action id="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction"
+              class="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction" text="Remove REPL"
+              description="Remove current Clojure REPL">
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt M"/>
+      </action>
+      <action id="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentfileInReplAction"
+              class="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentfileInReplAction" text="Load file to REPL"
+              description="Load current file to REPL">
+        <keyboard-shortcut keymap="$default" first-keystroke="alt L"/>
+      </action>
+      <action id="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction"
+              class="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction" text="Rename REPL"
+              description="Renamce current Clojure REPL">
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt SLASH"/>
+      </action>
+
       <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt A"/>
-    </action>
-    <action id="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction"
-            class="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction" text="Remove REPL"
-            description="Remove current Clojure REPL">
-      <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt M"/>
-    </action>
-    <action id="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentfileInReplAction"
-            class="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentfileInReplAction" text="Load file to REPL"
-            description="Load current file to REPL">
-      <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="alt L"/>
-    </action>
-    <action id="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction"
-            class="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction" text="Rename REPL"
-            description="Renamce current Clojure REPL">
-      <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt SLASH"/>
-    </action>
+    </group>
 
     <group id="ClojureReplActionGroup"
            class="org.jetbrains.plugins.clojure.repl.ClojureReplActionGroup" text="Clojure REPL" description="Clojure">
+      <reference id="org.jetbrains.plugins.clojure.actions.repl.RunLastSexpAction"/>
+      <reference id="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction"/>
+      <reference id="org.jetbrains.plugins.clojure.actions.repl.AddReplAction"/>
+      <reference id="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction"/>
     </group>
-
 
     <!-- Structural Editing -->
 

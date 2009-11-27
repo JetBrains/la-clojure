@@ -11,6 +11,7 @@ import com.intellij.util.Icons;
 import org.jetbrains.plugins.clojure.config.ClojureFacet;
 import org.jetbrains.plugins.clojure.config.ClojureFacetType;
 import org.jetbrains.plugins.clojure.ClojureIcons;
+import org.jetbrains.plugins.clojure.repl.ReplManager;
 
 /**
  * @author Kurt Christensen, ilyas
@@ -35,8 +36,7 @@ public class AddReplAction extends ClojureAction {
   public void actionPerformed(AnActionEvent e) {
     Module module = getModule(e);
     if (module != null) {
-      getReplToolWindow(e).createRepl(module);
-      getReplToolWindow(e).requestFocus();
+      ReplManager.getInstance(module.getProject()).createNewRepl(module);
     }
   }
 

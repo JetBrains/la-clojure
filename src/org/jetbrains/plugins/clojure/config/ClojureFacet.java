@@ -2,7 +2,11 @@ package org.jetbrains.plugins.clojure.config;
 
 import com.intellij.facet.*;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindowManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.repl.ReplManager;
+import org.jetbrains.plugins.clojure.repl.ReplPanel;
 
 /**
  * @author ilyas
@@ -25,4 +29,13 @@ public class ClojureFacet extends Facet<ClojureFacetConfiguration> {
     return FacetManager.getInstance(module).getFacetByType(ID);
   }
 
+  @Override
+  public void initFacet() {
+    super.initFacet();
+
+    // lazy initialization of REPL toolwindow (remove this code to not add REPL toolwindow automatically)
+//    final Module module = getModule();
+//    final Project project = module.getProject();
+//    ReplManager.getInstance(project).init(module);
+  }
 }

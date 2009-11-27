@@ -1,0 +1,3 @@
+clojure-intellij-plugin.iws
+lib/clojure*.jar
+out/*

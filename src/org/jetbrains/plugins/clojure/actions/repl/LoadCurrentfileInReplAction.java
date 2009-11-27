@@ -11,6 +11,7 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.ClojureIcons;
+import org.jetbrains.plugins.clojure.repl.ReplPanel;
 
 /**
  * @author ilyas
@@ -76,6 +77,7 @@ public class LoadCurrentfileInReplAction extends ClojureAction {
     if (filePath == null) return;
 
     PsiDocumentManager.getInstance(project).commitAllDocuments();
-    getReplToolWindow(e).writeToCurrentRepl("(load-file \"" + filePath + "\")");
+    final ReplPanel repl = getCurrentRepl(e);
+    if (repl != null) repl.writeToCurrentRepl("(load-file \"" + filePath + "\")");
   }
 }

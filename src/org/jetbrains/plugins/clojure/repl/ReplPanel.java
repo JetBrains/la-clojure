@@ -1,18 +1,15 @@
 package org.jetbrains.plugins.clojure.repl;
 
 import com.intellij.execution.CantRunException;
-import com.intellij.execution.ExecutionException;
 import com.intellij.execution.filters.Filter;
 import com.intellij.execution.filters.TextConsoleBuilderImpl;
 import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.process.*;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPopupMenu;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.impl.EditorComponentImpl;
 import com.intellij.openapi.module.Module;
@@ -22,19 +19,14 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ModuleSourceOrderEntry;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowAnchor;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
+import com.intellij.ui.PopupHandler;
 import com.intellij.util.Function;
 import com.intellij.util.PathsList;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.clojure.ClojureBundle;
-import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings;
 
@@ -53,34 +45,35 @@ import java.util.List;
  * @author Kurt Christensen, ilyas
  */
 
-public class ReplToolWindow implements ProjectComponent {
+public class ReplPanel extends JPanel implements Disposable {
 
-  private static final String REPL_TOOL_WINDOW_ID = "repl.toolWindow";
+  public static final String REPL_TOOLWINDOW_PLACE = "REPL.ToolWindow";
+  public static final String REPL_TOOLWINDOW_POPUP_PLACE = "REPL.ToolWindow.Popup";
 
-  private Project myProject;
-  private List<Repl> replList = new ArrayList<Repl>();
-  private JTabbedPane tabbedPane;
-  private ToolWindow toolWindow;
-  private ActionPopupMenu popup;
-  private static final String REPL_NAME = "Clojure";
   private static final String CLOJURE_REPL_ACTION_GROUP = "ClojureReplActionGroup";
 
+  private Project myProject;
+  private Repl myRepl;
 
-  public ReplToolWindow(Project project) {
+  public ReplPanel(@NotNull final Project project, @NotNull final Module module) throws IOException, ConfigurationException, CantRunException {
+    setLayout(new BorderLayout());
+
     myProject = project;
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      public void run() {
-        disposeComponent();
-      }
-    });
+    myRepl = new Repl(module);
+
+    final ActionGroup actions = getActions();
+
+    final JPanel toolbarPanel = new JPanel(new GridLayout());
+    toolbarPanel.add(ActionManager.getInstance().createActionToolbar(REPL_TOOLWINDOW_PLACE, actions, false).getComponent());
+
+    add(toolbarPanel, BorderLayout.WEST);
+    add(myRepl.getView().getComponent(), BorderLayout.CENTER);
+
+    Disposer.register(this, myRepl);
   }
 
-  public void requestFocus() {
-    toolWindow.activate(null, true);
-    if (tabbedPane.getSelectedIndex() > -1) {
-      Repl repl = replList.get(tabbedPane.getSelectedIndex());
-      repl.view.getPreferredFocusableComponent().requestFocusInWindow();
-    }
+  private ActionGroup getActions() {
+    return (ActionGroup) ActionManager.getInstance().getAction(CLOJURE_REPL_ACTION_GROUP);
   }
 
   public String writeToCurrentRepl(String s) {
@@ -88,12 +81,11 @@ public class ReplToolWindow implements ProjectComponent {
   }
 
   public String writeToCurrentRepl(String input, boolean requestFocus) {
-    if (tabbedPane.getSelectedIndex() > -1) {
+    if (myRepl != null) {
       final PipedWriter pipeOut;
       PipedReader pipeIn = null;
       try {
         if (requestFocus) requestFocus();
-        final Repl repl = replList.get(tabbedPane.getSelectedIndex());
 
         pipeOut = new PipedWriter();
         pipeIn = new PipedReader(pipeOut);
@@ -111,8 +103,8 @@ public class ReplToolWindow implements ProjectComponent {
             }
           }
         };
-        repl.processHandler.addProcessListener(processListener);
-        final ConsoleView consoleView = repl.view;
+        myRepl.processHandler.addProcessListener(processListener);
+        final ConsoleView consoleView = myRepl.view;
         if (consoleView instanceof ConsoleViewImpl) {
           final ConsoleViewImpl cView = (ConsoleViewImpl) consoleView;
           final List<String> oldHistory = cView.getHistory();
@@ -131,7 +123,7 @@ public class ReplToolWindow implements ProjectComponent {
           buf.append(str);
         }
         //}
-        repl.processHandler.removeProcessListener(processListener);
+        myRepl.processHandler.removeProcessListener(processListener);
 
         return buf.toString();
 
@@ -149,84 +141,6 @@ public class ReplToolWindow implements ProjectComponent {
       }
     }
     return null;
-  }
-
-  public void projectOpened() {
-    try {
-      initToolWindow();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  public void projectClosed() {
-    // ??? unregisterToolWindow();
-  }
-
-  public void initComponent() {
-  }
-
-  public void disposeComponent() {
-  }
-
-  @NotNull
-  public String getComponentName() {
-    return REPL_TOOL_WINDOW_ID;
-  }
-
-
-  private void initToolWindow() throws ExecutionException, IOException {
-    if (myProject != null) {
-      tabbedPane = new JTabbedPane(JTabbedPane.BOTTOM);
-
-      JPanel panel = new JPanel(new BorderLayout());
-      panel.add(tabbedPane, BorderLayout.CENTER);
-
-      ActionManager am = ActionManager.getInstance();
-      ActionGroup group = (ActionGroup) am.getAction(CLOJURE_REPL_ACTION_GROUP);
-      ActionToolbar toolbar = am.createActionToolbar(REPL_NAME, group, false);
-      panel.add(toolbar.getComponent(), BorderLayout.WEST);
-
-      toolWindow = ToolWindowManager.getInstance(myProject).registerToolWindow(ClojureBundle.message("repl.toolWindowName"), false, ToolWindowAnchor.BOTTOM);
-      ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-      Content content = contentFactory.createContent(panel, null, true);
-      toolWindow.getContentManager().addContent(content);
-      toolWindow.setIcon(ClojureIcons.REPL_CONSOLE);
-      // toolWindow.setToHideOnEmptyContent(true);
-
-      popup = am.createActionPopupMenu(ClojureBundle.message("repl.toolWindowName"), group);
-      panel.setComponentPopupMenu(popup.getComponent());
-      toolWindow.getComponent().setComponentPopupMenu(popup.getComponent());
-      toolbar.getComponent().setComponentPopupMenu(popup.getComponent());
-
-      // Firts REPL is created by USER
-      //createRepl();
-    }
-  }
-
-  public void createRepl(Module module) {
-    try {
-      Repl repl = new Repl(module);
-      replList.add(repl);
-
-      final int numOfRepls = tabbedPane.getTabCount();
-      tabbedPane.addTab(ClojureBundle.message("repl.title") +
-              "-" + module.getName() +
-              (numOfRepls < 2 ? "" : ("-" + numOfRepls)), repl.view.getComponent());
-      tabbedPane.setSelectedIndex(numOfRepls - 1);
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (ConfigurationException e) {
-      JOptionPane.showMessageDialog(null,
-              ClojureBundle.message("config.error.replNotConfiguredMessage"),
-              ClojureBundle.message("config.error.replNotConfiguredTitle"),
-              JOptionPane.WARNING_MESSAGE);
-    } catch (CantRunException e) {
-      JOptionPane.showMessageDialog(null,
-              ClojureBundle.message("config.error.replNotConfiguredMessage"),
-              ClojureBundle.message("config.error.replNotConfiguredTitle"),
-              JOptionPane.WARNING_MESSAGE);
-    }
   }
 
   private static String getClassPath(Module module) {
@@ -253,31 +167,12 @@ public class ReplToolWindow implements ProjectComponent {
     return list.getPathsString();
   }
 
-  public void removeCurrentRepl() {
-    int i = tabbedPane.getSelectedIndex();
-    if (i > -1) {
-      replList.remove(i).close();
-      tabbedPane.removeTabAt(i);
-    }
+  public void dispose() {
+    myProject = null;
+    myRepl = null;
   }
 
-  public void renameCurrentRepl() {
-    int tabIndex = tabbedPane.getSelectedIndex();
-    if (tabIndex > -1) {
-      String oldTitle = tabbedPane.getTitleAt(tabIndex);
-
-      // TODO - Should build my own small tool window dialog, positioned wherever the user clicked
-      String newTitle = (String) JOptionPane.showInputDialog(
-              tabbedPane.getSelectedComponent(), null, ClojureBundle.message("repl.rename"),
-              JOptionPane.PLAIN_MESSAGE, null, null, oldTitle);
-      if (newTitle != null) {
-        tabbedPane.setTitleAt(tabIndex, newTitle);
-      }
-    }
-  }
-
-
-  private class Repl {
+  private class Repl implements Disposable {
     public ConsoleView view;
     private ProcessHandler processHandler;
     private final Module myModule;
@@ -315,8 +210,6 @@ public class ReplToolWindow implements ProjectComponent {
       processHandler.startNotify();
       view.attachToProcess(processHandler);
 
-      tabbedPane.addTab(ClojureBundle.message("repl.title"), view.getComponent());
-
       final EditorEx ed = getEditor();
       ed.getContentComponent().addKeyListener(new KeyAdapter() {
         public void keyTyped(KeyEvent event) {
@@ -343,21 +236,24 @@ public class ReplToolWindow implements ProjectComponent {
       ed.getSettings().setFoldingOutlineShown(true);
       //e.getSettings().setLineNumbersShown(true);
 
-      ed.getContentComponent().setComponentPopupMenu(popup.getComponent());
-      view.getComponent().setComponentPopupMenu(popup.getComponent());
-      tabbedPane.setVisible(true);
+      final ActionManager am = ActionManager.getInstance();
+      PopupHandler.installPopupHandler(ed.getContentComponent(), 
+          (ActionGroup) am.getAction("Clojure.REPL.Group"), REPL_TOOLWINDOW_POPUP_PLACE, am);
+    }
 
+    public ConsoleView getView() {
+      return view;
+    }
+
+    public void dispose() {
+      if (processHandler != null) {
+        processHandler.destroyProcess();
+      }
     }
 
     public EditorEx getEditor() {
       EditorComponentImpl eci = (EditorComponentImpl) view.getPreferredFocusableComponent();
       return eci.getEditor();
-    }
-
-    public void close() {
-      if (processHandler != null) {
-        processHandler.destroyProcess();
-      }
     }
   }
 }

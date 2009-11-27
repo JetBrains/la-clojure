@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.clojure.actions.repl;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.jetbrains.plugins.clojure.repl.ReplToolWindow;
+import com.intellij.openapi.actionSystem.Presentation;
+import org.jetbrains.plugins.clojure.repl.ReplManager;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 
 /**
@@ -12,8 +13,18 @@ public class GoToReplAction extends ClojureAction {
   public GoToReplAction(){
     getTemplatePresentation().setIcon(ClojureIcons.REPL_GO);
   }
+
+  @Override
+  public void update(final AnActionEvent e) {
+    final Presentation presentation = e.getPresentation();
+    final ReplManager replManager = getReplManager(e);
+    presentation.setEnabled(replManager != null && replManager.hasActiveRepls());
+  }
+
   public void actionPerformed(final AnActionEvent e) {
-    final ReplToolWindow window = getReplToolWindow(e);
-    window.requestFocus();
+    final ReplManager replManager = getReplManager(e);
+    if (replManager != null) {
+      replManager.activate();
+    }
   }
 }
