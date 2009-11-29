@@ -4,12 +4,11 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.util.Iconable;
-import com.intellij.openapi.util.Trinity;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.StubBasedPsiElement;
 import com.intellij.psi.ResolveState;
+import com.intellij.psi.StubBasedPsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.util.IncorrectOperationException;
@@ -17,15 +16,15 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureIcons;
+import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClLiteral;
+import org.jetbrains.plugins.clojure.psi.api.ClVector;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
-import org.jetbrains.plugins.clojure.psi.api.ClVector;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.impl.list.ClListBaseImpl;
-import org.jetbrains.plugins.clojure.psi.impl.ClVectorImpl;
-import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
-import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 
 import javax.swing.*;
 
@@ -138,6 +137,20 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
     buffer.append(getParameterString());
 
     return buffer.toString();
+  }
+
+  public String getDocString() {
+    PsiElement element = getSecondNonLeafElement();
+    if (element == null) return null;
+    element = element.getNextSibling();
+    while (element != null && isWrongElement(element)) {
+      element = element.getNextSibling();
+    }
+    if (element instanceof ClLiteral && element.getFirstChild().getNode().getElementType() == ClojureTokenTypes.STRING_LITERAL) {
+      final String rawText = element.getText();
+      return StringUtil.trimStart(StringUtil.trimEnd(rawText,"\""), "\"");
+    }
+    return null;
   }
 
 

@@ -80,6 +80,7 @@
     <java.elementFinder implementation="org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder"/>
     <lang.namesValidator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.refactoring.rename.ClojureNameValidator"/>
     <referencesSearch implementation="org.jetbrains.plugins.clojure.findUsages.ClojureReferenceSearcher"/>
+    <lang.documentationProvider language="Clojure" implementationClass="org.jetbrains.plugins.clojure.documentation.ClojureDocumentationProvider"/>
   </extensions>
 
   <application-components>
