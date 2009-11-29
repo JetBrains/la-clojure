@@ -182,7 +182,11 @@ public class ClojurePsiUtil {
     CharSequence chars = editor.getDocument().getCharsSequence();
     int offset = editor.getCaretModel().getOffset();
     if (previous) {
-      while (offset != 0 && chars.charAt(offset) != ')') { --offset; }
+      while (offset != 0 &&
+          offset < chars.length() &&
+          chars.charAt(offset) != ')') {
+        --offset;
+      }
     }
     if (offset == 0) { return null; }
 
