@@ -4,6 +4,7 @@ import com.intellij.lang.cacheBuilder.DefaultWordsScanner;
 import com.intellij.lang.cacheBuilder.WordsScanner;
 import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNamedElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.lexer.ClojureFlexLexer;
@@ -47,6 +48,10 @@ public class ClojureFindUsagesProvider implements FindUsagesProvider{
     if (element instanceof ClDef) {
       ClDef def = (ClDef) element;
       return def.getPresentationText();
+    }
+    if (element instanceof PsiNamedElement) {
+      final String s = ((PsiNamedElement) element).getName();
+      return s != null ? s : element.getText();
     }
     return element.getText();
   }
