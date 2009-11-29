@@ -5,13 +5,16 @@ import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.ClojureIcons;
+import org.jetbrains.plugins.clojure.repl.ReplManager;
 import org.jetbrains.plugins.clojure.repl.ReplPanel;
+import org.jetbrains.plugins.clojure.repl.util.ReplUtil;
 
 /**
  * @author ilyas
@@ -77,7 +80,12 @@ public class LoadCurrentfileInReplAction extends ClojureAction {
     if (filePath == null) return;
 
     PsiDocumentManager.getInstance(project).commitAllDocuments();
-    final ReplPanel repl = getCurrentRepl(e);
+    FileDocumentManager.getInstance().saveAllDocuments();
+    
+    ReplPanel repl = getCurrentRepl(e);
+    if (repl == null) {
+      repl = ReplManager.getInstance(project).createNewRepl(ReplUtil.getModule(e));
+    }
     if (repl != null) repl.writeToCurrentRepl("(load-file \"" + filePath + "\")");
   }
 }

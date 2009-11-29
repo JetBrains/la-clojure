@@ -1,17 +1,11 @@
 package org.jetbrains.plugins.clojure.actions.repl;
 
-import com.intellij.facet.FacetManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.util.Icons;
-import org.jetbrains.plugins.clojure.config.ClojureFacet;
-import org.jetbrains.plugins.clojure.config.ClojureFacetType;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.repl.ReplManager;
+import org.jetbrains.plugins.clojure.repl.util.ReplUtil;
 
 /**
  * @author Kurt Christensen, ilyas
@@ -23,7 +17,7 @@ public class AddReplAction extends ClojureAction {
 
   @Override
   public void update(AnActionEvent e) {
-    final Module m = getModule(e);
+    final Module m = ReplUtil.getModule(e);
     final Presentation presentation = e.getPresentation();
     if (m == null) {
       presentation.setEnabled(false);
@@ -34,34 +28,10 @@ public class AddReplAction extends ClojureAction {
   }
 
   public void actionPerformed(AnActionEvent e) {
-    Module module = getModule(e);
+    Module module = ReplUtil.getModule(e);
     if (module != null) {
       ReplManager.getInstance(module.getProject()).createNewRepl(module);
     }
   }
 
-  private static Module getModule(AnActionEvent e) {
-    Module module = e.getData(DataKeys.MODULE);
-    if (module == null) {
-      final Project project = e.getData(DataKeys.PROJECT);
-      if (project == null) return null;
-      final Module[] modules = ModuleManager.getInstance(project).getModules();
-      if (modules.length == 1) {
-        module = modules[0];
-      } else {
-        for (Module m : modules) {
-          final FacetManager manager = FacetManager.getInstance(m);
-          final ClojureFacet clFacet = manager.getFacetByType(ClojureFacetType.INSTANCE.getId());
-          if (clFacet != null) {
-            module = m;
-            break;
-          }
-        }
-        if (module == null) {
-          module = modules[0];
-        }
-      }
-    }
-    return module;
-  }
 }

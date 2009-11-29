@@ -51,7 +51,7 @@ public class ReplManager extends ContentManagerAdapter implements Disposable {
     myToolWindowManager = null;
   }
 
-  public void createNewRepl(@NotNull final Module module) {
+  public ReplPanel createNewRepl(@NotNull final Module module) {
     try {
       final ReplPanel replPanel = new ReplPanel(myProject, module);
 
@@ -65,18 +65,22 @@ public class ReplManager extends ContentManagerAdapter implements Disposable {
       contentManager.addContent(c);
       contentManager.setSelectedContent(c);
       toolWindow.activate(null);
+      return replPanel;
     } catch (IOException e) {
       e.printStackTrace();
+      return null;
     } catch (ConfigurationException e) {
       JOptionPane.showMessageDialog(null,
               ClojureBundle.message("config.error.replNotConfiguredMessage"),
               ClojureBundle.message("config.error.replNotConfiguredTitle"),
               JOptionPane.WARNING_MESSAGE);
+      return null;
     } catch (CantRunException e) {
       JOptionPane.showMessageDialog(null,
               ClojureBundle.message("config.error.replNotConfiguredMessage"),
               ClojureBundle.message("config.error.replNotConfiguredTitle"),
               JOptionPane.WARNING_MESSAGE);
+      return null;
     }
   }
 

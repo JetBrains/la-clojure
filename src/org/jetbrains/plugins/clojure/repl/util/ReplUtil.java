@@ -1,3 +1,5 @@
+package org.jetbrains.plugins.clojure.repl.util;
+
 import com.intellij.facet.FacetManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
