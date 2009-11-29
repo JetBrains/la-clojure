@@ -89,5 +89,6 @@ public interface ClojureTokenTypes {
   TokenSet SEPARATORS = TokenSet.create(symDOT, symNS_SEP);
 
   TokenSet IDENTIFIERS = TokenSet.create(symATOM);
+  TokenSet KEYWORDS = TokenSet.create(NIL, TRUE, FALSE);
   TokenSet STRINGS = TokenSet.create(STRING_LITERAL, WRONG_STRING_LITERAL);
 }

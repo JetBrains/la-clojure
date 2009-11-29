@@ -4,21 +4,16 @@ import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.compiler.CompilerManager;
-import com.intellij.codeHighlighting.TextEditorHighlightingPassRegistrar;
-import com.intellij.codeHighlighting.Pass;
-import com.intellij.problems.WolfTheProblemSolver;
 import com.intellij.debugger.DebuggerManager;
 import com.intellij.debugger.PositionManager;
 import com.intellij.debugger.engine.DebugProcess;
+import com.intellij.refactoring.rename.RenameInputValidatorRegistry;
 import com.intellij.util.Function;
 import com.intellij.util.containers.HashSet;
-import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.debugger.ClojurePositionManager;
+import org.jetbrains.plugins.clojure.refactoring.rename.ClojureRenameInputValidator;
+import org.jetbrains.plugins.clojure.refactoring.rename.ClojureSymbolPattern;
 
 import java.util.Set;
 
@@ -68,6 +63,9 @@ public class ClojureLoader implements ApplicationComponent {
         });
       }
     });
+
+    // register name input validator
+    RenameInputValidatorRegistry.getInstance().registerInputValidator(new ClojureSymbolPattern(), new ClojureRenameInputValidator());
 
   }
 

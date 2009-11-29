@@ -34,7 +34,7 @@ public class ClojureFindUsagesProvider implements FindUsagesProvider{
   public String getType(@NotNull PsiElement element) {
     if (element instanceof ClSymbol) return "symbol";
     if (element instanceof ClDef) return "definition";
-    return "enitity";
+    return "entity";
   }
 
   @NotNull
