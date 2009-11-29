@@ -36,11 +36,11 @@ public class ClojureUtils {
   public static boolean isClojureEditor(@NotNull Editor editor) {
     VirtualFile vfile = FileDocumentManager.getInstance().getFile(editor.getDocument());
     Project project = editor.getProject();
+    if (vfile == null) return false;
     if (project == null) {
       // XXX this is a hack, but what to do if we cannot access the PSI manager ???
       return vfile.getName().endsWith(".clj");
     }
-
     PsiFile file = PsiManager.getInstance(project).findFile(vfile);
     if (file == null) {
       // XXX oops, I did it again !
