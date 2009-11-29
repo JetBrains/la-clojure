@@ -4,8 +4,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.module.Module;
 import org.jetbrains.plugins.clojure.ClojureIcons;
+import org.jetbrains.plugins.clojure.actions.repl.util.ReplUtil;
 import org.jetbrains.plugins.clojure.repl.ReplManager;
-import org.jetbrains.plugins.clojure.repl.util.ReplUtil;
 
 /**
  * @author Kurt Christensen, ilyas

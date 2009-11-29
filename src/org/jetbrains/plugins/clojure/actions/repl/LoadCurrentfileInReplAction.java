@@ -14,7 +14,7 @@ import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.repl.ReplManager;
 import org.jetbrains.plugins.clojure.repl.ReplPanel;
-import org.jetbrains.plugins.clojure.repl.util.ReplUtil;
+import org.jetbrains.plugins.clojure.actions.repl.util.ReplUtil;
 
 /**
  * @author ilyas

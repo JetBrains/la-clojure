@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.clojure.repl.util;
+package org.jetbrains.plugins.clojure.actions.repl.util;
 
 import com.intellij.facet.FacetManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
