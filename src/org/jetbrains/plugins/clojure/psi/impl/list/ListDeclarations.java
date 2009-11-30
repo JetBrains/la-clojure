@@ -2,9 +2,10 @@ package org.jetbrains.plugins.clojure.psi.impl.list;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
@@ -15,22 +16,36 @@ import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbolImpl;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 
+import java.util.Arrays;
+import java.util.Set;
+
 /**
  * @author ilyas
  */
 public class ListDeclarations {
 
   public static final String LET = "let";
+  public static final String WITH_OPEN = "with-open";
+  public static final String WITH_LOCAL_VARS = "with-local-vars";
   public static final String WHEN_LET = "when-let";
+  public static final String WHEN_FIRST = "when-let";
+  public static final String FOR = "for";
   public static final String IF_LET = "if-let";
   public static final String LOOP = "loop";
   public static final String DECLARE = "declare";
   public static final String FN = "fn";
+
   public static final String NS = "ns";
+
   public static final String DEFN = "defn";
+  public static final String DEFN_ = "defn-";
   public static final String IMPORT = "import";
   private static final String MEMFN = "memfn";
   private static final String DOT = ".";
+
+  private static final Set<String> LOCAL_BINDINGS = new HashSet<String>(Arrays.asList(
+      LET, WITH_OPEN, WITH_LOCAL_VARS, WHEN_LET, WHEN_FIRST, FOR, IF_LET, LOOP, FN
+  ));
 
   public static boolean get(PsiScopeProcessor processor,
                             ResolveState state,
@@ -42,10 +57,10 @@ public class ListDeclarations {
     if (headText.equals(FN)) return processFnDeclaration(processor, list, place, lastParent);
     if (headText.equals(IMPORT)) return processImportDeclaration(processor, list, place);
     if (headText.equals(MEMFN)) return processMemFnDeclaration(processor, list, place);
-    if (headText.equals(DOT)) return processDotDeclaration(processor, list, place, lastParent);     
-    if (headText.equals(LET) || headText.equals(WHEN_LET)) return processLetDeclaration(processor, list, place);
+    if (headText.equals(DOT)) return processDotDeclaration(processor, list, place, lastParent);
     if (headText.equals(LOOP)) return processLoopDeclaration(processor, list, place, lastParent);
     if (headText.equals(DECLARE)) return processDeclareDeclaration(processor, list, place, lastParent);
+    if (LOCAL_BINDINGS.contains(headText)) return processLetDeclaration(processor, list, place);
 
     return true;
   }
@@ -155,8 +170,14 @@ public class ListDeclarations {
                   if (next instanceof ClSymbol) {
                     ClSymbol clazzSym = (ClSymbol) next;
                     final PsiClass clazz = facade.findClass(pack.getQualifiedName() + "." + clazzSym.getNameString(), GlobalSearchScope.allScope(project));
-                    if (clazz != null && !ResolveUtil.processElement(processor, clazz)) {
-                      return false;
+                    if (clazz != null) {
+                      if (!ResolveUtil.processElement(processor, clazz)) return false;
+                      for (PsiMethod method : clazz.getAllMethods()) {
+                        if (!ResolveUtil.processElement(processor, method)) return false;
+                      }
+                      for (PsiField field : clazz.getAllFields()) {
+                        if (!ResolveUtil.processElement(processor, field)) return false;
+                      }
                     }
                   }
                   next = next.getNextSibling();
@@ -188,7 +209,8 @@ public class ListDeclarations {
 
   private static boolean processFnDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place, PsiElement lastParent) {
     final PsiElement second = list.getSecondNonLeafElement();
-    if ((second instanceof ClSymbol) && place != second && !ResolveUtil.processElement(processor, ((ClSymbol) second))) return false;
+    if ((second instanceof ClSymbol) && place != second && !ResolveUtil.processElement(processor, ((ClSymbol) second)))
+      return false;
 
     if (PsiTreeUtil.findCommonParent(place, list) == list) {
       ClVector paramVector = list.findFirstChildByClass(ClVector.class);
@@ -220,10 +242,7 @@ public class ListDeclarations {
         if (par instanceof ClDef && ((ClDef) par).getSecondNonLeafElement() == element) return true;
         if (par instanceof ClList) {
           final String ht = ((ClList) par).getHeadText();
-          if (LET.equals(ht)) return true;
-          if (WHEN_LET.equals(ht)) return true;
-          if (IF_LET.equals(ht)) return true;
-          if (LOOP.equals(ht)) return true;
+          if (LOCAL_BINDINGS.contains(ht)) return true;
         }
       }
     }

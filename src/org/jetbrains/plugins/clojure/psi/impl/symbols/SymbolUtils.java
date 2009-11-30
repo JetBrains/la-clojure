@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.clojure.psi.impl.symbols;
 
-import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
+import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 
 import javax.swing.*;
 
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
 import static org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations.*;
-import org.jetbrains.plugins.clojure.ClojureIcons;
 
 /**
  * @author ilyas
@@ -29,7 +29,7 @@ public class SymbolUtils {
           final String nameString = lstSym.getNameString();
 
           if (FN.equals(nameString)) return ClojureIcons.FUNCTION;
-          if (DEFN.equals(nameString)) return ClojureIcons.FUNCTION;
+          if (DEFN.equals(nameString) || DEFN_.equals(nameString)) return ClojureIcons.FUNCTION;
         }
       }
 

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.clojure.file.ClojureFileType;
  * @author ilyas
  */
 public class ClStubFileElementType extends IStubFileElementType<ClFileStub> {
-  private static final int CACHES_VERSION = 10;
+  private static final int CACHES_VERSION = 11;
 
   public ClStubFileElementType() {
     super(ClojureFileType.CLOJURE_LANGUAGE);

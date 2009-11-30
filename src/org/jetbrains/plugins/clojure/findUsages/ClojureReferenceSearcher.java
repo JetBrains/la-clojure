@@ -23,7 +23,7 @@ public class ClojureReferenceSearcher implements QueryExecutor<PsiReference, Ref
   public boolean execute(ReferencesSearch.SearchParameters params, final Processor<PsiReference> consumer) {
     final PsiElement elem = params.getElementToSearch();
     final SearchScope scope = params.getScope();
-    if (elem instanceof ClSymbol && elem.getParent() instanceof ClDef) {
+    if (elem instanceof ClSymbol) {
       final ClSymbol symbolToSearch = (ClSymbol) elem;
       final String name = symbolToSearch.getName();
       if (name != null) {
