@@ -119,7 +119,13 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
                   ClSymbol clazzSym = (ClSymbol) next;
                   final PsiClass clazz = facade.findClass(pack.getQualifiedName() + "." + clazzSym.getNameString(), GlobalSearchScope.allScope(getProject()));
                   if (clazz != null && !ResolveUtil.processElement(processor, clazz)) {
-                    return true;
+                    return false;
+                  }
+                  for (PsiMethod method : clazz.getAllMethods()) {
+                    if (!ResolveUtil.processElement(processor, method)) return false;
+                  }
+                  for (PsiField field : clazz.getAllFields()) {
+                    if (!ResolveUtil.processElement(processor, field)) return false;
                   }
                 }
                 next = next.getNextSibling();

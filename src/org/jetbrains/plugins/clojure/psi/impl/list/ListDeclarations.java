@@ -8,6 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
+import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
 import org.jetbrains.plugins.clojure.psi.api.ClVector;
@@ -61,7 +62,6 @@ public class ListDeclarations {
     if (headText.equals(LOOP)) return processLoopDeclaration(processor, list, place, lastParent);
     if (headText.equals(DECLARE)) return processDeclareDeclaration(processor, list, place, lastParent);
     if (LOCAL_BINDINGS.contains(headText)) return processLetDeclaration(processor, list, place);
-
     return true;
   }
 
@@ -155,43 +155,67 @@ public class ListDeclarations {
         ClQuotedForm quotedForm = (ClQuotedForm) child;
         final ClojurePsiElement element = quotedForm.getQuotedElement();
         if (element instanceof ClList) {
-          ClList inner = (ClList) element;
-          final PsiElement first = inner.getFirstNonLeafElement();
-          if (first instanceof ClSymbol) {
-            final ClSymbol packSym = (ClSymbol) first;
+          if (processImportList(((ClList) element), processor, place, facade)) return false;
+        }
+      }
+    }
+    return true;
+  }
 
-            final PsiPackage pack = facade.findPackage(packSym.getNameString());
-            if (pack != null) {
-              if (place.getParent() == inner && place != packSym) {
-                pack.processDeclarations(processor, ResolveState.initial(), null, place);
-              } else {
-                PsiElement next = packSym.getNextSibling();
-                while (next != null) {
-                  if (next instanceof ClSymbol) {
-                    ClSymbol clazzSym = (ClSymbol) next;
-                    final PsiClass clazz = facade.findClass(pack.getQualifiedName() + "." + clazzSym.getNameString(), GlobalSearchScope.allScope(project));
-                    if (clazz != null) {
-                      if (!ResolveUtil.processElement(processor, clazz)) return false;
-                      for (PsiMethod method : clazz.getAllMethods()) {
-                        if (!ResolveUtil.processElement(processor, method)) return false;
-                      }
-                      for (PsiField field : clazz.getAllFields()) {
-                        if (!ResolveUtil.processElement(processor, field)) return false;
-                      }
-                    }
-                  }
-                  next = next.getNextSibling();
-                }
-              }
+  private static boolean processNamespaceDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place, PsiElement lastParent) {
+    final PsiElement[] children = list.getChildren();
+    final Project project = list.getProject();
+    final JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
+    for (PsiElement child : children) {
+      if (child instanceof ClList) {
+        ClList clList = (ClList) child;
+        final PsiElement first = clList.getFirstNonLeafElement();
+        if (first instanceof ClKeyword && ":import".equals(first.getText())) {
+          for (PsiElement importExpr : clList.getChildren()) {
+            if (importExpr instanceof ClList) {
+              ClList importList = (ClList) importExpr;
+              if (!processImportList(importList, processor, place, facade)) return false;
             }
           }
         }
       }
-
     }
-
-
     return true;
+  }
+
+
+  private static boolean processImportList(ClList importList, PsiScopeProcessor processor, PsiElement place, JavaPsiFacade facade) {
+    final PsiElement first = importList.getFirstNonLeafElement();
+    if (first instanceof ClSymbol) {
+      final ClSymbol packSym = (ClSymbol) first;
+
+      final PsiPackage pack = facade.findPackage(packSym.getNameString());
+      if (pack != null) {
+        if (place.getParent() == importList && place != packSym) {
+          pack.processDeclarations(processor, ResolveState.initial(), null, place);
+        } else {
+          PsiElement next = packSym.getNextSibling();
+          while (next != null) {
+            if (next instanceof ClSymbol) {
+              ClSymbol clazzSym = (ClSymbol) next;
+              final PsiClass clazz = facade.findClass(pack.getQualifiedName() + "." + clazzSym.getNameString(),
+                  GlobalSearchScope.allScope(importList.getProject()));
+              if (clazz != null) {
+                if (!ResolveUtil.processElement(processor, clazz)) return false;
+                for (PsiMethod method : clazz.getAllMethods()) {
+                  if (!ResolveUtil.processElement(processor, method)) return false;
+                }
+                for (PsiField field : clazz.getAllFields()) {
+                  if (!ResolveUtil.processElement(processor, field)) return false;
+                }
+              }
+            }
+            next = next.getNextSibling();
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private static boolean processLetDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
