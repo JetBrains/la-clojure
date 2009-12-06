@@ -321,6 +321,11 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
     return null;
   }
 
+  @Override
+   public PsiFile getContainingFile() {
+    return myFile;
+  }
+
   public PsiJavaToken getLBrace() {
     return null;
   }
