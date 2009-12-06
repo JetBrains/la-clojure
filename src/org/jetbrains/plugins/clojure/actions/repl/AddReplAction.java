@@ -10,7 +10,7 @@ import org.jetbrains.plugins.clojure.repl.ReplManager;
 /**
  * @author Kurt Christensen, ilyas
  */
-public class AddReplAction extends ClojureAction {
+public class AddReplAction extends ClojureReplAction {
   public AddReplAction() {
     getTemplatePresentation().setIcon(ClojureIcons.REPL_ADD);
   }

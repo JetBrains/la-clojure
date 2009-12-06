@@ -8,7 +8,7 @@ import org.jetbrains.plugins.clojure.ClojureIcons;
 /**
  * @author Kurt Christensen, ilyas
  */
-public class GoToReplAction extends ClojureAction {
+public class GoToReplAction extends ClojureReplAction {
 
   public GoToReplAction(){
     getTemplatePresentation().setIcon(ClojureIcons.REPL_GO);

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.clojure.actions.repl.util.ReplUtil;
 /**
  * @author ilyas
  */
-public class LoadCurrentfileInReplAction extends ClojureAction {
+public class LoadCurrentfileInReplAction extends ClojureReplAction {
 
   public LoadCurrentfileInReplAction(){
     getTemplatePresentation().setIcon(ClojureIcons.REPL_LOAD);

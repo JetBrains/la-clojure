@@ -33,7 +33,7 @@ import org.jetbrains.plugins.clojure.repl.ReplPanel;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  */
-public final class RunLastSexpAction extends ClojureAction {
+public final class RunLastSexpAction extends ClojureReplAction {
 
   public RunLastSexpAction(){
     getTemplatePresentation().setIcon(ClojureIcons.REPL_EVAL);

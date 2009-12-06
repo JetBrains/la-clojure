@@ -4,14 +4,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.repl.ReplManager;
 
 /**
  * @author Kurt Christensen, ilyas
  */
-public class RemoveReplAction extends ClojureAction {
+public class RemoveReplAction extends ClojureReplAction {
   public RemoveReplAction() {
     getTemplatePresentation().setIcon(ClojureIcons.REPL_CLOSE);
   }

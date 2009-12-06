@@ -12,7 +12,7 @@ import org.jetbrains.plugins.clojure.repl.ReplPanel;
 /**
  * @author Kurt Christensen, ilyas
  */
-public abstract class ClojureAction extends AnAction {
+public abstract class ClojureReplAction extends AnAction {
 
   @Nullable
   protected ReplManager getReplManager(final AnActionEvent e) {
