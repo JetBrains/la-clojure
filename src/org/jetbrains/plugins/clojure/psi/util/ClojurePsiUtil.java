@@ -20,6 +20,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
@@ -81,12 +82,8 @@ public class ClojurePsiUtil {
     return null;
   }
 
-  public static <T> T findNextSiblingByClass(PsiElement element, Class<T> aClass) {
-    PsiElement next = element.getNextSibling();
-    while (next != null && !aClass.isInstance(next)) {
-      next = next.getNextSibling();
-    }
-    return (T) next;
+  public static <T extends PsiElement> T findNextSiblingByClass(PsiElement element, Class<T> aClass) {
+    return PsiTreeUtil.getNextSiblingOfType(element, aClass);
   }
 
   public static ClKeyImpl findNamespaceKeyByName(ClList ns, String keyName) {
@@ -195,24 +192,6 @@ public class ClojurePsiUtil {
       element = element.getParent();
     }
     return (ClList) element;
-  }
-
-  public static PsiElement previousSiblingSexp(PsiElement element) {
-    PsiElement previous = null;
-    for (PsiElement child : element.getParent().getChildren()) {
-      if (child == element) { return previous; }
-      previous = child;
-    }
-    return null;
-  }
-
-  public static PsiElement nextSiblingSexp(PsiElement element) {
-    boolean next = false;
-    for (PsiElement child : element.getParent().getChildren()) {
-      if (next) { return child; }
-      if (child == element) { next = true; }
-    }
-    return null;
   }
 
   public static PsiElement firstChildSexp(PsiElement element) {

@@ -11,6 +11,7 @@ import com.intellij.psi.StubBasedPsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.stubs.IStubElementType;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +53,7 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
   public ClSymbol getNameSymbol() {
     final ClSymbol first = findChildByClass(ClSymbol.class);
     if (first == null) return null;
-    return org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
+    return PsiTreeUtil.getNextSiblingOfType(first, ClSymbol.class);
   }
 
   public String getDefinedName() {

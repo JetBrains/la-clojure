@@ -19,6 +19,8 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
+import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 
@@ -43,7 +45,7 @@ public final class SlurpForwardsAction extends ClojureEditorAction {
     }
     @Override
     protected void executeWriteAction(ClList sexp, Editor editor, Project project, DataContext dataContext) {
-      PsiElement slurpee = ClojurePsiUtil.nextSiblingSexp(sexp);
+      PsiElement slurpee = PsiTreeUtil.getNextSiblingOfType(sexp, ClojurePsiElement.class);
       if (slurpee == null) { return; }
 
       PsiElement copy = slurpee.copy();

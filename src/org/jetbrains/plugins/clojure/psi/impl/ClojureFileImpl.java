@@ -138,7 +138,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     if (ns == null) return false;
     final ClSymbol first = ns.findFirstChildByClass(ClSymbol.class);
     if (first == null) return false;
-    final ClSymbol snd = ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
+    final ClSymbol snd = PsiTreeUtil.getNextSiblingOfType(first, ClSymbol.class);
     if (snd == null) return false;
 
     return ClojurePsiUtil.findNamespaceKeyByName(ns, ClojurePsiUtil.GEN_CLASS) != null;
@@ -149,7 +149,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     if (ns == null) return null;
     final ClSymbol first = ns.findFirstChildByClass(ClSymbol.class);
     if (first == null) return null;
-    final ClSymbol snd = ClojurePsiUtil.findNextSiblingByClass(first, ClSymbol.class);
+    final ClSymbol snd = PsiTreeUtil.getNextSiblingOfType(first, ClSymbol.class);
     if (snd == null) return null;
 
     return snd.getNameString();
