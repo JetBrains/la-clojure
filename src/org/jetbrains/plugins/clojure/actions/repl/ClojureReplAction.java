@@ -5,6 +5,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.repl.ReplManager;
 import org.jetbrains.plugins.clojure.repl.ReplPanel;
@@ -30,7 +32,9 @@ public abstract class ClojureReplAction extends AnAction {
     return null;
   }
 
-  protected String getFilePath(AnActionEvent e) {
-    return e.getData(DataKeys.VIRTUAL_FILE).getPath();
+  protected @Nullable String getFilePath(@NotNull AnActionEvent e) {
+    VirtualFile vfile = e.getData(DataKeys.VIRTUAL_FILE);
+    return vfile != null ? vfile.getPath() : null;
   }
+
 }
