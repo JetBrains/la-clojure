@@ -14,14 +14,13 @@ import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.repl.ReplManager;
 import org.jetbrains.plugins.clojure.repl.ReplPanel;
-import org.jetbrains.plugins.clojure.actions.repl.util.ReplUtil;
 
 /**
  * @author ilyas
  */
-public class LoadCurrentfileInReplAction extends ClojureReplAction {
+public class LoadCurrentFileInReplAction extends ClojureReplAction {
 
-  public LoadCurrentfileInReplAction(){
+  public LoadCurrentFileInReplAction(){
     getTemplatePresentation().setIcon(ClojureIcons.REPL_LOAD);
   }
 
@@ -84,7 +83,7 @@ public class LoadCurrentfileInReplAction extends ClojureReplAction {
     
     ReplPanel repl = getCurrentRepl(e);
     if (repl == null) {
-      repl = ReplManager.getInstance(project).createNewRepl(ReplUtil.getModule(e));
+      repl = ReplManager.getInstance(project).createNewRepl(getModule(e));
     }
     if (repl != null) repl.writeToCurrentRepl("(load-file \"" + filePath + "\")");
   }

@@ -147,8 +147,8 @@
               description="Remove current Clojure REPL">
         <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt M"/>
       </action>
-      <action id="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentfileInReplAction"
-              class="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentfileInReplAction" text="Load file to REPL"
+      <action id="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentFileInReplAction"
+              class="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentFileInReplAction" text="Load file to REPL"
               description="Load current file to REPL">
         <keyboard-shortcut keymap="$default" first-keystroke="alt L"/>
       </action>
