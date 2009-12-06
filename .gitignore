@@ -1,3 +1,6 @@
 clojure-intellij-plugin.iws
 lib/clojure*.jar
-out/*
+out
+dist
+jflex.log
+*~
