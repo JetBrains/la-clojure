@@ -50,7 +50,7 @@ public class ReplPanel extends JPanel implements Disposable {
   public static final String REPL_TOOLWINDOW_PLACE = "REPL.ToolWindow";
   public static final String REPL_TOOLWINDOW_POPUP_PLACE = "REPL.ToolWindow.Popup";
 
-  private static final String CLOJURE_REPL_ACTION_GROUP = "ClojureReplActionGroup";
+  private static final String CLOJURE_REPL_ACTION_GROUP = "Clojure.REPL.Group";
 
   private Project myProject;
   private Repl myRepl;
