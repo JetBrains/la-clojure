@@ -15,21 +15,18 @@
  */
 package org.jetbrains.plugins.clojure.psi.util;
 
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.*;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.impl.ClKeyImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.PsiFile;
 import com.intellij.openapi.util.Trinity;
 import com.intellij.util.containers.HashSet;
 
@@ -80,10 +77,6 @@ public class ClojurePsiUtil {
       }
     }
     return null;
-  }
-
-  public static <T extends PsiElement> T findNextSiblingByClass(PsiElement element, Class<T> aClass) {
-    return PsiTreeUtil.getNextSiblingOfType(element, aClass);
   }
 
   public static ClKeyImpl findNamespaceKeyByName(ClList ns, String keyName) {
@@ -192,6 +185,29 @@ public class ClojurePsiUtil {
       element = element.getParent();
     }
     return (ClList) element;
+  }
+
+  /**
+   * Find the top most s-expression around the caret.
+   *
+   * @param editor the editor to search in.
+   * @return the s-expression, or {@code null} if not currently inside one.
+   */
+  public static @Nullable ClList findTopSexpAroundCaret(@NotNull Editor editor) {
+    Project project = editor.getProject();
+    if (project == null) { return null; }
+
+    Document document = editor.getDocument();
+    PsiFile file = PsiDocumentManager.getInstance(project).getPsiFile(document);
+    if (file == null) { return null; }
+
+    PsiElement element = file.findElementAt(editor.getCaretModel().getOffset());
+    ClList sexp = null;
+    while (element != null) {
+      if (element instanceof ClList) { sexp = (ClList) element; }
+      element = element.getParent();
+    }
+    return sexp;
   }
 
   public static PsiElement firstChildSexp(PsiElement element) {
