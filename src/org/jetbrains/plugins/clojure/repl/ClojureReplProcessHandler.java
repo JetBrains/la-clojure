@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.clojure.repl;
 
 import clojure.lang.AFn;
+import clojure.main;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
@@ -37,8 +38,6 @@ import java.util.HashSet;
 import java.util.Arrays;
 import java.util.concurrent.*;
 
-import clojure.lang.Repl;
-
 /**
  * @author Kurt Christensen, ilyas
  */
@@ -51,7 +50,8 @@ public class ClojureReplProcessHandler extends ProcessHandler {
   private final ProcessWaitFor myWaitFor;
   private final String myExecPath;
   private final Module myModule;
-  private static final String CLOJURE_LANG_REPL = "clojure.lang.Repl";
+
+  private static final String CLOJURE_MAIN = "clojure.main";
   private static final String CLOJURE_SDK = PathUtil.getJarPathForClass(AFn.class);
 
   public static Future<?> executeOnPooledThread(Runnable task) {
@@ -89,7 +89,7 @@ public class ClojureReplProcessHandler extends ProcessHandler {
     } else {
       // For now, the command-line is hard-coded. We may need more flexibility
       //  in the future (e.g., different Clojure paths with different args)
-      final String jarPath = PathUtil.getJarPathForClass(Repl.class);
+      final String jarPath = PathUtil.getJarPathForClass(main.class);
       assert jarPath != null;
 
       final JavaParameters params = new JavaParameters();
@@ -113,7 +113,7 @@ public class ClojureReplProcessHandler extends ProcessHandler {
       }
 
 
-      params.setMainClass(CLOJURE_LANG_REPL);
+      params.setMainClass(CLOJURE_MAIN);
       params.setWorkingDirectory(path);
 
       final GeneralCommandLine line = CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true);
