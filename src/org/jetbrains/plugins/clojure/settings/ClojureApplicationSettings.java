@@ -10,13 +10,10 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
  * @author ilyas
  */
 @State(
-    name = "ClojureApplicationSettings",
-    storages = {
-    @Storage(
-        id = "scala_config",
-        file = "$APP_CONFIG$/clojure_config.xml"
-    )}
-)
+  name = "ClojureApplicationSettings",
+  storages = {
+    @Storage(id = "clojure_config", file = "$APP_CONFIG$/clojure_application.xml")
+})
 public class ClojureApplicationSettings implements PersistentStateComponent<ClojureApplicationSettings> {
 
   public String[] CONSOLE_HISTORY = new String[0];

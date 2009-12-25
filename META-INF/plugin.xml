@@ -15,7 +15,7 @@
     Inc.
   </vendor>
   <!--<idea-version since-build="SINCE_IDEA" until-build="UNTIL_IDEA"/>-->
-  <idea-version since-build="93.13" until-build="93.13"/>
+  <idea-version since-build="IU-93.13" until-build="IU-93.54"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
@@ -66,6 +66,7 @@
         implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureLiteralSelectioner"/>
     <debugger.codeFragmentFactory
         implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragementFactory"/>
+    <!-- <unscrambleSupport implementation="org.jetbrains.plugins.clojure.debugger.ClojureUnscrambler"/> -->
     <compilerSettingsFactory implementation="org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettingsFactory"/>
     <frameworkSupport implementation="org.jetbrains.plugins.clojure.config.ClojureFacetSupportProvider"/>
     <applicationService serviceInterface="org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings"
@@ -76,6 +77,10 @@
 
     <projectService serviceInterface="org.jetbrains.plugins.clojure.repl.ReplManager"
                     serviceImplementation="org.jetbrains.plugins.clojure.repl.ReplManager"/>
+
+    <projectConfigurable implementation="org.jetbrains.plugins.clojure.settings.ClojureConfigurable"/>
+    <projectService serviceInterface="org.jetbrains.plugins.clojure.settings.ClojureProjectSettings"
+                    serviceImplementation="org.jetbrains.plugins.clojure.settings.ClojureProjectSettings"/>
 
     <java.elementFinder implementation="org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder"/>
     <lang.namesValidator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.refactoring.rename.ClojureNameValidator"/>
@@ -173,6 +178,14 @@
 
       <add-to-group group-id="ToolsMenu" anchor="last"/>
 
+    </group>
+
+    <!-- A subset of the REPL actions that should be displayed in the panel toolbar. -->
+    <group id="Clojure.REPL.PanelGroup"
+           class="org.jetbrains.plugins.clojure.repl.ClojureReplActionGroup"
+           text="Clojure REPL" description="Clojure" popup="true">
+      <reference ref="org.jetbrains.plugins.clojure.actions.repl.AddReplAction"/>
+      <reference ref="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction"/>
     </group>
 
     <!-- Structural Editing -->

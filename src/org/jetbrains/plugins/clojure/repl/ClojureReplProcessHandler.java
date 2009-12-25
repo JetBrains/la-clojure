@@ -1,45 +1,70 @@
+/*
+ * Copyright 2009 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jetbrains.plugins.clojure.repl;
 
 import clojure.lang.AFn;
 import clojure.main;
+import com.intellij.execution.CantRunException;
+import com.intellij.execution.configurations.CommandLineBuilder;
+import com.intellij.execution.configurations.GeneralCommandLine;
+import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessOutputTypes;
-import com.intellij.execution.configurations.JavaParameters;
-import com.intellij.execution.configurations.CommandLineBuilder;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.CantRunException;
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.vfs.encoding.EncodingManager;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.roots.OrderEntry;
-import com.intellij.openapi.roots.ModuleSourceOrderEntry;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.SdkType;
-import com.intellij.openapi.projectRoots.JavaSdkType;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ModuleSourceOrderEntry;
+import com.intellij.openapi.roots.OrderEntry;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.util.Alarm;
 import com.intellij.util.PathUtil;
-import com.intellij.ide.DataManager;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.StringTokenizer;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Arrays;
-import java.util.concurrent.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Kurt Christensen, ilyas
+ * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  */
 public class ClojureReplProcessHandler extends ProcessHandler {
 
@@ -80,14 +105,14 @@ public class ClojureReplProcessHandler extends ProcessHandler {
     }
   }
 
-  public ClojureReplProcessHandler(String path, Module cp) throws IOException, ConfigurationException, CantRunException {
+  public ClojureReplProcessHandler(String path, String[] commandLineArgs, Module cp) throws IOException, ConfigurationException, CantRunException {
     myExecPath = path;
     myModule = cp;
 
     if (notConfigured()) {
       throw new ConfigurationException("Can't create Clojure REPL process");
     } else {
-      // For now, the command-line is hard-coded. We may need more flexibility
+      // Only a single command line per-project is supported. We may need more flexibility
       //  in the future (e.g., different Clojure paths with different args)
       final String jarPath = PathUtil.getJarPathForClass(main.class);
       assert jarPath != null;
@@ -119,6 +144,7 @@ public class ClojureReplProcessHandler extends ProcessHandler {
       final GeneralCommandLine line = CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true);
 
       final Sdk sdk = params.getJdk();
+      assert sdk != null;
       final SdkType type = sdk.getSdkType();
       final String executablePath = ((JavaSdkType) type).getVMExecutablePath(sdk);
       final StringBuffer buffer = new StringBuffer(executablePath);
@@ -128,26 +154,26 @@ public class ClojureReplProcessHandler extends ProcessHandler {
       }
 
       final String command = buffer.toString();
-      myProcess = Runtime.getRuntime().exec(command, new String[0], new File(myExecPath));
+      myProcess = Runtime.getRuntime().exec(command, commandLineArgs, new File(myExecPath));
       myWaitFor = new ProcessWaitFor(myProcess);
     }
 
-    addProcessListener(new ProcessAdapter() {
-      public void onTextAvailable(ProcessEvent event, Key outputType) {
-//        System.out.println(scrub(event.getText()));
-      }
-
-      private String scrub(String output) {
-        StringTokenizer t = new StringTokenizer(output, "=>");
-        if (t.hasMoreTokens()) {
-          t.nextToken();
-          if (t.hasMoreTokens()) {
-            return t.nextToken().trim();
-          }
-        }
-        return output;
-      }
-    });
+//    addProcessListener(new ProcessAdapter() {
+//      public void onTextAvailable(ProcessEvent event, Key outputType) {
+////        System.out.println(scrub(event.getText()));
+//      }
+//
+//      private String scrub(String output) {
+//        StringTokenizer t = new StringTokenizer(output, "=>");
+//        if (t.hasMoreTokens()) {
+//          t.nextToken();
+//          if (t.hasMoreTokens()) {
+//            return t.nextToken().trim();
+//          }
+//        }
+//        return output;
+//      }
+//    });
   }
 
   private boolean notConfigured() {

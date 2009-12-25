@@ -1,3 +1,18 @@
+/*
+ * Copyright 2009 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jetbrains.plugins.clojure.repl;
 
 import com.intellij.execution.CantRunException;
@@ -27,6 +42,7 @@ import com.intellij.util.Function;
 import com.intellij.util.PathsList;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.settings.ClojureProjectSettings;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings;
 
@@ -50,7 +66,7 @@ public class ReplPanel extends JPanel implements Disposable {
   public static final String REPL_TOOLWINDOW_PLACE = "REPL.ToolWindow";
   public static final String REPL_TOOLWINDOW_POPUP_PLACE = "REPL.ToolWindow.Popup";
 
-  private static final String CLOJURE_REPL_ACTION_GROUP = "Clojure.REPL.Group";
+  private static final String CLOJURE_REPL_ACTION_GROUP = "Clojure.REPL.PanelGroup";
 
   private Project myProject;
   private Repl myRepl;
@@ -175,10 +191,8 @@ public class ReplPanel extends JPanel implements Disposable {
   private class Repl implements Disposable {
     public ConsoleView view;
     private ProcessHandler processHandler;
-    private final Module myModule;
 
     public Repl(Module module) throws IOException, ConfigurationException, CantRunException {
-      myModule = module;
       final TextConsoleBuilderImpl builder = new TextConsoleBuilderImpl(myProject) {
         private final ArrayList<Filter> filters = new ArrayList<Filter>();
 
@@ -205,7 +219,8 @@ public class ReplPanel extends JPanel implements Disposable {
 
 //      final VirtualFile baseDir = myProject.getBaseDir();
       final String baseDir = module.getModuleFile().getParent().getPath();
-      processHandler = new ClojureReplProcessHandler(baseDir, module);
+      ClojureProjectSettings settings = ClojureProjectSettings.getInstance(myProject);
+      processHandler = new ClojureReplProcessHandler(baseDir, settings.getCommandLineArgs(), module);
       ProcessTerminatedListener.attach(processHandler);
       processHandler.startNotify();
       view.attachToProcess(processHandler);
