@@ -19,7 +19,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClBraced;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 
 /**
@@ -45,12 +45,12 @@ abstract class AbstractSexpActionHandler extends EditorWriteActionHandler {
     Project project = editor.getProject();
     if (project == null) { return; }
 
-    ClList sexp = ClojurePsiUtil.findSexpAtCaret(editor, myPrevious);
+    ClBraced sexp = ClojurePsiUtil.findSexpAtCaret(editor, myPrevious);
     if (sexp == null) return;
 
     executeWriteAction(sexp, editor, project, dataContext);
   }
 
-  protected abstract void executeWriteAction(ClList sexp, Editor editor, Project project, DataContext dataContext);
+  protected abstract void executeWriteAction(ClBraced sexp, Editor editor, Project project, DataContext dataContext);
 
 }

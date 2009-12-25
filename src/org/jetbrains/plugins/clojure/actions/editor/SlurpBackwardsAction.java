@@ -21,7 +21,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClBraced;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 
 /**
@@ -44,7 +44,7 @@ public final class SlurpBackwardsAction extends ClojureEditorAction {
       super(false);
     }
     @Override
-    protected void executeWriteAction(ClList sexp, Editor editor, Project project, DataContext dataContext) {
+    protected void executeWriteAction(ClBraced sexp, Editor editor, Project project, DataContext dataContext) {
       PsiElement slurpee = PsiTreeUtil.getPrevSiblingOfType(sexp, ClojurePsiElement.class);
       if (slurpee == null) { return; }
 

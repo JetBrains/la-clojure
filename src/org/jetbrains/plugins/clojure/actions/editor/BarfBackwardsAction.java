@@ -19,7 +19,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClBraced;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 
 /**
@@ -42,7 +42,7 @@ public final class BarfBackwardsAction extends ClojureEditorAction {
       super(false);
     }
     @Override
-    protected void executeWriteAction(ClList sexp, Editor editor, Project project, DataContext dataContext) {
+    protected void executeWriteAction(ClBraced sexp, Editor editor, Project project, DataContext dataContext) {
       PsiElement barfee = ClojurePsiUtil.firstChildSexp(sexp);
       if (barfee == null) { return; }
 

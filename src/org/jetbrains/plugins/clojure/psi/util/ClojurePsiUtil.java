@@ -21,6 +21,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import org.jetbrains.plugins.clojure.psi.api.ClBraced;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
@@ -151,14 +152,18 @@ public class ClojurePsiUtil {
     return false;
   }
 
+  private static boolean anyOf(char c, String s) {
+    return s.indexOf(c) != -1;
+  }
+
   /**
    * Find the s-expression at the caret in a given editor.
    *
    * @param editor the editor to search in.
-   * @param previous should the s-exp <i>behind</i> the caret be returned 9rather than <i>around</i> the caret).
+   * @param previous should the s-exp <i>behind</i> the caret be returned (rather than <i>around</i> the caret).
    * @return the s-expression, or {@code null} if none could be found.
    */
-  public static @Nullable ClList findSexpAtCaret(@NotNull Editor editor, boolean previous) {
+  public static @Nullable ClBraced findSexpAtCaret(@NotNull Editor editor, boolean previous) {
     Project project = editor.getProject();
     if (project == null) { return null; }
 
@@ -172,19 +177,17 @@ public class ClojurePsiUtil {
     CharSequence chars = editor.getDocument().getCharsSequence();
     int offset = editor.getCaretModel().getOffset();
     if (previous) {
-      while (offset != 0 &&
-          offset < chars.length() &&
-          chars.charAt(offset) != ')') {
+      while (offset != 0 && offset < chars.length() && !anyOf(chars.charAt(offset), "]})")) {
         --offset;
       }
     }
     if (offset == 0) { return null; }
 
     PsiElement element = file.findElementAt(offset);
-    while (element != null && !(element instanceof ClList)) {
+    while (element != null && !(element instanceof ClBraced)) {
       element = element.getParent();
     }
-    return (ClList) element;
+    return (ClBraced) element;
   }
 
   /**
