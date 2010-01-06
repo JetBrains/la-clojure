@@ -5,24 +5,22 @@ import com.intellij.openapi.util.Trinity;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.psi.scope.PsiScopeProcessor;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.util.PsiElementFilter;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
-import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
-import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
-import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
-import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureNsNameIndex;
-import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureClassNameIndex;
-import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
-import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
+import com.intellij.psi.util.PsiElementFilter;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
+import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
+import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureNsNameIndex;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 
-import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * @author ilyas

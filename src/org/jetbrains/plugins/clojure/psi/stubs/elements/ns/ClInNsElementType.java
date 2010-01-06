@@ -25,6 +25,7 @@ public class ClInNsElementType extends ClNsElementTypeBase {
   public ClNs createPsi(ClNsStub stub) {
     return new ClInNsImpl(stub, ClojureElementTypes.IN_NS);
   }
+  
   public ClNsStub createStub(ClNs psi, StubElement parentStub) {
     return new ClNsStubImpl(parentStub, StringRef.fromString(psi.getDefinedName()), ClojureElementTypes.IN_NS);
   }

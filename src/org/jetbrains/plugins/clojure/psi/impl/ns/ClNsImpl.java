@@ -50,8 +50,11 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
    */
   @Nullable
   public ClSymbol getNameSymbol() {
-    final PsiElement element = getSecondNonLeafElement();
-    if (element instanceof ClSymbol) {
+    PsiElement element = getSecondNonLeafElement();
+    while (element != null && !(element instanceof ClSymbol)) {
+      element = element.getNextSibling();
+    }
+    if (element != null) {
       return (ClSymbol) element;
     }
     return null;

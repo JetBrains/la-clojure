@@ -5,6 +5,7 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.containers.HashSet;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.highlighter.ClojureSyntaxHighlighter;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
@@ -19,10 +20,10 @@ public class ClojureAnnotator implements Annotator {
   public static final Set<String> IMPLICIT_NAMES = new HashSet<String>();
 
   static {
-    IMPLICIT_NAMES.addAll(Arrays.asList("def", "new", "throw"));
+    IMPLICIT_NAMES.addAll(Arrays.asList("def", "new", "throw", "ns", "in-ns"));
   }
 
-  public void annotate(PsiElement element, AnnotationHolder holder) {
+  public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
     if (element instanceof ClList) {
       annotateList((ClList) element, holder);
     }
