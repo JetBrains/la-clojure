@@ -20,7 +20,7 @@ public class ClojureAnnotator implements Annotator {
   public static final Set<String> IMPLICIT_NAMES = new HashSet<String>();
 
   static {
-    IMPLICIT_NAMES.addAll(Arrays.asList("def", "new", "throw", "ns", "in-ns"));
+    IMPLICIT_NAMES.addAll(Arrays.asList("def", "new", "throw", "ns", "in-ns", "if"));
   }
 
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
