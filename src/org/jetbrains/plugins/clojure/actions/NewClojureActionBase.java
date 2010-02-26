@@ -110,7 +110,8 @@ public abstract class NewClojureActionBase extends CreateElementActionBase {
 
   protected static PsiFile createFileFromTemplate(final PsiDirectory directory, String className, @NonNls String templateName,
                                                   @NonNls String... parameters) throws IncorrectOperationException {
-    return ClojureTemplatesFactory.createFromTemplate(directory, className, className + CLOJURE_EXTENSION, templateName, parameters);
+    final String name = StringUtil.trimEnd(className, CLOJURE_EXTENSION);
+    return ClojureTemplatesFactory.createFromTemplate(directory, name, name + CLOJURE_EXTENSION, templateName, parameters);
   }
 
 
@@ -123,11 +124,12 @@ public abstract class NewClojureActionBase extends CreateElementActionBase {
   }
 
   public static void checkCreateFile(@NotNull PsiDirectory directory, String name) throws IncorrectOperationException {
-    if (!ClojureNamesUtil.isIdentifier(name)) {
+    final String trimmedName = StringUtil.trimEnd(name, CLOJURE_EXTENSION);
+    if (!ClojureNamesUtil.isIdentifier(trimmedName)) {
       throw new IncorrectOperationException(ClojureBundle.message("0.is.not.an.identifier", name));
     }
 
-    String fileName = name + "." + CLOJURE_EXTENSION;
+    String fileName = trimmedName + "." + CLOJURE_EXTENSION;
     directory.checkCreateFile(fileName);
 
     PsiNameHelper helper = JavaPsiFacade.getInstance(directory.getProject()).getNameHelper();
