@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.findUsages;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.PsiSearchHelper;
 import com.intellij.psi.search.SearchScope;
@@ -11,7 +12,6 @@ import com.intellij.psi.search.UsageSearchContext;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.util.Processor;
 import com.intellij.util.QueryExecutor;
-import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 
 import java.util.List;
@@ -23,8 +23,8 @@ public class ClojureReferenceSearcher implements QueryExecutor<PsiReference, Ref
   public boolean execute(ReferencesSearch.SearchParameters params, final Processor<PsiReference> consumer) {
     final PsiElement elem = params.getElementToSearch();
     final SearchScope scope = params.getScope();
-    if (elem instanceof ClSymbol) {
-      final ClSymbol symbolToSearch = (ClSymbol) elem;
+    if (elem instanceof PsiNamedElement) {
+      final PsiNamedElement symbolToSearch = (PsiNamedElement) elem;
       final String name = symbolToSearch.getName();
       if (name != null) {
         final List<String> wordsIn = StringUtil.getWordsIn(name);
