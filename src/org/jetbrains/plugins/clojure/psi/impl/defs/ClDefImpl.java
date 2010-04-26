@@ -30,6 +30,7 @@ import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 
 import javax.swing.*;
+import java.util.List;
 
 /**
  * @author ilyas
@@ -155,8 +156,7 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
 
     final ClMetadata meta = getMeta();
     if (meta == null) return null;
-    final ClojurePsiElement value = meta.getValue("doc");
-    return processString(value);
+    return processMetadata(meta);
   }
 
   private String processString(PsiElement element) {
@@ -165,6 +165,24 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
       return StringUtil.trimStart(StringUtil.trimEnd(rawText, "\""), "\"");
     }
     return null;
+  }
+
+  private String processMetadata(@NotNull ClMetadata meta) {
+    final StringBuffer buffer = new StringBuffer();
+    final ClojurePsiElement args = meta.getValue("arglists");
+    if (args != null) {
+      final String argText = args.getText();
+      final List<String> chunks = StringUtil.split(argText, "\n");
+      for (String chunk : chunks) {
+        buffer.append(chunk.trim()).append("\n");
+      }
+    }
+
+    final ClojurePsiElement value = meta.getValue("doc");
+    if (value != null) {
+      buffer.append(processString(value));
+    }
+    return buffer.toString();
   }
 
 

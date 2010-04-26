@@ -124,11 +124,13 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
                   if (clazz != null && !ResolveUtil.processElement(processor, clazz)) {
                     return false;
                   }
-                  for (PsiMethod method : clazz.getAllMethods()) {
-                    if (!ResolveUtil.processElement(processor, method)) return false;
-                  }
-                  for (PsiField field : clazz.getAllFields()) {
-                    if (!ResolveUtil.processElement(processor, field)) return false;
+                  if (clazz != null) {
+                    for (PsiMethod method : clazz.getAllMethods()) {
+                      if (!ResolveUtil.processElement(processor, method)) return false;
+                    }
+                    for (PsiField field : clazz.getAllFields()) {
+                      if (!ResolveUtil.processElement(processor, field)) return false;
+                    }
                   }
                 }
                 next = next.getNextSibling();
