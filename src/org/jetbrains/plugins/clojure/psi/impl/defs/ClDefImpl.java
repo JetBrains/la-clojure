@@ -18,8 +18,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.ClLiteral;
+import org.jetbrains.plugins.clojure.psi.api.ClMetadata;
 import org.jetbrains.plugins.clojure.psi.api.ClVector;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
@@ -147,9 +149,20 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
     while (element != null && isWrongElement(element)) {
       element = element.getNextSibling();
     }
+    // For doc String
+    final String s = processString(element);
+    if (s != null) return s;
+
+    final ClMetadata meta = getMeta();
+    if (meta == null) return null;
+    final ClojurePsiElement value = meta.getValue("doc");
+    return processString(value);
+  }
+
+  private String processString(PsiElement element) {
     if (element instanceof ClLiteral && element.getFirstChild().getNode().getElementType() == ClojureTokenTypes.STRING_LITERAL) {
       final String rawText = element.getText();
-      return StringUtil.trimStart(StringUtil.trimEnd(rawText,"\""), "\"");
+      return StringUtil.trimStart(StringUtil.trimEnd(rawText, "\""), "\"");
     }
     return null;
   }
@@ -178,6 +191,15 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
   public String getParameterString() {
     final ClVector params = findChildByClass(ClVector.class);
     return params == null ? "" : params.getText();
+  }
+
+  public ClMetadata getMeta() {
+    for (PsiElement element : getChildren()) {
+      if (element instanceof ClMetadata) {
+        return (ClMetadata) element;
+      }
+    }
+    return null;
   }
 
   public String getMethodInfo() {

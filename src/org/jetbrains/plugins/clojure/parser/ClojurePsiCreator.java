@@ -26,7 +26,7 @@ public class ClojurePsiCreator {
     if (elementType == ClojureElementTypes.MAP) return new ClMapImpl(node);
     if (elementType == ClojureElementTypes.SET) return new ClSetImpl(node);
 
-    if (elementType == ClojureElementTypes.MAP_ENTRY) return new ClMapEntry(node);
+    if (elementType == ClojureElementTypes.MAP_ENTRY) return new ClMapEntryImpl(node);
 
     if (elementType == ClojureElementTypes.QUOTED_FORM) return new ClQuotedFormImpl(node);
     if (elementType == ClojureElementTypes.META_FORM) return new ClMetaForm(node);
