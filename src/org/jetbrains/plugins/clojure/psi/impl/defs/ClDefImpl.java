@@ -159,7 +159,8 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
   private String processString(PsiElement element) {
     if (element instanceof ClLiteral && element.getFirstChild().getNode().getElementType() == ClojureTokenTypes.STRING_LITERAL) {
       final String rawText = element.getText();
-      return StringUtil.trimStart(StringUtil.trimEnd(rawText, "\""), "\"");
+      final String str = StringUtil.trimStart(StringUtil.trimEnd(rawText, "\""), "\"");
+      return str.replace("\n  ", "\n").replace("\n","<br/>");
     }
     return null;
   }

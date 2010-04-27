@@ -45,7 +45,7 @@ public class ClojureDocumentationProvider implements DocumentationProvider {
     }*/
 //    return buffer.toString();
 
-    return "<pre>" + str.replaceAll("\n(\\s)+","<br/>") + "</pre>"; 
+    return "<pre>" + str + "</pre>"; 
   }
 
   @Nullable
