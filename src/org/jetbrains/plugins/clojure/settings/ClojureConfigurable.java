@@ -64,7 +64,7 @@ public final class ClojureConfigurable extends AbstractProjectComponent implemen
   }
 
   public boolean isModified() {
-    return mySettingsForm != null && mySettingsForm.isModified();
+    return mySettingsForm.isModified();
   }
 
   public void apply() throws ConfigurationException {

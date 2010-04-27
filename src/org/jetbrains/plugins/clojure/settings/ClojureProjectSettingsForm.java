@@ -51,8 +51,9 @@ public final class ClojureProjectSettingsForm {
 
   boolean isModified() {
     final String args = mySettings.commandLineArgs;
-    return (args == null || args.length() == 0)
-        || myAutoStartRepl.isSelected();
+    final boolean autoStartRepl = mySettings.autoStartRepl;
+    return (args == null || !args.equals(myCommandLineArgs.getText()))
+        || (myAutoStartRepl.isSelected() != autoStartRepl);
   }
 
   void reset() {
