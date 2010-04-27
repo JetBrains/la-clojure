@@ -35,6 +35,23 @@ public class ClojurePsiElementFactoryImpl extends ClojurePsiFactory {
     return hasErrorElement(clojureFile);
   }
 
+  public String getErrorMessage(@NotNull String text) {
+    if (!hasSyntacticalErrors(text)) return null;
+    final ClojureFile clojureFile = (ClojureFile) PsiFileFactory.getInstance(getProject()).createFileFromText(DUMMY + ClojureFileType.CLOJURE_FILE_TYPE.getDefaultExtension(), text);
+    return getErrorMessageInner(clojureFile);
+  }
+
+  private static String getErrorMessageInner(PsiElement element) {
+    if (element instanceof PsiErrorElement) {
+      return ((PsiErrorElement) element).getErrorDescription();
+    }
+    for (PsiElement child : element.getChildren()) {
+      final String msg = getErrorMessageInner(child);
+      if (msg != null) return msg;
+    }
+    return null;
+  }
+
   private static boolean hasErrorElement(PsiElement element) {
     if (element instanceof PsiErrorElement) return true;
     for (PsiElement child : element.getChildren()) {

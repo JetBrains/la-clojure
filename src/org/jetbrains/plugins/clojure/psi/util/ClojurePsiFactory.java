@@ -16,5 +16,7 @@ public abstract class ClojurePsiFactory {
 
   public abstract ASTNode createSymbolNodeFromText(@NotNull String newName); 
 
-  public abstract boolean hasSyntacticalErrors(@NotNull String text); 
+  public abstract boolean hasSyntacticalErrors(@NotNull String text);
+
+  public abstract String getErrorMessage(@NotNull String text);
 }

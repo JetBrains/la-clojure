@@ -40,9 +40,10 @@ public class RunSelectedTextAction extends ClojureReplAction {
     final String text = selectedText.trim();
     final Project project = editor.getProject();
 
-    if (ClojurePsiFactory.getInstance(project).hasSyntacticalErrors(text)) {
+    final String msg = ClojurePsiFactory.getInstance(project).getErrorMessage(text);
+    if (msg != null) {
       Messages.showErrorDialog(project,
-              ClojureBundle.message("evaluate.incorrect.form"),
+              ClojureBundle.message("evaluate.incorrect.form", msg),
               ClojureBundle.message("evaluate.incorrect.cannot.evaluate"));
       return;
     }
