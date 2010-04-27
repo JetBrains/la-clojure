@@ -19,10 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
-import org.jetbrains.plugins.clojure.psi.api.ClLiteral;
-import org.jetbrains.plugins.clojure.psi.api.ClMetadata;
-import org.jetbrains.plugins.clojure.psi.api.ClVector;
+import org.jetbrains.plugins.clojure.psi.api.*;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.list.ClListBaseImpl;
@@ -30,7 +27,7 @@ import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 
 import javax.swing.*;
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author ilyas
@@ -171,10 +168,24 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
     final StringBuffer buffer = new StringBuffer();
     final ClojurePsiElement args = meta.getValue("arglists");
     if (args != null) {
-      final String argText = args.getText();
-      final List<String> chunks = StringUtil.split(argText, "\n");
-      for (String chunk : chunks) {
-        buffer.append(chunk.trim()).append("\n");
+      if (args instanceof ClQuotedForm) {
+        ClQuotedForm form = (ClQuotedForm) args;
+        if (form.getQuotedElement() instanceof ClList) {
+          ClList list = (ClList) form.getQuotedElement();
+          final ArrayList<String> chunks = new ArrayList<String>();
+          if (list != null) {
+            for (PsiElement element : list.getChildren()) {
+              if (element instanceof ClVector) {
+                chunks.add(element.getText());
+              }
+            }
+          }
+          buffer.append("Arguments:\n");
+          for (String chunk : chunks) {
+            buffer.append("<b>").append(chunk.trim()).append("</b>").append("\n");
+          }
+          buffer.append("<br/>");
+        }
       }
     }
 
