@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 
 import java.io.File;
@@ -126,7 +127,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
 
   public static void configureScriptSystemClassPath(final JavaParameters params, final Module module) throws CantRunException {
     params.configureByModule(module, JavaParameters.JDK_ONLY);
-    params.getClassPath().add(CLOJURE_SDK);
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
 
     ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
@@ -141,6 +141,10 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
 
     for (VirtualFile file : cpVFiles) {
       params.getClassPath().add(file.getPath());
+    }
+
+    if (!ClojureConfigUtil.isClojureConfigured(module)) {
+      params.getClassPath().add(CLOJURE_SDK);
     }
 
 //    params.getClassPath().add("/home/ilya/work/clojure-plugin/lib/jline.jar");

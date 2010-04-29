@@ -60,7 +60,7 @@ public class ClojurePositionManager implements PositionManager {
   @NotNull
   public List<Location> locationsOfLine(ReferenceType type, SourcePosition position) throws NoDataException {
     try {
-      int line = position.getLine() + 1;
+        int line = position.getLine() + 1;
       List<Location> locations = getDebugProcess().getVirtualMachineProxy().versionHigher("1.4")
           ? type.locationsOfLine(DebugProcessImpl.JAVA_STRATUM, null, line)
           : type.locationsOfLine(line);
