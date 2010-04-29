@@ -16,7 +16,6 @@
 package org.jetbrains.plugins.clojure.repl;
 
 import clojure.lang.AFn;
-import clojure.main;
 import com.intellij.execution.CantRunException;
 import com.intellij.execution.configurations.CommandLineBuilder;
 import com.intellij.execution.configurations.GeneralCommandLine;
@@ -43,24 +42,15 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.util.Alarm;
 import com.intellij.util.PathUtil;
+import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Kurt Christensen, ilyas
@@ -87,17 +77,17 @@ public class ClojureReplProcessHandler extends ProcessHandler {
     } else {
       if (ourThreadExecutorsService == null) {
         ourThreadExecutorsService = new ThreadPoolExecutor(
-                10,
-                Integer.MAX_VALUE,
-                60L,
-                TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(),
-                new ThreadFactory() {
-                  @SuppressWarnings({"HardCodedStringLiteral"})
-                  public Thread newThread(Runnable r) {
-                    return new Thread(r, "OSProcessHandler pooled thread");
-                  }
-                }
+            10,
+            Integer.MAX_VALUE,
+            60L,
+            TimeUnit.SECONDS,
+            new SynchronousQueue<Runnable>(),
+            new ThreadFactory() {
+              @SuppressWarnings({"HardCodedStringLiteral"})
+              public Thread newThread(Runnable r) {
+                return new Thread(r, "OSProcessHandler pooled thread");
+              }
+            }
         );
       }
 
@@ -114,14 +104,17 @@ public class ClojureReplProcessHandler extends ProcessHandler {
     } else {
       // Only a single command line per-project is supported. We may need more flexibility
       //  in the future (e.g., different Clojure paths with different args)
-      final String jarPath = PathUtil.getJarPathForClass(main.class);
-      assert jarPath != null;
 
       final JavaParameters params = new JavaParameters();
       params.configureByModule(myModule, JavaParameters.JDK_AND_CLASSES);
       // To avoid NCDFE while starting REPL
 
-      params.getClassPath().add(PathUtil.getJarPathForClass(AFn.class));
+      final boolean sdkConfigured = ClojureConfigUtil.isClojureConfigured(myModule);
+      if (!sdkConfigured) {
+        final String jarPath = ClojureConfigUtil.CLOJURE_SDK;
+        assert jarPath != null;
+        params.getClassPath().add(jarPath);
+      }
 
       Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
       ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(myModule);
@@ -147,14 +140,17 @@ public class ClojureReplProcessHandler extends ProcessHandler {
       assert sdk != null;
       final SdkType type = sdk.getSdkType();
       final String executablePath = ((JavaSdkType) type).getVMExecutablePath(sdk);
-      final StringBuffer buffer = new StringBuffer(executablePath);
 
-      for (String param : line.getParametersList().getList()) {
-        buffer.append(" ").append(param.contains(" ") ? param.replace(' ', '\u00A0') : param);
+      final ArrayList<String> env = new ArrayList<String>();
+      final ArrayList<String> cmd = new ArrayList<String>();
+      cmd.add(executablePath);
+      cmd.addAll(line.getParametersList().getList());
+
+      if (!sdkConfigured) {
+        ClojureConfigUtil.warningDefaultClojureJar(myModule);
       }
 
-      final String command = buffer.toString();
-      myProcess = Runtime.getRuntime().exec(command, commandLineArgs, new File(myExecPath));
+      myProcess = Runtime.getRuntime().exec(cmd.toArray(new String[cmd.size()]), env.toArray(new String[env.size()]), new File(myExecPath));
       myWaitFor = new ProcessWaitFor(myProcess);
     }
 

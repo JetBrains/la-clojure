@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.clojure.runner;
 
-import clojure.lang.AFn;
 import com.intellij.execution.CantRunException;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
@@ -25,7 +24,6 @@ import com.intellij.openapi.util.JDOMExternalizer;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.PathUtil;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +61,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
   @NonNls
   private static final String CLOJURE_MAIN = "clojure.main";
   private static final String CLOJURE_REPL = "clojure.lang.Repl";
-  private static String CLOJURE_SDK = PathUtil.getJarPathForClass(AFn.class);
   //  private static final String JLINE_CONSOLE_RUNNER = "jline.ConsoleRunner";
 
 
@@ -125,7 +122,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     return new ClojureRunConfigurationEditor();
   }
 
-  public static void configureScriptSystemClassPath(final JavaParameters params, final Module module) throws CantRunException {
+  private static void configureScriptSystemClassPath(final ClojureConfigUtil.RunConfigurationParameters params, final Module module) throws CantRunException {
     params.configureByModule(module, JavaParameters.JDK_ONLY);
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
 
@@ -144,13 +141,14 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     }
 
     if (!ClojureConfigUtil.isClojureConfigured(module)) {
-      params.getClassPath().add(CLOJURE_SDK);
+      params.getClassPath().add(ClojureConfigUtil.CLOJURE_SDK);
+      params.setDefaultClojureJarUsed(true);
     }
 
 //    params.getClassPath().add("/home/ilya/work/clojure-plugin/lib/jline.jar");
   }
 
-  private void configureJavaParams(JavaParameters params, Module module) throws CantRunException {
+  private void configureJavaParams(ClojureConfigUtil.RunConfigurationParameters params, Module module) throws CantRunException {
 
     // Setting up classpath
     configureScriptSystemClassPath(params, module);
@@ -232,9 +230,11 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
       return null;
     }
 
+    final ClojureConfigUtil.RunConfigurationParameters params =
+        new ClojureConfigUtil.RunConfigurationParameters();
+
     final JavaCommandLineState state = new JavaCommandLineState(environment) {
       protected JavaParameters createJavaParameters() throws ExecutionException {
-        JavaParameters params = new JavaParameters();
         configureJavaParams(params, module);
         configureScript(params);
         return params;
@@ -261,6 +261,10 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     };
 
     state.setConsoleBuilder(builder);
+
+    if (params.isDefaultClojureJarUsed()) {
+      ClojureConfigUtil.warningDefaultClojureJar(module);
+    }
     return state;
 
   }
@@ -301,4 +305,5 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
   public boolean getRunInREPL() {
     return runInREPL;
   }
+
 }

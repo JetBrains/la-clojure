@@ -1,5 +1,10 @@
 package org.jetbrains.plugins.clojure.config;
 
+import clojure.lang.AFn;
+import com.intellij.execution.configurations.JavaParameters;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.LibraryOrderEntry;
@@ -13,9 +18,11 @@ import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.utils.LibrariesUtil;
 
 import java.io.File;
@@ -24,6 +31,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import static org.jetbrains.plugins.clojure.utils.ClojureUtils.CLOJURE_NOTIFICATION_GROUP;
 
 /**
  * @author ilyas
@@ -45,6 +54,7 @@ public class ClojureConfigUtil {
       return isClojureLibrary(library);
     }
   };
+  public static String CLOJURE_SDK = PathUtil.getJarPathForClass(AFn.class);
 
   /**
    * Checks wheter given IDEA library contains Clojure Library classes
@@ -191,5 +201,24 @@ public class ClojureConfigUtil {
     }
     return false;
 
+  }
+
+  public static void warningDefaultClojureJar(Module module) {
+    Notifications.Bus.notify(new Notification(CLOJURE_NOTIFICATION_GROUP,
+        "",
+        ClojureBundle.message("clojure.jar.from.plugin.used"),
+        NotificationType.WARNING), module.getProject());
+  }
+
+  public static class RunConfigurationParameters extends JavaParameters {
+    private boolean defaultClojureJarUsed = false;
+
+    public boolean isDefaultClojureJarUsed() {
+      return defaultClojureJarUsed;
+    }
+
+    public void setDefaultClojureJarUsed(boolean defaultClojureJarUsed) {
+      this.defaultClojureJarUsed = defaultClojureJarUsed;
+    }
   }
 }

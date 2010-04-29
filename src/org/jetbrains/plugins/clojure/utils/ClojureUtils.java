@@ -33,6 +33,8 @@ import org.jetbrains.plugins.clojure.file.ClojureFileType;
  */
 public class ClojureUtils {
 
+  public static final String CLOJURE_NOTIFICATION_GROUP = "Clojure";
+
   public static boolean isClojureEditor(@NotNull Editor editor) {
     VirtualFile vfile = FileDocumentManager.getInstance().getFile(editor.getDocument());
     Project project = editor.getProject();
