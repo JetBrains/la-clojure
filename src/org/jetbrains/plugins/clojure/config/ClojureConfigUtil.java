@@ -57,7 +57,7 @@ public class ClojureConfigUtil {
   public static String CLOJURE_SDK = PathUtil.getJarPathForClass(AFn.class);
 
   /**
-   * Checks wheter given IDEA library contains Clojure Library classes
+   * Checks whether a given IDEA library contains Clojure Library classes
    */
   public static boolean isClojureLibrary(Library library) {
     return  library != null && checkLibrary(library, CLOJURE_JAR_NAME_PREFIX, CLOJURE_MAIN_CLASS_FILE);
@@ -200,7 +200,6 @@ public class ClojureConfigUtil {
       }
     }
     return false;
-
   }
 
   public static void warningDefaultClojureJar(Module module) {

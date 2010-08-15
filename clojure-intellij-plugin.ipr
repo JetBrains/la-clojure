@@ -16,6 +16,7 @@
   </component>
   <component name="ClojureCompilerSettings">
     <option name="COMPILE_CLOJURE" value="true" />
+    <option name="CLOJURE_BEFORE" value="false" />
   </component>
   <component name="CodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS">

@@ -4,6 +4,7 @@
 
   <property name="jdk.home" value="${java.home}"/>
   <property name="project.dir" value="."/>
+  <property name="src.dir" value="./src"/>
   <property name="project.lib" value="${project.dir}/lib"/>
   <property name="project.dest" value="${project.dir}/out/production/clojure-plugin"/>
   <property name="test.dest" value="${project.dir}/out/test/clojure-plugin"/>
@@ -54,6 +55,20 @@
     </fileset>
   </path>
 
+  <path id="clojure.base.path">
+    <path refid="jdk.classpath"/>
+    <path refid="idea.classpath"/>
+    <path refid="tools.path"/>
+    <pathelement location="${src.dir}"/>
+    <pathelement location="${project.dest}"/>
+    <fileset dir="${clojure.lib}">
+      <include name="clojure.jar"/>
+    </fileset>
+    <fileset dir="${clojure.contrib}">
+      <include name="clojure-contrib.jar"/>
+    </fileset>
+  </path>
+
   <condition property="need.to.unzip">
     <available file="${idea.pack}"/>
   </condition>
@@ -85,17 +100,9 @@
     </java>
   </target>
 
-  <target name="make.plugin" depends="make.lexer, unzip.last.successful.IDEA.build">
+  <target name="make.java" depends="make.lexer, unzip.last.successful.IDEA.build">
     <!-- Read SINCE and UNTIL properties -->
     <loadfile property="idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
-
-    <!--<script language="javascript">-->
-      <!--project.setProperty("since.idea.build", project.getProperty("idea.build").substring(3))-->
-      <!--project.setProperty("until.idea.build", project.getProperty("idea.build").substring(3))-->
-    <!--</script>-->
-
-    <!--<echo message="Target IntelliJ IDEA version: ${since.idea.build}"/>-->
-
     <!--Copy descriptor-->
     <copy todir="${project.dest}/META-INF">
       <fileset dir="${project.dir}/META-INF"/>
@@ -112,7 +119,7 @@
 
     <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.classpath"/>
 
-    <!--Compile project files-->
+    <!--Compile project Java files-->
     <javac2 srcdir="${project.dir}"
             destdir="${project.dest}"
             debug="true"
@@ -122,6 +129,21 @@
       <include name="src/**/*.form"/>
     </javac2>
 
+  </target>
+
+  <target name="make.clojure">
+    <!-- Compile project Clojure files -->
+    <java classname="clojure.lang.Compile">
+      <classpath refid="clojure.base.path"/>
+      <sysproperty key="clojure.compile.path" value="${project.dest}"/>
+
+      <!-- TODO: rework! -->
+      <arg value="org.jetbrains.plugins.clojure.refactoring.rename.RenameClojureFileProcessor"/>
+    </java>
+
+  </target>
+
+  <target name="make.plugin" depends="make.java, make.clojure">
     <replace file="${project.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
     <replace file="${project.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${idea.build}"/>
     <replace file="${project.dest}/META-INF/plugin.xml" token="UNTIL_IDEA" value="${idea.build}"/>
