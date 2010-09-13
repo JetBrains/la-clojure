@@ -15,7 +15,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="RUNTIME" name="Clojure SDK" level="application" />
+    <orderEntry type="library" name="Clojure SDK" level="application" />
     <orderEntry type="library" name="junit" level="application" />
     <orderEntry type="module-library" scope="TEST">
       <library>

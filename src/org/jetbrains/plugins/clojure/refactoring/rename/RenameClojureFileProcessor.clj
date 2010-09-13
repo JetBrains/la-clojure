@@ -5,8 +5,7 @@
     :state state
     :init init)
 
-  (:import [org.jetbrains.plugins.clojure.psi.api ClojureFile])
-  )
+  (:import [org.jetbrains.plugins.clojure.psi.api ClojureFile]))
 
 
 
@@ -17,10 +16,13 @@
 (defn -init []
   [[] (atom [])])
 
-(defn -canProcessElement [element]
-  (instance? ClojureFile element))
+(defn -canProcessElement [this element]
+  (let [test (instance? ClojureFile element)]
+      (do
+          (println test)
+          test)))
 
-(defn -renameElement [element, newName, usages, listener]
+(defn -renameElement [this element newName usages listener]
   (let [ns (.getNamespace element)]
     (if (not (nil? ns))
       (println ns)
