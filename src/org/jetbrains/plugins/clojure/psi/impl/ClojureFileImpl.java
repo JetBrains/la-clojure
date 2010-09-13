@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.clojure.psi.impl;
 
 import com.intellij.extapi.psi.PsiFileBase;
+import com.intellij.lang.ASTNode;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -13,6 +14,7 @@ import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.util.ClojureTextUtil;
 import org.jetbrains.plugins.clojure.psi.impl.synthetic.ClSyntheticClassImpl;
@@ -68,6 +70,38 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     return myClass;
   }
 
+  public void setNamespace(String newNs) {
+    final ClList nsElem = getNamespaceElement();
+    if (nsElem != null) {
+      final ClSymbol first = nsElem.getFirstSymbol();
+      final PsiElement second = nsElem.getSecondNonLeafElement();
+      if (first != null && second != null) {
+        final ClojurePsiFactory factory = ClojurePsiFactory.getInstance(getProject());
+        final ASTNode newNode = factory.createSymbolNodeFromText(newNs);
+        final ASTNode parentNode = nsElem.getNode();
+        if (parentNode != null) {
+          parentNode.replaceChild(second.getNode(), newNode);
+        }
+      }
+    }
+  }
+
+  public String getNamespacePrefix() {
+    final String ns = getNamespace();
+    if (ns != null) {
+      return ns.substring(0, ns.lastIndexOf("."));
+    }
+    return null;
+
+  }
+
+  public String getNamespaceSuffix() {
+    final String ns = getNamespace();
+    if (ns != null) {
+      return ns.substring(ns.lastIndexOf(".") + 1);
+    }
+    return null;
+  }
 
   protected PsiFileImpl clone() {
     final ClojureFileImpl clone = (ClojureFileImpl) super.clone();
@@ -96,7 +130,7 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
 
   private boolean isWrongElement(PsiElement element) {
     return element == null ||
-            (element instanceof LeafPsiElement || element instanceof PsiWhiteSpace || element instanceof PsiComment);
+        (element instanceof LeafPsiElement || element instanceof PsiWhiteSpace || element instanceof PsiComment);
   }
 
   public PsiElement getFirstNonLeafElement() {

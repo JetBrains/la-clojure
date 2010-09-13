@@ -32,4 +32,12 @@ public interface ClojureFile extends PsiFile, ClojurePsiElement, PsiFileWithStub
 
   @Nullable
   PsiClass getDefinedClass();
+
+  void setNamespace(String newNs);
+
+  @Nullable
+  String getNamespacePrefix();
+
+  @Nullable
+  String getNamespaceSuffix();
 }
