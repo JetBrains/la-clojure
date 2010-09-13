@@ -17,10 +17,7 @@
   [[] (atom [])])
 
 (defn -canProcessElement [this element]
-  (let [test (instance? ClojureFile element)]
-      (do
-          (println test)
-          test)))
+  (instance? ClojureFile element))
 
 (defn -renameElement [this element newName usages listener]
   (let [ns (.getNamespace element)]
