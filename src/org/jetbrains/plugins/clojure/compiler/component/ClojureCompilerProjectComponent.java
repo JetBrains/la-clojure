@@ -24,6 +24,10 @@ public class ClojureCompilerProjectComponent implements ProjectComponent {
   }
 
   public void projectOpened() {
+    /* add clojure as compilable files */
+    CompilerManager compilerManager = CompilerManager.getInstance(myProject);
+    compilerManager.addCompilableFileType(ClojureFileType.CLOJURE_FILE_TYPE);
+
     ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(myProject);
     if (settings.CLOJURE_BEFORE) {
       for (ClojureCompiler compiler : CompilerManager.getInstance(myProject).getCompilers(ClojureCompiler.class)) {
