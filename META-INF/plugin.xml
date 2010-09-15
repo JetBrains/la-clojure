@@ -44,6 +44,7 @@
     <configurationProducer
         implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>
     <fileTemplateGroup implementation="org.jetbrains.plugins.clojure.actions.ClojureTemplatesFactory"/>
+    <renameInputValidator implementation="org.jetbrains.plugins.clojure.refactoring.rename.ClojureRenameInputValidator"/>
     <fileTypeIndentOptionsProvider
         implementation="org.jetbrains.plugins.clojure.formatter.ClojureIndentOptionsProvider"/>
     <quoteHandler fileType="Clojure" className="org.jetbrains.plugins.clojure.editor.ClojureQuoteHandler"/>

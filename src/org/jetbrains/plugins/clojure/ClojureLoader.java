@@ -97,9 +97,6 @@ public class ClojureLoader implements ApplicationComponent {
       }
     });
 
-    // register name input validator
-    RenameInputValidatorRegistry.getInstance().registerInputValidator(new ClojureSymbolPattern(), new ClojureRenameInputValidator());
-
   }
 
   public void disposeComponent() {
