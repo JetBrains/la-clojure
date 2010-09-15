@@ -123,7 +123,7 @@
     <javac2 srcdir="${project.dir}"
             destdir="${project.dest}"
             debug="true"
-            target="1.5">
+            target="1.6">
       <classpath refid="base.path"/>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>

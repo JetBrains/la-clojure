@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.clojure.compiler;
 
 import com.intellij.compiler.CompilerConfigurationImpl;
+import com.intellij.compiler.DependencyProcessor;
 import com.intellij.compiler.OutputParser;
-import com.intellij.compiler.impl.javaCompiler.DependencyProcessor;
 import com.intellij.compiler.impl.javaCompiler.ExternalCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
 import com.intellij.compiler.impl.javaCompiler.javac.JavacSettings;
@@ -33,7 +33,6 @@ import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author ilyas
@@ -169,7 +168,6 @@ public class ClojureBackendCompiler extends ExternalCompiler {
     return COMPILABLE_FILE_TYPES;
   }
 
-  @Override
   public DependencyProcessor getDependencyProcessor() {
     return new ClojureDependencyProcessor();
   }

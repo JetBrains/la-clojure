@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.clojure.compiler;
 
-import com.intellij.compiler.impl.javaCompiler.DependencyProcessor;
-import com.intellij.compiler.make.DependencyCache;
+import com.intellij.compiler.DependencyProcessor;
 import com.intellij.compiler.make.CacheCorruptedException;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.compiler.make.DependencyCache;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.ex.CompileContextEx;
+import com.intellij.openapi.diagnostic.Logger;
 
 /**
  * @author ilyas
