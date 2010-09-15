@@ -168,10 +168,6 @@ public class ClojureBackendCompiler extends ExternalCompiler {
     return COMPILABLE_FILE_TYPES;
   }
 
-  public DependencyProcessor getDependencyProcessor() {
-    return new ClojureDependencyProcessor();
-  }
-
   private void createStartupCommandImpl(ModuleChunk chunk, ArrayList<String> commandLine, String outputPath, CompileScope scope) throws IOException {
     final Sdk jdk = getJdkForStartupCommand(chunk);
     final String versionString = jdk.getVersionString();

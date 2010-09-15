@@ -40,6 +40,7 @@
     <consoleFilterProvider
         implementation="org.jetbrains.plugins.clojure.runner.console.ClojureConsoleFilterProvider"/>
     <completion.contributor implementation="org.jetbrains.plugins.clojure.completion.ClojureCompletionContributor"/>
+    <compiler.makeDependencyProcessor implementation="org.jetbrains.plugins.clojure.compiler.ClojureDependencyProcessor" />
     <configurationType implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationType"/>
     <configurationProducer
         implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>
