@@ -122,8 +122,7 @@
     <!--Compile project Java files-->
     <javac2 srcdir="${project.dir}"
             destdir="${project.dest}"
-            debug="true"
-            target="1.6">
+            debug="true">
       <classpath refid="base.path"/>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>
