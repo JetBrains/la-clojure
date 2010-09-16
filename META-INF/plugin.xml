@@ -8,7 +8,9 @@
 
   <name>La Clojure</name>
   <id>org.intellij.clojure</id>
-  <description>Provides Clojure language support: syntax and error highlighting, completion, navigation and refactorings</description>
+  <description>Provides Clojure language support: syntax and error highlighting, completion, navigation and
+    refactorings
+  </description>
   <category>Custom Languages</category>
   <version>VERSION</version>
   <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains
@@ -35,22 +37,27 @@
                                   implementationClass="org.jetbrains.plugins.clojure.structure.ClojureStructureViewBuilderFactory"/>
     <lang.formatter language="Clojure"
                     implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
-    <codeStyleSettingsProvider implementation="org.jetbrains.plugins.clojure.formatter.codeStyle.ClojureCodeStyleSettingsProvider"/>
-    <lang.findUsagesProvider language="Clojure" implementationClass="org.jetbrains.plugins.clojure.findUsages.ClojureFindUsagesProvider"/>
+    <codeStyleSettingsProvider
+        implementation="org.jetbrains.plugins.clojure.formatter.codeStyle.ClojureCodeStyleSettingsProvider"/>
+    <lang.findUsagesProvider language="Clojure"
+                             implementationClass="org.jetbrains.plugins.clojure.findUsages.ClojureFindUsagesProvider"/>
     <consoleFilterProvider
         implementation="org.jetbrains.plugins.clojure.runner.console.ClojureConsoleFilterProvider"/>
     <completion.contributor implementation="org.jetbrains.plugins.clojure.completion.ClojureCompletionContributor"/>
-    <compiler.makeDependencyProcessor implementation="org.jetbrains.plugins.clojure.compiler.ClojureDependencyProcessor" />
+    <compiler.makeDependencyProcessor
+        implementation="org.jetbrains.plugins.clojure.compiler.ClojureDependencyProcessor"/>
     <configurationType implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationType"/>
     <configurationProducer
         implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>
     <fileTemplateGroup implementation="org.jetbrains.plugins.clojure.actions.ClojureTemplatesFactory"/>
-    <renameInputValidator implementation="org.jetbrains.plugins.clojure.refactoring.rename.ClojureRenameInputValidator"/>
+    <renameInputValidator
+        implementation="org.jetbrains.plugins.clojure.refactoring.rename.ClojureRenameInputValidator"/>
     <fileTypeIndentOptionsProvider
         implementation="org.jetbrains.plugins.clojure.formatter.ClojureIndentOptionsProvider"/>
     <quoteHandler fileType="Clojure" className="org.jetbrains.plugins.clojure.editor.ClojureQuoteHandler"/>
     <annotator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.annotator.ClojureAnnotator"/>
-    <debuggerClassFilterProvider implementation="org.jetbrains.plugins.clojure.debugger.filters.ClojureDebugClassesFilterProvider"/>
+    <debuggerClassFilterProvider
+        implementation="org.jetbrains.plugins.clojure.debugger.filters.ClojureDebugClassesFilterProvider"/>
     <gotoSymbolContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToSymbolContributor"/>
     <gotoClassContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToClassContributor"/>
 
@@ -84,10 +91,13 @@
                     serviceImplementation="org.jetbrains.plugins.clojure.settings.ClojureProjectSettings"/>
 
     <java.elementFinder implementation="org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder"/>
-    <lang.namesValidator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.refactoring.rename.ClojureNameValidator"/>
+    <lang.namesValidator language="Clojure"
+                         implementationClass="org.jetbrains.plugins.clojure.refactoring.rename.ClojureNameValidator"/>
     <referencesSearch implementation="org.jetbrains.plugins.clojure.findUsages.ClojureReferenceSearcher"/>
-    <lang.documentationProvider language="Clojure" implementationClass="org.jetbrains.plugins.clojure.documentation.ClojureDocumentationProvider"/>
-    <renamePsiElementProcessor implementation="org.jetbrains.plugins.clojure.refactoring.rename.RenameClojureFileProcessor" order="first"/>
+    <lang.documentationProvider language="Clojure"
+                                implementationClass="org.jetbrains.plugins.clojure.documentation.ClojureDocumentationProvider"/>
+    <renamePsiElementProcessor
+        implementation="org.jetbrains.plugins.clojure.refactoring.rename.RenameClojureFileProcessor" order="first"/>
   </extensions>
 
   <application-components>
@@ -114,6 +124,10 @@
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.clojure.psi.impl.ClojurePsiManager</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.clojure.editor.braceHighlighter.ClojureBraceHighlighter
+      </implementation-class>
     </component>
   </project-components>
 

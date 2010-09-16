@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.clojure.compiler;
 
 import com.intellij.compiler.CompilerConfigurationImpl;
-import com.intellij.compiler.DependencyProcessor;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.javaCompiler.ExternalCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
@@ -229,7 +228,7 @@ public class ClojureBackendCompiler extends ExternalCompiler {
 
     try {
       File fileWithCompileScript = File.createTempFile("clojurekul", ".clj");
-      fillFileWithScalacParams(chunk, fileWithCompileScript, outputPath, scope);
+      fillFileWithClojureCompilerParams(chunk, fileWithCompileScript, outputPath, scope);
 
       commandLine.add(fileWithCompileScript.getPath());
     } catch (IOException e) {
@@ -238,7 +237,7 @@ public class ClojureBackendCompiler extends ExternalCompiler {
   }
 
 
-  private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath, CompileScope scope)
+  private static void fillFileWithClojureCompilerParams(ModuleChunk chunk, File fileWithParameters, String outputPath, CompileScope scope)
       throws FileNotFoundException {
 
     VirtualFile[] files = scope.getFiles(ClojureFileType.CLOJURE_FILE_TYPE, true);
