@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.clojure.editor.braceHighlighter;
 
-import com.intellij.codeInsight.highlighting.BraceMatchingUtil;
 import com.intellij.concurrency.Job;
 import com.intellij.concurrency.JobUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -18,7 +16,6 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil;
@@ -26,7 +23,6 @@ import com.intellij.psi.util.PsiUtilBase;
 import com.intellij.util.Alarm;
 import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
@@ -39,7 +35,7 @@ import static org.jetbrains.plugins.clojure.editor.braceHighlighter.ClojureBrace
 /**
  * @author ilyas
  */
-public class ClojureBracePainter {
+public class ClojureBraceHighlightingHandler {
 
   private final Project myProject;
   private final Editor myEditor;
@@ -50,7 +46,7 @@ public class ClojureBracePainter {
 
   private static final Key<List<RangeHighlighter>> CLOJURE_BRACE_PAINTER_KEY = Key.create("ClojureBracePainter.CLOJURE_BRACE_PAINTER_KEY");
 
-  public ClojureBracePainter(Project project, Editor newEditor, Alarm alarm, PsiFile file) {
+  public ClojureBraceHighlightingHandler(Project project, Editor newEditor, Alarm alarm, PsiFile file) {
     myProject = project;
     myEditor = newEditor;
     myFile = file;
@@ -65,7 +61,7 @@ public class ClojureBracePainter {
   }
 
 
-  static void lookForInjectedAndHighlightInOtherThread(@NotNull final Editor editor, @NotNull final Alarm alarm, @NotNull final Processor<ClojureBracePainter> processor) {
+  static void lookForInjectedAndHighlightInOtherThread(@NotNull final Editor editor, @NotNull final Alarm alarm, @NotNull final Processor<ClojureBraceHighlightingHandler> processor) {
     final Project project = editor.getProject();
     if (project == null) return;
     JobUtil.submitToJobThread(new Runnable() {
@@ -77,7 +73,7 @@ public class ClojureBracePainter {
             if (!isReallyDisposed(editor, project) && (psiFile instanceof ClojureFile)) {
               final ClojureFile file = (ClojureFile) psiFile;
               Editor newEditor = InjectedLanguageUtil.getInjectedEditorForInjectedFile(editor, file);
-              ClojureBracePainter handler = new ClojureBracePainter(project, newEditor, alarm, file);
+              ClojureBraceHighlightingHandler handler = new ClojureBraceHighlightingHandler(project, newEditor, alarm, file);
               processor.process(handler);
             }
           }
@@ -96,16 +92,26 @@ public class ClojureBracePainter {
 
   public void updateBraces(final DocumentEvent e) {
     if (myFile == null) return;
-    final PsiElement topElement = findTopElement(PsiUtilBase.getElementAtCaret(myEditor));
+    final PsiElement topElement = e != null ? findTopElement(PsiUtilBase.getElementAtCaret(myEditor)) : myFile;
 
     myAlarm.addRequest(new Runnable() {
       public void run() {
         if (!myProject.isDisposed() && !myEditor.isDisposed()) {
           if (myProject.isDisposed() || myEditor.isDisposed()) return;
 
-          final int startOffset = topElement == null ? e.getOffset() : Math.min(topElement.getTextRange().getStartOffset(), e.getOffset());
-          final int eventEnd = e.getOffset() + e.getNewLength();
-          final int endOffset = topElement == null ? eventEnd : Math.max(topElement.getTextRange().getEndOffset(), eventEnd);
+
+          final int startOffset;
+          final int endOffset;
+
+          if (e != null) {
+            final int eventEnd = e.getOffset() + e.getNewLength();
+            startOffset = topElement == null ? e.getOffset() : Math.min(topElement.getTextRange().getStartOffset(), e.getOffset());
+            endOffset = topElement == null ? eventEnd : Math.max(topElement.getTextRange().getEndOffset(), eventEnd);
+          } else {
+            startOffset = topElement.getTextRange().getStartOffset();
+            endOffset = topElement.getTextRange().getEndOffset();
+          }
+
           final HighlighterIterator iterator = ((EditorEx) myEditor).getHighlighter().createIterator(startOffset);
 
           int level = 0;
