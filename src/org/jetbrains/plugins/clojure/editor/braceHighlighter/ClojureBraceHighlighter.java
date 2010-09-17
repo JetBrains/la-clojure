@@ -19,6 +19,7 @@ import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.vcs.FileStatusManager;
 import com.intellij.util.Alarm;
 import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
@@ -90,7 +91,9 @@ public class ClojureBraceHighlighter extends AbstractProjectComponent {
     if (!ClojureProjectSettings.getInstance(project).coloredParentheses) {
       final Boolean data = editor.getUserData(MUST_BE_REHIGHLIGHTED);
       if (data == null || data) {
-        DaemonCodeAnalyzer.getInstance(project).restart();
+        EditorFactory.getInstance().refreshAllEditors();
+        FileStatusManager.getInstance(project).fileStatusesChanged();
+        DaemonCodeAnalyzer.getInstance(project).settingsChanged();
       }
       editor.putUserData(MUST_BE_REHIGHLIGHTED, false);
       return;
