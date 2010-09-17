@@ -25,7 +25,7 @@
   <property name="plugin.version" value="${clojure.plugin.version}.${plugin.build.number}"/>
 
   <path id="jdk.classpath">
-    <fileset dir="${java.home}" id="jdk.fileset">
+    <fileset dir="${java.home}">
       <include name="lib/*.jar"/>
     </fileset>
   </path>
@@ -33,7 +33,6 @@
   <path id="idea.classpath">
     <fileset dir="${idea.home}/lib">
       <include name="**/*.jar"/>
-      <exclude name="boot.jar"/>
     </fileset>
     <fileset dir="${idea.home}/plugins">
       <include name="CSS/lib/*.jar"/>
@@ -46,7 +45,6 @@
   <path id="base.path">
     <path refid="jdk.classpath"/>
     <path refid="idea.classpath"/>
-    <path refid="tools.path"/>
     <fileset dir="${clojure.lib}">
       <include name="clojure.jar"/>
     </fileset>
@@ -231,7 +229,6 @@
         <path location="${project.lib}"/>
         <path location="${project.dest}"/>
         <path location="${test.dest}"/>
-        <path refid="tools.path"/>
         <path refid="base.path"/>
       </classpath>
 
