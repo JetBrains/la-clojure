@@ -32,6 +32,7 @@ public final class ClojureProjectSettingsForm {
   private JPanel myPanel;
   private JTextField myCommandLineArgs;
   private JCheckBox myAutoStartRepl;
+  private JCheckBox rainbowParenthesesCheckBox;
 
   public ClojureProjectSettingsForm(Project project) {
     mySettings = ClojureProjectSettings.getInstance(project);
@@ -49,16 +50,23 @@ public final class ClojureProjectSettingsForm {
     return myAutoStartRepl.isSelected();
   }
 
+  boolean isColoredParentheses() {
+    return rainbowParenthesesCheckBox.isSelected();
+  }
+
   boolean isModified() {
     final String args = mySettings.commandLineArgs;
     final boolean autoStartRepl = mySettings.autoStartRepl;
+    final boolean coloredParentheses = mySettings.coloredParentheses;
     return (args == null || !args.equals(myCommandLineArgs.getText()))
-        || (myAutoStartRepl.isSelected() != autoStartRepl);
+        || (myAutoStartRepl.isSelected() != autoStartRepl)
+        || (rainbowParenthesesCheckBox.isSelected() != coloredParentheses);
   }
 
   void reset() {
     myCommandLineArgs.setText(mySettings.commandLineArgs);
     myAutoStartRepl.setSelected(mySettings.autoStartRepl);
+    rainbowParenthesesCheckBox.setSelected(mySettings.coloredParentheses);
   }
 
 }

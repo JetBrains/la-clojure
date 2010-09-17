@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.clojure.editor.braceHighlighter;
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -17,9 +18,11 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
+import com.intellij.openapi.util.Key;
 import com.intellij.util.Alarm;
 import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.settings.ClojureProjectSettings;
 
 /**
  * @author ilyas
@@ -27,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 public class ClojureBraceHighlighter extends AbstractProjectComponent {
 
   private final Alarm myAlarm = new Alarm();
+  static Key<Boolean> MUST_BE_REHIGHLIGHTED = new Key<Boolean>("EDITOR_IS_REHIGHLIGHTED");
 
   @NotNull
   @Override
@@ -82,6 +86,18 @@ public class ClojureBraceHighlighter extends AbstractProjectComponent {
   }
 
   static void updateBraces(@NotNull final Editor editor, @NotNull final Alarm alarm, final DocumentEvent e) {
+    final Project project = editor.getProject();
+    if (!ClojureProjectSettings.getInstance(project).coloredParentheses) {
+      final Boolean data = editor.getUserData(MUST_BE_REHIGHLIGHTED);
+      if (data == null || data) {
+        DaemonCodeAnalyzer.getInstance(project).restart();
+      }
+      editor.putUserData(MUST_BE_REHIGHLIGHTED, false);
+      return;
+    }
+
+    editor.putUserData(MUST_BE_REHIGHLIGHTED, true);
+
     final Document document = editor.getDocument();
     if (document instanceof DocumentEx && ((DocumentEx) document).isInBulkUpdate()) return;
     ClojureBraceHighlightingHandler.lookForInjectedAndHighlightInOtherThread(editor, alarm, new Processor<ClojureBraceHighlightingHandler>() {

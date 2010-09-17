@@ -84,7 +84,7 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   }
 
   @NonNls
-  static final String LINE_COMMENT_ID = "Clojure Line comment";
+  public static final String LINE_COMMENT_ID = "Clojure Line comment";
   @NonNls
   static final String KEY_ID = "Clojure Keyword";
   @NonNls
