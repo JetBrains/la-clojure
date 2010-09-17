@@ -39,7 +39,7 @@ public class ClojureBraceHighlighter extends AbstractProjectComponent {
   public void projectOpened() {
     StartupManager.getInstance(myProject).registerPostStartupActivity(new DumbAwareRunnable() {
       public void run() {
-//        doInit();
+        doInit();
       }
     });
   }
@@ -52,7 +52,7 @@ public class ClojureBraceHighlighter extends AbstractProjectComponent {
         myAlarm.cancelAllRequests();
         Editor[] editors = EditorFactory.getInstance().getEditors(e.getDocument(), myProject);
         for (Editor editor : editors) {
-          updateBraces(editor, myAlarm);
+          updateBraces(editor, myAlarm, e);
         }
       }
     };
@@ -67,12 +67,12 @@ public class ClojureBraceHighlighter extends AbstractProjectComponent {
         });
   }
 
-  static void updateBraces(@NotNull final Editor editor, @NotNull final Alarm alarm) {
+  static void updateBraces(@NotNull final Editor editor, @NotNull final Alarm alarm, final DocumentEvent e) {
     final Document document = editor.getDocument();
     if (document instanceof DocumentEx && ((DocumentEx)document).isInBulkUpdate()) return;
-    ClojureBracePainter.lookForInjectedAndMatchBracesInOtherThread(editor, alarm, new Processor<ClojureBracePainter>() {
+    ClojureBracePainter.lookForInjectedAndHighlightInOtherThread(editor, alarm, new Processor<ClojureBracePainter>() {
       public boolean process(final ClojureBracePainter handler) {
-        handler.updateBraces();
+        handler.updateBraces(e);
         return false;
       }
     });

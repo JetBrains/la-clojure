@@ -252,6 +252,7 @@
     <dictionary name="ilya">
       <words>
         <w>clojure</w>
+        <w>multicaster</w>
         <w>namespace</w>
         <w>refactorings</w>
       </words>

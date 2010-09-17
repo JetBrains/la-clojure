@@ -31,8 +31,8 @@ public class ClojureAnnotator implements Annotator {
 
   private void annotateList(ClList list, AnnotationHolder holder) {
     final ClSymbol first = list.getFirstSymbol();
-    if (first != null && first.multiResolve(false).length > 0 ||
-            IMPLICIT_NAMES.contains(list.getHeadText())) {
+    if (first != null && (first.multiResolve(false).length > 0 ||
+            IMPLICIT_NAMES.contains(list.getHeadText()))) {
       Annotation annotation = holder.createInfoAnnotation(first, null);
       annotation.setTextAttributes(ClojureSyntaxHighlighter.DEF);
     }
