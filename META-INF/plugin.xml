@@ -17,7 +17,7 @@
     Inc.
   </vendor>
   <!--<idea-version since-build="SINCE_IDEA" until-build="UNTIL_IDEA"/>-->
-  <idea-version since-build="IU-96.1185" until-build="IU-96.9999"/>
+  <idea-version since-build="IU-98.382" until-build="IU-98.9999"/>
 
   <extensions defaultExtensionNs="com.intellij">
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>

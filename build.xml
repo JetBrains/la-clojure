@@ -1,4 +1,4 @@
-<project name="Build Clojure plugin for IntelliJ IDEA" default="deploy.plugin">
+<project name="Build Clojure plugin for veIntelliJ IDEA" default="deploy.plugin">
   <!-- Properties file -->
   <property file="clojure.properties"/>
 

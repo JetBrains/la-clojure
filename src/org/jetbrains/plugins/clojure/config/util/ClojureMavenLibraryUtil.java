@@ -19,7 +19,7 @@ public class ClojureMavenLibraryUtil {
   public static LibraryInfo createJarDownloadInfo(final String jarName, final String version,
                                                   final String... requiredClasses) {
     final String v = version == null || version.length() == 0 ? "" : "/" + version + "/";
-    return new LibraryInfo(jarName, DOWNLOADING_URL + v + jarName, DOWNLOAD_JETBRAINS_COM,
+    return new LibraryInfo(jarName, DOWNLOADING_URL + v + jarName, DOWNLOAD_JETBRAINS_COM, null,
         requiredClasses);
   }
 

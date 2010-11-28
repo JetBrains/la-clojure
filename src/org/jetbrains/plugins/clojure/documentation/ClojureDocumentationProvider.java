@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class ClojureDocumentationProvider implements DocumentationProvider {
 
-  public String getQuickNavigateInfo(PsiElement element) {
+  public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
     if (element instanceof ClDef) {
       ClDef def = (ClDef) element;
       return def.getPresentationText();
@@ -45,7 +45,7 @@ public class ClojureDocumentationProvider implements DocumentationProvider {
     }*/
 //    return buffer.toString();
 
-    return "<pre>" + str + "</pre>"; 
+    return "<pre>" + str + "</pre>";
   }
 
   @Nullable
@@ -74,7 +74,6 @@ public class ClojureDocumentationProvider implements DocumentationProvider {
   public PsiElement getDocumentationElementForLink(PsiManager psiManager, String link, PsiElement context) {
     return JavaDocUtil.findReferenceTarget(psiManager, link, context);
   }
-
   public List<String> getUrlFor(PsiElement element, PsiElement originalElement) {
     return null;
   }

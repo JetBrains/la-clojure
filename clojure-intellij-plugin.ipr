@@ -106,6 +106,9 @@
     <option name="DEPRECATION" value="false" />
   </component>
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" />
+  <component name="EntryPointsManager">
+    <entry_points version="2.0" />
+  </component>
   <component name="IdProvider" IDEtalkID="9DF9B1EA05538F35FB7C1A0A47030FDA" />
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
