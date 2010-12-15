@@ -93,10 +93,6 @@
     <delete dir="build" includes="**/*"/>
   </target>
 
-  <taskdef resource="scala/tools/ant/antlib.xml">
-    <classpath refid="base.path"/>
-  </taskdef>
-
   <target name="make.lexer">
     <java jar="${project.lib}/JFlex.jar" output="jflex.log" fork="true" maxmemory="512m">
       <arg value="--charat"/>
@@ -107,6 +103,11 @@
   </target>
 
   <target name="make.scala" depends="make.lexer, unzip.last.successful.IDEA.build">
+
+    <taskdef resource="scala/tools/ant/antlib.xml">
+      <classpath refid="base.path"/>
+    </taskdef>
+
     <scalac destdir="${project.dest}" 
 	    srcdir="${project.dir}">
       <classpath>
