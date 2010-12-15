@@ -112,7 +112,10 @@
     </taskdef>
 
     <scalac destdir="${project.dest}"
-            srcdir="${project.dir}">
+            srcdir="${project.dir}"
+            force="changed"
+            fork="true"
+            jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
       <classpath>
         <path refid="base.path"/>
       </classpath>
@@ -144,7 +147,8 @@
     <javac2 srcdir="${project.dir}"
             destdir="${project.dest}"
             debug="true"
-            includeantruntime="true">
+            includeantruntime="true"
+            includejavaruntime="true">
       <classpath refid="base.path"/>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>
