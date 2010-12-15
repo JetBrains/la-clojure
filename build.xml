@@ -105,7 +105,10 @@
   <target name="make.scala" depends="make.lexer, unzip.last.successful.IDEA.build">
 
     <taskdef resource="scala/tools/ant/antlib.xml">
-      <classpath refid="base.path"/>
+      <classpath>
+        <pathelement location="${project.lib}/scala-compiler.jar"/>
+        <pathelement location="${project.lib}/scala-library.jar"/>
+      </classpath>
     </taskdef>
 
     <scalac destdir="${project.dest}" 
