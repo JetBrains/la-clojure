@@ -1,4 +1,4 @@
-<project name="Build Clojure plugin for veIntelliJ IDEA" default="deploy.plugin">
+<project name="Build Clojure plugin for IntelliJ IDEA" default="deploy.plugin">
   <!-- Properties file -->
   <property file="clojure.properties"/>
 
@@ -46,6 +46,7 @@
   <path id="base.path">
     <path refid="jdk.classpath"/>
     <path refid="idea.classpath"/>
+    <path refid="tools.path"/>
     <fileset dir="${clojure.lib}">
       <include name="clojure.jar"/>
     </fileset>
@@ -112,7 +113,10 @@
     </taskdef>
 
     <scalac destdir="${project.dest}"
-            srcdir="${project.dir}">
+            srcdir="${project.dir}"
+            force="changed"
+            fork="true"
+            jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
       <classpath>
         <path refid="base.path"/>
       </classpath>
@@ -144,7 +148,8 @@
     <javac2 srcdir="${project.dir}"
             destdir="${project.dest}"
             debug="true"
-            includeantruntime="true">
+            includeantruntime="true"
+            includejavaruntime="true">
       <classpath refid="base.path"/>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>
