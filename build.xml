@@ -111,10 +111,10 @@
       </classpath>
     </taskdef>
 
-    <scalac destdir="${project.dest}" 
-	    srcdir="${project.dir}">
+    <scalac destdir="${project.dest}"
+            srcdir="${project.dir}">
       <classpath>
-	<path refid="base.path"/>
+        <path refid="base.path"/>
       </classpath>
       <include name="src/**/*.scala"/>
       <include name="src/**/*.java"/>
@@ -139,11 +139,12 @@
           tofile="${project.dest}/org/jetbrains/plugins/clojure/ClojureBundle.properties"/>
 
     <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.classpath"/>
-   
+
     <!--Compile project Java files-->
     <javac2 srcdir="${project.dir}"
             destdir="${project.dest}"
-            debug="true">
+            debug="true"
+            includeantruntime="true">
       <classpath refid="base.path"/>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>
@@ -240,8 +241,8 @@
   </target>
 
   <target name="run.tests" depends="build.tests">
-    
-     <mkdir dir="${test.dist}"/>
+
+    <mkdir dir="${test.dist}"/>
     <mkdir dir="${project.dir}/logs"/>
     <mkdir dir="${test.dist}/config"/>
     <mkdir dir="${test.dist}/system"/>
