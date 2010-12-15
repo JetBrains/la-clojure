@@ -18,7 +18,12 @@ public enum ClojureVersion {
 
   Clojure_1_1_0("1.1.0", new LibraryInfo[]{
       createJarDownloadInfo("clojure.jar", "1.1.0", "clojure.main"),
+  }),
+
+  Clojure_1_2("1.2", new LibraryInfo[]{
+      createJarDownloadInfo("clojure.jar", "1.2", "clojure.main"),
   });
+
 
   private final String myName;
   private final LibraryInfo[] myJars;
