@@ -9,6 +9,7 @@
   <property name="project.dest" value="${project.dir}/out/production/clojure-plugin"/>
   <property name="test.dest" value="${project.dir}/out/test/clojure-plugin"/>
   <property name="test.dist" value="${project.dir}/test_dist"/>
+  <property name="main.dist" value="${project.dir}/dist"/>
   <property name="idea.pack" value="${project.dir}/idea_pack"/>
   <property name="tools.jar.dir" value="${java.home}/lib"/>
 
@@ -47,6 +48,9 @@
     <path refid="idea.classpath"/>
     <fileset dir="${clojure.lib}">
       <include name="clojure.jar"/>
+    </fileset>
+    <fileset dir="${project.lib}">
+      <include name="*.jar"/>
     </fileset>
     <fileset dir="${clojure.contrib}">
       <include name="clojure-contrib.jar"/>
@@ -89,6 +93,10 @@
     <delete dir="build" includes="**/*"/>
   </target>
 
+  <taskdef resource="scala/tools/ant/antlib.xml">
+    <classpath refid="base.path"/>
+  </taskdef>
+
   <target name="make.lexer">
     <java jar="${project.lib}/JFlex.jar" output="jflex.log" fork="true" maxmemory="512m">
       <arg value="--charat"/>
@@ -98,7 +106,18 @@
     </java>
   </target>
 
-  <target name="make.java" depends="make.lexer, unzip.last.successful.IDEA.build">
+  <target name="make.scala" depends="make.lexer, unzip.last.successful.IDEA.build">
+    <scalac destdir="${project.dest}" 
+	    srcdir="${project.dir}">
+      <classpath>
+	<path refid="base.path"/>
+      </classpath>
+      <include name="src/**/*.scala"/>
+      <include name="src/**/*.java"/>
+    </scalac>
+  </target>
+
+  <target name="make.java" depends="make.scala">
     <!-- Read SINCE and UNTIL properties -->
     <loadfile property="idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
     <!--Copy descriptor-->
@@ -116,7 +135,7 @@
           tofile="${project.dest}/org/jetbrains/plugins/clojure/ClojureBundle.properties"/>
 
     <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.classpath"/>
-
+   
     <!--Compile project Java files-->
     <javac2 srcdir="${project.dir}"
             destdir="${project.dest}"
@@ -161,6 +180,9 @@
     </jar>
 
     <copy todir="${project.dir}/tempjar/clojure-plugin/lib">
+      <fileset dir="${project.lib}">
+        <include name="scala-library.jar"/>
+      </fileset>
       <fileset dir="${clojure.lib}">
         <include name="clojure.jar"/>
       </fileset>
@@ -169,13 +191,13 @@
       </fileset>
     </copy>
 
-    <mkdir dir="${test.dist}"/>
+    <mkdir dir="${main.dist}"/>
 
-    <zip destfile="${test.dist}/clojure-intellij-bin-${plugin.version}.zip" basedir="${project.dir}/tempjar"/>
+    <zip destfile="${main.dist}/clojure-intellij-bin-${plugin.version}.zip" basedir="${project.dir}/tempjar"/>
     <delete dir="${project.dir}/tempjar"/>
 
     <!-- Zip sources-->
-    <zip destfile="${test.dist}/clojure-intellij-src-${plugin.version}.zip" basedir="${project.dir}"
+    <zip destfile="${main.dist}/clojure-intellij-src-${plugin.version}.zip" basedir="${project.dir}"
          includes="src/**/*.java,
          src/**/*.properties,
          src/**/*.flex,
@@ -214,7 +236,8 @@
   </target>
 
   <target name="run.tests" depends="build.tests">
-
+    
+     <mkdir dir="${test.dist}"/>
     <mkdir dir="${project.dir}/logs"/>
     <mkdir dir="${test.dist}/config"/>
     <mkdir dir="${test.dist}/system"/>

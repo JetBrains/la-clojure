@@ -321,6 +321,23 @@
         <root url="file://$PROJECT_DIR$/../../enclojure/org-enclojure-repl-client/src/main/java" />
       </SOURCES>
     </library>
+    <library name="scala.sdk">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/scala-compiler.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/scala-library.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$PROJECT_DIR$/lib/scala-library-src.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="scalatest">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/scalatest-1.2.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
   </component>
 </project>
 
