@@ -105,6 +105,8 @@
 
   <target name="make.scala" depends="make.lexer, unzip.last.successful.IDEA.build">
 
+    <mkdir dir="${project.dest}"/>
+
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
         <pathelement location="${project.lib}/scala-compiler.jar"/>
@@ -155,7 +157,7 @@
 
   </target>
 
-  <target name="make.clojure">
+  <target name="make.clojure" depends="make.java">
     <!-- Compile project Clojure files -->
     <java classname="clojure.lang.Compile">
       <classpath refid="clojure.base.path"/>
@@ -167,7 +169,7 @@
 
   </target>
 
-  <target name="make.plugin" depends="make.java, make.clojure">
+  <target name="make.plugin" depends="make.clojure">
     <replace file="${project.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
     <replace file="${project.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${idea.build}"/>
     <replace file="${project.dest}/META-INF/plugin.xml" token="UNTIL_IDEA" value="${idea.build}"/>
