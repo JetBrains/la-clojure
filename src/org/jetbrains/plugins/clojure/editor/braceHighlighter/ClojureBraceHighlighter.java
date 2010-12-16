@@ -59,7 +59,9 @@ public class ClojureBraceHighlighter extends AbstractProjectComponent {
         myAlarm.cancelAllRequests();
         Editor[] editors = EditorFactory.getInstance().getEditors(e.getDocument(), myProject);
         for (Editor editor : editors) {
-          updateBraces(editor, myAlarm, e);
+          if (editor.getProject() != null) {
+            updateBraces(editor, myAlarm, e);
+          }
         }
       }
     };
