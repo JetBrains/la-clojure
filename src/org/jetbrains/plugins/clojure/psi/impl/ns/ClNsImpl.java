@@ -24,6 +24,8 @@ import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBasedPsiElement<ClNsStub> {
 
   private static final String IMPORT_KEY = ":import";
+  private static final String IMPLEMENTS_KEY = ":implements";
+  private static final String EXTENDS_KEY = ":extends";
   private static final String USE_KEY = ":use";
 
   public ClNsImpl(ClNsStub stub, @NotNull IStubElementType nodeType) {
@@ -79,7 +81,6 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
   @Override
   public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
     final JavaPsiFacade facade = JavaPsiFacade.getInstance(getProject());
-    final GlobalSearchScope scope = GlobalSearchScope.allScope(getProject());
     for (PsiElement element : getChildren()) {
       if (element instanceof ClList) {
         ClList directive = (ClList) element;
