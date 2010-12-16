@@ -258,6 +258,7 @@
         <w>multicaster</w>
         <w>namespace</w>
         <w>refactorings</w>
+        <w>requestor</w>
       </words>
     </dictionary>
   </component>

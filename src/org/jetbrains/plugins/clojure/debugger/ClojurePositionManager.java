@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.debugger;
 import com.intellij.debugger.NoDataException;
 import com.intellij.debugger.PositionManager;
 import com.intellij.debugger.SourcePosition;
+import com.intellij.debugger.engine.CompoundPositionManager;
 import com.intellij.debugger.engine.DebugProcess;
 import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.requests.ClassPrepareRequestor;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 
 import java.util.ArrayList;
@@ -82,9 +84,16 @@ public class ClojurePositionManager implements PositionManager {
 
     String nsName = getNameSpaceName(element);
     final String nsPrefix = nsName != null ? nsName + "$" : "user$";
-    final ClassPrepareRequest prepareRequest = myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, nsPrefix + "*");
 
-//    prepareRequest.addSourceNameFilter(file.getName());
+    final ClDef def = PsiTreeUtil.getParentOfType(element, ClDef.class);
+    final String name = def == null ? "eval" : def.getName();
+
+    final String query = nsPrefix + (name != null ? name.replace('-', '_') : "") + "*";
+
+    ClassPrepareRequestor waitRequestor = new MyClassPrepareRequestor(position, requestor);
+    final ClassPrepareRequest prepareRequest = myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, query);
+
+    prepareRequest.addSourceNameFilter(file.getName());
     return prepareRequest;
   }
 
@@ -113,26 +122,15 @@ public class ClojurePositionManager implements PositionManager {
   public List<ReferenceType> getAllClasses(final SourcePosition position) throws NoDataException {
     PsiFile file = position.getFile();
     if (!(file instanceof ClojureFile)) throw new NoDataException();
-
-/*
-    final ClojureFile clojureFile = (ClojureFile) file;
-    PsiElement element = clojureFile.findElementAt(position.getOffset());
-    String pattern = ".*";
-    final ClDef parent = PsiTreeUtil.getParentOfType(element, ClDef.class);
-    if (parent != null) {
-      final String name = parent.getDefinedName();
-      if (name != null) {
-        pattern = ".*$" + name + ".*__\\d+";
-      }
-    }
-*/
-
     final List<ReferenceType> list = myDebugProcess.getVirtualMachineProxy().allClasses();
     final ArrayList<ReferenceType> result = new ArrayList<ReferenceType>();
     final String fileName = position.getFile().getName();
     for (ReferenceType type : list) {
       try {
         final String name = type.sourceName();
+        if (type.name().contains("user$")){
+          System.out.println("step");
+        }
         if (fileName.equals(name)) {
           result.add(type);
         }
@@ -176,4 +174,27 @@ public class ClojurePositionManager implements PositionManager {
     }
     return null;
   }
+
+  private static class MyClassPrepareRequestor implements ClassPrepareRequestor {
+    private final SourcePosition position;
+    private final ClassPrepareRequestor requestor;
+
+    public MyClassPrepareRequestor(SourcePosition position, ClassPrepareRequestor requestor) {
+      this.position = position;
+      this.requestor = requestor;
+    }
+
+    public void processClassPrepare(DebugProcess debuggerProcess, ReferenceType referenceType) {
+      final CompoundPositionManager positionManager = ((DebugProcessImpl) debuggerProcess).getPositionManager();
+      if (positionManager.locationsOfLine(referenceType, position).size() > 0) {
+        requestor.processClassPrepare(debuggerProcess, referenceType);
+      } else {
+        final List<ReferenceType> positionClasses = positionManager.getAllClasses(position);
+        if (positionClasses.contains(referenceType)) {
+          requestor.processClassPrepare(debuggerProcess, referenceType);
+        }
+      }
+    }
+  }
+
 }
