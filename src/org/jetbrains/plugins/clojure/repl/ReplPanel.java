@@ -218,7 +218,9 @@ public class ReplPanel extends JPanel implements Disposable {
       // TODO - What does the "help ID" give us??
 
 //      final VirtualFile baseDir = myProject.getBaseDir();
-      final String baseDir = module.getModuleFile().getParent().getPath();
+      final VirtualFile moduleFile = module.getModuleFile();
+      final VirtualFile parent = moduleFile != null ? moduleFile.getParent() : module.getProject().getBaseDir();
+      final String baseDir = parent != null ? parent.getPath() : ".";
       ClojureProjectSettings settings = ClojureProjectSettings.getInstance(myProject);
       processHandler = new ClojureReplProcessHandler(baseDir, settings.getCommandLineArgs(), module);
       ProcessTerminatedListener.attach(processHandler);
