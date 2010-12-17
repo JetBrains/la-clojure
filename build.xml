@@ -277,6 +277,8 @@
       <jvmarg value="-Didea.config.path=${test.dist}/config"/>
       <jvmarg value="-Didea.system.path=${test.dist}/system"/>
       <jvmarg value="-Didea.plugins.path=${project.dest}/.."/>
+      <!-- Useful for internal tests -->
+      <!--<jvmarg value="-Didea.platform.prefix=Idea"/>-->
 
       <jvmarg value="-Didea.load.plugins.id=org.intellij.clojure"/>
 

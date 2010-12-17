@@ -60,7 +60,6 @@ public class ClojureFacetSupportProvider extends FacetBasedFrameworkSupportProvi
     return version.getJars();
   }
 
-
   @Override
   protected void setupConfiguration(ClojureFacet facet, ModifiableRootModel rootModel, FrameworkVersion version) {
     // do nothing
