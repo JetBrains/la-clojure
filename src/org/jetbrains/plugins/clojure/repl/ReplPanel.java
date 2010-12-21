@@ -222,7 +222,7 @@ public class ReplPanel extends JPanel implements Disposable {
       final VirtualFile parent = moduleFile != null ? moduleFile.getParent() : module.getProject().getBaseDir();
       final String baseDir = parent != null ? parent.getPath() : ".";
       ClojureProjectSettings settings = ClojureProjectSettings.getInstance(myProject);
-      processHandler = new ClojureReplProcessHandler(baseDir, settings.getCommandLineArgs(), module);
+      processHandler = new ClojureReplProcessHandler(baseDir, module);
       ProcessTerminatedListener.attach(processHandler);
       processHandler.startNotify();
       view.attachToProcess(processHandler);

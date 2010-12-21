@@ -95,9 +95,11 @@ public class ClojureReplProcessHandler extends ProcessHandler {
     }
   }
 
-  public ClojureReplProcessHandler(String path, String[] commandLineArgs, Module cp) throws IOException, ConfigurationException, CantRunException {
+  public ClojureReplProcessHandler(String path, Module module)
+      throws IOException, ConfigurationException, CantRunException {
+
     myExecPath = path;
-    myModule = cp;
+    myModule = module;
 
     if (notConfigured()) {
       throw new ConfigurationException("Can't create Clojure REPL process");
@@ -150,26 +152,10 @@ public class ClojureReplProcessHandler extends ProcessHandler {
         ClojureConfigUtil.warningDefaultClojureJar(myModule);
       }
 
-      myProcess = Runtime.getRuntime().exec(cmd.toArray(new String[cmd.size()]), env.toArray(new String[env.size()]), new File(myExecPath));
+      myProcess = Runtime.getRuntime().exec(cmd.toArray(new String[cmd.size()]),
+          env.toArray(new String[env.size()]), new File(myExecPath));
       myWaitFor = new ProcessWaitFor(myProcess);
     }
-
-//    addProcessListener(new ProcessAdapter() {
-//      public void onTextAvailable(ProcessEvent event, Key outputType) {
-////        System.out.println(scrub(event.getText()));
-//      }
-//
-//      private String scrub(String output) {
-//        StringTokenizer t = new StringTokenizer(output, "=>");
-//        if (t.hasMoreTokens()) {
-//          t.nextToken();
-//          if (t.hasMoreTokens()) {
-//            return t.nextToken().trim();
-//          }
-//        }
-//        return output;
-//      }
-//    });
   }
 
   private boolean notConfigured() {
@@ -421,15 +407,6 @@ public class ClojureReplProcessHandler extends ProcessHandler {
         }
         myIsClosed = true;
       }
-      //try {
-      //  if(Thread.currentThread() != this) {
-      //    join(0);
-      //  }
-      //}
-      //catch (InterruptedException e) {
-      //}
-      // must close after the thread finished its execution, cause otherwise
-      // the thread will try to read from the closed (and nulled) stream
       try {
         myReader.close();
       }

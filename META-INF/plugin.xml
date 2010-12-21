@@ -245,6 +245,13 @@
 
     </group>
 
+    <action id="org.jetbrains.plugins.clojure.actions.RunClojureConsoleAction"
+            class="org.jetbrains.plugins.clojure.actions.RunClojureConsoleAction" text="Start Clojure Console"
+            description="Runs Clojure REPL">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="shift meta R"/>
+      <!--<keyboard-shortcut keymap="$default" first-keystroke="shift meta R" second-keystroke="shift meta F11"/>-->
+    </action>
   </actions>
 
 
