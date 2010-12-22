@@ -6,9 +6,15 @@ import com.intellij.execution.process.ConsoleHistoryModel;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ConsoleExecuteActionHandler;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.Result;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.impl.source.codeStyle.HelperFactory;
+import com.intellij.psi.impl.source.codeStyle.IndentHelper;
+import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 
 /**
@@ -19,6 +25,7 @@ public class ClojureConsoleExecuteActionHandler extends ConsoleExecuteActionHand
   private LanguageConsoleViewImpl myConsoleView;
   private ProcessHandler myProcessHandler;
   private Project myProject;
+  private IndentHelper myIndentHelper;
 
   public ClojureConsoleExecuteActionHandler(LanguageConsoleViewImpl consoleView,
                                             ProcessHandler processHandler,
@@ -27,22 +34,40 @@ public class ClojureConsoleExecuteActionHandler extends ConsoleExecuteActionHand
     myConsoleView = consoleView;
     myProcessHandler = processHandler;
     myProject = project;
+    myIndentHelper = HelperFactory.createHelper(ClojureFileType.CLOJURE_FILE_TYPE, consoleView.getConsole().getProject());
   }
 
   @Override
   public void processLine(String text) {
     super.processLine(text);
-    final LanguageConsoleImpl console = myConsoleView.getConsole();
-    final Editor editor = console.getCurrentEditor();
-    scrollDown(editor);
   }
 
   @Override
-  public void runExecuteAction(LanguageConsoleImpl languageConsole, ConsoleHistoryModel consoleHistoryModel) {
+  public void runExecuteAction(final LanguageConsoleImpl languageConsole, ConsoleHistoryModel consoleHistoryModel) {
     // Process input and add to history
     final Editor editor = languageConsole.getCurrentEditor();
     final Document document = editor.getDocument();
+    final CaretModel caretModel = editor.getCaretModel();
+    final int offset = caretModel.getOffset();
     final String text = document.getText();
+
+    if (!"".equals(text.substring(offset).trim())) {
+      final String before = text.substring(0, offset);
+      final String after = text.substring(offset);
+      final int indent = myIndentHelper.getIndent(before, false);
+      final String spaces = myIndentHelper.fillIndent(indent);
+      final String newText = before + "\n" + spaces + after;
+
+      new WriteCommandAction(myProject) {
+        @Override
+        protected void run(Result result) throws Throwable {
+          languageConsole.setInputText(newText);
+          caretModel.moveToOffset(offset + indent + 1);
+        }
+      }.execute();
+
+      return;
+    }
 
     final String candidate = text.trim();
 
