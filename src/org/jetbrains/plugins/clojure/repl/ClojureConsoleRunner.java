@@ -40,7 +40,7 @@ import java.util.*;
 public class ClojureConsoleRunner extends AbstractConsoleRunnerWithHistory {
 
   private static final String CLOJURE_MAIN = "clojure.main";
-  private static final String REPL_TITLE = ClojureBundle.message("repl.toolWindowName");
+  public static final String REPL_TITLE = ClojureBundle.message("repl.toolWindowName");
 
 
   private Module myModule;

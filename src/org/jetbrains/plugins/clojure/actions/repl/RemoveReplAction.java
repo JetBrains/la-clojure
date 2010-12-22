@@ -10,7 +10,7 @@ import org.jetbrains.plugins.clojure.repl.ReplManager;
 /**
  * @author Kurt Christensen, ilyas
  */
-public class RemoveReplAction extends ClojureReplAction {
+public class RemoveReplAction extends ClojureConsoleAction {
   public RemoveReplAction() {
     getTemplatePresentation().setIcon(ClojureIcons.REPL_CLOSE);
   }

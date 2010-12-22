@@ -231,12 +231,14 @@ public class ClojurePsiUtil {
     final ClojureFile file = factory.createClojureFileFromText(text);
     final PsiElement[] children = file.getChildren();
 
-    if (children.length != 1) return false;
-    if (children[0] instanceof ClojurePsiElement) {
-      ClojurePsiElement elem = (ClojurePsiElement) children[0];
-      return !containsSyntaxErrors(elem);
+    if (children.length == 0) return false;
+    for (PsiElement child : children) {
+      if (containsSyntaxErrors(child)) {
+        return false;
+      }
     }
-    return false;
+
+    return true;
   }
 
   private static boolean containsSyntaxErrors(PsiElement elem) {

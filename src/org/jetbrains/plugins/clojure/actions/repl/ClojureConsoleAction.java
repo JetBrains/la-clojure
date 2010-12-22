@@ -37,7 +37,7 @@ import org.jetbrains.plugins.clojure.repl.ReplPanel;
  * @author Kurt Christensen, ilyas
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  */
-public abstract class ClojureReplAction extends AnAction {
+public abstract class ClojureConsoleAction extends AnAction {
 
   static Module getModule(AnActionEvent e) {
     Module module = e.getData(DataKeys.MODULE);

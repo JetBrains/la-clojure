@@ -27,7 +27,7 @@ import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  */
-public final class RunTopSexpAction extends ClojureReplAction {
+public final class RunTopSexpAction extends ClojureConsoleAction {
 
   public RunTopSexpAction(){
     getTemplatePresentation().setIcon(ClojureIcons.REPL_EVAL);

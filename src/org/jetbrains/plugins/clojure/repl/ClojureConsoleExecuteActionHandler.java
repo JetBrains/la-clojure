@@ -23,7 +23,7 @@ public class ClojureConsoleExecuteActionHandler extends ConsoleExecuteActionHand
   public ClojureConsoleExecuteActionHandler(LanguageConsoleViewImpl consoleView,
                                             ProcessHandler processHandler,
                                             Project project) {
-    super(processHandler, true);
+    super(processHandler, false);
     myConsoleView = consoleView;
     myProcessHandler = processHandler;
     myProject = project;

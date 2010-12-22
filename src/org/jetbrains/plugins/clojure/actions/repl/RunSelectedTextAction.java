@@ -15,7 +15,7 @@ import org.jetbrains.plugins.clojure.repl.ReplPanel;
 /**
  * @author Kurt Christensen, ilyas
  */
-public class RunSelectedTextAction extends ClojureReplAction {
+public class RunSelectedTextAction extends ClojureConsoleAction {
 
   public RunSelectedTextAction(){
     getTemplatePresentation().setIcon(ClojureIcons.REPL_EVAL);

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.clojure.repl.ReplManager;
 /**
  * @author Kurt Christensen, ilyas
  */
-public class RenameReplAction extends ClojureReplAction {
+public class RenameReplAction extends ClojureConsoleAction {
 
   @Override
   public void update(final AnActionEvent e) {

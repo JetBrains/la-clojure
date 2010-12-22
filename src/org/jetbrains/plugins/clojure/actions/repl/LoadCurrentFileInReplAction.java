@@ -18,7 +18,7 @@ import org.jetbrains.plugins.clojure.repl.ReplPanel;
 /**
  * @author ilyas
  */
-public class LoadCurrentFileInReplAction extends ClojureReplAction {
+public class LoadCurrentFileInReplAction extends ClojureConsoleAction {
 
   public LoadCurrentFileInReplAction(){
     getTemplatePresentation().setIcon(ClojureIcons.REPL_LOAD);
