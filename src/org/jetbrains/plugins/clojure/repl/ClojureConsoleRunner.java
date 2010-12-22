@@ -171,7 +171,7 @@ public class ClojureConsoleRunner extends AbstractConsoleRunnerWithHistory {
   @NotNull
   @Override
   protected ConsoleExecuteActionHandler createConsoleExecuteActionHandler() {
-    return new ClojureConsoleExecuteActionHandler(getConsoleView(), getProcessHandler());
+    return new ClojureConsoleExecuteActionHandler(getConsoleView(), getProcessHandler(), getProject());
   }
 
 }

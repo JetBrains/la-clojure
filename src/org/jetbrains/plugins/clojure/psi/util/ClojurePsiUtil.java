@@ -23,6 +23,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import org.jetbrains.plugins.clojure.psi.api.ClBraced;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.impl.ClKeyImpl;
@@ -221,6 +222,31 @@ public class ClojurePsiUtil {
   public static PsiElement lastChildSexp(PsiElement element) {
     PsiElement[] children = element.getChildren();
     return children[children.length - 1];
+  }
+
+  public static boolean isValidClojureExpression(String text, @NotNull Project project) {
+    if (text == null) return false;
+    text = text.trim();
+    final ClojurePsiFactory factory = ClojurePsiFactory.getInstance(project);
+    final ClojureFile file = factory.createClojureFileFromText(text);
+    final PsiElement[] children = file.getChildren();
+
+    if (children.length != 1) return false;
+    if (children[0] instanceof ClojurePsiElement) {
+      ClojurePsiElement elem = (ClojurePsiElement) children[0];
+      return !containsSyntaxErrors(elem);
+    }
+    return false;
+  }
+
+  private static boolean containsSyntaxErrors(PsiElement elem) {
+    if (elem instanceof PsiErrorElement) {
+      return true;
+    }
+    for (PsiElement child : elem.getChildren()) {
+      if (containsSyntaxErrors(child)) return true;
+    }
+    return false;
   }
 
 }

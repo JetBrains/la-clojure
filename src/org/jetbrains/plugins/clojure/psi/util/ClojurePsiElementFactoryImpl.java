@@ -61,7 +61,7 @@ public class ClojurePsiElementFactoryImpl extends ClojurePsiFactory {
   }
 
   @NotNull
-  private ClojureFile createClojureFileFromText(String text) {
+  public ClojureFile createClojureFileFromText(@NotNull String text) {
     return (ClojureFile) PsiFileFactory.getInstance(getProject()).createFileFromText(DUMMY + ClojureFileType.CLOJURE_FILE_TYPE.getDefaultExtension(), text);
   }
 
