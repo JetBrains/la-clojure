@@ -17,7 +17,7 @@ public class ClojureConsoleHighlightingUtil {
   @Language("RegExp")
   private static final String LETTER = "([a-zA-Z]" + "|" + OTHER_TOKEN + ")";
   @Language("RegExp")
-  private static final String CLOJURE_IDENTIFIER = LETTER + "(" + LETTER + "|[0-9]" + ")";
+  private static final String CLOJURE_IDENTIFIER = LETTER + "(" + LETTER + "|[0-9]" + ")*";
   private static final String PROMPT_ARROW = "=>";
 
   public static final String LINE_WITH_PROMPT = CLOJURE_IDENTIFIER + PROMPT_ARROW + ".*";
