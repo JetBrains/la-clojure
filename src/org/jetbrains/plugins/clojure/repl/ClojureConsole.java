@@ -10,7 +10,7 @@ import org.jetbrains.plugins.clojure.ClojureLanguage;
 public class ClojureConsole extends LanguageConsoleImpl {
 
   public ClojureConsole(Project project, String title, boolean doSaveErrorsToHistory) {
-    super(project, title, ClojureLanguage.getInstance(), doSaveErrorsToHistory);
+    super(project, title, ClojureLanguage.getInstance());
   }
 
   // TODO implement console communication

@@ -16,7 +16,7 @@ public class ClojureConsoleExecuteActionHandler extends ConsoleExecuteActionHand
   private ProcessHandler myProcessHandler;
 
   public ClojureConsoleExecuteActionHandler(LanguageConsoleViewImpl consoleView, ProcessHandler processHandler) {
-    super(processHandler);
+    super(processHandler, true);
     myConsoleView = consoleView;
     myProcessHandler = processHandler;
   }
