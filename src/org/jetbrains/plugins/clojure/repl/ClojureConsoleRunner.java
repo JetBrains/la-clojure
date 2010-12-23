@@ -93,6 +93,7 @@ public class ClojureConsoleRunner extends AbstractConsoleRunnerWithHistory {
       final ConsoleExecuteActionHandler actionHandler = getConsoleExecuteActionHandler();
       actionHandler.processLine(st);
     }
+
   }
 
   @Override

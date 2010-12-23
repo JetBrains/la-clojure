@@ -1,18 +1,12 @@
 package org.jetbrains.plugins.clojure.config;
 
-import com.intellij.facet.FacetManagerAdapter;
-import com.intellij.facet.FacetManager;
 import com.intellij.facet.Facet;
-import com.intellij.facet.ProjectFacetManager;
-import com.intellij.openapi.module.ModuleComponent;
+import com.intellij.facet.FacetManager;
+import com.intellij.facet.FacetManagerAdapter;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.module.ModuleComponent;
 import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.clojure.repl.ReplManager;
-import org.jetbrains.plugins.clojure.repl.ReplPanel;
-
-import java.util.List;
 
 /**
  * @author ilyas
@@ -33,20 +27,8 @@ public class ClojureFacetListener extends FacetManagerAdapter implements ModuleC
       }
 
       public void facetRemoved(@NotNull Facet facet) {
-        if (facet.getTypeId() == ClojureFacet.ID) {
-          removeReplToolWindow();
-        }
       }
     });
-  }
-
-  private void removeReplToolWindow() {
-    final Project project = myModule.getProject();
-
-    final List<ClojureFacet> facets = ProjectFacetManager.getInstance(project).getFacets(ClojureFacet.ID);
-    if (facets.size() == 0) {
-      ReplManager.getInstance(project).closeReplToolWindow();
-    }
   }
 
   public void disposeComponent() {

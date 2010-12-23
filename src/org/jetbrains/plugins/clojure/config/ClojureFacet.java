@@ -15,15 +15,10 @@
  */
 package org.jetbrains.plugins.clojure.config;
 
-import com.intellij.facet.Facet;
-import com.intellij.facet.FacetManager;
-import com.intellij.facet.FacetType;
-import com.intellij.facet.FacetTypeId;
-import com.intellij.facet.FacetTypeRegistry;
+import com.intellij.facet.*;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.clojure.repl.ReplManager;
 import org.jetbrains.plugins.clojure.settings.ClojureProjectSettings;
 
 /**
@@ -56,9 +51,5 @@ public class ClojureFacet extends Facet<ClojureFacetConfiguration> {
     Project project = module.getProject();
     ClojureProjectSettings settings = ClojureProjectSettings.getInstance(project);
 
-    if (settings.autoStartRepl) {
-      // Lazy initialization of REPL tool window.
-      ReplManager.getInstance(project).init(module);
-    }
   }
 }

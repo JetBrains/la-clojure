@@ -84,9 +84,6 @@
     <projectService serviceInterface="org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory"
                     serviceImplementation="org.jetbrains.plugins.clojure.psi.util.ClojurePsiElementFactoryImpl"/>
 
-    <projectService serviceInterface="org.jetbrains.plugins.clojure.repl.ReplManager"
-                    serviceImplementation="org.jetbrains.plugins.clojure.repl.ReplManager"/>
-
     <projectConfigurable implementation="org.jetbrains.plugins.clojure.settings.ClojureConfigurable"/>
     <projectService serviceInterface="org.jetbrains.plugins.clojure.settings.ClojureProjectSettings"
                     serviceImplementation="org.jetbrains.plugins.clojure.settings.ClojureProjectSettings"/>
@@ -150,6 +147,24 @@
         <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift L"/>
       </action>
 
+      <action id="org.jetbrains.plugins.clojure.repl.actions.RunSelectedTextAction"
+              class="org.jetbrains.plugins.clojure.repl.actions.RunSelectedTextAction"
+              text="Run selected text in REPL">
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
+      </action>
+
+      <action id="org.jetbrains.plugins.clojure.repl.actions.RunLastSExprAction"
+              class="org.jetbrains.plugins.clojure.repl.actions.RunLastSExprAction"
+              text="Execute last S-expression in REPL">
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift H"/>
+      </action>
+
+      <action id="org.jetbrains.plugins.clojure.repl.actions.RunTopSExprAction"
+              class="org.jetbrains.plugins.clojure.repl.actions.RunTopSExprAction"
+              text="Run Top S-expression in REPL">
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift G"/>
+      </action>
+
       <add-to-group group-id="ToolsMenu" anchor="last"/>
 
     </group>
@@ -201,6 +216,12 @@
       <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift F10"/>
       <!--<keyboard-shortcut keymap="$default" first-keystroke="shift meta R" second-keystroke="shift meta F11"/>-->
     </action>
+
+    <action id="ClojureExecuteStatementAction"
+            class="org.jetbrains.plugins.clojure.repl.actions.ExecuteStatementAction" text="Execute Clojure statement">
+      <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER" second-keystroke="shift ENTER"/>
+    </action>
+
   </actions>
 
 
