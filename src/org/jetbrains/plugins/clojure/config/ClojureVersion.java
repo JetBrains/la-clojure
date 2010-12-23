@@ -2,6 +2,8 @@ package org.jetbrains.plugins.clojure.config;
 
 import com.intellij.facet.ui.libraries.LibraryInfo;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.clojure.utils.ClojureUtils;
+
 import static org.jetbrains.plugins.clojure.config.util.ClojureMavenLibraryUtil.createJarDownloadInfo;
 
 
@@ -11,17 +13,17 @@ import static org.jetbrains.plugins.clojure.config.util.ClojureMavenLibraryUtil.
 public enum ClojureVersion {
 
   Clojure_1_0("1.0", new LibraryInfo[]{
-      createJarDownloadInfo("clojure.jar", "", "clojure.main"),
+      createJarDownloadInfo("clojure.jar", "", ClojureUtils.CLOJURE_MAIN),
       createJarDownloadInfo("clojure-contrib.jar", ""),
 
   }),
 
   Clojure_1_1_0("1.1.0", new LibraryInfo[]{
-      createJarDownloadInfo("clojure.jar", "1.1.0", "clojure.main"),
+      createJarDownloadInfo("clojure.jar", "1.1.0", ClojureUtils.CLOJURE_MAIN),
   }),
 
   Clojure_1_2("1.2", new LibraryInfo[]{
-      createJarDownloadInfo("clojure.jar", "1.2", "clojure.main"),
+      createJarDownloadInfo("clojure.jar", "1.2", ClojureUtils.CLOJURE_MAIN),
   });
 
 

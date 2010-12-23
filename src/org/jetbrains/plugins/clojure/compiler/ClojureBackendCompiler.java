@@ -44,7 +44,6 @@ public class ClojureBackendCompiler extends ExternalCompiler {
   private final List<File> myTempFiles = new ArrayList<File>();
 
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ClojureFileType.CLOJURE_FILE_TYPE));
-  private static final String CLOJURE_MAIN = "clojure.main";
 
   public ClojureBackendCompiler(Project project) {
     myProject = project;
@@ -223,7 +222,7 @@ public class ClojureBackendCompiler extends ExternalCompiler {
     commandLine.add(classPathBuilder.toString());
 
     //Add REPL class runner
-    commandLine.add(CLOJURE_MAIN);
+    commandLine.add(ClojureUtils.CLOJURE_MAIN);
 
 
     try {

@@ -43,6 +43,7 @@ import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.util.Alarm;
 import com.intellij.util.PathUtil;
 import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
+import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -66,7 +67,6 @@ public class ClojureReplProcessHandler extends ProcessHandler {
   private final String myExecPath;
   private final Module myModule;
 
-  private static final String CLOJURE_MAIN = "clojure.main";
   private static final String CLOJURE_SDK = PathUtil.getJarPathForClass(AFn.class);
 
   public static Future<?> executeOnPooledThread(Runnable task) {
@@ -133,7 +133,7 @@ public class ClojureReplProcessHandler extends ProcessHandler {
       }
 
 
-      params.setMainClass(CLOJURE_MAIN);
+      params.setMainClass(ClojureUtils.CLOJURE_MAIN);
       params.setWorkingDirectory(path);
 
       final GeneralCommandLine line = CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true);

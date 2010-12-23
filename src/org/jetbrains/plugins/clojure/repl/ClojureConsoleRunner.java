@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
+import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +40,6 @@ import java.util.*;
  */
 public class ClojureConsoleRunner extends AbstractConsoleRunnerWithHistory {
 
-  private static final String CLOJURE_MAIN = "clojure.main";
   public static final String REPL_TITLE = ClojureBundle.message("repl.toolWindowName");
 
 
@@ -140,8 +140,7 @@ public class ClojureConsoleRunner extends AbstractConsoleRunnerWithHistory {
       params.getClassPath().add(file.getPath());
     }
 
-
-    params.setMainClass(CLOJURE_MAIN);
+    params.setMainClass(ClojureUtils.CLOJURE_MAIN);
     params.setWorkingDirectory(new File(workingDir));
 
     final GeneralCommandLine line = CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true);

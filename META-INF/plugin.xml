@@ -141,68 +141,17 @@
 
     <!-- REPL-related actions -->
     <group id="Clojure.REPL.Group"
-           class="org.jetbrains.plugins.clojure.repl.ClojureReplActionGroup"
+           class="org.jetbrains.plugins.clojure.repl.actions.ClojureReplActionGroup"
            text="Clojure REPL" description="Clojure" popup="true">
 
-      <action id="org.jetbrains.plugins.clojure.actions.repl.GoToReplAction"
-              class="org.jetbrains.plugins.clojure.actions.repl.GoToReplAction" text="Go To REPL"
-              description="Go to the last Clojure REPL">
-        <keyboard-shortcut keymap="$default" first-keystroke="ctrl BACK_SLASH"/>
-      </action>
-
-      <action id="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction"
-              class="org.jetbrains.plugins.clojure.actions.repl.RunSelectedTextAction" text="Run selected in REPL"
-              description="Run selected Clojure text in REPL">
-        <keyboard-shortcut keymap="$default" first-keystroke="alt shift S"/>
-      </action>
-
-      <action id="org.jetbrains.plugins.clojure.actions.repl.RunLastSexpAction"
-              class="org.jetbrains.plugins.clojure.actions.repl.RunLastSexpAction" text="Run last s-expression in REPL"
-              description="Run the s-expression behind the caret in the REPL">
-        <keyboard-shortcut keymap="$default" first-keystroke="alt S"/>
-      </action>
-
-      <action id="org.jetbrains.plugins.clojure.actions.repl.RunTopSexpAction"
-              class="org.jetbrains.plugins.clojure.actions.repl.RunTopSexpAction"
-              text="Run top s-expression in REPL"
-              description="Run the top level s-expression at the caret in the REPL">
-        <keyboard-shortcut keymap="$default" first-keystroke="alt T"/>
-      </action>
-
-      <action id="org.jetbrains.plugins.clojure.actions.repl.AddReplAction"
-              class="org.jetbrains.plugins.clojure.actions.repl.AddReplAction" text="Add new Clojure REPL"
-              description="Add REPL">
-        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt A"/>
-      </action>
-
-      <action id="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction"
-              class="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction" text="Remove REPL"
-              description="Remove current Clojure REPL">
-        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt M"/>
-      </action>
-
-      <action id="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentFileInReplAction"
-              class="org.jetbrains.plugins.clojure.actions.repl.LoadCurrentFileInReplAction" text="Load file to REPL"
+      <action id="org.jetbrains.plugins.clojure.repl.actions.LoadClojureFileInConsoleAction"
+              class="org.jetbrains.plugins.clojure.repl.actions.LoadClojureFileInConsoleAction" text="Load file to REPL"
               description="Load current file to REPL">
-        <keyboard-shortcut keymap="$default" first-keystroke="alt L"/>
-      </action>
-
-      <action id="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction"
-              class="org.jetbrains.plugins.clojure.actions.repl.RenameReplAction" text="Rename REPL"
-              description="Renamce current Clojure REPL">
-        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt SLASH"/>
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift L"/>
       </action>
 
       <add-to-group group-id="ToolsMenu" anchor="last"/>
 
-    </group>
-
-    <!-- A subset of the REPL actions that should be displayed in the panel toolbar. -->
-    <group id="Clojure.REPL.PanelGroup"
-           class="org.jetbrains.plugins.clojure.repl.ClojureReplActionGroup"
-           text="Clojure REPL" description="Clojure" popup="true">
-      <reference ref="org.jetbrains.plugins.clojure.actions.repl.AddReplAction"/>
-      <reference ref="org.jetbrains.plugins.clojure.actions.repl.RemoveReplAction"/>
     </group>
 
     <!-- Structural Editing -->
@@ -249,7 +198,7 @@
             class="org.jetbrains.plugins.clojure.actions.RunClojureConsoleAction" text="Start Clojure Console"
             description="Runs Clojure REPL">
       <add-to-group group-id="ToolsMenu" anchor="last"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="shift meta R"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift F10"/>
       <!--<keyboard-shortcut keymap="$default" first-keystroke="shift meta R" second-keystroke="shift meta F11"/>-->
     </action>
   </actions>

@@ -30,7 +30,7 @@ public class ClojureConsoleHighlightingUtil {
    * @param console
    * @param text
    */
-  static void processOutput(LanguageConsoleImpl console, String text, Key attributes) {
+  public static void processOutput(LanguageConsoleImpl console, String text, Key attributes) {
     final ConsoleViewContentType outputType = ConsoleViewContentType.NORMAL_OUTPUT;
     // todo implement multiple cases for error etc.
     LanguageConsoleImpl.printToConsole(console, text, outputType, null);

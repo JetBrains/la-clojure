@@ -25,12 +25,12 @@ import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
+import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import java.io.File;
 import java.util.*;
@@ -58,9 +58,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
   private String scriptParams;
   private boolean runInREPL;
 
-  @NonNls
-  private static final String CLOJURE_MAIN = "clojure.main";
-  private static final String CLOJURE_REPL = "clojure.lang.Repl";
   //  private static final String JLINE_CONSOLE_RUNNER = "jline.ConsoleRunner";
 
 
@@ -160,9 +157,9 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     params.getVMParametersList().addParametersString(vmParams);
 
     if (runInREPL) {
-      params.setMainClass(CLOJURE_REPL);
+      params.setMainClass(ClojureUtils.CLOJURE_REPL);
     } else {
-      params.setMainClass(CLOJURE_MAIN);
+      params.setMainClass(ClojureUtils.CLOJURE_MAIN);
     }
   }
 

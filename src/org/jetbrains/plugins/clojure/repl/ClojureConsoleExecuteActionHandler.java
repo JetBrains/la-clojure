@@ -23,10 +23,10 @@ import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 public class ClojureConsoleExecuteActionHandler extends ConsoleExecuteActionHandler {
 
   private LanguageConsoleViewImpl myConsoleView;
+
   private ProcessHandler myProcessHandler;
   private Project myProject;
   private IndentHelper myIndentHelper;
-
   public ClojureConsoleExecuteActionHandler(LanguageConsoleViewImpl consoleView,
                                             ProcessHandler processHandler,
                                             Project project) {
@@ -77,6 +77,10 @@ public class ClojureConsoleExecuteActionHandler extends ConsoleExecuteActionHand
       languageConsole.setInputText(text + "\n");
     }
 
+  }
+
+  public LanguageConsoleViewImpl getConsoleView() {
+    return myConsoleView;
   }
 
   private void scrollDown(final Editor currentEditor) {

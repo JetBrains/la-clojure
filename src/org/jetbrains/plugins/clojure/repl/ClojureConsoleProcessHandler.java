@@ -37,4 +37,9 @@ public class ClojureConsoleProcessHandler extends ColoredProcessHandler {
     }
     return text;
   }
+
+  public LanguageConsoleImpl getLanguageConsole() {
+    return myLanguageConsole;
+  }
+
 }
