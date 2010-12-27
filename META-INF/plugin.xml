@@ -142,8 +142,8 @@
            text="Clojure REPL" description="Clojure" popup="true">
 
       <action id="org.jetbrains.plugins.clojure.repl.actions.LoadClojureFileInConsoleAction"
-              class="org.jetbrains.plugins.clojure.repl.actions.LoadClojureFileInConsoleAction" text="Load file to REPL"
-              description="Load current file to REPL">
+              class="org.jetbrains.plugins.clojure.repl.actions.LoadClojureFileInConsoleAction"
+              text="Load file to REPL">
         <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift L"/>
       </action>
 

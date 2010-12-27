@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.repl;
 import com.intellij.execution.CantRunException;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionHelper;
+import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.CommandLineBuilder;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.configurations.JavaParameters;
@@ -13,7 +14,10 @@ import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory;
 import com.intellij.execution.runners.ConsoleExecuteActionHandler;
+import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -94,6 +98,26 @@ public class ClojureConsoleRunner extends AbstractConsoleRunnerWithHistory {
       actionHandler.processLine(st);
     }
 
+  }
+
+  @Override
+  protected AnAction[] fillToolBarActions(DefaultActionGroup toolbarActions,
+                                          Executor defaultExecutor,
+                                          RunContentDescriptor myDescriptor) {
+    final AnAction[] actions = super.fillToolBarActions(toolbarActions, defaultExecutor, myDescriptor);
+    final LanguageConsoleImpl languageConsole = getLanguageConsole();
+    if (languageConsole instanceof ClojureConsole) {
+      ClojureConsole console = (ClojureConsole) languageConsole;
+      for (AnAction action : actions) {
+        if (action instanceof ConsoleExecuteAction) {
+          ConsoleExecuteAction executeAction = (ConsoleExecuteAction) action;
+          console.setExecuteAction(executeAction);
+          break;
+        }
+      }
+    }
+
+    return actions;
   }
 
   @Override

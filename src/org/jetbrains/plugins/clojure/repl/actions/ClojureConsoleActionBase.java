@@ -3,17 +3,17 @@ package org.jetbrains.plugins.clojure.repl.actions;
 import com.intellij.execution.ExecutionHelper;
 import com.intellij.execution.console.LanguageConsoleImpl;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
@@ -22,11 +22,9 @@ import com.intellij.util.NotNullFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.repl.ClojureConsole;
 import org.jetbrains.plugins.clojure.repl.ClojureConsoleProcessHandler;
 import org.jetbrains.plugins.clojure.utils.ClojureUtils;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * @author ilyas
@@ -43,35 +41,26 @@ public abstract class ClojureConsoleActionBase extends AnAction {
     return null;
   }
 
-  protected static void executeCommand(Project project, String command) {
+  protected static void executeCommand(final Project project, String command) {
     final ClojureConsoleProcessHandler processHandler = findRunningClojureConsole(project);
 
     LOG.assertTrue(processHandler != null);
 
+    // implement a command
     final LanguageConsoleImpl languageConsole = processHandler.getLanguageConsole();
     languageConsole.setInputText(command);
-    final TextRange range = new TextRange(0, command.length());
 
-    languageConsole.getCurrentEditor().getSelectionModel().setSelection(range.getStartOffset(), range.getEndOffset());
-    languageConsole.addCurrentToHistory(range, false, false);
-    languageConsole.setInputText("");
+    final Editor editor = languageConsole.getCurrentEditor();
+    final CaretModel caretModel = editor.getCaretModel();
+    caretModel.moveToOffset(command.length());
 
-    // write to process input
-    final Ref<Boolean> isSuccess = new Ref<Boolean>(false);
-    String error = null;
-    try {
-      final OutputStream processInput = processHandler.getProcessInput();
-      if (processInput != null) {
-        processInput.write((command + "\n").getBytes());
-        processInput.flush();
-        isSuccess.set(true);
-      }
-    } catch (IOException e1) {
-      error = e1.getMessage();
-    }
-    if (!isSuccess.get()) {
-      showError(ClojureBundle.message("clojure.repl.unable.load.to.console") + (error != null ? "(" + error + ")" : ""));
-    }
+
+    LOG.assertTrue(languageConsole instanceof ClojureConsole);
+
+    final ClojureConsole console = (ClojureConsole) languageConsole;
+    final AbstractConsoleRunnerWithHistory.ConsoleExecuteAction action = console.getExecuteAction();
+
+    action.actionPerformed(null);
   }
 
   private static class ClojureConsoleMatcher implements NotNullFunction<String, Boolean> {
@@ -117,6 +106,12 @@ public abstract class ClojureConsoleActionBase extends AnAction {
 
     final ClojureConsoleProcessHandler handler = findRunningClojureConsole(project);
     if (handler == null) {
+      presentation.setEnabled(false);
+      return;
+    }
+
+    final LanguageConsoleImpl console = handler.getLanguageConsole();
+    if (!(console instanceof ClojureConsole)) {
       presentation.setEnabled(false);
       return;
     }
