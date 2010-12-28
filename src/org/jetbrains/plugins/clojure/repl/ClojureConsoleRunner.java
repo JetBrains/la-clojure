@@ -1,24 +1,21 @@
 package org.jetbrains.plugins.clojure.repl;
 
-import com.intellij.execution.CantRunException;
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.ExecutionHelper;
-import com.intellij.execution.Executor;
+import com.google.common.collect.Lists;
+import com.intellij.execution.*;
 import com.intellij.execution.configurations.CommandLineBuilder;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.configurations.JavaParameters;
-import com.intellij.execution.console.LanguageConsoleImpl;
-import com.intellij.execution.console.LanguageConsoleViewImpl;
-import com.intellij.execution.process.CommandLineArgumentsProvider;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.process.ProcessOutputTypes;
-import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory;
-import com.intellij.execution.runners.ConsoleExecuteActionHandler;
+import com.intellij.execution.executors.DefaultRunExecutor;
+import com.intellij.execution.process.*;
 import com.intellij.execution.ui.RunContentDescriptor;
+import com.intellij.execution.ui.actions.CloseAction;
+import com.intellij.ide.CommonActionsManager;
 import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.Result;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
@@ -29,32 +26,60 @@ import com.intellij.openapi.roots.ModuleSourceOrderEntry;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.IdeFocusManager;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.util.PairProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
 import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
+
+import static com.intellij.execution.runners.AbstractConsoleRunnerWithHistory.createCanMoveDownComputable;
+import static com.intellij.execution.runners.AbstractConsoleRunnerWithHistory.createCanMoveUpComputable;
 
 /**
  * @author ilyas
  */
-public class ClojureConsoleRunner extends AbstractConsoleRunnerWithHistory {
+public class ClojureConsoleRunner {
 
   public static final String REPL_TITLE = ClojureBundle.message("repl.toolWindowName");
+  public static final String EXECUTE_ACTION_IMMEDIATELY_ID = "Clojure.Console.Execute.Immediately";
+  public static final String EXECUTE_ACTION_ID = "Clojure.Console.Execute";
 
 
-  private Module myModule;
+  private final Module myModule;
+  private final Project myProject;
+  private final String myConsoleTitle;
+  private final CommandLineArgumentsProvider myProvider;
+  private final String myWorkingDir;
+  private final ConsoleHistoryModel myHistory;
+
+  private ClojureConsoleView myConsoleView;
+  private ProcessHandler myProcessHandler;
+
+  private ClojureConsoleExecuteActionHandler myConsoleExecuteActionHandler;
+  private AnAction myRunAction;
+
 
   public ClojureConsoleRunner(@NotNull Module module,
                               @NotNull String consoleTitle,
                               @NotNull CommandLineArgumentsProvider provider,
                               @Nullable String workingDir) {
-    super(module.getProject(), consoleTitle, provider, workingDir);
     myModule = module;
+    myProject = module.getProject();
+    myConsoleTitle = consoleTitle;
+    myProvider = provider;
+    myWorkingDir = workingDir;
+    myHistory = new ConsoleHistoryModel();
   }
 
   public static void run(@NotNull final Module module,
@@ -88,55 +113,171 @@ public class ClojureConsoleRunner extends AbstractConsoleRunnerWithHistory {
   }
 
   public void initAndRun(final String... statements2execute) throws ExecutionException {
-    super.initAndRun();
+    // Create Server process
+    // !!! do not change order!!!
+    final Process process = createProcess(myProvider);
+    myConsoleView = createConsoleView();
+    myProcessHandler = new ClojureConsoleProcessHandler(process, myProvider.getCommandLineString(), getLanguageConsole());
+    myConsoleExecuteActionHandler = new ClojureConsoleExecuteActionHandler(getProcessHandler(), getProject(), false);
+    getLanguageConsole().setExecuteHandler(myConsoleExecuteActionHandler);
 
-    final LanguageConsoleImpl console = getConsoleView().getConsole();
+    // Init a console view
+    ProcessTerminatedListener.attach(myProcessHandler);
+
+    myProcessHandler.addProcessListener(new ProcessAdapter() {
+      @Override
+      public void processTerminated(ProcessEvent event) {
+        myRunAction.getTemplatePresentation().setEnabled(false);
+        myConsoleView.getConsole().setPrompt("");
+        myConsoleView.getConsole().getConsoleEditor().setRendererMode(true);
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+          public void run() {
+            myConsoleView.getConsole().getConsoleEditor().getComponent().updateUI();
+          }
+        });
+      }
+    });
+
+    // Attach a console view to the process
+    myConsoleView.attachToProcess(myProcessHandler);
+
+    // Runner creating
+    final Executor defaultExecutor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID);
+    final DefaultActionGroup toolbarActions = new DefaultActionGroup();
+    final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarActions, false);
+
+    final JPanel panel = new JPanel(new BorderLayout());
+    panel.add(actionToolbar.getComponent(), BorderLayout.WEST);
+    panel.add(myConsoleView.getComponent(), BorderLayout.CENTER);
+
+    final RunContentDescriptor myDescriptor =
+        new RunContentDescriptor(myConsoleView, myProcessHandler, panel, myConsoleTitle);
+
+    // tool bar actions
+    final AnAction[] actions = fillToolBarActions(toolbarActions, defaultExecutor, myDescriptor);
+    registerActionShortcuts(actions, getLanguageConsole().getConsoleEditor().getComponent());
+    registerActionShortcuts(actions, panel);
+    panel.updateUI();
+
+    // enter action
+    createAndRegisterEnterAction(panel);
+
+    // Show in run tool window
+    ExecutionManager.getInstance(myProject).getContentManager().showRunContent(defaultExecutor, myDescriptor);
+
+    // Request focus
+    final ToolWindow window = ToolWindowManager.getInstance(myProject).getToolWindow(defaultExecutor.getId());
+    window.activate(new Runnable() {
+      public void run() {
+        IdeFocusManager.getInstance(myProject).requestFocus(getLanguageConsole().getCurrentEditor().getContentComponent(), true);
+      }
+    });
+
+    // Run
+    myProcessHandler.startNotify();
+
+
+    final ClojureConsole console = getConsoleView().getConsole();
     for (String statement : statements2execute) {
       final String st = statement + "\n";
       ClojureConsoleHighlightingUtil.processOutput(console, st, ProcessOutputTypes.SYSTEM);
-      final ConsoleExecuteActionHandler actionHandler = getConsoleExecuteActionHandler();
+      final ClojureConsoleExecuteActionHandler actionHandler = getConsoleExecuteActionHandler();
       actionHandler.processLine(st);
     }
 
   }
 
-  @Override
-  protected AnAction[] fillToolBarActions(DefaultActionGroup toolbarActions,
-                                          Executor defaultExecutor,
-                                          RunContentDescriptor myDescriptor) {
-    final AnAction[] actions = super.fillToolBarActions(toolbarActions, defaultExecutor, myDescriptor);
-    final LanguageConsoleImpl languageConsole = getLanguageConsole();
-    if (languageConsole instanceof ClojureConsole) {
-      ClojureConsole console = (ClojureConsole) languageConsole;
-      for (AnAction action : actions) {
-        if (action instanceof ConsoleExecuteAction) {
-          ConsoleExecuteAction executeAction = (ConsoleExecuteAction) action;
-          console.setExecuteAction(executeAction);
-          break;
-        }
+  private void createAndRegisterEnterAction(JPanel panel) {
+    final AnAction enterAction = new ClojureConsoleEnterAction(getLanguageConsole(), getProcessHandler(), getConsoleExecuteActionHandler());
+    enterAction.registerCustomShortcutSet(enterAction.getShortcutSet(), getLanguageConsole().getConsoleEditor().getComponent());
+    enterAction.registerCustomShortcutSet(enterAction.getShortcutSet(), panel);
+  }
+
+  private static void registerActionShortcuts(final AnAction[] actions, final JComponent component) {
+    for (AnAction action : actions) {
+      if (action.getShortcutSet() != null) {
+        action.registerCustomShortcutSet(action.getShortcutSet(), component);
       }
     }
+  }
 
+
+  protected AnAction[] fillToolBarActions(final DefaultActionGroup toolbarActions,
+                                          final Executor defaultExecutor,
+                                          final RunContentDescriptor myDescriptor) {
+
+    List<AnAction> actionList = Lists.newArrayList();
+
+    //stop
+    final AnAction stopAction = createStopAction();
+    actionList.add(stopAction);
+
+    //close
+    final AnAction closeAction = createCloseAction(defaultExecutor, myDescriptor);
+    actionList.add(closeAction);
+
+    // run and history actions
+    ArrayList<AnAction> executionActions = createConsoleExecActions(getLanguageConsole(),
+        myProcessHandler, myConsoleExecuteActionHandler, getHistoryModel());
+    myRunAction = executionActions.get(0);
+    actionList.addAll(executionActions);
+
+    // help action
+    actionList.add(CommonActionsManager.getInstance().createHelpAction("interactive_console"));
+
+    AnAction[] actions = actionList.toArray(new AnAction[actionList.size()]);
+    toolbarActions.addAll(actions);
     return actions;
   }
 
-  @Override
-  protected LanguageConsoleViewImpl createConsoleView() {
-    return new ClojureConsoleView(getProject(), getConsoleTitle());
+  public static ArrayList<AnAction> createConsoleExecActions(final ClojureConsole languageConsole,
+                                                             final ProcessHandler processHandler,
+                                                             final ClojureConsoleExecuteActionHandler consoleExecuteActionHandler,
+                                                             final ConsoleHistoryModel historyModel) {
+
+    final AnAction runImmediatelyAction = new ClojureExecuteImmediatelyAction(languageConsole, processHandler, consoleExecuteActionHandler);
+
+    final PairProcessor<AnActionEvent, String> historyProcessor = new PairProcessor<AnActionEvent, String>() {
+      public boolean process(final AnActionEvent e, final String s) {
+        new WriteCommandAction(languageConsole.getProject(), languageConsole.getFile()) {
+          protected void run(final Result result) throws Throwable {
+            languageConsole.getEditorDocument().setText(s == null ? "" : s);
+          }
+        }.execute();
+        return true;
+      }
+    };
+
+    final EditorEx consoleEditor = languageConsole.getConsoleEditor();
+    final AnAction upAction = ConsoleHistoryModel.createConsoleHistoryUpAction(
+        createCanMoveUpComputable(consoleEditor),
+        historyModel,
+        historyProcessor);
+    final AnAction downAction = ConsoleHistoryModel.createConsoleHistoryDownAction(
+        createCanMoveDownComputable(consoleEditor),
+        historyModel,
+        historyProcessor);
+
+    final ArrayList<AnAction> list = new ArrayList<AnAction>();
+    list.add(runImmediatelyAction);
+    list.add(downAction);
+    list.add(upAction);
+//    list.add(enterAction);
+    return list;
   }
 
-  @Override
-  protected Process createProcess(CommandLineArgumentsProvider provider) throws ExecutionException {
-    final ArrayList<String> cmd = createRuntimeArgs(myModule, getWorkingDir());
 
-    Process process = null;
-    try {
-      process = Runtime.getRuntime().exec(cmd.toArray(new String[cmd.size()]), new String[0], new File(getWorkingDir()));
-    } catch (IOException e) {
-      ExecutionHelper.showErrors(getProject(), Arrays.<Exception>asList(e), REPL_TITLE, null);
-    }
+  protected AnAction createCloseAction(final Executor defaultExecutor, final RunContentDescriptor myDescriptor) {
+    return new CloseAction(defaultExecutor, myDescriptor, myProject);
+  }
 
-    return process;
+  protected AnAction createStopAction() {
+    return ActionManager.getInstance().getAction(IdeActions.ACTION_STOP_PROGRAM);
+  }
+
+
+  protected ClojureConsoleView createConsoleView() {
+    return new ClojureConsoleView(getProject(), getConsoleTitle(), getHistoryModel(), getConsoleExecuteActionHandler());
   }
 
   private static ArrayList<String> createRuntimeArgs(Module module, String workingDir) throws CantRunException {
@@ -185,17 +326,54 @@ public class ClojureConsoleRunner extends AbstractConsoleRunnerWithHistory {
     return cmd;
   }
 
+  protected Process createProcess(CommandLineArgumentsProvider provider) throws ExecutionException {
+    final ArrayList<String> cmd = createRuntimeArgs(myModule, getWorkingDir());
 
-  @Override
-  protected OSProcessHandler createProcessHandler(Process process, String commandLine) {
-    final LanguageConsoleImpl console = getConsoleView().getConsole();
-    return new ClojureConsoleProcessHandler(process, commandLine, console);
+    Process process = null;
+    try {
+      process = Runtime.getRuntime().exec(cmd.toArray(new String[cmd.size()]), new String[0], new File(getWorkingDir()));
+    } catch (IOException e) {
+      ExecutionHelper.showErrors(getProject(), Arrays.<Exception>asList(e), REPL_TITLE, null);
+    }
+
+    return process;
   }
 
-  @NotNull
-  @Override
-  protected ConsoleExecuteActionHandler createConsoleExecuteActionHandler() {
-    return new ClojureConsoleExecuteActionHandler(getConsoleView(), getProcessHandler(), getProject());
+
+  /*
+  A bunch of getters
+   */
+  public Project getProject() {
+    return myProject;
   }
+
+  public String getConsoleTitle() {
+    return myConsoleTitle;
+  }
+
+  public ClojureConsole getLanguageConsole() {
+    return myConsoleView.getConsole();
+  }
+
+  public ClojureConsoleView getConsoleView() {
+    return myConsoleView;
+  }
+
+  public ProcessHandler getProcessHandler() {
+    return myProcessHandler;
+  }
+
+  public ClojureConsoleExecuteActionHandler getConsoleExecuteActionHandler() {
+    return myConsoleExecuteActionHandler;
+  }
+
+  public ConsoleHistoryModel getHistoryModel() {
+    return myHistory;
+  }
+
+  public String getWorkingDir() {
+    return myWorkingDir;
+  }
+
 
 }

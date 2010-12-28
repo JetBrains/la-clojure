@@ -3,7 +3,6 @@ package org.jetbrains.plugins.clojure.repl.actions;
 import com.intellij.execution.ExecutionHelper;
 import com.intellij.execution.console.LanguageConsoleImpl;
 import com.intellij.execution.process.ProcessHandler;
-import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
@@ -23,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.repl.ClojureConsole;
+import org.jetbrains.plugins.clojure.repl.ClojureConsoleExecuteActionHandler;
 import org.jetbrains.plugins.clojure.repl.ClojureConsoleProcessHandler;
 import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
@@ -58,9 +58,9 @@ public abstract class ClojureConsoleActionBase extends AnAction {
     LOG.assertTrue(languageConsole instanceof ClojureConsole);
 
     final ClojureConsole console = (ClojureConsole) languageConsole;
-    final AbstractConsoleRunnerWithHistory.ConsoleExecuteAction action = console.getExecuteAction();
+    final ClojureConsoleExecuteActionHandler handler = console.getExecuteHandler();
 
-    action.actionPerformed(null);
+    handler.runExecuteAction(console, true);
   }
 
   private static class ClojureConsoleMatcher implements NotNullFunction<String, Boolean> {

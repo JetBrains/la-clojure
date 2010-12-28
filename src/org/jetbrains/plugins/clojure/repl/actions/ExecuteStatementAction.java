@@ -10,6 +10,9 @@ import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
  * @author ilyas
  */
 public class ExecuteStatementAction extends EditorAction {
+
+  public static String ID = "ClojureExecuteStatementAction";
+
   protected ExecuteStatementAction() {
     super(new MyHandler());
   }

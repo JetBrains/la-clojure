@@ -257,6 +257,7 @@
         <w>clojure</w>
         <w>multicaster</w>
         <w>namespace</w>
+        <w>openapi</w>
         <w>refactorings</w>
         <w>requestor</w>
       </words>

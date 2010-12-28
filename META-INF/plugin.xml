@@ -214,12 +214,18 @@
             description="Runs Clojure REPL">
       <add-to-group group-id="ToolsMenu" anchor="last"/>
       <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift F10"/>
-      <!--<keyboard-shortcut keymap="$default" first-keystroke="shift meta R" second-keystroke="shift meta F11"/>-->
     </action>
 
-    <action id="ClojureExecuteStatementAction"
-            class="org.jetbrains.plugins.clojure.repl.actions.ExecuteStatementAction" text="Execute Clojure statement">
-      <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER" second-keystroke="shift ENTER"/>
+    <action id="Clojure.Console.Execute"
+            class="com.intellij.openapi.actionSystem.EmptyAction"
+            text="Execute Current Clojure Statement">
+      <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
+    </action>
+
+    <action id="Clojure.Console.Execute.Immediately"
+            class="com.intellij.openapi.actionSystem.EmptyAction"
+            text="Execute Current Clojure Statement">
+      <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER"/>
     </action>
 
   </actions>
