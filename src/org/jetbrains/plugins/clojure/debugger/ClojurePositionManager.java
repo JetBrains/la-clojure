@@ -128,9 +128,6 @@ public class ClojurePositionManager implements PositionManager {
     for (ReferenceType type : list) {
       try {
         final String name = type.sourceName();
-        if (type.name().contains("user$")){
-          System.out.println("step");
-        }
         if (fileName.equals(name)) {
           result.add(type);
         }
