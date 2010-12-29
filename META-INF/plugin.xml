@@ -225,7 +225,7 @@
     <action id="Clojure.Console.Execute.Immediately"
             class="com.intellij.openapi.actionSystem.EmptyAction"
             text="Execute Current Clojure Statement">
-      <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER" second-keystroke="ctrl ENTER"/>
     </action>
 
   </actions>

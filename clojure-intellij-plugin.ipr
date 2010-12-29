@@ -255,6 +255,7 @@
     <dictionary name="ilya">
       <words>
         <w>clojure</w>
+        <w>defn</w>
         <w>multicaster</w>
         <w>namespace</w>
         <w>openapi</w>
