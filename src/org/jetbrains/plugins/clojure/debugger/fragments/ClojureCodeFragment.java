@@ -21,7 +21,7 @@ public class ClojureCodeFragment extends ClojureFileImpl implements JavaCodeFrag
   public ClojureCodeFragment(Project project, CharSequence text) {
     super(new SingleRootFileViewProvider(PsiManager.getInstance(project),
         new LightVirtualFile(
-            "DUMMY.clj",
+            "ClojureDebugFile.clj",
             ClojureFileType.CLOJURE_FILE_TYPE,
             text), true));
     ((SingleRootFileViewProvider) getViewProvider()).forceCachedPsi(this);

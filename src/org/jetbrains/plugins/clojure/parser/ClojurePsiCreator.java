@@ -2,7 +2,11 @@ package org.jetbrains.plugins.clojure.parser;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.testFramework.LightVirtualFile;
+import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.impl.*;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClNsImpl;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClInNsImpl;

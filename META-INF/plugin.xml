@@ -74,7 +74,7 @@
     <extendWordSelectionHandler
         implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureLiteralSelectioner"/>
     <debugger.codeFragmentFactory
-        implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragementFactory"/>
+        implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragmentFactory"/>
     <!-- <unscrambleSupport implementation="org.jetbrains.plugins.clojure.debugger.ClojureUnscrambler"/> -->
     <compilerSettingsFactory implementation="org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettingsFactory"/>
     <frameworkSupport implementation="org.jetbrains.plugins.clojure.config.ClojureFacetSupportProvider"/>
@@ -225,7 +225,7 @@
     <action id="Clojure.Console.Execute.Immediately"
             class="com.intellij.openapi.actionSystem.EmptyAction"
             text="Execute Current Clojure Statement">
-      <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER" second-keystroke="ctrl ENTER"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER"/>
     </action>
 
   </actions>

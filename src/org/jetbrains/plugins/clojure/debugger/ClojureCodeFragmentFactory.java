@@ -15,7 +15,7 @@ import java.util.Collections;
 /**
  * @author ilyas
  */
-public class ClojureCodeFragementFactory implements CodeFragmentFactory{
+public class ClojureCodeFragmentFactory implements CodeFragmentFactory{
   public JavaCodeFragment createCodeFragment(TextWithImports item, PsiElement context, Project project) {
     final StringBuffer text = new StringBuffer();
 
@@ -23,14 +23,12 @@ public class ClojureCodeFragementFactory implements CodeFragmentFactory{
 
     ArrayList<String> localNames = getLocalsFromContext(context);
     Collections.sort(localNames);
-    text.append("java.lang.String str = \"(defn ___tmp [" + StringUtil.join(localNames, " ") + "] " + query + ")\";\n");
+    text.append("java.lang.String str = \"(intern 'clojure.core 'tmp-debug (fn [" + StringUtil.join(localNames, " ") + "] " + query + "))\";\n");
     text.append("clojure.lang.Compiler.load(new java.io.StringReader(str));\n");
-    text.append("clojure.lang.Var tmp = clojure.lang.RT.var(\"user\", \"___tmp\");\n");
+    text.append("clojure.lang.Var tmp = clojure.lang.RT.var(\"clojure.core\", \"tmp-debug\");\n");
 
     final String argList = StringUtil.join(localNames, ", ");
     text.append("tmp.fn().invoke(" + argList + ");\n");
-
-    System.out.println(text.toString());
 
     final PsiElementFactory factory = JavaPsiFacade.getInstance(project).getElementFactory();
     return factory.createCodeBlockCodeFragment(text.toString(), null, true);

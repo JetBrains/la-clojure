@@ -88,7 +88,7 @@ public class ClojurePositionManager implements PositionManager {
     final ClDef def = PsiTreeUtil.getParentOfType(element, ClDef.class);
     final String name = def == null ? "eval" : def.getName();
 
-    final String query = nsPrefix + (name != null ? name.replace('-', '_') : "") + "*";
+    final String query = (nsPrefix + (name != null ? name : "")).replace('-', '_') + "*";
 
     ClassPrepareRequestor waitRequestor = new MyClassPrepareRequestor(position, requestor);
     final ClassPrepareRequest prepareRequest = myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, query);
