@@ -177,8 +177,9 @@ mNoDigit = ({mLETTER} | {mOTHER})
 mOTHER_REDUCED = "_" | "-" | "*" | "+" | "=" | "&" | "<" | ">" | "$" | "?" | "!"
 mNoDigit1 = ({mLETTER} | {mOTHER_REDUCED})
 
-mIDENT = {mNoDigit} ({mNoDigit} | {mDIGIT})* "#"?
-mKEY = ":" (":")? ({mIDENT} ":")* {mIDENT}
+mIDENT = {mNoDigit} ({mNoDigit} | {mDIGIT} | "#")*
+mIDENT_KEY = ({mNoDigit} | "#") ({mNoDigit} | {mDIGIT} | "#")*
+mKEY = ":" (":")? ({mIDENT_KEY} ":")* {mIDENT_KEY}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////      predefined      ////////////////////////////////////////////////////////////////////////////
