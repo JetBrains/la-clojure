@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.repl.actions;
 import com.intellij.execution.ExecutionHelper;
 import com.intellij.execution.console.LanguageConsoleImpl;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
@@ -26,6 +27,8 @@ import org.jetbrains.plugins.clojure.repl.ClojureConsoleExecuteActionHandler;
 import org.jetbrains.plugins.clojure.repl.ClojureConsoleProcessHandler;
 import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
+import java.util.Collection;
+
 /**
  * @author ilyas
  */
@@ -34,9 +37,12 @@ public abstract class ClojureConsoleActionBase extends AnAction {
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.clojure.repl.actions.LoadClojureFileInConsoleAction");
 
   protected static ClojureConsoleProcessHandler findRunningClojureConsole(Project project) {
-    final ProcessHandler handler = ExecutionHelper.findRunningConsole(project, new ClojureConsoleMatcher());
-    if (handler instanceof ClojureConsoleProcessHandler) {
-      return (ClojureConsoleProcessHandler) handler;
+    final Collection<RunContentDescriptor> descriptors = ExecutionHelper.findRunningConsole(project, new ClojureConsoleMatcher());
+    for (RunContentDescriptor descriptor : descriptors) {
+      final ProcessHandler handler = descriptor.getProcessHandler();
+      if (handler instanceof ClojureConsoleProcessHandler) {
+        return (ClojureConsoleProcessHandler) handler;
+      }
     }
     return null;
   }
