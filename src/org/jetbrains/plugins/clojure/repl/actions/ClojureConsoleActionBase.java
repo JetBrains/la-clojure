@@ -25,7 +25,7 @@ import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.repl.ClojureConsole;
 import org.jetbrains.plugins.clojure.repl.ClojureConsoleExecuteActionHandler;
 import org.jetbrains.plugins.clojure.repl.ClojureConsoleProcessHandler;
-import org.jetbrains.plugins.clojure.utils.ClojureUtils;
+import org.jetbrains.plugins.clojure.repl.ClojureConsoleView;
 
 import java.util.Collection;
 
@@ -69,10 +69,10 @@ public abstract class ClojureConsoleActionBase extends AnAction {
     handler.runExecuteAction(console, true);
   }
 
-  private static class ClojureConsoleMatcher implements NotNullFunction<String, Boolean> {
+  private static class ClojureConsoleMatcher implements NotNullFunction<RunContentDescriptor, Boolean> {
     @NotNull
-    public Boolean fun(String cmdLine) {
-      return cmdLine != null && cmdLine.contains(ClojureUtils.CLOJURE_MAIN);
+    public Boolean fun(RunContentDescriptor descriptor) {
+      return descriptor != null && (descriptor.getExecutionConsole() instanceof ClojureConsoleView);
     }
   }
 

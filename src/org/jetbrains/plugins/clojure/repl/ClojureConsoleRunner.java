@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.clojure.repl;
 
-import com.google.common.collect.Lists;
 import com.intellij.execution.*;
 import com.intellij.execution.configurations.CommandLineBuilder;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.configurations.JavaParameters;
+import com.intellij.execution.console.ConsoleHistoryController;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.process.*;
 import com.intellij.execution.ui.RunContentDescriptor;
@@ -13,9 +13,6 @@ import com.intellij.ide.CommonActionsManager;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
@@ -29,7 +26,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.util.PairProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
@@ -41,10 +37,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.List;
-
-import static com.intellij.execution.runners.AbstractConsoleRunnerWithHistory.createCanMoveDownComputable;
-import static com.intellij.execution.runners.AbstractConsoleRunnerWithHistory.createCanMoveUpComputable;
 
 /**
  * @author ilyas
@@ -206,7 +198,7 @@ public class ClojureConsoleRunner {
                                           final Executor defaultExecutor,
                                           final RunContentDescriptor myDescriptor) {
 
-    List<AnAction> actionList = Lists.newArrayList();
+    ArrayList<AnAction> actionList = new ArrayList<AnAction>();
 
     //stop
     final AnAction stopAction = createStopAction();
@@ -237,26 +229,11 @@ public class ClojureConsoleRunner {
 
     final AnAction runImmediatelyAction = new ClojureExecuteImmediatelyAction(languageConsole, processHandler, consoleExecuteActionHandler);
 
-    final PairProcessor<AnActionEvent, String> historyProcessor = new PairProcessor<AnActionEvent, String>() {
-      public boolean process(final AnActionEvent e, final String s) {
-        new WriteCommandAction(languageConsole.getProject(), languageConsole.getFile()) {
-          protected void run(final Result result) throws Throwable {
-            languageConsole.getEditorDocument().setText(s == null ? "" : s);
-          }
-        }.execute();
-        return true;
-      }
-    };
+    final ConsoleHistoryController historyController = new ConsoleHistoryController("clojure", null, languageConsole, historyModel);
+        historyController.install();
 
-    final EditorEx consoleEditor = languageConsole.getConsoleEditor();
-    final AnAction upAction = ConsoleHistoryModel.createConsoleHistoryUpAction(
-        createCanMoveUpComputable(consoleEditor),
-        historyModel,
-        historyProcessor);
-    final AnAction downAction = ConsoleHistoryModel.createConsoleHistoryDownAction(
-        createCanMoveDownComputable(consoleEditor),
-        historyModel,
-        historyProcessor);
+    final AnAction upAction = historyController.getHistoryPrev();
+    final AnAction downAction = historyController.getHistoryNext();
 
     final ArrayList<AnAction> list = new ArrayList<AnAction>();
     list.add(runImmediatelyAction);
