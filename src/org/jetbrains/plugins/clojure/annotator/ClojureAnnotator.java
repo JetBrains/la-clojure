@@ -29,6 +29,16 @@ public class ClojureAnnotator implements Annotator {
     if (element instanceof ClList) {
       annotateList((ClList) element, holder);
     }
+    if (element instanceof ClSymbol) {
+      ClSymbol symbol = (ClSymbol) element;
+      if (symbol.isQualified()) {
+        checkNonQualifiedSymbol(symbol, holder);
+      }
+    }
+  }
+
+  private void checkNonQualifiedSymbol(ClSymbol symbol, AnnotationHolder holder) {
+    // todo add import fixo
   }
 
   private void annotateList(ClList list, AnnotationHolder holder) {
