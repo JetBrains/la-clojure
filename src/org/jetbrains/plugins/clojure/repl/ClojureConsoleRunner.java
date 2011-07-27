@@ -295,7 +295,9 @@ public class ClojureConsoleRunner {
 
     final ArrayList<String> cmd = new ArrayList<String>();
     cmd.add(executablePath);
+
     cmd.addAll(line.getParametersList().getList());
+
 
     if (!sdkConfigured) {
       ClojureConfigUtil.warningDefaultClojureJar(module);
@@ -303,17 +305,71 @@ public class ClojureConsoleRunner {
     return cmd;
   }
 
+    private GeneralCommandLine createCommandLine(Module module, String workingDir) throws CantRunException {
+    final JavaParameters params = new JavaParameters();
+    params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
+    // To avoid NCDFE while starting REPL
+
+    final boolean sdkConfigured = ClojureConfigUtil.isClojureConfigured(module);
+    if (!sdkConfigured) {
+      final String jarPath = ClojureConfigUtil.CLOJURE_SDK;
+      assert jarPath != null;
+      params.getClassPath().add(jarPath);
+    }
+
+    Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
+    ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
+    OrderEntry[] entries = moduleRootManager.getOrderEntries();
+    for (OrderEntry orderEntry : entries) {
+      // Add module sources to classpath
+      if (orderEntry instanceof ModuleSourceOrderEntry) {
+        cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
+      }
+    }
+
+    for (VirtualFile file : cpVFiles) {
+      params.getClassPath().add(file.getPath());
+    }
+
+    params.setMainClass(ClojureUtils.CLOJURE_MAIN);
+    params.setWorkingDirectory(new File(workingDir));
+
+    final GeneralCommandLine line = CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true);
+
+    final Sdk sdk = params.getJdk();
+    assert sdk != null;
+    final SdkType type = sdk.getSdkType();
+    final String executablePath = ((JavaSdkType) type).getVMExecutablePath(sdk);
+
+    //final ArrayList<String> cmd = new ArrayList<String>();
+    //cmd.add(executablePath);
+
+   // cmd.addAll(line.getParametersList().getList());
+
+    Map envParams = new HashMap();
+    envParams.putAll(System.getenv());
+
+    line.setEnvParams(envParams);
+
+    if (!sdkConfigured) {
+      ClojureConfigUtil.warningDefaultClojureJar(module);
+    }
+    return line;
+  }
+
   protected Process createProcess(CommandLineArgumentsProvider provider) throws ExecutionException {
-    final ArrayList<String> cmd = createRuntimeArgs(myModule, getWorkingDir());
+
+    final GeneralCommandLine cmdline = createCommandLine(myModule, getWorkingDir());
 
     Process process = null;
     try {
-      process = Runtime.getRuntime().exec(cmd.toArray(new String[cmd.size()]), new String[0], new File(getWorkingDir()));
-    } catch (IOException e) {
+      process = cmdline.createProcess();
+    } catch (Exception e) {
       ExecutionHelper.showErrors(getProject(), Arrays.<Exception>asList(e), REPL_TITLE, null);
     }
 
     return process;
+
   }
 
 
