@@ -123,7 +123,7 @@ public abstract class ClojureBaseTestCase extends PsiTestCase {
           contents.append(line);
         }
         while ((line = input.readLine()) != null) {
-          contents.append(System.getProperty("line.separator"));
+          contents.append("\n");
           contents.append(line);
         }
       } finally {
