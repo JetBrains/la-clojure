@@ -1,28 +1,11 @@
 package org.jetbrains.plugins.clojure.parser;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.DebugUtil;
-import com.intellij.util.IncorrectOperationException;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.module.Module;
-import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
-import com.intellij.testFramework.fixtures.TestFixtureBuilder;
-import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import org.jetbrains.plugins.clojure.ClojureBaseTestCase;
-import org.jetbrains.plugins.clojure.ClojureLoader;
 import org.junit.Test;
-import org.jetbrains.plugins.clojure.util.PathUtil;
-import junit.framework.TestCase;
 import junit.framework.Assert;
-
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 
 /**
@@ -44,16 +27,16 @@ public class ParserTest extends ClojureBaseTestCase {
 
   private static final String DATA_PATH = System.getProperty("user.dir") + "/testdata/parser/";
 
-  private PsiFile createPseudoPhysicalFile(final Project project, final String fileName, final String text) throws IncorrectOperationException {
+  public String getDataPath() {
+    return DATA_PATH;
+  }
 
-    FileType fileType = FileTypeManager.getInstance().getFileTypeByFileName(fileName);
-    PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
+  public void doParse(String fileName) {
+    String contents = fetchFile("", fileName, TEST_FILE_EXT);
+    PsiFile psiFile = createPseudoPhysicalFile(getProject(), "test.clj", contents);
+    String psiTree = DebugUtil.psiToString(psiFile, false);
 
-
-    return psiFileFactory.createFileFromText(
-        fileName,
-        fileType,
-        text);
+    System.out.println(psiTree);
   }
 
   @Test
@@ -61,181 +44,149 @@ public class ParserTest extends ClojureBaseTestCase {
     Assert.assertNotNull(FileTypeManager.getInstance().getFileTypeByFileName("foo.clj"));
   }
 
-  public void parseit(String fileName) {
-    File file = new File(getDataPath() + fileName + TEST_FILE_EXT);
-    Assert.assertTrue(file.exists());
-
-    StringBuilder contents = new StringBuilder();
-    try {
-      BufferedReader input = new BufferedReader(new FileReader(file));
-      try {
-        String line = null;
-        if ((line = input.readLine()) != null) {
-          contents.append(line);
-        }
-        while ((line = input.readLine()) != null) {
-          contents.append(System.getProperty("line.separator"));
-          contents.append(line);
-        }
-      } finally {
-        input.close();
-      }
-    } catch (IOException ex) {
-      ex.printStackTrace();
-    }
-
-    PsiFile psiFile = createPseudoPhysicalFile(getProject(), "test.clj", contents.toString());
-    String psiTree = DebugUtil.psiToString(psiFile, false);
-    System.out.println(psiTree);
-  }
-
-  public String getDataPath() {
-    return DATA_PATH;
-  }
-
   @Test
   public void testSymbol() {
-    parseit("symbol");
+    doParse("symbol");
   }
 
   @Test
   public void testSymbol2() {
-    parseit("symbol2");
+    doParse("symbol2");
   }
 
   @Test
   public void testInteger() {
-    parseit("integer");
+    doParse("integer");
   }
 
   @Test
   public void testFloat() {
-    parseit("float");
+    doParse("float");
   }
 
   @Test
   public void testString() {
-    parseit("string");
+    doParse("string");
   }
 
   public void testMultilineString() {
-    parseit("multiline_string");
+    doParse("multiline_string");
   }
 
   @Test
   public void testSexp1() {
-    parseit("sexp");
+    doParse("sexp");
   }
 
   @Test
   public void testSexp2() {
-    parseit("sexp2");
+    doParse("sexp2");
   }
 
   @Test
   public void testQuote() {
-    parseit("quote");
+    doParse("quote");
   }
 
   @Test
   public void testVector() {
-    parseit("vector");
+    doParse("vector");
   }
 
   @Test
   public void testEmptyList() {
-    parseit("empty_list");
+    doParse("empty_list");
   }
 
   @Test
   public void testEmptyVector() {
-    parseit("empty_vector");
+    doParse("empty_vector");
   }
 
   @Test
   public void testEmptyMap() {
-    parseit("empty_map");
+    doParse("empty_map");
   }
 
   @Test
   public void testMap() {
-    parseit("map");
+    doParse("map");
   }
 
   @Test
   public void testMetadata() {
-    parseit("meta");
+    doParse("meta");
   }
 
   @Test
   public void testLet() {
-    parseit("let");
+    doParse("let");
   }
 
   @Test
   public void testFn() {
-    parseit("fn");
+    doParse("fn");
   }
 
   @Test
   public void testSexp3() {
-    parseit("sexp3");
+    doParse("sexp3");
   }
 
   @Test
   public void testSexp4() {
-    parseit("sexp4");
+    doParse("sexp4");
   }
 
   @Test
   public void testSexp45() {
-    parseit("sexp45");
+    doParse("sexp45");
   }
 
   @Test
   public void testDefn() {
-    parseit("defn");
+    doParse("defn");
   }
 
   @Test
   public void testDefn2() {
-    parseit("defn2");
+    doParse("defn2");
   }
 
   public void testDefn3() {
-    parseit("defn3");
+    doParse("defn3");
   }
 
   public void testString1() {
-    parseit("str1");
+    doParse("str1");
   }
 
   public void testString2() {
-    parseit("uncompl");
+    doParse("uncompl");
   }
 
   public void testString4() {
-    parseit("str4");
+    doParse("str4");
   }
 
   public void testSym1() {
-    parseit("symbols/sym1");
+    doParse("symbols/sym1");
   }
 
   public void testSym2() {
-    parseit("symbols/sym2");
+    doParse("symbols/sym2");
   }
 
   public void testSym3() {
-    parseit("symbols/sym3");
+    doParse("symbols/sym3");
   }
 
   public void testSym4() {
-    parseit("symbols/sym4");
+    doParse("symbols/sym4");
   }
 
   public void testSym5() {
-    parseit("symbols/sym5");
+    doParse("symbols/sym5");
   }
 
 }

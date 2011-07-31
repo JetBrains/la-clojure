@@ -44,16 +44,25 @@ public class ClojureBlockGenerator {
     final ArrayList<Block> subBlocks = new ArrayList<Block>();
     ASTNode children[] = myNode.getChildren(null);
     ASTNode prevChildNode = null;
+    final ClojureCodeStyleSettings clSettings = block.getSettings().getCustomSettings(ClojureCodeStyleSettings.class);
 
 
-    final Alignment childAlignment = Alignment.createAlignment();
+    Alignment childAlignment = null;
     for (ASTNode childNode : children) {
       if (canBeCorrectBlock(childNode)) {
-        final Alignment align = mustAlign(blockPsi, childNode.getPsi(), block.getSettings().getCustomSettings(ClojureCodeStyleSettings.class)) ? childAlignment : null;
-        if (align != null) myBlock.setAlignment(align);
+
+        final PsiElement childPsi = childNode.getPsi();
+        final boolean mustAlign = mustAlign(blockPsi, childPsi, clSettings);
+        if (mustAlign && childAlignment == null ) {
+          childAlignment = Alignment.createAlignment();
+        }
+
         final Indent indent = ClojureIndentProcessor.getChildIndent(myBlock, prevChildNode, childNode);
-        subBlocks.add(new ClojureBlock(childNode, align, indent, myWrap, mySettings));
+        subBlocks.add(new ClojureBlock(childNode,
+            childAlignment == null ? Alignment.createAlignment() : childAlignment,
+            indent, myWrap, mySettings));
         prevChildNode = childNode;
+
       }
     }
     return subBlocks;
@@ -63,14 +72,15 @@ public class ClojureBlockGenerator {
 
     if (blockPsi instanceof ClVector || blockPsi instanceof ClMap) {
       return !(child instanceof LeafPsiElement) || RIGHT_BRACES.contains(child.getNode().getElementType()) ||
-              (child instanceof PsiComment);
+          (child instanceof PsiComment);
     }
 
-    if (settings.ALIGN_CLOJURE_FORMS) {
-      if (blockPsi instanceof ClList &&
-          !(blockPsi instanceof ClDef)) {
-        final ClList list = (ClList) blockPsi;
-        PsiElement first = list.getFirstNonLeafElement();
+    if (blockPsi instanceof ClList &&
+        !(blockPsi instanceof ClDef)) {
+      final ClList list = (ClList) blockPsi;
+      PsiElement first = list.getFirstNonLeafElement();
+
+      if (settings.ALIGN_CLOJURE_FORMS) {
         if (first == child && !applicationStart(first)) return true;
         if (first != null &&
             !applicationStart(first) &&
@@ -83,13 +93,18 @@ public class ClojureBlockGenerator {
           return true;
         }
       }
+      // CLJ-98
+      if (first instanceof ClKeyword && first.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
+        return true;
+      }
     }
+
 
     if (blockPsi instanceof ClLiteral) {
       ASTNode node = blockPsi.getNode();
       assert node != null;
       ASTNode[] elements = node.getChildren(null);
-      if (elements.length > 0 && elements[0].getElementType() == ClojureTokenTypes.STRING_LITERAL){
+      if (elements.length > 0 && elements[0].getElementType() == ClojureTokenTypes.STRING_LITERAL) {
         return true;
       }
     }
