@@ -85,7 +85,7 @@ public class ClojureLoader implements ApplicationComponent {
     loadClojure();
   }
 
-  private void loadClojure() {
+  public static void loadClojure() {
 
     ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
       public void projectOpened(final Project project) {

@@ -10,4 +10,10 @@ public class ClMetaForm extends ClojurePsiElementImpl {
   public ClMetaForm(ASTNode node) {
     super(node);
   }
+
+  @Override
+  public String toString() {
+    return "MetaForm";
+  }
+
 }

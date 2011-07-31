@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.clojure.parser;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.DebugUtil;
@@ -11,6 +12,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.TestFixtureBuilder;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
+import org.jetbrains.plugins.clojure.ClojureBaseTestCase;
+import org.jetbrains.plugins.clojure.ClojureLoader;
 import org.junit.Test;
 import org.jetbrains.plugins.clojure.util.PathUtil;
 import junit.framework.TestCase;
@@ -37,41 +40,9 @@ import java.io.IOException;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ParserTest extends TestCase {
+public class ParserTest extends ClojureBaseTestCase {
 
-  protected Project myProject;
-  protected Module myModule;
-  private static final String DATA_PATH = PathUtil.getDataPath(ParserTest.class);
-
-  protected IdeaProjectTestFixture myFixture;
-  private static final String TEST_FILE_EXT = ".test";
-
-  protected void setUp() {
-    myFixture = createFixture();
-
-    try {
-      myFixture.setUp();
-    }
-    catch (Exception e) {
-      throw new Error(e);
-    }
-    myModule = myFixture.getModule();
-    myProject = myModule.getProject();
-  }
-
-  protected IdeaProjectTestFixture createFixture() {
-    TestFixtureBuilder<IdeaProjectTestFixture> fixtureBuilder = IdeaTestFixtureFactory.getFixtureFactory().createLightFixtureBuilder();
-    return fixtureBuilder.getFixture();
-  }
-
-  protected void tearDown() {
-    try {
-      myFixture.tearDown();
-    }
-    catch (Exception e) {
-      throw new Error(e);
-    }
-  }
+  private static final String DATA_PATH = System.getProperty("user.dir") + "/testdata/parser/";
 
   private PsiFile createPseudoPhysicalFile(final Project project, final String fileName, final String text) throws IncorrectOperationException {
 
@@ -91,7 +62,7 @@ public class ParserTest extends TestCase {
   }
 
   public void parseit(String fileName) {
-    File file = new File(DATA_PATH + fileName + TEST_FILE_EXT);
+    File file = new File(getDataPath() + fileName + TEST_FILE_EXT);
     Assert.assertTrue(file.exists());
 
     StringBuilder contents = new StringBuilder();
@@ -106,18 +77,20 @@ public class ParserTest extends TestCase {
           contents.append(System.getProperty("line.separator"));
           contents.append(line);
         }
-      }
-      finally {
+      } finally {
         input.close();
       }
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       ex.printStackTrace();
     }
 
-    PsiFile psiFile = createPseudoPhysicalFile(myProject, "test.clj", contents.toString());
+    PsiFile psiFile = createPseudoPhysicalFile(getProject(), "test.clj", contents.toString());
     String psiTree = DebugUtil.psiToString(psiFile, false);
     System.out.println(psiTree);
+  }
+
+  public String getDataPath() {
+    return DATA_PATH;
   }
 
   @Test
@@ -148,7 +121,6 @@ public class ParserTest extends TestCase {
   public void testMultilineString() {
     parseit("multiline_string");
   }
-
 
   @Test
   public void testSexp1() {
