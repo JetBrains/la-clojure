@@ -1,5 +1,5 @@
 <project name="Build Clojure plugin for IntelliJ IDEA" default="deploy.plugin">
-  <!-- Properties file -->
+  <!-- Properties file --> 
   <property file="clojure.properties"/>
 
   <property name="jdk.home" value="${java.home}"/>
