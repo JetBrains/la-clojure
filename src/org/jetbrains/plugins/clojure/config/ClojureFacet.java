@@ -52,4 +52,16 @@ public class ClojureFacet extends Facet<ClojureFacetConfiguration> {
     ClojureProjectSettings settings = ClojureProjectSettings.getInstance(project);
 
   }
+
+  public String getReplClass() {
+    return getConfiguration().getState().myReplClass;
+  }
+
+  public String getJvmOptions() {
+    return getConfiguration().getState().myJvmOpts;
+  }
+
+  public String getReplOptions() {
+    return getConfiguration().getState().myReplOpts;
+  }
 }

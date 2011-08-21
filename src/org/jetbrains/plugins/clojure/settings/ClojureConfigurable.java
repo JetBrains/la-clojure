@@ -69,8 +69,6 @@ public final class ClojureConfigurable extends AbstractProjectComponent implemen
 
   public void apply() throws ConfigurationException {
     ClojureProjectSettings settings = ClojureProjectSettings.getInstance(myProject);
-    settings.commandLineArgs = mySettingsForm.getCommandLineArguments();
-    settings.autoStartRepl = mySettingsForm.isAutoStartRepl();
     settings.coloredParentheses = mySettingsForm.isColoredParentheses();
   }
 

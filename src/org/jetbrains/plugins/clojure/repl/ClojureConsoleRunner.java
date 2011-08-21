@@ -9,6 +9,7 @@ import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.process.*;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.actions.CloseAction;
+import com.intellij.facet.FacetManager;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
@@ -30,13 +31,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
-import org.jetbrains.plugins.clojure.utils.ClojureUtils;
+import org.jetbrains.plugins.clojure.config.ClojureFacet;
+import org.jetbrains.plugins.clojure.settings.ClojureProjectSettings;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 /**
  * @author ilyas
@@ -230,7 +232,7 @@ public class ClojureConsoleRunner {
     final AnAction runImmediatelyAction = new ClojureExecuteImmediatelyAction(languageConsole, processHandler, consoleExecuteActionHandler);
 
     final ConsoleHistoryController historyController = new ConsoleHistoryController("clojure", null, languageConsole, historyModel);
-        historyController.install();
+    historyController.install();
 
     final AnAction upAction = historyController.getHistoryPrev();
     final AnAction downAction = historyController.getHistoryNext();
@@ -283,7 +285,7 @@ public class ClojureConsoleRunner {
       params.getClassPath().add(file.getPath());
     }
 
-    params.setMainClass(ClojureUtils.CLOJURE_MAIN);
+    params.setMainClass(getMainReplClass(module));
     params.setWorkingDirectory(new File(workingDir));
 
     final GeneralCommandLine line = CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true);
@@ -295,19 +297,26 @@ public class ClojureConsoleRunner {
 
     final ArrayList<String> cmd = new ArrayList<String>();
     cmd.add(executablePath);
-
+    cmd.addAll(getJvmClojureOptions(module));
     cmd.addAll(line.getParametersList().getList());
-
-
+    cmd.addAll(getReplClojureOptions(module));
     if (!sdkConfigured) {
       ClojureConfigUtil.warningDefaultClojureJar(module);
     }
     return cmd;
   }
 
-    private GeneralCommandLine createCommandLine(Module module, String workingDir) throws CantRunException {
+  private static String getMainReplClass(Module module) {
+    final ClojureFacet facet = getClojureFacet(module);
+    return facet.getReplClass();
+
+  }
+
+  private GeneralCommandLine createCommandLine(Module module, String workingDir) throws CantRunException {
     final JavaParameters params = new JavaParameters();
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
+    params.getVMParametersList().addAll(getJvmClojureOptions(module));
+    params.getProgramParametersList().addAll(getReplClojureOptions(module));
     // To avoid NCDFE while starting REPL
 
     final boolean sdkConfigured = ClojureConfigUtil.isClojureConfigured(module);
@@ -331,7 +340,7 @@ public class ClojureConsoleRunner {
       params.getClassPath().add(file.getPath());
     }
 
-    params.setMainClass(ClojureUtils.CLOJURE_MAIN);
+    params.setMainClass(getMainReplClass(module));
     params.setWorkingDirectory(new File(workingDir));
 
     final GeneralCommandLine line = CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true);
@@ -344,17 +353,36 @@ public class ClojureConsoleRunner {
     //final ArrayList<String> cmd = new ArrayList<String>();
     //cmd.add(executablePath);
 
-   // cmd.addAll(line.getParametersList().getList());
+    // cmd.addAll(line.getParametersList().getList());
+//        line.getParametersList().addAll();
 
-    Map envParams = new HashMap();
+    Map<String, String> envParams = new HashMap<String, String>();
     envParams.putAll(System.getenv());
-
     line.setEnvParams(envParams);
 
     if (!sdkConfigured) {
       ClojureConfigUtil.warningDefaultClojureJar(module);
     }
     return line;
+  }
+
+  private static List<String> getJvmClojureOptions(Module module) {
+    final ClojureFacet facet = getClojureFacet(module);
+    String opts = facet != null ? facet.getJvmOptions() : null;
+    if (opts == null || opts.trim().isEmpty()) return Arrays.asList();
+    return Arrays.asList(opts.split("\\s+"));
+  }
+
+  private static ClojureFacet getClojureFacet(Module module) {
+    final FacetManager manager = FacetManager.getInstance(module);
+    return manager.getFacetByType(ClojureFacet.ID);
+  }
+
+  private static List<String> getReplClojureOptions(Module module) {
+    final ClojureFacet facet = getClojureFacet(module);
+    String opts = facet != null ? facet.getReplOptions() : null;
+    if (opts == null || opts.trim().isEmpty()) return Arrays.asList();
+    return Arrays.asList(opts.split("\\s+"));
   }
 
   protected Process createProcess(CommandLineArgumentsProvider provider) throws ExecutionException {
@@ -374,8 +402,8 @@ public class ClojureConsoleRunner {
 
 
   /*
-  A bunch of getters
-   */
+    A bunch of getters
+  */
   public Project getProject() {
     return myProject;
   }

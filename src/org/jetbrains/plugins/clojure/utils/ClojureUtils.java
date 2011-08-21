@@ -46,6 +46,8 @@ public class ClojureUtils {
   @NonNls
   public static final String CLOJURE_MAIN = "clojure.main";
 
+  public static final String CLOJURE_DEFAULT_JVM_PARAMS = "-Xss1m -server";
+
   public static boolean isClojureEditor(@NotNull Editor editor) {
     VirtualFile vfile = FileDocumentManager.getInstance().getFile(editor.getDocument());
     Project project = editor.getProject();

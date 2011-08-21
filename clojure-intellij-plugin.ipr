@@ -111,6 +111,7 @@
   </component>
   <component name="HighlightingAdvisor">
     <option name="SUGGEST_TYPE_AWARE_HIGHLIGHTING" value="false" />
+    <option name="TYPE_AWARE_HIGHLIGHTING_ENABLED" value="true" />
   </component>
   <component name="IdProvider" IDEtalkID="9DF9B1EA05538F35FB7C1A0A47030FDA" />
   <component name="JavadocGenerationManager">

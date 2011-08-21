@@ -11,7 +11,7 @@ import com.intellij.facet.ui.FacetEditorContext;
 import com.intellij.facet.ui.FacetValidatorsManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jdom.Element;
-import org.jetbrains.plugins.clojure.config.ui.ClojureFacetTab;
+import org.jetbrains.plugins.clojure.config.ui.ClojureFacetSettingsTab;
 
 /**
  * @author ilyas
@@ -25,8 +25,8 @@ import org.jetbrains.plugins.clojure.config.ui.ClojureFacetTab;
       )
     }
 )
-public class ClojureFacetConfiguration implements FacetConfiguration, PersistentStateComponent<ClojureLibrariesConfiguration> {
-  private final ClojureLibrariesConfiguration myClojureLibrariesConfiguration = new ClojureLibrariesConfiguration();
+public class ClojureFacetConfiguration implements FacetConfiguration, PersistentStateComponent<ClojureModuleSettings> {
+  private final ClojureModuleSettings mySettings = new ClojureModuleSettings();
 
   public String getDisplayName() {
     return "Clojure";
@@ -34,7 +34,7 @@ public class ClojureFacetConfiguration implements FacetConfiguration, Persistent
 
   public FacetEditorTab[] createEditorTabs(FacetEditorContext editorContext, FacetValidatorsManager validatorsManager) {
     return new FacetEditorTab[]{
-        new ClojureFacetTab(editorContext, validatorsManager, myClojureLibrariesConfiguration)
+        new ClojureFacetSettingsTab(editorContext, validatorsManager, mySettings)
     };
   }
 
@@ -44,15 +44,11 @@ public class ClojureFacetConfiguration implements FacetConfiguration, Persistent
   public void writeExternal(Element element) throws WriteExternalException {
   }
 
-  public ClojureLibrariesConfiguration getMyClojureLibrariesConfiguration() {
-    return myClojureLibrariesConfiguration;
+  public ClojureModuleSettings getState() {
+    return mySettings;
   }
 
-  public ClojureLibrariesConfiguration getState() {
-    return myClojureLibrariesConfiguration;
-  }
-
-  public void loadState(ClojureLibrariesConfiguration state) {
-    XmlSerializerUtil.copyBean(state, myClojureLibrariesConfiguration);
+  public void loadState(ClojureModuleSettings state) {
+    XmlSerializerUtil.copyBean(state, mySettings);
   }
 }

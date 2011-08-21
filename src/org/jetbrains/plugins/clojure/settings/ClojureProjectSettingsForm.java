@@ -17,10 +17,7 @@ package org.jetbrains.plugins.clojure.settings;
 
 import com.intellij.openapi.project.Project;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 /**
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
@@ -30,9 +27,8 @@ public final class ClojureProjectSettingsForm {
   private final ClojureProjectSettings mySettings;
 
   private JPanel myPanel;
-  private JTextField myCommandLineArgs;
-  private JCheckBox myAutoStartRepl;
   private JCheckBox rainbowParenthesesCheckBox;
+  private JPanel myAppearancePanel;
 
   public ClojureProjectSettingsForm(Project project) {
     mySettings = ClojureProjectSettings.getInstance(project);
@@ -42,30 +38,16 @@ public final class ClojureProjectSettingsForm {
     return myPanel;
   }
 
-  String getCommandLineArguments() {
-    return myCommandLineArgs.getText();
-  }
-
-  boolean isAutoStartRepl() {
-    return myAutoStartRepl.isSelected();
-  }
-
   boolean isColoredParentheses() {
     return rainbowParenthesesCheckBox.isSelected();
   }
 
   boolean isModified() {
-    final String args = mySettings.commandLineArgs;
-    final boolean autoStartRepl = mySettings.autoStartRepl;
     final boolean coloredParentheses = mySettings.coloredParentheses;
-    return (args == null || !args.equals(myCommandLineArgs.getText()))
-        || (myAutoStartRepl.isSelected() != autoStartRepl)
-        || (rainbowParenthesesCheckBox.isSelected() != coloredParentheses);
+    return (rainbowParenthesesCheckBox.isSelected() != coloredParentheses);
   }
 
   void reset() {
-    myCommandLineArgs.setText(mySettings.commandLineArgs);
-    myAutoStartRepl.setSelected(mySettings.autoStartRepl);
     rainbowParenthesesCheckBox.setSelected(mySettings.coloredParentheses);
   }
 

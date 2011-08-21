@@ -24,38 +24,39 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.clojure.config.ClojureLibrariesConfiguration;
 import org.jetbrains.plugins.clojure.ClojureBundle;
+import org.jetbrains.plugins.clojure.config.ClojureModuleSettings;
 
 import javax.swing.*;
 
 /**
  * @author ilyas
  */
-public class ClojureFacetTab extends FacetEditorTab {
+public class ClojureFacetSettingsTab extends FacetEditorTab {
 
   public static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.clojure.config.ui.ClojureFacetTab");
 
   private Module myModule;
   private JPanel myPanel;
-  private JCheckBox myCompilerExcludeCb;
-  private JCheckBox myLibraryExcludeCb;
+  private JTextField myJvmOpts;
+  private JTextField myReplOpts;
+  private JTextField myReplClass;
+  private JPanel myReplPanel;
   private FacetEditorContext myEditorContext;
   private FacetValidatorsManager myValidatorsManager;
-  private final ClojureLibrariesConfiguration myConfiguration;
+  private final ClojureModuleSettings mySettings;
 
-  public ClojureFacetTab(FacetEditorContext editorContext, FacetValidatorsManager validatorsManager, ClojureLibrariesConfiguration configuration) {
+  public ClojureFacetSettingsTab(FacetEditorContext editorContext, FacetValidatorsManager validatorsManager, ClojureModuleSettings settings) {
     myModule = editorContext.getModule();
     myEditorContext = editorContext;
     myValidatorsManager = validatorsManager;
 
-    myConfiguration = configuration;
+    mySettings = settings;
 
-    myCompilerExcludeCb.setSelected(myConfiguration.myExcludeCompilerFromModuleScope);
-    myLibraryExcludeCb.setSelected(myConfiguration.myExcludeSdkFromModuleScope);
-    
-    myCompilerExcludeCb.setVisible(false);
-    myLibraryExcludeCb.setVisible(false);
+    myJvmOpts.setText(mySettings.myJvmOpts);
+    myReplClass.setText(mySettings.myReplClass);
+    myReplOpts.setText(mySettings.myReplOpts);
+
     reset();
   }
 
@@ -69,8 +70,9 @@ public class ClojureFacetTab extends FacetEditorTab {
   }
 
   public boolean isModified() {
-    return !(myConfiguration.myExcludeCompilerFromModuleScope == myCompilerExcludeCb.isSelected() &&
-        myConfiguration.myExcludeSdkFromModuleScope == myLibraryExcludeCb.isSelected());
+    return !myJvmOpts.getText().trim().equals(mySettings.myJvmOpts) ||
+        !myReplClass.getText().trim().equals(mySettings.myReplClass) ||
+        !myReplOpts.getText().trim().equals(mySettings.myReplOpts);
   }
 
   @Override
@@ -82,11 +84,15 @@ public class ClojureFacetTab extends FacetEditorTab {
   }
 
   public void apply() throws ConfigurationException {
-    myConfiguration.myExcludeCompilerFromModuleScope = myCompilerExcludeCb.isSelected();
-    myConfiguration.myExcludeSdkFromModuleScope = myLibraryExcludeCb.isSelected();
+    mySettings.myJvmOpts = myJvmOpts.getText().trim();
+    mySettings.myReplClass = myReplClass.getText().trim();
+    mySettings.myReplOpts = myReplOpts.getText().trim();
   }
 
   public void reset() {
+    myJvmOpts.setText(mySettings.myJvmOpts);
+    myReplClass.setText(mySettings.myReplClass);
+    myReplClass.setText(mySettings.myReplClass);
   }
 
   public void disposeUIResources() {

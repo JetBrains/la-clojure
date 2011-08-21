@@ -22,21 +22,23 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StorageScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 /**
  * Project specific settings.
- * <p>
+ * <p/>
  * This is the persistent state.
  *
- * @see ClojureConfigurable
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
+ * @see ClojureConfigurable
  */
 @State(name = "ClojureProjectSettings",
-  storages = {
-    @Storage(id = "default", file = "$PROJECT_FILE$"),
-    @Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/clojure_project.xml", scheme = StorageScheme.DIRECTORY_BASED)
-  })
+    storages = {
+        @Storage(id = "default", file = "$PROJECT_FILE$"),
+        @Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/clojure_project.xml", scheme = StorageScheme.DIRECTORY_BASED)
+    })
 public final class ClojureProjectSettings implements PersistentStateComponent<ClojureProjectSettings> {
+
 
   public static ClojureProjectSettings getInstance(Project project) {
     return ServiceManager.getService(project, ClojureProjectSettings.class);
@@ -45,13 +47,8 @@ public final class ClojureProjectSettings implements PersistentStateComponent<Cl
   public boolean autoStartRepl;
   public boolean coloredParentheses;
 
-  public String commandLineArgs = "";
 
   public ClojureProjectSettings() {
-  }
-
-  public String[] getCommandLineArgs() {
-    return commandLineArgs.split("\\s+");
   }
 
   // PersistentStateComponent =================================================
