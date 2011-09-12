@@ -196,7 +196,7 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
     final ClList newImport = factory.createJavaImportForClass(clazz);
     CodeEditUtil.addChild(getNode(),
         newImport.getNode(),
-        anchor != null ? anchor.getNode() : null);
+        anchor != null ? anchor.getNode( ) : null);
   }
 
 
