@@ -16,6 +16,9 @@ import com.intellij.util.containers.HashMap;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.navigation.ItemPresentation;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
@@ -257,7 +260,15 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
   }
 
   public PsiElement bindToElement(@NotNull PsiElement element) throws IncorrectOperationException {
-    //todo implement me!
+    if (isReferenceTo(element)) return this;
+    final PsiFile file = getContainingFile();
+    if (element instanceof PsiClass && (file instanceof ClojureFile)) {
+      // todo test me!!
+      PsiClass clazz = (PsiClass) element;
+      final ClNs importList = ((ClojureFile) file).findOrCreateNamespaceElement();
+      importList.addImportForClass(this, clazz);
+      return this;
+    }
     return this;
   }
 

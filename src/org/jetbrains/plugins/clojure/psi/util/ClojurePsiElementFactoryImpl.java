@@ -71,7 +71,7 @@ public class ClojurePsiElementFactoryImpl extends ClojurePsiFactory {
 
   @Override
   public ClList createListFromText(@NotNull String text) {
-    return (ClList)createSymbolNodeFromText(text);
+    return (ClList)createSymbolNodeFromText("(" + text + ")");
   }
 
   @Override

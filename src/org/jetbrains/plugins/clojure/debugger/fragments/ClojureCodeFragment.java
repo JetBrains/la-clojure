@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.clojure.debugger.fragments;
 
+import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.impl.ClojureFileImpl;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.annotations.NonNls;
@@ -7,6 +10,8 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.openapi.project.Project;
 import com.intellij.testFramework.LightVirtualFile;
+
+import javax.naming.OperationNotSupportedException;
 
 /**
  * @author ilyas
@@ -91,6 +96,11 @@ public class ClojureCodeFragment extends ClojureFileImpl implements JavaCodeFrag
 
   public String getNamespace() {
     return null; 
+  }
+
+  @NotNull
+  public ClList findOrCreateNamespaceElement() throws IncorrectOperationException {
+    throw new IncorrectOperationException("creating imports is not supported in this element");
   }
 
   public String getClassName() {

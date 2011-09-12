@@ -8,12 +8,15 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.impl.source.PsiFileImpl;
+import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
 import org.jetbrains.plugins.clojure.psi.util.ClojureKeywords;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
@@ -190,8 +193,23 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     return snd.getNameString();
   }
 
-  public ClList getNamespaceElement() {
-    return ClojurePsiUtil.findFormByNameSet(this, ClojureParser.NS_TOKENS);
+  public ClNs getNamespaceElement() {
+    return ((ClNs) ClojurePsiUtil.findFormByNameSet(this, ClojureParser.NS_TOKENS));
+  }
+
+  @NotNull
+  public ClNs findOrCreateNamespaceElement() throws IncorrectOperationException {
+    final ClNs ns = getNamespaceElement();
+    if (ns != null) return ns;
+    final ClojurePsiFactory factory = ClojurePsiFactory.getInstance(getProject());
+    final ClList nsList = factory.createListFromText(ListDeclarations.NS + " " + getName());
+    final PsiElement anchor = getFirstChild();
+    if (anchor != null) {
+      addBefore(nsList, anchor);
+    } else {
+      add(nsList);
+    }
+    return ((ClNs) nsList);
   }
 
   public String getClassName() {

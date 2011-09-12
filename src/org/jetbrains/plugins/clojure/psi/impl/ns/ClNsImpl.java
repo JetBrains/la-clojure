@@ -31,6 +31,7 @@ import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBasedPsiElement<ClNsStub> {
 
   private static final String IMPORT_KEY = ":import";
+  private static final String REQUIRE_KEY = ":requre";
   private static final String IMPLEMENTS_KEY = ":implements";
   private static final String EXTENDS_KEY = ":extends";
   private static final String USE_KEY = ":use";

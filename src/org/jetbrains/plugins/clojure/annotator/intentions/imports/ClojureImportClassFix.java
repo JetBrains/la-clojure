@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.clojure.annotator.intentions;
+package org.jetbrains.plugins.clojure.annotator.intentions.imports;
 
 import com.intellij.codeInspection.HintAction;
 import com.intellij.openapi.editor.Editor;
