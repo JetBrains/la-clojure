@@ -60,7 +60,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
 
   //  private static final String JLINE_CONSOLE_RUNNER = "jline.ConsoleRunner";
 
-
   public ClojureScriptRunConfiguration(ClojureScriptConfigurationFactory factory, Project project, String name) {
     super(name, new RunConfigurationModule(project), factory);
     this.factory = factory;

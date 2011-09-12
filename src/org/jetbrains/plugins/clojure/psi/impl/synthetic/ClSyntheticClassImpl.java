@@ -5,6 +5,7 @@ import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.ClVector;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.util.ClojureKeywords;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.impl.ClKeyImpl;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
@@ -163,7 +164,7 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   public PsiClass getSuperClass() {
     final ClList ns = getNsElement();
-    final ClKeyImpl key = ClojurePsiUtil.findNamespaceKeyByName(ns, ClojurePsiUtil.EXTENDS);
+    final ClKeyImpl key = ClojurePsiUtil.findNamespaceKeyByName(ns, ClojureKeywords.EXTENDS);
     if (key != null) {
       final PsiElement next = ClojurePsiUtil.getNextNonWhiteSpace(key);
       if (next instanceof ClSymbol) {
@@ -182,7 +183,7 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
 
   public PsiClass[] getInterfaces() {
     final ClList ns = getNsElement();
-    final ClKeyImpl key = ClojurePsiUtil.findNamespaceKeyByName(ns, ClojurePsiUtil.IMPLEMENTS);
+    final ClKeyImpl key = ClojurePsiUtil.findNamespaceKeyByName(ns, ClojureKeywords.IMPLEMENTS);
     final ArrayList<PsiClass> classes = new ArrayList<PsiClass>();
     final GlobalSearchScope scope = GlobalSearchScope.allScope(getProject());
     final JavaPsiFacade facade = JavaPsiFacade.getInstance(getProject());

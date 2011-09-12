@@ -6,7 +6,7 @@
     :init init)
 
   (:import [org.jetbrains.plugins.clojure.psi.api ClojureFile]
-    [com.intellij.openapi.util.text StringUtil]))
+           [com.intellij.openapi.util.text StringUtil]))
 
 ; :init functions (-init in this case) are unusual, in that they always return a
 ; vector, the first element of which is a vector of arguments for the superclass

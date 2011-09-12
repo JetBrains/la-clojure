@@ -41,9 +41,6 @@ import java.util.Arrays;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  */
 public class ClojurePsiUtil {
-  public static final String GEN_CLASS = ":gen-class";
-  public static final String EXTENDS = ":extends";
-  public static final String IMPLEMENTS = ":implements";
   public static final String JAVA_LANG = "java.lang";
   public static final String CLOJURE_LANG = "clojure.lang";
 
@@ -249,6 +246,11 @@ public class ClojurePsiUtil {
       if (containsSyntaxErrors(child)) return true;
     }
     return false;
+  }
+
+  public static boolean isStrictlyBefore(PsiElement e1, PsiElement e2) {
+    final Trinity<PsiElement, PsiElement, PsiElement> result = findCommonParentAndLastChildren(e1, e2);
+    return result.first.getTextRange().getStartOffset() < result.second.getTextRange().getStartOffset();
   }
 
 }
