@@ -189,14 +189,17 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
   public void addImportForClass(PsiElement place, PsiClass clazz) {
     final ClList importClause = findOrCreateImportClause(place);
     final ClList[] imported = PsiTreeUtil.getChildrenOfType(importClause, ClList.class);
-    final PsiElement anchor = (imported.length > 0 ?
+    final PsiElement anchor = (imported != null && imported.length > 0 ?
         imported[imported.length - 1].getNextSibling() :
         getLastChild());
     final ClojurePsiFactory factory = ClojurePsiFactory.getInstance(getProject());
     final ClList newImport = factory.createJavaImportForClass(clazz);
+
+    if (newImport == null) return;
+
     CodeEditUtil.addChild(getNode(),
         newImport.getNode(),
-        anchor != null ? anchor.getNode( ) : null);
+        anchor != null ? anchor.getNode() : null);
   }
 
 
