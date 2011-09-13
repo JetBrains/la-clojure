@@ -1,42 +1,46 @@
 package org.jetbrains.plugins.clojure.psi.impl.symbols;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.*;
-import com.intellij.psi.util.MethodSignature;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.impl.source.resolve.ResolveCache;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.Iconable;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.util.IncorrectOperationException;
-import com.intellij.util.containers.HashSet;
-import com.intellij.util.containers.HashMap;
-import com.intellij.util.containers.ContainerUtil;
 import com.intellij.navigation.ItemPresentation;
-import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
-import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
-import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
-import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
-import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
-import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
-import org.jetbrains.plugins.clojure.psi.resolve.processors.SymbolResolveProcessor;
-import org.jetbrains.plugins.clojure.psi.resolve.processors.ResolveProcessor;
-import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
-import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
-import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResultImpl;
-import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
-import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
-import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
-import org.jetbrains.plugins.clojure.lexer.TokenSets;
-import org.jetbrains.plugins.clojure.ClojureIcons;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.Iconable;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.*;
+import com.intellij.psi.impl.source.resolve.ResolveCache;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.util.MethodSignature;
+import com.intellij.util.Function;
+import com.intellij.util.IncorrectOperationException;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.containers.HashMap;
+import com.intellij.util.containers.HashSet;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.clojure.ClojureIcons;
+import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import org.jetbrains.plugins.clojure.lexer.TokenSets;
+import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
+import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
+import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
+import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResultImpl;
+import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
+import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
+import org.jetbrains.plugins.clojure.psi.resolve.processors.ResolveProcessor;
+import org.jetbrains.plugins.clojure.psi.resolve.processors.SymbolResolveProcessor;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
 
 import javax.swing.*;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -45,6 +49,14 @@ import java.util.List;
 public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
   public ClSymbolImpl(ASTNode node) {
     super(node);
+  }
+
+  @NotNull
+  @Override
+  public PsiReference[] getReferences() {
+    PsiReference fakeClassReference = new MyFakeClassPsiReference();
+    PsiReference[] refs = {this, fakeClassReference};
+    return refs;
   }
 
   @Override
@@ -244,8 +256,18 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
     return results.length == 1 ? results[0].getElement() : null;
   }
 
+  @NotNull
   public String getCanonicalText() {
-    return null;
+    return getText();
+  }
+
+  private List<PsiElement> multipleResolveResults() {
+    final ResolveResult[] results = getManager().getResolveCache().resolveWithCaching(this, RESOLVER, false, false);
+    return ContainerUtil.map(results, new Function<ResolveResult, PsiElement>() {
+      public PsiElement fun(ResolveResult resolveResult) {
+        return resolveResult.getElement();
+      }
+    });
   }
 
   public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
@@ -264,18 +286,24 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
     final PsiFile file = getContainingFile();
     if (element instanceof PsiClass && (file instanceof ClojureFile)) {
       // todo test me!!
-      PsiClass clazz = (PsiClass) element;
-      final ClNs importList = ((ClojureFile) file).findOrCreateNamespaceElement();
-      importList.addImportForClass(this, clazz);
+      final PsiClass clazz = (PsiClass) element;
+      final Application application = ApplicationManager.getApplication();
+      application.runWriteAction(new Runnable() {
+        public void run() {
+          final ClNs ns = ((ClojureFile) file).findOrCreateNamespaceElement();
+          ns.addImportForClass(ClSymbolImpl.this, clazz);
+        }
+      });
       return this;
     }
     return this;
   }
 
   public boolean isReferenceTo(PsiElement element) {
-    return resolve() == element;
+    return multipleResolveResults().contains(element);
   }
 
+  @NotNull
   public Object[] getVariants() {
     return CompleteSymbol.getVariants(this);
   }
@@ -289,4 +317,48 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
     return getText();
   }
 
+  private class MyFakeClassPsiReference implements PsiReference {
+    public PsiElement getElement() {
+      return ClSymbolImpl.this;
+    }
+
+    public TextRange getRangeInElement() {
+      return new TextRange(0, 0);
+    }
+
+    public PsiElement resolve() {
+      for (PsiElement element : multipleResolveResults()) {
+        if (element instanceof PsiClass) {
+          return element;
+        }
+      }
+      return null;
+    }
+
+    @NotNull
+    public String getCanonicalText() {
+      return ClSymbolImpl.this.getCanonicalText();
+    }
+
+    public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
+      return null;
+    }
+
+    public PsiElement bindToElement(@NotNull PsiElement element) throws IncorrectOperationException {
+      return null;
+    }
+
+    public boolean isReferenceTo(PsiElement element) {
+      return ClSymbolImpl.this.isReferenceTo(element);
+    }
+
+    @NotNull
+    public Object[] getVariants() {
+      return new Object[0];
+    }
+
+    public boolean isSoft() {
+      return false;
+    }
+  }
 }

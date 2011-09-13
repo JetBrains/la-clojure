@@ -17,7 +17,4 @@ public interface ClList extends ClListLike {
   @Nullable
   PsiElement getSecondNonLeafElement();
 
-  @Nullable
-  String getHeadText();
-
 }

@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.clojure.psi.util;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClListLike;
+import org.jetbrains.plugins.clojure.psi.api.ClVector;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
 /**
@@ -28,6 +30,8 @@ public abstract class ClojurePsiFactory {
 
   public abstract ClList createListFromText(@NotNull String text);
 
+  public abstract ClVector createVectorFromText(@NotNull String text);
+
   @Nullable
-  public abstract ClList createJavaImportForClass(PsiClass clazz);
+  public abstract ClListLike findOrCreateJavaImportForClass(PsiClass clazz, ClList importClause);
 }

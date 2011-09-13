@@ -16,6 +16,7 @@ import org.jetbrains.plugins.clojure.psi.api.*;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiCheckers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,7 @@ public class ClojureBlockGenerator {
       final ClList list = (ClList) blockPsi;
       PsiElement first = list.getFirstNonLeafElement();
 
-      if (settings.ALIGN_CLOJURE_FORMS) {
+      if (settings.ALIGN_CLOJURE_FORMS || ClojurePsiCheckers.isImportMember(list)) {
         if (first == child && !applicationStart(first)) return true;
         if (first != null &&
             !applicationStart(first) &&
@@ -88,13 +89,14 @@ public class ClojureBlockGenerator {
           return true;
         }
         final PsiElement second = list.getSecondNonLeafElement();
-        if (second != null &&
+        if (second != null && child != null &&
             second.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
           return true;
         }
       }
       // CLJ-98
-      if (first instanceof ClKeyword && first.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
+      if (first instanceof ClKeyword && child != null &&
+          first.getTextRange().getEndOffset() <= child.getTextRange().getStartOffset()) {
         return true;
       }
     }

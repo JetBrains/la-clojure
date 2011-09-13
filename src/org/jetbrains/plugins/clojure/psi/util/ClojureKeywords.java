@@ -8,4 +8,6 @@ public abstract class ClojureKeywords {
   public static final String EXTENDS = ":extends";
   public static final String IMPLEMENTS = ":implements";
   public static final String IMPORT= ":import";
+  public static final String REQUIRE = ":require";
+  public static final String USE = ":use";
 }

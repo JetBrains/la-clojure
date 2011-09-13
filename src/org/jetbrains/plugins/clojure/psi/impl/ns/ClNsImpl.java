@@ -3,24 +3,24 @@ package org.jetbrains.plugins.clojure.psi.impl.ns;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.Condition;
 import com.intellij.psi.*;
-import com.intellij.psi.impl.source.codeStyle.CodeEditUtil;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.scope.PsiScopeProcessor;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.containers.ContainerUtil;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClListLike;
+import org.jetbrains.plugins.clojure.psi.api.ClVector;
 import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
-import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
-import org.jetbrains.plugins.clojure.psi.api.ClListLike;
 import org.jetbrains.plugins.clojure.psi.impl.list.ClListBaseImpl;
-import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
 import org.jetbrains.plugins.clojure.psi.util.ClojureKeywords;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
@@ -29,12 +29,6 @@ import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
  * @author ilyas
  */
 public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBasedPsiElement<ClNsStub> {
-
-  private static final String IMPORT_KEY = ":import";
-  private static final String REQUIRE_KEY = ":requre";
-  private static final String IMPLEMENTS_KEY = ":implements";
-  private static final String EXTENDS_KEY = ":extends";
-  private static final String USE_KEY = ":use";
 
   public ClNsImpl(ClNsStub stub, @NotNull IStubElementType nodeType) {
     super(stub, nodeType);
@@ -94,8 +88,9 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
         final PsiElement first = directive.getFirstNonLeafElement();
         if (first instanceof ClKeyword) {
           final String keyText = first.getText();
-          if (IMPORT_KEY.equals(keyText) && processImports(processor, place, facade, directive)) return false;
-          if (USE_KEY.equals(keyText) && processUses(processor, place, facade, directive)) return false;
+          if (ClojureKeywords.IMPORT.equals(keyText) && processImports(processor, place, facade, directive))
+            return false;
+          if (ClojureKeywords.USE.equals(keyText) && processUses(processor, place, facade, directive)) return false;
         }
       }
     }
@@ -187,25 +182,16 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
     return findOrCreateImportClause(null);
   }
 
-  public void addImportForClass(PsiElement place, PsiClass clazz) {
-    final ClList importClause = findOrCreateImportClause(place);
-    final ClList[] imported = PsiTreeUtil.getChildrenOfType(importClause, ClList.class);
-    final PsiElement anchor = (imported != null && imported.length > 0 ?
-        imported[imported.length - 1].getNextSibling() :
-        getLastChild());
+  public ClListLike addImportForClass(PsiElement place, PsiClass clazz) {
+    commitDocument();
     final ClojurePsiFactory factory = ClojurePsiFactory.getInstance(getProject());
-    final ClList newImport = factory.createJavaImportForClass(clazz);
-
-    if (newImport == null) return;
-
-    CodeEditUtil.addChild(getNode(),
-        newImport.getNode(),
-        anchor != null ? anchor.getNode() : null);
+    final ClList importClause = findOrCreateImportClause(place);
+    return factory.findOrCreateJavaImportForClass(clazz, importClause);
   }
-
 
   @NotNull
   protected ClList addFreshImportClause() {
+    commitDocument();
     final ClSymbol first = getFirstSymbol();
     final ClSymbol nsSymbol = getNameSymbol();
     final PsiElement preamble = findGenClassPreamble();
@@ -215,9 +201,8 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
     assert first != null;
 
     final ClojurePsiFactory factory = ClojurePsiFactory.getInstance(getProject());
-    final ClList list = factory.createListFromText("(:import )");
-    CodeEditUtil.addChild(getNode(), list.getNode(), anchor.getNode());
-    return list;
+    final ClList list = factory.createListFromText(":import ");
+    return (ClList) addAfter(list, anchor);
   }
 
   protected PsiElement findGenClassPreamble() {

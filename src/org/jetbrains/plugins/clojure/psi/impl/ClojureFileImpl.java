@@ -2,7 +2,9 @@ package org.jetbrains.plugins.clojure.psi.impl;
 
 import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
@@ -201,15 +203,15 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
   public ClNs findOrCreateNamespaceElement() throws IncorrectOperationException {
     final ClNs ns = getNamespaceElement();
     if (ns != null) return ns;
+    commitDocument();
     final ClojurePsiFactory factory = ClojurePsiFactory.getInstance(getProject());
     final ClList nsList = factory.createListFromText(ListDeclarations.NS + " " + getName());
     final PsiElement anchor = getFirstChild();
     if (anchor != null) {
-      addBefore(nsList, anchor);
+      return (ClNs)addBefore(nsList, anchor);
     } else {
-      add(nsList);
+      return (ClNs)add (nsList);
     }
-    return ((ClNs) nsList);
   }
 
   public String getClassName() {
@@ -264,4 +266,13 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     //todo implement me!
     return null;
   }
+
+  protected void commitDocument() {
+    final Project project = getProject();
+    final Document document = PsiDocumentManager.getInstance(project).getDocument(this);
+    if (document != null) {
+      PsiDocumentManager.getInstance(project).commitDocument(document);
+    }
+  }
+
 }

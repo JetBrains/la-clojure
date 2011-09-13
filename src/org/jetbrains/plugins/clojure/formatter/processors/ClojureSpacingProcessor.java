@@ -3,10 +3,14 @@ package org.jetbrains.plugins.clojure.formatter.processors;
 import com.intellij.formatting.Block;
 import com.intellij.formatting.Spacing;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.clojure.formatter.ClojureBlock;
 import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
+import org.jetbrains.plugins.clojure.psi.api.ClListLike;
+import org.jetbrains.plugins.clojure.psi.util.ClojurePsiCheckers;
 
 /**
  * @author ilyas
@@ -15,7 +19,10 @@ public class ClojureSpacingProcessor implements ClojureElementTypes {
 
   private static final Spacing NO_SPACING = Spacing.createSpacing(0, 0, 0, false, 0);
   private static final Spacing NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
+  private static final Spacing MANDATORY_NEWLINE = Spacing.createSpacing(1, 1, 1, true, 100);
+  private static final Spacing NS_SPACING = Spacing.createSpacing(1, 1, 2, true, 100);
   private static final Spacing COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100);
+  private static final Spacing NO_NEWLINE = Spacing.createSpacing(1, 1, 0, false, 0);
 
   public static Spacing getSpacing(Block child1, Block child2) {
     if (!(child1 instanceof ClojureBlock) || !(child2 instanceof ClojureBlock)) return null;
@@ -27,6 +34,11 @@ public class ClojureSpacingProcessor implements ClojureElementTypes {
 
     IElementType type1 = node1.getElementType();
     IElementType type2 = node2.getElementType();
+
+    final Spacing psiBased = psiBasedSpacing(node1.getPsi(), node2.getPsi());
+    if (psiBased != null) {
+      return psiBased;
+    }
 
     if (MODIFIERS.contains(type1)) {
       return NO_SPACING;
@@ -49,4 +61,33 @@ public class ClojureSpacingProcessor implements ClojureElementTypes {
 
     return COMMON_SPACING;
   }
+
+  private static Spacing psiBasedSpacing(PsiElement psi1, PsiElement psi2) {
+    // Namespace declaration
+    if (ClojurePsiCheckers.isNs(psi1)) {
+      return NS_SPACING;
+    }
+
+    if (ClojurePsiCheckers.isImportingClause(psi2)) {
+      return MANDATORY_NEWLINE;
+    }
+
+    // todo questionable: should be adjustable
+    if (psi1 instanceof ClKeyword) {
+      return NO_NEWLINE;
+    }
+
+    // formatting imports
+    if (psi1 instanceof ClListLike &&
+        psi2 instanceof ClListLike &&
+        psi1.getParent() == psi2.getParent() &&
+        ClojurePsiCheckers.isImportingClause(psi1.getParent())) {
+      return MANDATORY_NEWLINE;
+    }
+
+    // todo add more cases
+
+    return null;
+  }
+
 }

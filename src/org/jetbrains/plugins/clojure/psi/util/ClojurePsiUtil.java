@@ -250,7 +250,7 @@ public class ClojurePsiUtil {
 
   public static boolean isStrictlyBefore(PsiElement e1, PsiElement e2) {
     final Trinity<PsiElement, PsiElement, PsiElement> result = findCommonParentAndLastChildren(e1, e2);
-    return result.first.getTextRange().getStartOffset() < result.second.getTextRange().getStartOffset();
+    return result.second.getTextRange().getStartOffset() < result.third.getTextRange().getStartOffset();
   }
 
 }

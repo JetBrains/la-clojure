@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.debugger.fragments;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.impl.ClojureFileImpl;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.annotations.NonNls;
@@ -99,7 +100,7 @@ public class ClojureCodeFragment extends ClojureFileImpl implements JavaCodeFrag
   }
 
   @NotNull
-  public ClList findOrCreateNamespaceElement() throws IncorrectOperationException {
+  public ClNs findOrCreateNamespaceElement() throws IncorrectOperationException {
     throw new IncorrectOperationException("creating imports is not supported in this element");
   }
 

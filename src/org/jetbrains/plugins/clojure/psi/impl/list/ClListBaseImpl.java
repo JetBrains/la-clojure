@@ -38,7 +38,7 @@ public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseEle
 
   @Nullable
   public String getHeadText() {
-    final ClSymbol first = findChildByClass(ClSymbol.class);
+    PsiElement first = getFirstNonLeafElement();
     if (first == null) return null;
     return first.getText();
   }
@@ -67,7 +67,9 @@ public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseEle
     while (first != null && isWrongElement(first)) {
       first = first.getNextSibling();
     }
-    if (first == null) { return null; }
+    if (first == null) {
+      return null;
+    }
     PsiElement second = first.getNextSibling();
     while (second != null && isWrongElement(second)) {
       second = second.getNextSibling();
