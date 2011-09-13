@@ -100,7 +100,8 @@ public class NamespaceUtil {
       final String synthName = nsName.equals(fqn) ? nsName : fqn;
       final String refName = StringUtil.getShortName(synthName);
 
-      return new ClSyntheticNamespace(PsiManager.getInstance(project), refName, synthName) {
+      final ClNs navigationElement = fqn.equals(ns.getName()) ? ns : null;
+      return new ClSyntheticNamespace(PsiManager.getInstance(project), refName, synthName, navigationElement) {
         @Override
         public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
 

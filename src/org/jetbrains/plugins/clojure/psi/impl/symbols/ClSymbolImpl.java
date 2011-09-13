@@ -5,12 +5,15 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.resolve.ResolveCache;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.stubs.StubIndex;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.MethodSignature;
 import com.intellij.util.Function;
@@ -36,6 +39,7 @@ import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.ResolveProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.SymbolResolveProcessor;
+import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureNsNameIndex;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
 
 import javax.swing.*;
@@ -216,9 +220,12 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
                 //get namespace declarations
                 if (element instanceof ClSyntheticNamespace) {
                   final String fqn = ((ClSyntheticNamespace) element).getQualifiedName();
+                  // namespace declarations
                   for (PsiNamedElement named : NamespaceUtil.getDeclaredElements(fqn, element.getProject())) {
                     if (!ResolveUtil.processElement(processor, named)) return;
                   }
+
+
                 }
 
               } else if (".".equals(sep.getText())) {

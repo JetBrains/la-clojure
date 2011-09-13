@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.impl.ClojurePsiManager;
 
 import javax.swing.*;
@@ -23,11 +24,13 @@ import javax.swing.*;
 public class ClSyntheticNamespace extends LightElement implements PsiPackage {
   @NotNull private final String myName;
   @NotNull private final String myQualifiedName;
+  private ClNs myNamespace;
 
-  protected ClSyntheticNamespace(PsiManager manager, String name, String fqn) {
+  protected ClSyntheticNamespace(PsiManager manager, String name, String fqn, ClNs ns) {
     super(manager, ClojureFileType.CLOJURE_LANGUAGE);
     myName = name;
     myQualifiedName = fqn;
+    myNamespace = ns;
   }
 
   public String getText() {
@@ -158,4 +161,10 @@ public class ClSyntheticNamespace extends LightElement implements PsiPackage {
     };
   }
 
+  @NotNull
+  @Override
+  public PsiElement getNavigationElement() {
+    if (myNamespace != null) return myNamespace;
+    return super.getNavigationElement();
+  }
 }
