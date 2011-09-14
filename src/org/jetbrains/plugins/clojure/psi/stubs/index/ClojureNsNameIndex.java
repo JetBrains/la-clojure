@@ -13,4 +13,9 @@ public class ClojureNsNameIndex extends StringStubIndexExtension<ClNs> {
   public StubIndexKey<String, ClNs> getKey() {
     return KEY;
   }
+
+  @Override
+  public int getVersion() {
+    return ClojureIndexVersion.VERSION;
+  }
 }

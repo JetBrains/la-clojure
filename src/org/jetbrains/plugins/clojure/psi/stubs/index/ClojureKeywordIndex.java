@@ -16,6 +16,6 @@ public class ClojureKeywordIndex extends StringStubIndexExtension<ClKeyword> {
 
   @Override
   public int getVersion() {
-    return 3;
+    return ClojureIndexVersion.VERSION;
   }
 }

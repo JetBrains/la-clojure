@@ -1,30 +1,21 @@
 package org.jetbrains.plugins.clojure.psi.impl.symbols;
 
-import com.intellij.codeInsight.lookup.LookupItem;
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.TailType;
-import com.intellij.openapi.project.Project;
+import com.intellij.codeInsight.lookup.LookupItem;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.psi.util.MethodSignature;
-import com.intellij.psi.search.PsiShortNamesCache;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.Function;
-import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.HashMap;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.plugins.clojure.ClojureIcons;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
-import org.jetbrains.plugins.clojure.psi.stubs.index.ClDefNameIndex;
-import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
-import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
-import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
-import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
+import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
+import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
+import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
 
 import java.util.*;
 

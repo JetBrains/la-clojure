@@ -13,4 +13,9 @@ public class ClojureClassNameIndex extends StringStubIndexExtension<ClojureFile>
   public StubIndexKey<String, ClojureFile> getKey() {
     return KEY;
   }
+
+  @Override
+  public int getVersion() {
+    return ClojureIndexVersion.VERSION;
+  }
 }

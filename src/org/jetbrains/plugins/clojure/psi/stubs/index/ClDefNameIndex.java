@@ -13,4 +13,9 @@ public class ClDefNameIndex extends StringStubIndexExtension<ClDef> {
   public StubIndexKey<String, ClDef> getKey() {
     return KEY;
   }
+
+  @Override
+  public int getVersion() {
+    return ClojureIndexVersion.VERSION;
+  }
 }

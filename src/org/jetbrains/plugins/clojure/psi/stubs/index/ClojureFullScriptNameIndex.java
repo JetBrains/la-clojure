@@ -28,4 +28,9 @@ public class ClojureFullScriptNameIndex extends IntStubIndexExtension<ClojureFil
   public Collection<ClojureFile> get(final Integer integer, final Project project, final GlobalSearchScope scope) {
     return super.get(integer, project, new ClojureSourceFilterScope(scope, project));
   }
+
+  @Override
+  public int getVersion() {
+    return ClojureIndexVersion.VERSION;
+  }
 }
