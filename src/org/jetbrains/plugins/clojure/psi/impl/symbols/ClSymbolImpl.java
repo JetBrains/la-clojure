@@ -164,8 +164,12 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
       }
 
       ResolveProcessor processor = new SymbolResolveProcessor(StringUtil.trimEnd(name, "."), symbol, incompleteCode, nameString.endsWith("."));
-
       resolveImpl(symbol, processor);
+
+      if (nameString.contains(".")) {
+        ResolveProcessor nsProcessor = new SymbolResolveProcessor(nameString, symbol, incompleteCode, false);
+        resolveImpl(symbol, nsProcessor);
+      }
 
       ClojureResolveResult[] candidates = processor.getCandidates();
       if (candidates.length > 0) return candidates;
@@ -202,6 +206,16 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
 
     private void resolveImpl(ClSymbol symbol, ResolveProcessor processor) {
       final ClSymbol qualifier = symbol.getQualifierSymbol();
+
+      // process namespaces
+      final Project project = symbol.getProject();
+      final GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+      final Collection<ClNs> nses = StubIndex.getInstance().get(ClojureNsNameIndex.KEY, symbol.getNameString(), project, scope);
+      for (ClNs ns : nses) {
+        ResolveUtil.processElement(processor, ns);
+      }
+
+      //process other places
       if (qualifier == null) {
         ResolveUtil.treeWalkUp(symbol, processor);
       } else {
