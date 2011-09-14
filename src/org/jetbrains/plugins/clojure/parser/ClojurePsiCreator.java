@@ -2,11 +2,7 @@ package org.jetbrains.plugins.clojure.parser;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.testFramework.LightVirtualFile;
-import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.impl.*;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClNsImpl;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClInNsImpl;
@@ -47,7 +43,7 @@ public class ClojurePsiCreator {
     if (elementType == ClojureElementTypes.CREATE_NS) return new ClCreateNsImpl(node);
 
     if (elementType == ClojureElementTypes.BINDINGS) return new ClBindings(node);
-    if (elementType == ClojureElementTypes.KEYWORD) return new ClKeyImpl(node);
+    if (elementType == ClojureElementTypes.KEYWORD) return new ClKeywordImpl(node);
     if (elementType == ClojureElementTypes.LITERAL) return new ClLiteralImpl(node);
     if (elementType == ClojureElementTypes.BACKQUOTED_EXPRESSION) return new ClBackQuotedExpression(node);
     if (elementType == ClojureElementTypes.SHARP_EXPRESSION) return new ClSharp(node);

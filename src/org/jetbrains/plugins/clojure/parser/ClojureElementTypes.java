@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.clojure.parser;
 
+import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClKeywordStub;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefMethodElementType;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ClKeywordElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ClStubFileElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClNsElementType;
 import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClInNsElementType;
@@ -41,17 +45,16 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
 
   final ClStubElementType<ClDefStub, ClDef> DEF = new ClDefElementType();
   final ClStubElementType<ClDefStub, ClDef> DEFMETHOD = new ClDefMethodElementType();
+  final ClStubElementType<ClKeywordStub, ClKeyword> KEYWORD = new ClKeywordElementType();
 
   final ClStubElementType<ClNsStub, ClNs> NS = new ClNsElementType();
   final ClStubElementType<ClNsStub, ClNs> IN_NS = new ClInNsElementType();
   final ClStubElementType<ClNsStub, ClNs> CREATE_NS = new ClCreateNsElementType();
 
   final IElementType MAP_ENTRY = new ClojureElementType("map");
-
   final IElementType LITERAL = new ClojureElementType("literal");
   final IElementType SYMBOL = new ClojureElementType("symbol");
   final IElementType IMPLICIT_ARG = new ClojureElementType("function argument");
-  final IElementType KEYWORD = new ClojureElementType("key definition");
 
   final IElementType BINDINGS = new ClojureElementType("bindings");
   final IElementType REST = new ClojureElementType("rest");
