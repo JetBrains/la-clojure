@@ -14,4 +14,7 @@ public interface ClojurePsiElement extends PsiElement {
   @Nullable
   PsiElement getLastNonLeafElement();
 
+  @Nullable
+  PsiElement getNonLeafElement(int k);
+
 }

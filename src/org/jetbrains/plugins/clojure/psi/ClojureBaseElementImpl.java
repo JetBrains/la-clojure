@@ -2,6 +2,7 @@ package org.jetbrains.plugins.clojure.psi;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Condition;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.stubs.IStubElementType;
@@ -11,7 +12,10 @@ import com.intellij.psi.PsiComment;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.extapi.psi.StubBasedPsiElementBase;
 import com.intellij.lang.ASTNode;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * @author ilyas
@@ -29,6 +33,16 @@ public abstract class ClojureBaseElementImpl <T extends StubElement> extends Stu
       first = first.getNextSibling();
     }
     return first;
+  }
+
+  public PsiElement getNonLeafElement(int k) {
+    final List<PsiElement> elements = ContainerUtil.filter(getChildren(), new Condition<PsiElement>() {
+      public boolean value(PsiElement psiElement) {
+        return !isWrongElement(psiElement);
+      }
+    });
+    if (k - 1 >= elements.size()) return  null;
+    return elements.get(k-1);
   }
 
   public PsiElement getLastNonLeafElement() {

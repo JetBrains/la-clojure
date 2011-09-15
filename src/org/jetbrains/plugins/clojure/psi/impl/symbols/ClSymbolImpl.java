@@ -206,7 +206,6 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
 
     private void resolveImpl(ClSymbol symbol, ResolveProcessor processor) {
       final ClSymbol qualifier = symbol.getQualifierSymbol();
-      resolveNamespace(symbol, processor);
 
       //process other places
       if (qualifier == null) {
@@ -219,7 +218,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
             if (sep != null) {
               if ("/".equals(sep.getText())) {
 
-                //get class elemets
+                //get class elements
                 if (element instanceof PsiClass) {
                   element.processDeclarations(processor, ResolveState.initial(), null, symbol);
                 }
@@ -231,8 +230,6 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
                   for (PsiNamedElement named : NamespaceUtil.getDeclaredElements(fqn, element.getProject())) {
                     if (!ResolveUtil.processElement(processor, named)) return;
                   }
-
-
                 }
 
               } else if (".".equals(sep.getText())) {

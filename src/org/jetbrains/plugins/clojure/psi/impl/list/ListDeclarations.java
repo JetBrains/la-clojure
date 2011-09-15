@@ -42,6 +42,10 @@ public class ListDeclarations {
   public static final String DEFN_ = "defn-";
   public static final String IMPORT = "import";
   private static final String MEMFN = "memfn";
+  public static final String USE = "use";
+  public static final String REFER = "refer";
+  public static final String REQUIRE = "require";
+
   private static final String DOT = ".";
 
   private static final Set<String> LOCAL_BINDINGS = new HashSet<String>(Arrays.asList(

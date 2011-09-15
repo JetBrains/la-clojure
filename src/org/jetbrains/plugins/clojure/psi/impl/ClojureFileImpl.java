@@ -5,12 +5,14 @@ import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Condition;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.impl.source.PsiFileImpl;
 import com.intellij.util.IncorrectOperationException;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
@@ -28,6 +30,8 @@ import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.parser.ClojureParser;
+
+import java.util.List;
 
 /**
  * User: peter
@@ -145,6 +149,16 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
       first = first.getNextSibling();
     }
     return first;
+  }
+
+  public PsiElement getNonLeafElement(int k) {
+    final List<PsiElement> elements = ContainerUtil.filter(getChildren(), new Condition<PsiElement>() {
+      public boolean value(PsiElement psiElement) {
+        return !isWrongElement(psiElement);
+      }
+    });
+    if (k - 1 >= elements.size()) return  null;
+    return elements.get(k-1);
   }
 
   public PsiElement getLastNonLeafElement() {

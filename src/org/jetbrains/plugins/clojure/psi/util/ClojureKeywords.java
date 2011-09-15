@@ -10,4 +10,5 @@ public abstract class ClojureKeywords {
   public static final String IMPORT= ":import";
   public static final String REQUIRE = ":require";
   public static final String USE = ":use";
+  public static final String AS = ":as";
 }
