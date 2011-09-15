@@ -168,7 +168,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
 
       if (nameString.contains(".")) {
         ResolveProcessor nsProcessor = new SymbolResolveProcessor(nameString, symbol, incompleteCode, false);
-        resolveImpl(symbol, nsProcessor);
+        resolveNamespace(symbol, nsProcessor);
       }
 
       ClojureResolveResult[] candidates = processor.getCandidates();
@@ -206,14 +206,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
 
     private void resolveImpl(ClSymbol symbol, ResolveProcessor processor) {
       final ClSymbol qualifier = symbol.getQualifierSymbol();
-
-      // process namespaces
-      final Project project = symbol.getProject();
-      final GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-      final Collection<ClNs> nses = StubIndex.getInstance().get(ClojureNsNameIndex.KEY, symbol.getNameString(), project, scope);
-      for (ClNs ns : nses) {
-        ResolveUtil.processElement(processor, ns);
-      }
+      resolveNamespace(symbol, processor);
 
       //process other places
       if (qualifier == null) {
@@ -248,6 +241,16 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
             }
           }
         }
+      }
+    }
+
+    private void resolveNamespace(ClSymbol symbol, ResolveProcessor processor) {
+      // process namespaces
+      final Project project = symbol.getProject();
+      final GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+      final Collection<ClNs> nses = StubIndex.getInstance().get(ClojureNsNameIndex.KEY, symbol.getNameString(), project, scope);
+      for (ClNs ns : nses) {
+        ResolveUtil.processElement(processor, ns);
       }
     }
   }

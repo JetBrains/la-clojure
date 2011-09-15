@@ -88,9 +88,12 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
         final PsiElement first = directive.getFirstNonLeafElement();
         if (first instanceof ClKeyword) {
           final String keyText = first.getText();
-          if (ClojureKeywords.IMPORT.equals(keyText) && processImports(processor, place, facade, directive))
+          if (ClojureKeywords.IMPORT.equals(keyText) && processImports(processor, place, facade, directive)) {
             return false;
-          if (ClojureKeywords.USE.equals(keyText) && processUses(processor, place, facade, directive)) return false;
+          }
+          if (ClojureKeywords.USE.equals(keyText) && processUses(processor, place, facade, directive)) {
+            return false;
+          }
         }
       }
     }
