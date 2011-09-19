@@ -121,7 +121,7 @@ public class NamespaceUtil {
     @NotNull
     @Override
     public PsiElement getNavigationElement() {
-      return navigationElement;
+      return navigationElement != null ? navigationElement : super.getNavigationElement();
     }
 
     @Override

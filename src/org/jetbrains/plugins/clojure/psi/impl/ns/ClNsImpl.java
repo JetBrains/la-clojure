@@ -127,7 +127,7 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
         final ClSymbol to = (ClSymbol) third;
         NameHint nameHint = processor.getHint(NameHint.KEY);
         String alias = nameHint == null ? null : nameHint.getName(ResolveState.initial());
-        if (alias == null || alias.equals(to.getName())) {
+        if (alias != null && alias.equals(to.getName())) {
           for (ResolveResult result : from.multiResolve(false)) {
             final PsiElement element = result.getElement();
             if (element instanceof PsiNamedElement) {
@@ -135,6 +135,8 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
               return processor.execute(namedElement, ResolveState.initial());
             }
           }
+        } else if (nameHint == null) {
+          processor.execute(to, ResolveState.initial());
         }
       }
     }
