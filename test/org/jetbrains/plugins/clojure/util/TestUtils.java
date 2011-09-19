@@ -1,18 +1,60 @@
 package org.jetbrains.plugins.clojure.util;
 
+import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
  * @author ilyas
  */
-public class PathUtil {
+public class TestUtils {
+
+  private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.clojure.util.TestUtils");
+
   private static final String[] RUN_PATHES = new String[]{
       "out/test/clojure-plugin",
 // if tests are run using ant script
       "dist/testClasses"};
+
+  private static String TEST_DATA_PATH = null;
+
+  public static final String CARET_MARKER = "<caret>";
+  public static final String BEGIN_MARKER = "<begin>";
+  public static final String END_MARKER = "<end>";
+
+  public static String getTestDataPath() {
+    if (TEST_DATA_PATH == null) {
+      ClassLoader loader = TestUtils.class.getClassLoader();
+      URL resource = loader.getResource("testdata");
+      try {
+        TEST_DATA_PATH = new File("testdata").getAbsolutePath();
+        if (resource != null) {
+          TEST_DATA_PATH = new File(resource.toURI()).getPath().replace(File.separatorChar, '/');
+        }
+      } catch (URISyntaxException e) {
+        LOG.error(e);
+        return null;
+      }
+    }
+    return TEST_DATA_PATH;
+  }
+
+  public static String getMockJdk() {
+    return getTestDataPath() + "/mockJDK";
+  }
+
+
+  public static String getMockClojureLib() {
+    return getTestDataPath() + "/mockClojureLib/clojure.jar" ;
+  }
+
+  public static String getMockClojureContribLib() {
+    return getTestDataPath() + "/mockClojureLib/clojure-contrib.jar" ;
+  }
 
   @Nullable
   public static String getDataPath(@NotNull Class clazz) {
@@ -81,5 +123,4 @@ public class PathUtil {
     s = s.substring(0, s.lastIndexOf('/'));
     return s;
   }
-
 }
