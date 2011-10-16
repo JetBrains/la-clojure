@@ -44,7 +44,7 @@ public class ClojureReferenceSearcher implements QueryExecutor<PsiReference, Ref
             return true;
           }
         };
-        final PsiSearchHelper helper = PsiManager.getInstance(elem.getProject()).getSearchHelper();
+        final PsiSearchHelper helper = PsiSearchHelper.SERVICE.getInstance(elem.getProject());
         for (String word : wordsIn) {
           helper.processElementsWithWord(processor, scope, word, UsageSearchContext.ANY, true);
         }

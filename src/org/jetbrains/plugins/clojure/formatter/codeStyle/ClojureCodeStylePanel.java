@@ -56,7 +56,7 @@ public class ClojureCodeStylePanel extends CodeStyleAbstractPanel {
   public void apply(CodeStyleSettings settings) {
     ClojureCodeStyleSettings cljSettings = settings.getCustomSettings(ClojureCodeStyleSettings.class);
     cljSettings.ALIGN_CLOJURE_FORMS = alignCheckBox.isSelected();
-    updatePreview();
+    updatePreview(true);
   }
 
   public boolean isModified(CodeStyleSettings settings) {
@@ -72,7 +72,7 @@ public class ClojureCodeStylePanel extends CodeStyleAbstractPanel {
   protected void resetImpl(CodeStyleSettings settings) {
     ClojureCodeStyleSettings cljSettings = settings.getCustomSettings(ClojureCodeStyleSettings.class);
     setSettings(cljSettings);
-    updatePreview();
+    updatePreview(true);
   }
 
   private void setSettings(ClojureCodeStyleSettings settings) {

@@ -109,7 +109,8 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
 
   @NotNull
   public ResolveResult[] multiResolve(boolean incomplete) {
-    return getManager().getResolveCache().resolveWithCaching(this, RESOLVER, true, incomplete);
+    final ResolveCache resolveCache = ResolveCache.getInstance(getProject());
+    return resolveCache.resolveWithCaching(this, RESOLVER, true, incomplete);
   }
 
   public PsiElement setName(@NotNull @NonNls String newName) throws IncorrectOperationException {
@@ -273,7 +274,8 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
   private static final MyResolver RESOLVER = new MyResolver();
 
   public PsiElement resolve() {
-    ResolveResult[] results = getManager().getResolveCache().resolveWithCaching(this, RESOLVER, false, false);
+    final ResolveCache resolveCache = ResolveCache.getInstance(getProject());
+    ResolveResult[] results = resolveCache.resolveWithCaching(this, RESOLVER, false, false);
     return results.length == 1 ? results[0].getElement() : null;
   }
 
@@ -283,7 +285,8 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
   }
 
   private List<PsiElement> multipleResolveResults() {
-    final ResolveResult[] results = getManager().getResolveCache().resolveWithCaching(this, RESOLVER, false, false);
+    final ResolveCache resolveCache = ResolveCache.getInstance(getProject());
+    final ResolveResult[] results = resolveCache.resolveWithCaching(this, RESOLVER, false, false);
     return ContainerUtil.map(results, new Function<ResolveResult, PsiElement>() {
       public PsiElement fun(ResolveResult resolveResult) {
         return resolveResult.getElement();

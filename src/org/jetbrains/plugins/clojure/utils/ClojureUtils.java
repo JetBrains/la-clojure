@@ -67,7 +67,7 @@ public class ClojureUtils {
 
   public static boolean isSuitableModule(Module module) {
     if (module == null) return false;
-    ModuleType type = module.getModuleType();
+    ModuleType type = ModuleType.get(module);
     return type instanceof JavaModuleType || "PLUGIN_MODULE".equals(type.getId());
   }
 

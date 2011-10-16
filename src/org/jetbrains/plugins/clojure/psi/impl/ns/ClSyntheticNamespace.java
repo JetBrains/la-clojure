@@ -94,6 +94,10 @@ public class ClSyntheticNamespace extends LightElement implements PsiPackage {
     return myName;
   }
 
+  public boolean containsClassNamed(String name) {
+    return false;
+  }
+
   public PsiQualifiedNamedElement getContainer() {
     return null;
   }

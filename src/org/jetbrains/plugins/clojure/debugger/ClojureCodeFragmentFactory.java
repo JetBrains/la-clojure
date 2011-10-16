@@ -2,6 +2,8 @@ package org.jetbrains.plugins.clojure.debugger;
 
 import com.intellij.debugger.engine.evaluation.CodeFragmentFactory;
 import com.intellij.debugger.engine.evaluation.TextWithImports;
+import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder;
+import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilderImpl;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
@@ -30,7 +32,7 @@ public class ClojureCodeFragmentFactory implements CodeFragmentFactory{
     final String argList = StringUtil.join(localNames, ", ");
     text.append("tmp.fn().invoke(" + argList + ");\n");
 
-    final PsiElementFactory factory = JavaPsiFacade.getInstance(project).getElementFactory();
+    final JavaCodeFragmentFactory factory = JavaCodeFragmentFactory.getInstance(project);
     return factory.createCodeBlockCodeFragment(text.toString(), null, true);
   }
 
@@ -65,5 +67,9 @@ public class ClojureCodeFragmentFactory implements CodeFragmentFactory{
 
   public LanguageFileType getFileType() {
     return ClojureFileType.CLOJURE_FILE_TYPE;
+  }
+
+  public EvaluatorBuilder getEvaluatorBuilder() {
+    return EvaluatorBuilderImpl.getInstance();
   }
 }

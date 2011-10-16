@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.repl;
 import com.intellij.execution.console.LanguageConsoleImpl;
 import com.intellij.execution.process.ConsoleHistoryModel;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.lang.FileASTNode;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -12,8 +13,8 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.impl.source.codeStyle.HelperFactory;
 import com.intellij.psi.impl.source.codeStyle.IndentHelper;
+import com.intellij.psi.impl.source.codeStyle.IndentHelperImpl;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 
@@ -37,7 +38,7 @@ public class ClojureConsoleExecuteActionHandler {
     myProcessHandler = processHandler;
     myProject = project;
     myPreserveMarkup = preserveMarkup;
-    myIndentHelper = HelperFactory.createHelper(ClojureFileType.CLOJURE_FILE_TYPE, myProject);
+    myIndentHelper = IndentHelper.getInstance();
   }
 
   public void processLine(String line) {
@@ -72,8 +73,10 @@ public class ClojureConsoleExecuteActionHandler {
     if (!"".equals(text.substring(offset).trim())) {
       final String before = text.substring(0, offset);
       final String after = text.substring(offset);
-      final int indent = myIndentHelper.getIndent(before, false);
-      final String spaces = myIndentHelper.fillIndent(indent);
+      final FileASTNode node = console.getFile().getNode();
+      final Project project = editor.getProject();
+      final int indent = myIndentHelper.getIndent(project, ClojureFileType.CLOJURE_FILE_TYPE, node);
+      final String spaces = IndentHelperImpl.fillIndent(project, ClojureFileType.CLOJURE_FILE_TYPE, indent);
       final String newText = before + "\n" + spaces + after;
 
       new WriteCommandAction(myProject) {
@@ -98,7 +101,7 @@ public class ClojureConsoleExecuteActionHandler {
   }
 
   private void execute(LanguageConsoleImpl languageConsole,
-                      ConsoleHistoryModel consoleHistoryModel) {
+                       ConsoleHistoryModel consoleHistoryModel) {
 
     // Process input and add to history
     final Document document = languageConsole.getCurrentEditor().getDocument();

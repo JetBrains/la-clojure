@@ -38,9 +38,6 @@ public class ClojureShortNamesCache extends PsiShortNamesCache {
   }
 
 
-  public void runStartupActivity() {
-  }
-
   @NotNull
   public PsiFile[] getFilesByName(@NotNull String name) {
     return new PsiFile[0];
@@ -82,31 +79,6 @@ public class ClojureShortNamesCache extends PsiShortNamesCache {
     });
   }
 
-  private Collection<PsiClass> getScriptClassesByFQName(final String name, final GlobalSearchScope scope) {
-    Collection<ClojureFile> scripts = StubIndex.getInstance().get(ClojureFullScriptNameIndex.KEY, name.hashCode(), myProject, scope);
-
-    scripts = ContainerUtil.findAll(scripts, new Condition<ClojureFile>() {
-      public boolean value(final ClojureFile clojureFile) {
-        final PsiClass clazz = clojureFile.getDefinedClass();
-        return clojureFile.isClassDefiningFile() && clazz != null && name.equals(clazz.getQualifiedName());
-      }
-    });
-    return ContainerUtil.map(scripts, new Function<ClojureFile, PsiClass>() {
-      public PsiClass fun(final ClojureFile clojureFile) {
-        return clojureFile.getDefinedClass();
-      }
-    });
-  }
-
-/*
-  public Collection<ClNs> getAllNameSpaces(final GlobalSearchScope scope) {
-    final Collection<String> nsNames = StubIndex.getInstance().getAllKeys(ClojureNsNameIndex.KEY);
-
-    StubIndex.getInstance().get(ClojureNsNameIndex.KEY, name.hashCode(), myProject, scope)
-  }
-*/
-
-
   @NotNull
   public String[] getAllClassNames() {
     if (!areClassesCompiled()) return new String[0];
@@ -121,32 +93,6 @@ public class ClojureShortNamesCache extends PsiShortNamesCache {
     final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ClojureClassNameIndex.KEY, myProject);
     dest.addAll(classNames);
   }
-
-  @Nullable
-  public PsiClass getClassByFQName(@NotNull @NonNls String name, @NotNull GlobalSearchScope scope) {
-    if (!areClassesCompiled()) return null;
-
-    final Collection<PsiClass> scriptClasses = getScriptClassesByFQName(name, scope);
-    for (PsiClass clazz : scriptClasses) {
-      if (name.equals(clazz.getQualifiedName())) return clazz;
-    }
-    return null;
-  }
-
-  @NotNull
-  public PsiClass[] getClassesByFQName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
-    if (!areClassesCompiled()) return PsiClass.EMPTY_ARRAY;
-
-    final Collection<PsiClass> result = getScriptClassesByFQName(fqn, scope);
-    ArrayList<PsiClass> filtered = new ArrayList<PsiClass>();
-    for (PsiClass clazz : result) {
-      if (fqn.equals(clazz.getQualifiedName())) {
-        filtered.add(clazz);
-      }
-    }
-    return filtered.isEmpty() ? PsiClass.EMPTY_ARRAY : filtered.toArray(new PsiClass[filtered.size()]);
-  }
-
 
   @NotNull
   public PsiMethod[] getMethodsByName(@NonNls String name, @NotNull GlobalSearchScope scope) {

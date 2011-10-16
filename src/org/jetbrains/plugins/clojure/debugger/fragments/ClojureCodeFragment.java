@@ -21,7 +21,7 @@ public class ClojureCodeFragment extends ClojureFileImpl implements JavaCodeFrag
   private PsiType myThisType;
   private PsiType mySuperType;
   private ExceptionHandler myExceptionHandler;
-  private IntentionActionsFilter myFilter;
+  private IntentionFilterOwner.IntentionActionsFilter myFilter;
   private GlobalSearchScope myScope;
 
   public ClojureCodeFragment(Project project, CharSequence text) {
@@ -75,11 +75,11 @@ public class ClojureCodeFragment extends ClojureFileImpl implements JavaCodeFrag
     return false;
   }
 
-  public void setIntentionActionsFilter(IntentionActionsFilter filter) {
+  public void setIntentionActionsFilter(IntentionFilterOwner.IntentionActionsFilter filter) {
     myFilter = filter;
   }
 
-  public IntentionActionsFilter getIntentionActionsFilter() {
+  public IntentionFilterOwner.IntentionActionsFilter getIntentionActionsFilter() {
     return myFilter;
   }
 

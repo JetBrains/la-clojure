@@ -69,7 +69,7 @@ public class ClojureBraceHighlightingHandler {
   static void lookForInjectedAndHighlightInOtherThread(@NotNull final Editor editor, @NotNull final Alarm alarm, @NotNull final Processor<ClojureBraceHighlightingHandler> processor) {
     final Project project = editor.getProject();
     if (project == null) return;
-    JobUtil.submitToJobThread(new Runnable() {
+    JobUtil.submitToJobThread(Job.DEFAULT_PRIORITY, new Runnable() {
       public void run() {
         if (isReallyDisposed(editor, project)) return;
         ApplicationManager.getApplication().invokeLater(new DumbAwareRunnable() {
@@ -83,7 +83,7 @@ public class ClojureBraceHighlightingHandler {
           }
         }, ModalityState.stateForComponent(editor.getComponent()));
       }
-    }, Job.DEFAULT_PRIORITY);
+    });
   }
 
   private static PsiElement findTopElement(PsiElement elem) {

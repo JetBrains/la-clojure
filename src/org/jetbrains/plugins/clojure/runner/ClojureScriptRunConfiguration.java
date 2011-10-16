@@ -222,7 +222,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
               ClojureBundle.message("clojure.lib.is.not.attached")),
           ClojureBundle.message("run.error.message.title"));
 
-      ModulesConfigurator.showDialog(project, module.getName(), ClasspathEditor.NAME, false);
+      ModulesConfigurator.showDialog(project, module.getName(), ClasspathEditor.NAME);
       return null;
     }
 
