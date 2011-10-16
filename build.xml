@@ -222,7 +222,7 @@
   </target>
 
 
-  <target name="build.tests" depends="make.plugin">
+  <target name="build.tests" depends="make.tests">
 
     <mkdir dir="${test.dest}"/>
 
@@ -243,7 +243,7 @@
 
   </target>
 
-  <target name="run.tests">
+  <target name="run.tests" depends="build.tests">
 
     <mkdir dir="${test.dist}"/>
     <mkdir dir="${project.dir}/logs"/>
