@@ -36,9 +36,7 @@
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.home}/plugins">
-      <include name="CSS/lib/*.jar"/>
-      <include name="**/JavascriptLanguage.jar"/>
-      <include name="**/JavaScriptLanguage/lib/resurces_en.jar"/>
+      <include name="**/*.jar"/>
     </fileset>
   </path>
 
@@ -245,7 +243,7 @@
 
   </target>
 
-  <target name="run.tests" depends="build.tests">
+  <target name="run.tests">
 
     <mkdir dir="${test.dist}"/>
     <mkdir dir="${project.dir}/logs"/>
@@ -271,15 +269,14 @@
       <jvmarg value="-Xmx256M"/>
       <jvmarg value="-ea"/>
       <jvmarg value="-Djava.compiler=NONE"/>
-      <jvmarg value="-Xdebug"/>
-      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5549"/>
+      <!--<jvmarg value="-Xdebug"/>-->
+      <!--<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5549"/>-->
 
+      <!-- Useful for internal tests -->
+      <jvmarg value="-Didea.platform.prefix=Idea"/>
       <jvmarg value="-Didea.config.path=${test.dist}/config"/>
       <jvmarg value="-Didea.system.path=${test.dist}/system"/>
       <jvmarg value="-Didea.plugins.path=${project.dest}/.."/>
-      <!-- Useful for internal tests -->
-      <!--<jvmarg value="-Didea.platform.prefix=Idea"/>-->
-
       <jvmarg value="-Didea.load.plugins.id=org.intellij.clojure"/>
 
       <formatter type="plain"/>
