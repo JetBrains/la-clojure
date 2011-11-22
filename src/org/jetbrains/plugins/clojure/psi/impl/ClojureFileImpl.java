@@ -99,7 +99,11 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
   public String getNamespacePrefix() {
     final String ns = getNamespace();
     if (ns != null) {
-      return ns.substring(0, ns.lastIndexOf("."));
+      if (ns.contains(".")) {
+        return ns.substring(0, ns.lastIndexOf("."));
+      } else {
+        return ns;
+      }
     }
     return null;
 
