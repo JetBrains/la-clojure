@@ -5,6 +5,7 @@ import com.intellij.execution.*;
 import com.intellij.execution.configurations.CommandLineBuilder;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.configurations.JavaParameters;
+import com.intellij.execution.console.ConsoleHistoryController;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.process.*;
 import com.intellij.execution.ui.RunContentDescriptor;
@@ -42,9 +43,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-
-import static com.intellij.execution.runners.AbstractConsoleRunnerWithHistory.createCanMoveDownComputable;
-import static com.intellij.execution.runners.AbstractConsoleRunnerWithHistory.createCanMoveUpComputable;
 
 /**
  * @author ilyas
@@ -237,26 +235,11 @@ public class ClojureConsoleRunner {
 
     final AnAction runImmediatelyAction = new ClojureExecuteImmediatelyAction(languageConsole, processHandler, consoleExecuteActionHandler);
 
-    final PairProcessor<AnActionEvent, String> historyProcessor = new PairProcessor<AnActionEvent, String>() {
-      public boolean process(final AnActionEvent e, final String s) {
-        new WriteCommandAction(languageConsole.getProject(), languageConsole.getFile()) {
-          protected void run(final Result result) throws Throwable {
-            languageConsole.getEditorDocument().setText(s == null ? "" : s);
-          }
-        }.execute();
-        return true;
-      }
-    };
+    final ConsoleHistoryController historyController = new ConsoleHistoryController("clojure", null, languageConsole, historyModel);
+    historyController.install();
 
-    final EditorEx consoleEditor = languageConsole.getConsoleEditor();
-    final AnAction upAction = ConsoleHistoryModel.createConsoleHistoryUpAction(
-        createCanMoveUpComputable(consoleEditor),
-        historyModel,
-        historyProcessor);
-    final AnAction downAction = ConsoleHistoryModel.createConsoleHistoryDownAction(
-        createCanMoveDownComputable(consoleEditor),
-        historyModel,
-        historyProcessor);
+    final AnAction upAction = historyController.getHistoryPrev();
+    final AnAction downAction = historyController.getHistoryNext();
 
     final ArrayList<AnAction> list = new ArrayList<AnAction>();
     list.add(runImmediatelyAction);
@@ -265,6 +248,7 @@ public class ClojureConsoleRunner {
 //    list.add(enterAction);
     return list;
   }
+
 
 
   protected AnAction createCloseAction(final Executor defaultExecutor, final RunContentDescriptor myDescriptor) {
