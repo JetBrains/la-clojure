@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.clojure.findUsages;
 
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.PsiReference;
+import com.intellij.psi.*;
 import com.intellij.psi.search.PsiSearchHelper;
 import com.intellij.psi.search.SearchScope;
 import com.intellij.psi.search.TextOccurenceProcessor;
@@ -23,7 +20,8 @@ public class ClojureReferenceSearcher implements QueryExecutor<PsiReference, Ref
   public boolean execute(ReferencesSearch.SearchParameters params, final Processor<PsiReference> consumer) {
     final PsiElement elem = params.getElementToSearch();
     final SearchScope scope = params.getScope();
-    if (elem instanceof PsiNamedElement) {
+    if (elem instanceof PsiNamedElement
+        && !(elem instanceof PsiVariable)) {
       final PsiNamedElement symbolToSearch = (PsiNamedElement) elem;
       final String name = symbolToSearch.getName();
       if (name != null) {
