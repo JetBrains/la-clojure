@@ -90,7 +90,8 @@ public class ClojureBraceHighlighter extends AbstractProjectComponent {
 
   static void updateBraces(@NotNull final Editor editor, @NotNull final Alarm alarm, final DocumentEvent e) {
     final Project project = editor.getProject();
-    if (!ClojureProjectSettings.getInstance(project).coloredParentheses) {
+    if (project != null &&
+        !ClojureProjectSettings.getInstance(project).coloredParentheses) {
       final Boolean data = editor.getUserData(MUST_BE_REHIGHLIGHTED);
       if (data == null || data) {
         EditorFactory.getInstance().refreshAllEditors();
