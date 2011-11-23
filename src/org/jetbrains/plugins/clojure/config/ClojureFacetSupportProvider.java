@@ -26,7 +26,7 @@ public class ClojureFacetSupportProvider extends FacetBasedFrameworkSupportProvi
   @NotNull
   @NonNls
   public String getLibraryName(final String name) {
-    return "clojure-" + name;
+    return "clojure";
   }
 
   @NonNls
