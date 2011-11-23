@@ -51,9 +51,9 @@
     <fileset dir="${project.lib}">
       <include name="*.jar"/>
     </fileset>
-    <fileset dir="${clojure.contrib}">
-      <include name="clojure-contrib.jar"/>
-    </fileset>
+    <!--<fileset dir="${clojure.contrib}">-->
+      <!--<include name="clojure-contrib.jar"/>-->
+    <!--</fileset>-->
   </path>
 
   <path id="clojure.base.path">
@@ -65,9 +65,9 @@
     <fileset dir="${clojure.lib}">
       <include name="clojure.jar"/>
     </fileset>
-    <fileset dir="${clojure.contrib}">
-      <include name="clojure-contrib.jar"/>
-    </fileset>
+    <!--<fileset dir="${clojure.contrib}">-->
+      <!--<include name="clojure-contrib.jar"/>-->
+    <!--</fileset>-->
   </path>
 
   <condition property="need.to.unzip">
@@ -194,9 +194,9 @@
       <fileset dir="${clojure.lib}">
         <include name="clojure.jar"/>
       </fileset>
-      <fileset dir="${clojure.contrib}">
-        <include name="clojure-contrib.jar"/>
-      </fileset>
+      <!--<fileset dir="${clojure.contrib}">-->
+        <!--<include name="clojure-contrib.jar"/>-->
+      <!--</fileset>-->
     </copy>
 
     <mkdir dir="${main.dist}"/>
