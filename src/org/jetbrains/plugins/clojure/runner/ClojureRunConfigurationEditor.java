@@ -12,7 +12,6 @@ import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.ClojureBundle;
-import sun.security.pkcs11.Secmod;
 
 import javax.swing.*;
 import java.awt.*;
