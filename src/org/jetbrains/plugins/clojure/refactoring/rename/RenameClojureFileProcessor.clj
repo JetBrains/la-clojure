@@ -1,9 +1,8 @@
 (ns org.jetbrains.plugins.clojure.refactoring.rename.RenameClojureFileProcessor
-  (:gen-class
-    :extends com.intellij.refactoring.rename.RenamePsiElementProcessor
-    :exposes-methods {renameElement superRenameElement}
-    :state state
-    :init init)
+  (:gen-class :extends com.intellij.refactoring.rename.RenamePsiElementProcessor
+              :exposes-methods {renameElement superRenameElement}
+              :state state
+              :init init)
 
   (:import [org.jetbrains.plugins.clojure.psi.api ClojureFile]
            [com.intellij.openapi.util.text StringUtil]))

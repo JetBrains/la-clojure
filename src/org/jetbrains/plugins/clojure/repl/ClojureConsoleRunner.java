@@ -14,6 +14,7 @@ import com.intellij.ide.CommonActionsManager;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.compiler.CompilerPaths;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
@@ -33,6 +34,7 @@ import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
 import org.jetbrains.plugins.clojure.config.ClojureFacet;
 import org.jetbrains.plugins.clojure.settings.ClojureProjectSettings;
+import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -280,6 +282,11 @@ public class ClojureConsoleRunner {
         cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
       }
     }
+    // Also add output folders
+    final VirtualFile outputDirectory = CompilerPaths.getModuleOutputDirectory(module, false);
+    if (outputDirectory != null) {
+      cpVFiles.add(outputDirectory);
+    }
 
     for (VirtualFile file : cpVFiles) {
       params.getClassPath().add(file.getPath());
@@ -308,8 +315,10 @@ public class ClojureConsoleRunner {
 
   private static String getMainReplClass(Module module) {
     final ClojureFacet facet = getClojureFacet(module);
+    if (facet == null) {
+      return ClojureUtils.CLOJURE_MAIN;
+    }
     return facet.getReplClass();
-
   }
 
   private GeneralCommandLine createCommandLine(Module module, String workingDir) throws CantRunException {
