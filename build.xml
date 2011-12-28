@@ -250,7 +250,7 @@
     <mkdir dir="${test.dist}/config"/>
     <mkdir dir="${test.dist}/system"/>
 
-    <junit fork="no"
+    <junit fork="yes"
            dir="${project.dir}"
            showoutput="yes"
            printsummary="yes"
@@ -266,14 +266,15 @@
 
       <jvmarg value="-Xbootclasspath/p:./lib/boot/boot.jar"/>
       <jvmarg value="-Djava.awt.headless=true"/>
-      <jvmarg value="-Xmx256M"/>
+      <jvmarg value="-Xmx350M"/>
       <jvmarg value="-ea"/>
       <jvmarg value="-Djava.compiler=NONE"/>
-      <!--<jvmarg value="-Xdebug"/>-->
-      <!--<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5549"/>-->
+
+      <jvmarg value="-Xdebug"/>
+      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5568"/>
 
       <!-- Useful for internal tests -->
-      <jvmarg value="-Didea.platform.prefix=Idea"/>
+      <!--<jvmarg value="-Didea.platform.prefix=Idea"/>-->
       <jvmarg value="-Didea.config.path=${test.dist}/config"/>
       <jvmarg value="-Didea.system.path=${test.dist}/system"/>
       <jvmarg value="-Didea.plugins.path=${project.dest}/.."/>
