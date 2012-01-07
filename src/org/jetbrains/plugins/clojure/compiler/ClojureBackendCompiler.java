@@ -248,27 +248,39 @@ public class ClojureBackendCompiler extends ExternalCompiler {
     printer.print("(binding [*compile-path* ");
     printer.print("\"" + outputPath + "\"]\n");
 
+    boolean compileSources = (chunk.getSourcesFilter() & ModuleChunk.SOURCES) != 0;
+    boolean compileTests = (chunk.getSourcesFilter() & ModuleChunk.TEST_SOURCES) != 0;
+
     final Module[] modules = chunk.getModules();
     if (modules.length > 0) {
       final Project project = modules[0].getProject();
+      ProjectFileIndex index = ProjectRootManager.getInstance(project).getFileIndex();
       final PsiManager manager = PsiManager.getInstance(project);
+
 //      printNicePrinter(printer);
       for (VirtualFile file : files) {
-        final PsiFile psiFile = manager.findFile(file);
-        if (psiFile != null && (psiFile instanceof ClojureFile)) {
-          final ClojureFile clojureFile = (ClojureFile) psiFile;
-          final String ns = clojureFile.getNamespace();
-          // Compile all compilable files
-          // Compile only files with classes!
-          if (ns != null && clojureFile.isClassDefiningFile()) {
+        Module module = index.getModuleForFile(file);
+        ModuleFileIndex moduleFileIndex = ModuleRootManager.getInstance(module).getFileIndex();
 
-            printer.print("(try ");
-            printCompileFile(printer, ns);
-            //(let [st (.getStackTrace e)] (intellij-nice-printer st))
-            printer.print("(catch Exception e (. *err* println (str \"comp_err:" + file.getPath() +
-                ":" + ns + "@" + "\" (let [msg (.getMessage e)] msg)  ) ) )");
-            printer.print(")");
+        boolean isTest = moduleFileIndex.isInTestSourceContent(file);
 
+        if ((!isTest && compileSources) || (isTest && compileTests)) {
+          final PsiFile psiFile = manager.findFile(file);
+          if (psiFile != null && (psiFile instanceof ClojureFile)) {
+            final ClojureFile clojureFile = (ClojureFile) psiFile;
+            final String ns = clojureFile.getNamespace();
+            // Compile all compilable files
+            // Compile only files with classes!
+            if (ns != null && clojureFile.isClassDefiningFile()) {
+
+              printer.print("(try ");
+              printCompileFile(printer, ns);
+              //(let [st (.getStackTrace e)] (intellij-nice-printer st))
+              printer.print("(catch Exception e (. *err* println (str \"comp_err:" + file.getPath() +
+                  ":" + ns + "@" + "\" (let [msg (.getMessage e)] msg)  ) ) )");
+              printer.print(")");
+
+            }
           }
         }
       }

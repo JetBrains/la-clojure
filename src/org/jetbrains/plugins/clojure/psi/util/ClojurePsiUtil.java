@@ -78,16 +78,20 @@ public class ClojurePsiUtil {
     return null;
   }
 
+  @Nullable
   public static ClKeywordImpl findNamespaceKeyByName(ClList ns, String keyName) {
-    final ClList list = ns.findFirstChildByClass(ClList.class);
-    if (list == null) return null;
-    for (PsiElement element : list.getChildren()) {
-      if (element instanceof ClKeywordImpl) {
-        ClKeywordImpl key = (ClKeywordImpl) element;
-        if (keyName.equals(key.getText())) {
-          return key;
+    ClList list = ns.findFirstChildByClass(ClList.class);
+
+    while (list != null) {
+      for (PsiElement element : list.getChildren()) {
+        if (element instanceof ClKeywordImpl) {
+          ClKeywordImpl key = (ClKeywordImpl) element;
+          if (keyName.equals(key.getText())) {
+            return key;
+          }
         }
       }
+      list = getNextSiblingByClass(list, ClList.class);
     }
     return null;
   }
@@ -99,6 +103,15 @@ public class ClojurePsiUtil {
       next = next.getNextSibling();
     }
     return next;
+  }
+
+  @Nullable
+  public static <T> T getNextSiblingByClass(PsiElement element, Class<T> aClass) {
+    PsiElement next = element.getNextSibling();
+    while (next != null && !aClass.isInstance(next)) {
+      next = next.getNextSibling();
+    }
+    return aClass.cast(next);
   }
 
   @NotNull
