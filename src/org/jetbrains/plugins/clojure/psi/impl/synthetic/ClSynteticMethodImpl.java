@@ -132,7 +132,7 @@ public class ClSynteticMethodImpl extends LightElement implements ClSyntheticMet
     return null;
   }
 
-  public boolean hasModifierProperty(@NotNull @Modifier String name) {
+  public boolean hasModifierProperty(@NotNull String name) {
     return false;
   }
 

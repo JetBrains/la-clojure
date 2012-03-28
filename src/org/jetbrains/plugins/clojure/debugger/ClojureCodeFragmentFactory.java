@@ -17,7 +17,7 @@ import java.util.Collections;
 /**
  * @author ilyas
  */
-public class ClojureCodeFragmentFactory implements CodeFragmentFactory{
+public class ClojureCodeFragmentFactory extends CodeFragmentFactory{
   public JavaCodeFragment createCodeFragment(TextWithImports item, PsiElement context, Project project) {
     final StringBuffer text = new StringBuffer();
 

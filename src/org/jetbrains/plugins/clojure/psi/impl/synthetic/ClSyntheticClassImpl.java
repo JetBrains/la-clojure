@@ -373,7 +373,7 @@ public class ClSyntheticClassImpl extends LightElement implements ClSyntheticCla
     return null;
   }
 
-  public boolean hasModifierProperty(@Modifier String s) {
+  public boolean hasModifierProperty(String s) {
     //todo implement me!
     return false;
   }

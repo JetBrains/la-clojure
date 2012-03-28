@@ -114,7 +114,7 @@ public class ClSyntheticNamespace extends LightElement implements PsiPackage {
     return null;
   }
 
-  public boolean hasModifierProperty(@Modifier String name) {
+  public boolean hasModifierProperty(String name) {
     return false;
   }
 

@@ -8,6 +8,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.stubs.StubIndex;
+import com.intellij.util.Processor;
 import com.intellij.util.containers.HashSet;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.Function;
@@ -102,6 +103,11 @@ public class ClojureShortNamesCache extends PsiShortNamesCache {
   @NotNull
   public PsiMethod[] getMethodsByNameIfNotMoreThan(@NonNls String name, @NotNull GlobalSearchScope scope, int maxCount) {
     return new PsiMethod[0];
+  }
+
+  @Override
+  public boolean processMethodsWithName(@NonNls @NotNull String s, @NotNull GlobalSearchScope globalSearchScope, @NotNull Processor<PsiMethod> psiMethodProcessor) {
+    return false;
   }
 
   @NotNull
