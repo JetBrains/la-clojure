@@ -23,7 +23,8 @@ public class ClojureAnnotator implements Annotator {
   public static final Set<String> IMPLICIT_NAMES = new HashSet<String>();
 
   static {
-    IMPLICIT_NAMES.addAll(Arrays.asList("def", "new", "throw", "ns", "in-ns", "if", "do"));
+    IMPLICIT_NAMES.addAll(Arrays.asList("def", "new", "try", "throw", "catch", "finally", "ns", "in-ns", "if", "do",
+        "recur", "quote", "var", "set!"));
   }
 
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
