@@ -1,6 +1,7 @@
 <project name="Build Clojure plugin for IntelliJ IDEA" default="deploy.plugin">
-  <!-- Properties file -->  
-  <!--<property file="clojure.properties"/>-->
+  <!-- Properties file -->
+  <property file="clojure.local.properties"/>
+  <property file="clojure.properties"/>
 
   <property name="jdk.home" value="${java.home}"/>
   <property name="project.dir" value="."/>
@@ -46,13 +47,13 @@
     <path refid="idea.classpath"/>
     <path refid="tools.path"/>
     <fileset dir="${clojure.lib}">
-      <include name="clojure.jar"/>
+      <include name="${clojure.jar}"/>
     </fileset>
     <fileset dir="${project.lib}">
       <include name="*.jar"/>
     </fileset>
     <fileset dir="${clojure.contrib}">
-      <include name="clojure-contrib.jar"/>
+      <include name="${clojure-contrib.jar}"/>
     </fileset>
   </path>
 
@@ -63,10 +64,10 @@
     <pathelement location="${src.dir}"/>
     <pathelement location="${project.dest}"/>
     <fileset dir="${clojure.lib}">
-      <include name="clojure.jar"/>
+      <include name="${clojure.jar}"/>
     </fileset>
     <fileset dir="${clojure.contrib}">
-      <include name="clojure-contrib.jar"/>
+      <include name="${clojure-contrib.jar}"/>
     </fileset>
   </path>
 
@@ -192,10 +193,10 @@
         <include name="scala-library.jar"/>
       </fileset>
       <fileset dir="${clojure.lib}">
-        <include name="clojure.jar"/>
+        <include name="${clojure.jar}"/>
       </fileset>
       <fileset dir="${clojure.contrib}">
-        <include name="clojure-contrib.jar"/>
+        <include name="${clojure-contrib.jar}"/>
       </fileset>
     </copy>
 
