@@ -1,6 +1,10 @@
 clojure-intellij-plugin.iws
+test_dist
+clojure.local.properties
 lib/clojure*.jar
 out
 dist
 jflex.log
-*~
+.DS_Store
+logs
+src/org/jetbrains/plugins/clojure/lexer/_ClojureLexer.java~

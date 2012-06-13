@@ -18,12 +18,15 @@ public class ClojureSpecialFormTokens {
   public static final String tDEFMULTI= "defmulti";
   public static final String tDEFONCE= "defonce";
   public static final String tDEFSTRUCT= "defstruct";
+  public static final String tDEFINTERFACE = "definterface";
+  public static final String tDEFPROTOCOL = "defprotocol";
+  public static final String tDEFTYPE = "deftype";
 
   public static final Set<String> DEF_TOKENS = new HashSet<String>();
 
   static {
     DEF_TOKENS.addAll(Arrays.asList(
-        tDEF, tDEFN, tDEFN_DASH, tDEFMACRO, tDEFMETHOD, tDEFMULTI, tDEFONCE, tDEFSTRUCT, tDEFINLINE
+        tDEF, tDEFN, tDEFN_DASH, tDEFMACRO, tDEFMETHOD, tDEFMULTI, tDEFONCE, tDEFSTRUCT, tDEFINLINE, tDEFINTERFACE, tDEFPROTOCOL, tDEFTYPE
     ));
   }
 

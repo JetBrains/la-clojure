@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.clojure;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
@@ -16,7 +15,6 @@ import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.formatter.codeStyle.ClojureCodeStyleSettings;
 

@@ -56,7 +56,8 @@ public class ClojureColorsAndFontsPage implements ColorSettingsPage {
           new AttributesDescriptor(ClojureSyntaxHighlighter.BAD_CHARACTER_ID, ClojureSyntaxHighlighter.BAD_CHARACTER),
           new AttributesDescriptor(ClojureSyntaxHighlighter.CHAR_ID, ClojureSyntaxHighlighter.CHAR),
           new AttributesDescriptor(ClojureSyntaxHighlighter.LITERAL_ID, ClojureSyntaxHighlighter.LITERAL),
-          new AttributesDescriptor(ClojureSyntaxHighlighter.DEF_ID, ClojureSyntaxHighlighter.DEF),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.CALL_OPERATOR_ID, ClojureSyntaxHighlighter.CALL_OPERATOR),
+          new AttributesDescriptor(ClojureSyntaxHighlighter.GLOBAL_VAR_NAME_DECLARATION_ID, ClojureSyntaxHighlighter.GLOBAL_VAR_NAME_DECLARATION),
       };
 
   @NotNull
@@ -75,22 +76,33 @@ public class ClojureColorsAndFontsPage implements ColorSettingsPage {
     return "; Example from Clojure Special Forms http://clojure.org/special_forms\n" +
         "; \n" +
         "\n" +
-        "(<def>defn</def>\n" +
+        "(<callOperator>defn</callOperator>\n" +
         "#^{:doc \"mymax [xs+] gets the maximum value in xs using > \"\n" +
-        "   :test (fn []\n" +
-        "             (assert (= 42  (max 2 42 5 4))))\n" +
+        "   :test (<callOperator>fn</callOperator> []\n" +
+        "             (<callOperator>assert</callOperator> (<callOperator>=</callOperator> 42  (<callOperator>max</callOperator> 2 42 5 4))))\n" +
         "   :user/comment \"this is the best fn ever!\"}\n" +
-        "  mymax\n" +
+        "  <symbolDeclaration>mymax</symbolDeclaration>\n" +
         "  ([x] x)\n" +
-        "  ([x y] (if (> x y) x y))\n" +
+        "  ([x y] (<callOperator>if</callOperator> (<callOperator>></callOperator> x y) x y))\n" +
         "  ([x y & nil]\n" +
-        "   (<def>reduce</def> mymax (mymax x y) more {\\tab \"  \"})))";
+        "   (<callOperator>reduce</callOperator> mymax (<callOperator>mymax</callOperator> x y) more {\\tab \"  \"})))\n" +
+        "\n" +
+        "(<callOperator>intern</callOperator> 'user '<symbolDeclaration>x</symbolDeclaration> \"Foobar\")\n" +
+        "\n" +
+        "(<callOperator>defprotocol</callOperator> <symbolDeclaration>AProtocol</symbolDeclaration> \n" +
+        "  \"A doc string for AProtocol abstraction\"\n" +
+        "  (<callOperator>bar</callOperator> [a b] \"bar docs\")\n" +
+        "  (<callOperator>baz</callOperator> [a] [a b] [a b c] \"baz docs\"))\n" +
+        "\n" +
+        "(<callOperator>defrecord</callOperator> <symbolDeclaration>ARecord</symbolDeclaration> [arg1 arg2]\n" +
+        "  AProtocol (<callOperator>bar</callOperator> [a b] (<callOperator>+</callOperator> a arg1)))";
   }
 
   @Nullable
   public Map<String, TextAttributesKey> getAdditionalHighlightingTagToDescriptorMap() {
     Map<String, TextAttributesKey> map = new HashMap<String, TextAttributesKey>();
-    map.put("def", ClojureSyntaxHighlighter.DEF);
+    map.put("callOperator", ClojureSyntaxHighlighter.CALL_OPERATOR);
+    map.put("symbolDeclaration", ClojureSyntaxHighlighter.GLOBAL_VAR_NAME_DECLARATION);
     return map;
   }
 }

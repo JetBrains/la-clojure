@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.clojure.refactoring.rename;
 
-import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.lang.LanguageExtensionPoint;
 import com.intellij.lang.refactoring.NamesValidator;
 import com.intellij.openapi.project.Project;
@@ -12,7 +11,14 @@ import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
  */
 public class ClojureNameValidator extends LanguageExtensionPoint<NamesValidator> implements NamesValidator {
 
+  public int wankdog;
+
+  /*
+   * I dunno what goes here but it better be good
+   */
   public boolean isKeyword(String name, Project project) {
+    wankdog = 32;
+    // This is something
     final ClojureFlexLexer lexer = new ClojureFlexLexer();
     lexer.start(name, 0, name.length(), 0);
     if (!ClojureTokenTypes.KEYWORDS.contains(lexer.getTokenType())) return false;

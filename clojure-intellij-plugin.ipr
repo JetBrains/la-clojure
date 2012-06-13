@@ -114,6 +114,22 @@
     <option name="TYPE_AWARE_HIGHLIGHTING_ENABLED" value="true" />
   </component>
   <component name="IdProvider" IDEtalkID="9DF9B1EA05538F35FB7C1A0A47030FDA" />
+  <component name="InspectionProjectProfileManager">
+    <profiles>
+      <profile version="1.0" is_locked="false">
+        <option name="myName" value="Project Default" />
+        <option name="myLocal" value="false" />
+        <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false">
+          <option name="processCode" value="true" />
+          <option name="processLiterals" value="true" />
+          <option name="processComments" value="true" />
+        </inspection_tool>
+      </profile>
+    </profiles>
+    <option name="PROJECT_PROFILE" value="Project Default" />
+    <option name="USE_PROJECT_PROFILE" value="true" />
+    <version value="1.0" />
+  </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
     <option name="OPTION_SCOPE" value="protected" />
@@ -334,6 +350,7 @@
         <w>requestor</w>
       </words>
     </dictionary>
+    <dictionary name="nick" />
   </component>
   <component name="ProjectKey">
     <option name="state" value="http://svn.jetbrains.org/idea/Trunk/clojure-plugin/clojure-intellij-plugin.ipr" />
@@ -346,7 +363,7 @@
   <component name="ProjectResources">
     <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA-11-SDK" project-jdk-type="IDEA JDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA IC-117.418" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="ResourceManagerContainer">
@@ -390,9 +407,9 @@
       </CLASSES>
       <JAVADOC />
       <SOURCES>
-        <root url="file://$PROJECT_DIR$/../../enclojure/org-enclojure-repl-server/src/main/java" />
-        <root url="file://$PROJECT_DIR$/../../enclojure/org-enclojure-repl-client/src/main/resources" />
-        <root url="file://$PROJECT_DIR$/../../enclojure/org-enclojure-repl-client/src/main/java" />
+        <root url="file://$PROJECT_DIR$/../enclojure/org-enclojure-repl-client/src/main/java" />
+        <root url="file://$PROJECT_DIR$/../enclojure/org-enclojure-repl-client/src/main/resources" />
+        <root url="file://$PROJECT_DIR$/../enclojure/org-enclojure-repl-server/src/main/java" />
       </SOURCES>
     </library>
     <library name="scala.sdk">

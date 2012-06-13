@@ -86,25 +86,27 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   @NonNls
   public static final String LINE_COMMENT_ID = "Clojure Line comment";
   @NonNls
-  static final String KEY_ID = "Clojure Keyword";
+  static final String KEY_ID = "Keyword";
   @NonNls
-  static final String DEF_ID = "First symbol in list";
+  static final String CALL_OPERATOR_ID = "Call operator";
   @NonNls
-  static final String ATOM_ID = "Clojure Atom";
+  static final String GLOBAL_VAR_NAME_DECLARATION_ID = "Symbol declaration";
   @NonNls
-  static final String NUMBER_ID = "Clojure Numbers";
+  static final String ATOM_ID = "Symbol";
   @NonNls
-  static final String STRING_ID = "Clojure Strings";
+  static final String NUMBER_ID = "Numbers";
+  @NonNls
+  static final String STRING_ID = "Strings";
   @NonNls
   static final String BAD_CHARACTER_ID = "Bad character";
   @NonNls
-  static final String BRACES_ID = "Clojure Braces";
+  static final String BRACES_ID = "Braces";
   @NonNls
-  static final String PAREN_ID = "Clojure Parentheses";
+  static final String PAREN_ID = "Parentheses";
   @NonNls
-  static final String LITERAL_ID = "Clojure Literal";
+  static final String LITERAL_ID = "Literal";
   @NonNls
-  static final String CHAR_ID = "Clojure Character";
+  static final String CHAR_ID = "Character";
 
   public static final TextAttributes ATOM_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
 
@@ -113,7 +115,8 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
   static {
     TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID, SyntaxHighlighterColors.LINE_COMMENT.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(KEY_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(DEF_ID, SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(CALL_OPERATOR_ID, SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(GLOBAL_VAR_NAME_DECLARATION_ID, SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(NUMBER_ID, SyntaxHighlighterColors.NUMBER.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(STRING_ID, SyntaxHighlighterColors.STRING.getDefaultAttributes());
     TextAttributesKey.createTextAttributesKey(BRACES_ID, SyntaxHighlighterColors.BRACES.getDefaultAttributes());
@@ -129,7 +132,8 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
 
   public static TextAttributesKey LINE_COMMENT = TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID);
   public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID);
-  public static TextAttributesKey DEF = TextAttributesKey.createTextAttributesKey(DEF_ID);
+  public static TextAttributesKey CALL_OPERATOR = TextAttributesKey.createTextAttributesKey(CALL_OPERATOR_ID);
+  public static TextAttributesKey GLOBAL_VAR_NAME_DECLARATION = TextAttributesKey.createTextAttributesKey(GLOBAL_VAR_NAME_DECLARATION_ID);
   public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID);
   public static TextAttributesKey NUMBER = TextAttributesKey.createTextAttributesKey(NUMBER_ID);
   public static TextAttributesKey STRING = TextAttributesKey.createTextAttributesKey(STRING_ID);
