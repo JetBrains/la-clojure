@@ -33,6 +33,7 @@ import java.util.ArrayList;
  * @author ilyas
  */
 public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubBasedPsiElement<ClDefStub> {
+
   public ClDefImpl(ClDefStub stub, @NotNull IStubElementType nodeType) {
     super(stub, nodeType);
   }
