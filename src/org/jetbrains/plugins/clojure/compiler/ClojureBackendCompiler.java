@@ -198,7 +198,7 @@ public class ClojureBackendCompiler extends ExternalCompiler {
         OrderEntry[] entries = moduleRootManager.getOrderEntries();
         Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
         for (OrderEntry orderEntry : entries) {
-          cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
+          cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.CLASSES)));
 
           // Add module sources
           if (orderEntry instanceof ModuleSourceOrderEntry) {
