@@ -140,7 +140,7 @@ public class ClojureReplProcessHandler extends ProcessHandler {
 
       final Sdk sdk = params.getJdk();
       assert sdk != null;
-      final SdkType type = sdk.getSdkType();
+      final SdkType type = (SdkType) sdk.getSdkType();
       final String executablePath = ((JavaSdkType) type).getVMExecutablePath(sdk);
 
       final ArrayList<String> env = new ArrayList<String>();

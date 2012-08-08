@@ -7,6 +7,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 
 import javax.swing.*;
@@ -35,7 +36,7 @@ public class ClojureCompilerConfigurable implements Configurable {
   }
 
   public Icon getIcon() {
-    return null;
+    return ClojureIcons.CLOJURE_ICON_16x16;
   }
 
   public String getHelpTopic() {

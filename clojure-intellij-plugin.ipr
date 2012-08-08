@@ -346,7 +346,7 @@
   <component name="ProjectResources">
     <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA-11-SDK" project-jdk-type="IDEA JDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA IU-120.305" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="ResourceManagerContainer">
@@ -389,11 +389,7 @@
         <root url="jar://$PROJECT_DIR$/lib/org-enclojure-repl-server.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES>
-        <root url="file://$PROJECT_DIR$/../../enclojure/org-enclojure-repl-server/src/main/java" />
-        <root url="file://$PROJECT_DIR$/../../enclojure/org-enclojure-repl-client/src/main/resources" />
-        <root url="file://$PROJECT_DIR$/../../enclojure/org-enclojure-repl-client/src/main/java" />
-      </SOURCES>
+      <SOURCES />
     </library>
     <library name="scala.sdk">
       <CLASSES>

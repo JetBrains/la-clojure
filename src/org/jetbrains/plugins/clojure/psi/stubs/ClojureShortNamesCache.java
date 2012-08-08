@@ -131,4 +131,9 @@ public class ClojureShortNamesCache extends PsiShortNamesCache {
   public void getAllFieldNames(@NotNull HashSet<String> set) {
   }
 
+  @NotNull
+  @Override
+  public PsiField[] getFieldsByNameIfNotMoreThan(@NonNls @NotNull String s, @NotNull GlobalSearchScope globalSearchScope, int i) {
+    return new PsiField[0];
+  }
 }

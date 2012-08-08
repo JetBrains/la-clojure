@@ -21,11 +21,6 @@ public class ClojureFormatConfigurable extends CodeStyleAbstractConfigurable {
     return new ClojureCodeStylePanel(settings);
   }
 
-  @Override
-  public Icon getIcon() {
-    return ClojureIcons.CLOJURE_ICON_16x16;
-  }
-
   public String getHelpTopic() {
     return "reference.settingsdialog.IDE.globalcodestyle.spaces";
   }
