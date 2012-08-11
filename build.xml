@@ -27,7 +27,7 @@
 
   <path id="jdk.classpath">
     <fileset dir="${java.home}">
-      <include name="lib/*.jar"/>
+      <include name="**/*.jar"/>
     </fileset>
   </path>
 
