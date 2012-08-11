@@ -250,7 +250,7 @@
     <mkdir dir="${test.dist}/config"/>
     <mkdir dir="${test.dist}/system"/>
 
-    <junit fork="yes"
+    <junit fork="no"
            dir="${project.dir}"
            showoutput="yes"
            printsummary="yes"
