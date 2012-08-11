@@ -26,7 +26,7 @@ public class ClojureApplication implements ApplicationComponent {
     ApplicationManager.getApplication().runWriteAction(
         new Runnable() {
           public void run() {
-            FileTypeManager.getInstance().registerFileType(new ClojureFileType(), "clj");
+            FileTypeManager.getInstance().associateExtension(new ClojureFileType(), "clj");
           }
         }
     );

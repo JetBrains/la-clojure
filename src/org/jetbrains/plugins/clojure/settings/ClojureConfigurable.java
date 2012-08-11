@@ -21,6 +21,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.ClojureIcons;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -49,7 +50,7 @@ public final class ClojureConfigurable extends AbstractProjectComponent implemen
   }
 
   public Icon getIcon() {
-    return null;
+    return ClojureIcons.CLOJURE_ICON_16x16;
   }
 
   public String getHelpTopic() {

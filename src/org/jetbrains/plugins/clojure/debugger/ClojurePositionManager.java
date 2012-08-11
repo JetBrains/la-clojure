@@ -156,7 +156,7 @@ public class ClojurePositionManager implements PositionManager {
       final String path = location.sourcePath();
       if (path == null) return null;
       final ProjectRootManager manager = ProjectRootManager.getInstance(project);
-      final VirtualFile[] allFiles = manager.getFilesFromAllModules(OrderRootType.SOURCES);
+      final VirtualFile[] allFiles = manager.getContentRootsFromAllModules();
       for (VirtualFile file : allFiles) {
         final String path2 = file.getPath() + "/";
         final String prefix = StringUtil.commonPrefix(path, path2);
