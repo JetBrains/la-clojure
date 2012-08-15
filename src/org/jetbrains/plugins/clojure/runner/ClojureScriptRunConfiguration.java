@@ -120,7 +120,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
 
   private static void configureScriptSystemClassPath(final ClojureConfigUtil.RunConfigurationParameters params, final Module module) throws CantRunException {
     params.configureByModule(module, JavaParameters.JDK_ONLY);
-    params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
+    params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
 
     ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
     OrderEntry[] entries = moduleRootManager.getOrderEntries();
