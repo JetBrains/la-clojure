@@ -108,7 +108,7 @@ public class ClojureReplProcessHandler extends ProcessHandler {
       //  in the future (e.g., different Clojure paths with different args)
 
       final JavaParameters params = new JavaParameters();
-      params.configureByModule(myModule, JavaParameters.JDK_AND_CLASSES);
+      params.configureByModule(myModule, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
       // To avoid NCDFE while starting REPL
 
       final boolean sdkConfigured = ClojureConfigUtil.isClojureConfigured(myModule);

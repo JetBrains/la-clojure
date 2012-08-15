@@ -263,7 +263,7 @@ public class ClojureConsoleRunner {
 
   private static ArrayList<String> createRuntimeArgs(Module module, String workingDir) throws CantRunException {
     final JavaParameters params = new JavaParameters();
-    params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
+    params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
     // To avoid NCDFE while starting REPL
 
     final boolean sdkConfigured = ClojureConfigUtil.isClojureConfigured(module);
@@ -323,7 +323,8 @@ public class ClojureConsoleRunner {
 
   private GeneralCommandLine createCommandLine(Module module, String workingDir) throws CantRunException {
     final JavaParameters params = new JavaParameters();
-    params.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
+    params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
+    System.out.println("ClojureConsoleRunner.createCommandLine!!!!!!!!!!!!!");
     params.getVMParametersList().addAll(getJvmClojureOptions(module));
     params.getProgramParametersList().addAll(getReplClojureOptions(module));
     // To avoid NCDFE while starting REPL
