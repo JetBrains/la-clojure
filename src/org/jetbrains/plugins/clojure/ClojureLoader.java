@@ -87,15 +87,15 @@ public class ClojureLoader implements ApplicationComponent {
 
   public static void loadClojure() {
 
-    ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
-      public void projectOpened(final Project project) {
-        DebuggerManager.getInstance(project).registerPositionManagerFactory(new Function<DebugProcess, PositionManager>() {
-          public PositionManager fun(DebugProcess debugProcess) {
-            return new ClojurePositionManager(debugProcess);
-          }
-        });
-      }
-    });
+//    ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
+//      public void projectOpened(final Project project) {
+//        DebuggerManager.getInstance(project).registerPositionManagerFactory(new Function<DebugProcess, PositionManager>() {
+//          public PositionManager fun(DebugProcess debugProcess) {
+//            return new ClojurePositionManager(debugProcess);
+//          }
+//        });
+//      }
+//    });
 
   }
 

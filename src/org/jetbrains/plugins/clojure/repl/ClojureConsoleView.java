@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project;
 public class ClojureConsoleView extends LanguageConsoleViewImpl {
   public ClojureConsoleView(Project project, String title, ConsoleHistoryModel historyModel,
                             ClojureConsoleExecuteActionHandler executeHandler) {
-    super(project, new ClojureConsole(project, title, historyModel, executeHandler));
+    super(new ClojureConsole(project, title, historyModel, executeHandler));
   }
 
   @Override

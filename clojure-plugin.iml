@@ -19,22 +19,12 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="IDEA IC-122.519" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Clojure SDK" level="application" />
     <orderEntry type="library" name="clojure-netbeans-repl" level="project" />
-    <orderEntry type="library" name="junit" level="application" />
-    <orderEntry type="module-library" scope="TEST">
-      <library>
-        <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.7.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="library" name="scala.sdk" level="project" />
     <orderEntry type="library" name="scalatest" level="project" />
+    <orderEntry type="library" name="clojure.sdk" level="project" />
   </component>
 </module>
 

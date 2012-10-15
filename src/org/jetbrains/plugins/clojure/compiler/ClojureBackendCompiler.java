@@ -4,7 +4,7 @@ import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.javaCompiler.ExternalCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
-import com.intellij.compiler.impl.javaCompiler.javac.JavacSettings;
+import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
@@ -24,6 +24,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
@@ -305,7 +306,8 @@ public class ClojureBackendCompiler extends ExternalCompiler {
 
   private Sdk getJdkForStartupCommand(final ModuleChunk chunk) {
     final Sdk jdk = chunk.getJdk();
-    if (ApplicationManager.getApplication().isUnitTestMode() && JavacSettings.getInstance(myProject).isTestsUseExternalCompiler()) {
+    final JpsJavaCompilerOptions javacSettings = JavacConfiguration.getOptions(myProject, JavacConfiguration.class);
+    if (ApplicationManager.getApplication().isUnitTestMode() && javacSettings.isTestsUseExternalCompiler()) {
       final String jdkHomePath = CompilerConfigurationImpl.getTestsExternalCompilerHome();
       if (jdkHomePath == null) {
         throw new IllegalArgumentException("[TEST-MODE] Cannot determine home directory for JDK to use javac from");

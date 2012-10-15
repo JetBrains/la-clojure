@@ -93,7 +93,11 @@
       <entry name="?*.ftl" />
       <entry name="?*.ft" />
     </wildcardResourcePatterns>
-    <annotationProcessing enabled="false" useClasspath="true" />
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="false">
+        <processorPath useClasspath="true" />
+      </profile>
+    </annotationProcessing>
   </component>
   <component name="CopyrightManager" default="">
     <module2copyright />
@@ -346,7 +350,7 @@
   <component name="ProjectResources">
     <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA 12 SDK" project-jdk-type="IDEA JDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA IC-122.519" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="ResourceManagerContainer">
@@ -387,6 +391,13 @@
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/lib/org-enclojure-repl-client.jar!/" />
         <root url="jar://$PROJECT_DIR$/lib/org-enclojure-repl-server.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="clojure.sdk">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/clojure.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

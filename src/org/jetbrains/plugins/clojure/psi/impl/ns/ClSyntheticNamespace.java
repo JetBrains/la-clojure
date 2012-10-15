@@ -98,6 +98,11 @@ public class ClSyntheticNamespace extends LightElement implements PsiPackage {
     return false;
   }
 
+  @NotNull
+  public PsiClass[] findClassByShortName(@NotNull String name, @NotNull GlobalSearchScope scope) {
+    return new PsiClass[0];
+  }
+
   public PsiQualifiedNamedElement getContainer() {
     return null;
   }
