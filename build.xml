@@ -1,6 +1,6 @@
 <project name="Build Clojure plugin for IntelliJ IDEA" default="deploy.plugin">
   <!-- Properties file -->  
-  <!--<property file="clojure.properties"/>-->
+  <!-- <property file="clojure.properties"/> -->
 
   <property name="jdk.home" value="${java.home}"/>
   <property name="project.dir" value="."/>
@@ -27,13 +27,14 @@
 
   <path id="jdk.classpath">
     <fileset dir="${java.home}">
-      <include name="lib/*.jar"/>
+      <include name="**/*.jar"/>
     </fileset>
   </path>
 
   <path id="idea.classpath">
     <fileset dir="${idea.home}/lib">
       <include name="**/*.jar"/>
+      <exclude name="boot.jar"/>
     </fileset>
     <fileset dir="${idea.home}/plugins">
       <include name="**/*.jar"/>
@@ -45,14 +46,11 @@
     <path refid="jdk.classpath"/>
     <path refid="idea.classpath"/>
     <path refid="tools.path"/>
-    <fileset dir="${clojure.lib}">
+    <fileset dir="${project.lib}">
       <include name="clojure.jar"/>
     </fileset>
     <fileset dir="${project.lib}">
       <include name="*.jar"/>
-    </fileset>
-    <fileset dir="${clojure.contrib}">
-      <include name="clojure-contrib.jar"/>
     </fileset>
   </path>
 
@@ -62,11 +60,8 @@
     <path refid="tools.path"/>
     <pathelement location="${src.dir}"/>
     <pathelement location="${project.dest}"/>
-    <fileset dir="${clojure.lib}">
+    <fileset dir="${project.lib}">
       <include name="clojure.jar"/>
-    </fileset>
-    <fileset dir="${clojure.contrib}">
-      <include name="clojure-contrib.jar"/>
     </fileset>
   </path>
 
@@ -155,19 +150,19 @@
 
   </target>
 
-  <target name="make.clojure" depends="make.java">
-    <!-- Compile project Clojure files -->
-    <java classname="clojure.lang.Compile">
-      <classpath refid="clojure.base.path"/>
-      <sysproperty key="clojure.compile.path" value="${project.dest}"/>
+  <!--<target name="make.clojure" depends="make.java">-->
+    <!--&lt;!&ndash; Compile project Clojure files &ndash;&gt;-->
+    <!--<java classname="clojure.lang.Compile">-->
+      <!--<classpath refid="clojure.base.path"/>-->
+      <!--<sysproperty key="clojure.compile.path" value="${project.dest}"/>-->
 
-      <!-- TODO: rework! -->
-      <arg value="org.jetbrains.plugins.clojure.refactoring.rename.RenameClojureFileProcessor"/>
-    </java>
+      <!--&lt;!&ndash; TODO: rework! &ndash;&gt;-->
+      <!--<arg value="org.jetbrains.plugins.clojure.refactoring.rename.RenameClojureFileProcessor"/>-->
+    <!--</java>-->
 
-  </target>
+  <!--</target>-->
 
-  <target name="make.plugin" depends="make.clojure">
+  <target name="make.plugin" depends="make.java">
     <replace file="${project.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
     <replace file="${project.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${idea.build}"/>
     <replace file="${project.dest}/META-INF/plugin.xml" token="UNTIL_IDEA" value="${idea.build}"/>
@@ -191,11 +186,8 @@
       <fileset dir="${project.lib}">
         <include name="scala-library.jar"/>
       </fileset>
-      <fileset dir="${clojure.lib}">
+      <fileset dir="${project.lib}">
         <include name="clojure.jar"/>
-      </fileset>
-      <fileset dir="${clojure.contrib}">
-        <include name="clojure-contrib.jar"/>
       </fileset>
     </copy>
 
@@ -226,14 +218,14 @@
 
     <mkdir dir="${test.dest}"/>
 
-    <javac srcdir="${project.dir}"
+    <javac srcdir="${project.dir}/test"
            destdir="${test.dest}"
            debug="true">
       <classpath refid="base.path"/>
       <classpath>
         <path location="${project.dest}"/>
       </classpath>
-      <include name="test/**/*.java"/>
+      <include name="**/*.java"/>
     </javac>
 
     <!--<copy toDir="${project.lib}/testdata">-->
@@ -264,22 +256,19 @@
         <path refid="base.path"/>
       </classpath>
 
-      <jvmarg value="-Xbootclasspath/p:./lib/boot/boot.jar"/>
+      <jvmarg value="-Xbootclasspath/p:${project.dir}/lib/boot/boot.jar"/>
       <jvmarg value="-Djava.awt.headless=true"/>
-      <jvmarg value="-Xmx350M"/>
+      <jvmarg value="-Xmx256M"/>
       <jvmarg value="-ea"/>
       <jvmarg value="-Djava.compiler=NONE"/>
-
       <jvmarg value="-Xdebug"/>
       <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5568"/>
 
-      <!-- Useful for internal tests -->
-      <!--<jvmarg value="-Didea.platform.prefix=Idea"/>-->
       <jvmarg value="-Didea.config.path=${test.dist}/config"/>
       <jvmarg value="-Didea.system.path=${test.dist}/system"/>
-      <jvmarg value="-Didea.plugins.path=${project.dest}/.."/>
-      <jvmarg value="-Didea.load.plugins.id=org.intellij.clojure"/>
+      <jvmarg value="-Didea.plugins.path=${project.dest}"/>
 
+      <jvmarg value="-Didea.load.plugins.id=org.intellij.clojure"/>
       <formatter type="plain"/>
 
       <batchtest todir="${project.dir}/logs">

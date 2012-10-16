@@ -1,5 +1,5 @@
 clojure-intellij-plugin.iws
-lib/clojure*.jar
+*_ClojureLexer*
 out
 dist
 jflex.log
