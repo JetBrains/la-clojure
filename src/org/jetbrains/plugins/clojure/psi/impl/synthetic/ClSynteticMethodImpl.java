@@ -59,6 +59,10 @@ public class ClSynteticMethodImpl extends LightElement implements ClSyntheticMet
     return null;
   }
 
+  public boolean isExtensionMethod() {
+    return false;
+  }
+
   public PsiType getReturnType() {
     return null;
   }
