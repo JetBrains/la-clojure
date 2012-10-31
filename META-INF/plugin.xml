@@ -16,8 +16,10 @@
   <vendor logo="/org/jetbrains/plugins/clojure/icons/clojure_icon_16x16.png" url="http://www.jetbrains.com">JetBrains
     Inc.
   </vendor>
-  <!--<idea-version since-build="SINCE_IDEA" until-build="UNTIL_IDEA"/>-->
-  <idea-version since-build="IC-117.105" until-build="IC-117.9999"/>
+
+  <idea-version since-build="122.578" until-build="122.9999"/>
+
+  <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
@@ -80,6 +82,8 @@
                                 implementationClass="org.jetbrains.plugins.clojure.documentation.ClojureDocumentationProvider"/>
     <renamePsiElementProcessor
         implementation="org.jetbrains.plugins.clojure.refactoring.rename.RenameClojureFileProcessor" order="first"/>
+    <debugger.positionManagerFactory implementation="org.jetbrains.plugins.clojure.debugger.ClojurePositionManagerFactory"/>
+
   </extensions>
 
   <application-components>

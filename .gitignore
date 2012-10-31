@@ -3,4 +3,5 @@ clojure-intellij-plugin.iws
 out
 dist
 jflex.log
+lib/*SDK
 *~
