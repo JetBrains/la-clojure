@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ClojureCompilerSettings">
+    <option name="COMPILE_CLOJURE" value="true" />
+    <option name="CLOJURE_BEFORE" value="false" />
+  </component>
+</project>
+
