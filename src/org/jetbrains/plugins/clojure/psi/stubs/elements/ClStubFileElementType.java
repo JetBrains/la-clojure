@@ -1,24 +1,23 @@
 package org.jetbrains.plugins.clojure.psi.stubs.elements;
 
-import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.psi.StubBuilder;
 import com.intellij.psi.stubs.*;
+import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.util.io.StringRef;
-
-import java.io.IOException;
-
+import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.stubs.ClojureFileStubBuilder;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClFileStub;
+import org.jetbrains.plugins.clojure.psi.stubs.impl.ClFileStubImpl;
 import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureClassNameIndex;
 import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureFullScriptNameIndex;
-import org.jetbrains.plugins.clojure.psi.stubs.impl.ClFileStubImpl;
-import org.jetbrains.plugins.clojure.psi.stubs.api.ClFileStub;
-import org.jetbrains.plugins.clojure.file.ClojureFileType;
+
+import java.io.IOException;
 
 /**
  * @author ilyas
  */
 public class ClStubFileElementType extends IStubFileElementType<ClFileStub> {
-  private static final int CACHES_VERSION = 11;
+  private static final int CACHES_VERSION = 12;
 
   public ClStubFileElementType() {
     super(ClojureFileType.CLOJURE_LANGUAGE);
