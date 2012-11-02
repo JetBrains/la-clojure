@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact name="ClojurePlugin">
+  <artifact build-on-make="true" name="ClojurePlugin">
     <output-path>$PROJECT_DIR$/out/artifacts/Clojure</output-path>
     <root id="root">
       <element id="directory" name="lib">
