@@ -54,7 +54,7 @@ public class ClojureClassFinder extends PsiElementFinder {
 
   @NotNull
   public PsiClass[] getClasses(@NotNull PsiPackage psiPackage, @NotNull GlobalSearchScope scope) {
-    if (!ClojureCompilerSettings.getInstance(psiPackage.getProject()).COMPILE_CLOJURE) return PsiClass.EMPTY_ARRAY;
+    if (!ClojureCompilerSettings.getInstance(psiPackage.getProject()).getState().COMPILE_CLOJURE) return PsiClass.EMPTY_ARRAY;
 
     List<PsiClass> result = new ArrayList<PsiClass>();
     for (final PsiDirectory dir : psiPackage.getDirectories(scope)) {
@@ -114,7 +114,7 @@ public class ClojureClassFinder extends PsiElementFinder {
 
   private boolean areClassesCompiled() {
     ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(myProject);
-    return settings.COMPILE_CLOJURE;
+    return settings.getState().COMPILE_CLOJURE;
   }
 
 

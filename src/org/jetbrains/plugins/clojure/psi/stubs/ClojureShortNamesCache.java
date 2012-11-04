@@ -51,7 +51,7 @@ public class ClojureShortNamesCache extends PsiShortNamesCache {
 
   private boolean areClassesCompiled() {
     ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(myProject);
-    return settings.COMPILE_CLOJURE;
+    return settings.getState().COMPILE_CLOJURE;
   }
 
   @NotNull

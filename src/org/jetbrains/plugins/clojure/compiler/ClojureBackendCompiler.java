@@ -44,7 +44,7 @@ public class ClojureBackendCompiler extends ExternalCompiler {
   private final Project myProject;
   private final List<File> myTempFiles = new ArrayList<File>();
 
-  private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ClojureFileType.CLOJURE_FILE_TYPE));
+  private final static Set<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ClojureFileType.CLOJURE_FILE_TYPE));
 
   public ClojureBackendCompiler(Project project) {
     myProject = project;

@@ -58,8 +58,8 @@ public class ClojureCompiler implements TranslatingCompiler {
     final boolean isClojureFile = fileType.equals(ClojureFileType.CLOJURE_FILE_TYPE) &&
         psi instanceof ClojureFile;
 
-    return isClojureFile && (settings.COPY_CLJ_SOURCES ||
-        settings.COMPILE_CLOJURE && ((ClojureFile) psi).isClassDefiningFile());
+    return isClojureFile && (settings.getState().COPY_CLJ_SOURCES ||
+        settings.getState().COMPILE_CLOJURE && ((ClojureFile) psi).isClassDefiningFile());
   }
 
 
@@ -69,7 +69,7 @@ public class ClojureCompiler implements TranslatingCompiler {
         (CompileContextEx) context, backEndCompiler, outputSink);
     final ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(context.getProject());
 
-    if (settings.COMPILE_CLOJURE) {
+    if (settings.getState().COMPILE_CLOJURE) {
       // Compile Clojure classes
       try {
         wrapper.compile();
@@ -84,7 +84,7 @@ public class ClojureCompiler implements TranslatingCompiler {
     }
 
     // Copy clojure sources to output path
-    if (settings.COPY_CLJ_SOURCES) {
+    if (settings.getState().COPY_CLJ_SOURCES) {
       final ResourceCompiler resourceCompiler = new ResourceCompiler(myProject, CompilerConfiguration.getInstance(myProject));
       resourceCompiler.compile(context, moduleChunk, files, outputSink);
     }

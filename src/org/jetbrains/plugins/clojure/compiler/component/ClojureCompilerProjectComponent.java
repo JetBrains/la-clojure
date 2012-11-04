@@ -29,7 +29,7 @@ public class ClojureCompilerProjectComponent implements ProjectComponent {
     compilerManager.addCompilableFileType(ClojureFileType.CLOJURE_FILE_TYPE);
 
     ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(myProject);
-    if (settings.CLOJURE_BEFORE) {
+    if (settings.getState().CLOJURE_BEFORE) {
       for (ClojureCompiler compiler : CompilerManager.getInstance(myProject).getCompilers(ClojureCompiler.class)) {
         CompilerManager.getInstance(myProject).removeCompiler(compiler);
       }

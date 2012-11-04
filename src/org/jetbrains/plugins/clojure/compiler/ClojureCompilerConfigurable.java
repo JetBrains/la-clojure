@@ -48,35 +48,35 @@ public class ClojureCompilerConfigurable implements Configurable {
   }
 
   public boolean isModified() {
-    return mySettings.CLOJURE_BEFORE != myClojureBeforeCheckBox.isSelected() ||
-        mySettings.COMPILE_CLOJURE != myCompileTaggedCb.isSelected() ||
-        mySettings.COPY_CLJ_SOURCES != myCopySourcesCb.isSelected();
+    return mySettings.getState().CLOJURE_BEFORE != myClojureBeforeCheckBox.isSelected() ||
+        mySettings.getState().COMPILE_CLOJURE != myCompileTaggedCb.isSelected() ||
+        mySettings.getState().COPY_CLJ_SOURCES != myCopySourcesCb.isSelected();
   }
 
   public void apply() throws ConfigurationException {
-    if (myClojureBeforeCheckBox.isSelected() && mySettings.CLOJURE_BEFORE != myClojureBeforeCheckBox.isSelected()) {
+    if (myClojureBeforeCheckBox.isSelected() && mySettings.getState().CLOJURE_BEFORE != myClojureBeforeCheckBox.isSelected()) {
       for (ClojureCompiler compiler: CompilerManager.getInstance(myProject).getCompilers(ClojureCompiler.class)) {
         CompilerManager.getInstance(myProject).removeCompiler(compiler);
       }
       HashSet<FileType> inputSet = new HashSet<FileType>(Arrays.asList(ClojureFileType.CLOJURE_FILE_TYPE, StdFileTypes.JAVA));
       HashSet<FileType> outputSet = new HashSet<FileType>(Arrays.asList(StdFileTypes.JAVA, StdFileTypes.CLASS));
       CompilerManager.getInstance(myProject).addTranslatingCompiler(new ClojureCompiler(myProject), inputSet, outputSet);
-    } else if (!myClojureBeforeCheckBox.isSelected() && mySettings.CLOJURE_BEFORE != myClojureBeforeCheckBox.isSelected()){
+    } else if (!myClojureBeforeCheckBox.isSelected() && mySettings.getState().CLOJURE_BEFORE != myClojureBeforeCheckBox.isSelected()){
       for (ClojureCompiler compiler: CompilerManager.getInstance(myProject).getCompilers(ClojureCompiler.class)) {
         CompilerManager.getInstance(myProject).removeCompiler(compiler);
       }
       CompilerManager.getInstance(myProject).addCompiler(new ClojureCompiler(myProject));
     }
 
-    mySettings.CLOJURE_BEFORE = myClojureBeforeCheckBox.isSelected();
-    mySettings.COMPILE_CLOJURE = myCompileTaggedCb.isSelected();
-    mySettings.COPY_CLJ_SOURCES = myCopySourcesCb.isSelected();
+    mySettings.getState().CLOJURE_BEFORE = myClojureBeforeCheckBox.isSelected();
+    mySettings.getState().COMPILE_CLOJURE = myCompileTaggedCb.isSelected();
+    mySettings.getState().COPY_CLJ_SOURCES = myCopySourcesCb.isSelected();
   }
 
   public void reset() {
-    myClojureBeforeCheckBox.setSelected(mySettings.CLOJURE_BEFORE);
-    myCompileTaggedCb.setSelected(mySettings.COMPILE_CLOJURE);
-    myCopySourcesCb.setSelected(mySettings.COPY_CLJ_SOURCES);
+    myClojureBeforeCheckBox.setSelected(mySettings.getState().CLOJURE_BEFORE);
+    myCompileTaggedCb.setSelected(mySettings.getState().COMPILE_CLOJURE);
+    myCopySourcesCb.setSelected(mySettings.getState().COPY_CLJ_SOURCES);
   }
 
   public void disposeUIResources() {

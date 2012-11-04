@@ -63,6 +63,7 @@
     <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragmentFactory"/>
     <!-- <unscrambleSupport implementation="org.jetbrains.plugins.clojure.debugger.ClojureUnscrambler"/> -->
     <compilerSettingsFactory implementation="org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettingsFactory"/>
+    <compileServer.plugin classpath="clojure-jps-plugin.jar"/>
     <frameworkSupport implementation="org.jetbrains.plugins.clojure.config.ClojureFacetSupportProvider"/>
     <applicationService serviceInterface="org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings"
                         serviceImplementation="org.jetbrains.plugins.clojure.settings.ClojureApplicationSettings"/>
