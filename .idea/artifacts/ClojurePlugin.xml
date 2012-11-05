@@ -12,6 +12,11 @@
         <element id="library" level="project" name="clojure.sdk" />
         <element id="archive" name="clojure-jps-plugin.jar">
           <element id="module-output" name="clojure-jps-plugin" />
+          <element id="directory" name="META-INF">
+            <element id="directory" name="services">
+              <element id="dir-copy" path="$PROJECT_DIR$/jps-plugin/src/META-INF/services" />
+            </element>
+          </element>
         </element>
       </element>
     </root>
