@@ -31,6 +31,8 @@ import org.jetbrains.jps.service.SharedThreadPool;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author nik
@@ -138,7 +140,32 @@ public class ClojureBuilder extends ModuleLevelBuilder {
         String text = event.getText().trim();
         context.processMessage(new ProgressMessage(text));
         if (text.startsWith(ERROR_PREFIX)) {
-          context.processMessage(new CompilerMessage("Clojure", BuildMessage.Kind.ERROR, text)); //todo: parse with source and line number
+          String errorDescription = text.substring(ERROR_PREFIX.length());
+          Pattern pattern = Pattern.compile("(.*)@@((.*) compiling:[(](.*):([\\d]*)(:([\\d]*))?[)])");
+          Matcher matcher = pattern.matcher(errorDescription);
+          if (matcher.matches()) {
+            String sourceName = matcher.group(1);
+            String lineNumber = matcher.group(5);
+            String columnNumber = matcher.group(6);
+            Long locationLine = -1L;
+            Long column = 0L;
+            try {
+              locationLine = Long.parseLong(lineNumber);
+              if (columnNumber != null) {
+                column = Long.parseLong(columnNumber);
+              }
+            } catch (Exception ignore) {}
+            String errorMessage = matcher.group(2);
+            context.processMessage(new CompilerMessage(COMPILER_NAME, BuildMessage.Kind.ERROR, errorMessage,
+                sourceName, -1L, -1L, -1L, locationLine, column));
+          } else {
+            matcher = Pattern.compile("(.*)@@(.*)").matcher(errorDescription);
+            if (matcher.matches()) {
+              context.processMessage(new CompilerMessage(COMPILER_NAME, BuildMessage.Kind.ERROR, matcher.group(1), matcher.group(0)));
+            } else {
+              context.processMessage(new CompilerMessage(COMPILER_NAME, BuildMessage.Kind.ERROR, text));
+            }
+          }
         } else if (text.startsWith(COMPILING_PREFIX)) {
           //we don't need to do anything
         } else if (text.startsWith(WRITING_PREFIX)) {
@@ -198,7 +225,7 @@ public class ClojureBuilder extends ModuleLevelBuilder {
       printer.print("\")\n");
 
       printer.print("(catch Exception e (. *err* println (str \"" + ERROR_PREFIX + absolutePath +
-          "@" + "\" (let [msg (.getMessage e)] msg)  ) ) )");
+          "@@" + "\" (let [msg (.getMessage e)] msg)  ) ) )");
       printer.print(")\n");
 
       //we need to compile namespace init class, otherwise we will get CNFE on Runtime
