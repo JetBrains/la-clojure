@@ -116,6 +116,8 @@
 
     <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.classpath"/>
 
+    <mkdir dir="${jps.dest}"/>
+
     <javac2 srcdir="${project.dir}"
             destdir="${jps.dest}"
             debug="true">
