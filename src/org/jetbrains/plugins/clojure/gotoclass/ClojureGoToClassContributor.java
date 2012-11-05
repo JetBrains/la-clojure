@@ -21,14 +21,14 @@ import org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettings;
  */
 public class ClojureGoToClassContributor implements ChooseByNameContributor {
   public String[] getNames(Project project, boolean includeNonProjectItems) {
-    if (!ClojureCompilerSettings.getInstance(project).COMPILE_CLOJURE) return new String[0];
+    if (!ClojureCompilerSettings.getInstance(project).getState().COMPILE_CLOJURE) return new String[0];
     
     final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ClojureClassNameIndex.KEY, project);
     return classNames.toArray(new String[classNames.size()]);
   }
 
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
-    if (!ClojureCompilerSettings.getInstance(project).COMPILE_CLOJURE) return NavigationItem.EMPTY_NAVIGATION_ITEM_ARRAY;
+    if (!ClojureCompilerSettings.getInstance(project).getState().COMPILE_CLOJURE) return NavigationItem.EMPTY_NAVIGATION_ITEM_ARRAY;
 
     final GlobalSearchScope scope = includeNonProjectItems ? null : GlobalSearchScope.projectScope(project);
     Collection<ClojureFile> files = StubIndex.getInstance().get(ClojureClassNameIndex.KEY, name, project, scope);

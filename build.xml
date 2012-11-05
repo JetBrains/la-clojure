@@ -1,12 +1,13 @@
 <project name="Build Clojure plugin for IntelliJ IDEA" default="deploy.plugin">
   <!-- Properties file -->  
-  <!-- <property file="clojure.properties"/> -->
+   <property file="clojure.properties"/>
 
   <property name="jdk.home" value="${java.home}"/>
   <property name="project.dir" value="."/>
   <property name="src.dir" value="./src"/>
   <property name="project.lib" value="${project.dir}/lib"/>
   <property name="project.dest" value="${project.dir}/out/production/clojure-plugin"/>
+  <property name="jps.dest" value="${project.dir}/out/production/clojure-jps-plugin"/>
   <property name="test.dest" value="${project.dir}/out/test/clojure-plugin"/>
   <property name="test.dist" value="${project.dir}/test_dist"/>
   <property name="main.dist" value="${project.dir}/dist"/>
@@ -96,31 +97,7 @@
     </java>
   </target>
 
-  <target name="make.scala" depends="make.lexer, unzip.last.successful.IDEA.build">
-
-    <mkdir dir="${project.dest}"/>
-
-    <taskdef resource="scala/tools/ant/antlib.xml">
-      <classpath>
-        <pathelement location="${project.lib}/scala-compiler.jar"/>
-        <pathelement location="${project.lib}/scala-library.jar"/>
-      </classpath>
-    </taskdef>
-
-    <scalac destdir="${project.dest}"
-            srcdir="${project.dir}"
-            force="changed"
-            fork="true"
-            jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
-      <classpath>
-        <path refid="base.path"/>
-      </classpath>
-      <include name="src/**/*.scala"/>
-      <include name="src/**/*.java"/>
-    </scalac>
-  </target>
-
-  <target name="make.java" depends="make.scala">
+  <target name="make.java" depends="make.lexer, unzip.last.successful.IDEA.build">
     <!-- Read SINCE and UNTIL properties -->
     <loadfile property="idea.build" srcFile="${idea.home}/build.txt" failonerror="true"/>
     <!--Copy descriptor-->
@@ -139,11 +116,27 @@
 
     <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.classpath"/>
 
+    <javac2 srcdir="${project.dir}"
+            destdir="${jps.dest}"
+            debug="true">
+      <classpath>
+        <path refid="base.path"/>
+      </classpath>
+      <include name="jps-plugin/src/**/*.java"/>
+    </javac2>
+
+    <copy todir="${jps.dest}/META-INF">
+      <fileset dir="${project.dir}/jps-plugin/src/META-INF"/>
+    </copy>
+
     <!--Compile project Java files-->
     <javac2 srcdir="${project.dir}"
             destdir="${project.dest}"
             debug="true">
-      <classpath refid="base.path"/>
+      <classpath>
+        <path refid="base.path"/>
+        <path path="${jps.dest}"/>
+      </classpath>
       <include name="src/**/*.java"/>
       <include name="src/**/*.form"/>
     </javac2>
@@ -182,10 +175,11 @@
       </manifest>
     </jar>
 
+    <jar destfile="${project.dir}/tempjar/clojure-plugin/lib/clojure-jps-plugin.jar">
+      <fileset dir="${jps.dest}" includes="**/*"/>
+    </jar>
+
     <copy todir="${project.dir}/tempjar/clojure-plugin/lib">
-      <fileset dir="${project.lib}">
-        <include name="scala-library.jar"/>
-      </fileset>
       <fileset dir="${project.lib}">
         <include name="clojure.jar"/>
       </fileset>
@@ -227,11 +221,6 @@
       </classpath>
       <include name="**/*.java"/>
     </javac>
-
-    <!--<copy toDir="${project.lib}/testdata">-->
-    <!--<fileset dir="${base.dir}/testdata"/>-->
-    <!--<fileset dir="${scalax.dir}/testdata"/>-->
-    <!--</copy>-->
 
   </target>
 
