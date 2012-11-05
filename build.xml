@@ -243,6 +243,7 @@
       <classpath>
         <path location="${project.lib}"/>
         <path location="${project.dest}"/>
+        <path location="${jps.dest}"/>
         <path location="${test.dest}"/>
         <path refid="base.path"/>
       </classpath>
