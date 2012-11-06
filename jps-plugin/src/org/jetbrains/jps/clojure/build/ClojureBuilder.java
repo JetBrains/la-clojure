@@ -35,7 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author nik
+ * @author nik, Alefas
  * @since 02.11.12
  */
 public class ClojureBuilder extends ModuleLevelBuilder {
@@ -46,15 +46,20 @@ public class ClojureBuilder extends ModuleLevelBuilder {
   public static final String COMPILED_PREFIX = "[compiled]:";
   public static final String ERROR_PREFIX = "[error]:";
   public static final String WRITING_PREFIX = "[writing]:";
+  private final boolean myBeforeJava;
 
-  public ClojureBuilder() {
-    super(BuilderCategory.TRANSLATOR);
+  public ClojureBuilder(boolean isBeforeJava) {
+    super(isBeforeJava ? BuilderCategory.SOURCE_PROCESSOR : BuilderCategory.OVERWRITING_TRANSLATOR);
+    myBeforeJava = isBeforeJava;
   }
 
   @Override
-  public ExitCode build(final CompileContext context, ModuleChunk chunk, DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder) throws ProjectBuildException, IOException {
+  public ExitCode build(final CompileContext context, final ModuleChunk chunk,
+                        DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder) throws ProjectBuildException, IOException {
     JpsProject project = context.getProjectDescriptor().getProject();
     JpsClojureCompilerSettingsExtension extension = JpsClojureExtensionService.getExtension(project);
+    if (myBeforeJava && (extension == null || !extension.isClojureBefore())) return ExitCode.NOTHING_DONE;
+    if (!myBeforeJava && extension != null && extension.isClojureBefore()) return ExitCode.NOTHING_DONE;
     if (extension != null && !extension.isCompileClojure()) return ExitCode.NOTHING_DONE;
 
     final List<File> toCompile = new ArrayList<File>();
@@ -69,7 +74,7 @@ public class ClojureBuilder extends ModuleLevelBuilder {
       for (final JpsModuleSourceRoot root : module.getSourceRoots()) {
         FileUtil.processFilesRecursively(root.getFile(), new Processor<File>() {
           public boolean process(File file) {
-            if (file.getName().endsWith(".clj")) {
+            if (file.getName().endsWith(".clj") && context.getScope().isAffected(chunk.representativeTarget(), file)) {
               toCompile.add(file);
               String filePath = file.getAbsolutePath();
               toCompileNamespace.put(file, filePath.substring(root.getFile().getAbsolutePath().length() + 1, filePath.length() - 4).
@@ -161,7 +166,7 @@ public class ClojureBuilder extends ModuleLevelBuilder {
           } else {
             matcher = Pattern.compile("(.*)@@(.*)").matcher(errorDescription);
             if (matcher.matches()) {
-              context.processMessage(new CompilerMessage(COMPILER_NAME, BuildMessage.Kind.ERROR, matcher.group(1), matcher.group(0)));
+              context.processMessage(new CompilerMessage(COMPILER_NAME, BuildMessage.Kind.ERROR, matcher.group(2), matcher.group(1)));
             } else {
               context.processMessage(new CompilerMessage(COMPILER_NAME, BuildMessage.Kind.ERROR, text));
             }
