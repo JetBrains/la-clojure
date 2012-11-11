@@ -82,7 +82,6 @@
                                 implementationClass="org.jetbrains.plugins.clojure.documentation.ClojureDocumentationProvider"/>
     <renamePsiElementProcessor
         implementation="org.jetbrains.plugins.clojure.refactoring.rename.RenameClojureFileProcessor" order="first"/>
-    <debugger.positionManagerFactory implementation="org.jetbrains.plugins.clojure.debugger.ClojurePositionManagerFactory"/>
 
   </extensions>
 
