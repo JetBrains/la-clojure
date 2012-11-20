@@ -8,7 +8,9 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.Processor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.ModuleChunk;
+import org.jetbrains.jps.builders.ChunkBuildOutputConsumer;
 import org.jetbrains.jps.builders.DirtyFilesHolder;
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor;
 import org.jetbrains.jps.builders.storage.SourceToOutputMapping;
@@ -55,7 +57,8 @@ public class ClojureBuilder extends ModuleLevelBuilder {
 
   @Override
   public ExitCode build(final CompileContext context, final ModuleChunk chunk,
-                        DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder) throws ProjectBuildException, IOException {
+                        DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget> dirtyFilesHolder,
+                        final ChunkBuildOutputConsumer outputConsumer) throws ProjectBuildException, IOException {
     JpsProject project = context.getProjectDescriptor().getProject();
     JpsClojureCompilerSettingsExtension extension = JpsClojureExtensionService.getExtension(project);
     if (myBeforeJava && (extension == null || !extension.isClojureBefore())) return ExitCode.NOTHING_DONE;
@@ -178,7 +181,8 @@ public class ClojureBuilder extends ModuleLevelBuilder {
         } else if (text.startsWith(COMPILED_PREFIX)) {
           for (String output : outputs) {
             try {
-              sourceToOutputMap.appendOutput(text.substring(COMPILED_PREFIX.length()), output);
+              outputConsumer.registerOutputFile(chunk.representativeTarget(), output,
+                  Collections.singleton(text.substring(COMPILED_PREFIX.length())));
             } catch (IOException e) {
               context.processMessage(new BuildMessage(e.getMessage(), BuildMessage.Kind.ERROR) {});
             }
@@ -262,13 +266,9 @@ public class ClojureBuilder extends ModuleLevelBuilder {
     printer.close();
   }
 
+  @NotNull
   @Override
-  public String getName() {
-    return "Clojure Compiler";
-  }
-
-  @Override
-  public String getDescription() {
+  public String getPresentableName() {
     return COMPILER_NAME;
   }
 }
