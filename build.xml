@@ -150,18 +150,6 @@
 
   </target>
 
-  <!--<target name="make.clojure" depends="make.java">-->
-    <!--&lt;!&ndash; Compile project Clojure files &ndash;&gt;-->
-    <!--<java classname="clojure.lang.Compile">-->
-      <!--<classpath refid="clojure.base.path"/>-->
-      <!--<sysproperty key="clojure.compile.path" value="${project.dest}"/>-->
-
-      <!--&lt;!&ndash; TODO: rework! &ndash;&gt;-->
-      <!--<arg value="org.jetbrains.plugins.clojure.refactoring.rename.RenameClojureFileProcessor"/>-->
-    <!--</java>-->
-
-  <!--</target>-->
-
   <target name="make.plugin" depends="make.java">
     <replace file="${project.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
     <replace file="${project.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${idea.build}"/>
