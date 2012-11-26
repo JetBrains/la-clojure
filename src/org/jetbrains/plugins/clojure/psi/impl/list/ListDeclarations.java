@@ -33,6 +33,7 @@ public class ListDeclarations {
   public static final String FOR = "for";
   public static final String IF_LET = "if-let";
   public static final String LOOP = "loop";
+  public static final String DOSEQ = "doseq";
   public static final String DECLARE = "declare";
   public static final String FN = "fn";
 
@@ -49,7 +50,7 @@ public class ListDeclarations {
   private static final String DOT = ".";
 
   private static final Set<String> LOCAL_BINDINGS = new HashSet<String>(Arrays.asList(
-      LET, WITH_OPEN, WITH_LOCAL_VARS, WHEN_LET, WHEN_FIRST, FOR, IF_LET, LOOP, FN
+      LET, WITH_OPEN, WITH_LOCAL_VARS, WHEN_LET, WHEN_FIRST, FOR, IF_LET, LOOP, FN, DOSEQ
   ));
 
   public static boolean get(PsiScopeProcessor processor,
@@ -64,6 +65,7 @@ public class ListDeclarations {
     if (headText.equals(MEMFN)) return processMemFnDeclaration(processor, list, place);
     if (headText.equals(DOT)) return processDotDeclaration(processor, list, place, lastParent);
     if (headText.equals(LOOP)) return processLoopDeclaration(processor, list, place, lastParent);
+    if (headText.equals(DOSEQ)) return processDoseqDeclaration(processor, list, place, lastParent);
     if (headText.equals(DECLARE)) return processDeclareDeclaration(processor, list, place, lastParent);
     if (LOCAL_BINDINGS.contains(headText)) return processLetDeclaration(processor, list, place);
     return true;
@@ -92,6 +94,19 @@ public class ListDeclarations {
     return true;
   }
 
+
+  private static boolean processDoseqDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place, PsiElement lastParent) {
+    if (lastParent != null && lastParent.getParent() == list) {
+      final ClVector paramVector = list.findFirstChildByClass(ClVector.class);
+      if (paramVector != null) {
+        for (ClSymbol symbol : paramVector.getOddSymbols()) {
+          if (!ResolveUtil.processElement(processor, symbol)) return false;
+        }
+      }
+      return true;
+    }
+    return true;
+  }
 
   private static boolean processDotDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place, PsiElement lastParent) {
     final PsiElement parent = place.getParent();
