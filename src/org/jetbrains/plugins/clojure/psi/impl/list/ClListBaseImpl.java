@@ -1,8 +1,13 @@
 package org.jetbrains.plugins.clojure.psi.impl.list;
 
+import com.intellij.openapi.util.Condition;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.Function;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.plugins.clojure.psi.ClojureBaseElementImpl;
+import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +17,8 @@ import com.intellij.psi.stubs.NamedStub;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.lang.ASTNode;
+
+import java.util.List;
 
 /**
  * @author ilyas
@@ -81,8 +88,4 @@ public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseEle
     return findChildByType(ClojureTokenTypes.RIGHT_PAREN);
   }
 
-
-  public ClSymbol[] getAllSymbols() {
-    return findChildrenByClass(ClSymbol.class);
-  }
 }

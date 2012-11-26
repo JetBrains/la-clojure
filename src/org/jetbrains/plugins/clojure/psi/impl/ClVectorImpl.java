@@ -31,10 +31,6 @@ public class ClVectorImpl extends ClojurePsiElementImpl implements ClVector {
     return findChildByType(ClojureTokenTypes.RIGHT_SQUARE);
   }
 
-  public ClSymbol[] getAllSymbols() {
-    return findChildrenByClass(ClSymbol.class);
-  }
-
   @Nullable
   public String getHeadText() {
     PsiElement first = getFirstNonLeafElement();

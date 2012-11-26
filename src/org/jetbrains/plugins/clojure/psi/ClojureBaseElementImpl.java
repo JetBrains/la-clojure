@@ -12,8 +12,11 @@ import com.intellij.psi.PsiComment;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.extapi.psi.StubBasedPsiElementBase;
 import com.intellij.lang.ASTNode;
+import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 
 import java.util.List;
 
@@ -77,5 +80,24 @@ public abstract class ClojureBaseElementImpl <T extends StubElement> extends Stu
     }
   }
 
+  public ClSymbol[] getAllSymbols() {
+    return findChildrenByClass(ClSymbol.class);
+  }
+
+  public ClSymbol[] getAllQuotedSymbols() {
+    final ClQuotedForm[] quoteds = findChildrenByClass(ClQuotedForm.class);
+    final List<ClQuotedForm> quotedSymbols = ContainerUtil.filter(quoteds, new Condition<ClQuotedForm>() {
+      public boolean value(ClQuotedForm clQuotedForm) {
+        final ClojurePsiElement element = clQuotedForm.getQuotedElement();
+        return element instanceof ClSymbol;
+      }
+    });
+
+    return ContainerUtil.map(quotedSymbols, new Function<ClQuotedForm, Object>() {
+      public Object fun(ClQuotedForm clQuotedForm) {
+        return ((ClSymbol) clQuotedForm.getQuotedElement());
+      }
+    }).toArray(new ClSymbol[0]);
+  }
   
 }

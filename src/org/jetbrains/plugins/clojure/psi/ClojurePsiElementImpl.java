@@ -4,10 +4,17 @@ import com.intellij.extapi.psi.StubBasedPsiElementBase;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Condition;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.stubs.StubElement;
+import com.intellij.util.Function;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
+import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
