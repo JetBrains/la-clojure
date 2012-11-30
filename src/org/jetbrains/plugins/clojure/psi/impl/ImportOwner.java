@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.clojure.psi.impl;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.scope.NameHint;
 import com.intellij.psi.scope.PsiScopeProcessor;
@@ -13,6 +14,11 @@ import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
 import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.util.ClojureKeywords;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author ilya
@@ -78,23 +84,59 @@ public abstract class ImportOwner {
   }
 
   private static boolean processUses(PsiScopeProcessor processor, PsiElement place, JavaPsiFacade facade, ClList directive, String headText) {
-    if (!ClojureKeywords.USE.equals(headText) &&
-        !ListDeclarations.USE.equals(headText)) {
+    if (!(ClojureKeywords.USE.equals(headText) || ListDeclarations.USE.equals(headText))) {
       return false;
     }
 
-    for (ClSymbol symbol : directive.getAllQuotedSymbols()) {
-      for (PsiNamedElement element : NamespaceUtil.getDeclaredElements(symbol.getNameString(), directive.getProject())) {
+    final Set<ClSymbol> accum = new HashSet<ClSymbol>();
+
+    accum.addAll(Arrays.asList(directive.getAllQuotedSymbols()));
+    accum.addAll(Arrays.asList(directive.getAllSymbols()));
+
+
+    final Project project = directive.getProject();
+
+    for (ClSymbol symbol : accum) {
+      for (PsiNamedElement element : NamespaceUtil.getDeclaredElements(symbol.getNameString(), project)) {
         if (element != null && !ResolveUtil.processElement(processor, element)) {
           return true;
         }
       }
     }
+
+
+    /*
+     Process grouped uses, e.g.,
+
+     (ns some.namespace
+           (:use (base.name module-1 module-2)))
+
+      */
+    final PsiElement second = directive.getSecondNonLeafElement();
+    if (second != null && second instanceof ClList) {
+      final ClList imports = (ClList) second;
+      final PsiElement element = imports.getFirstNonLeafElement();
+      if (element instanceof ClSymbol) {
+        ClSymbol firstSymbol = (ClSymbol) element;
+        final String prefix = firstSymbol.getNameString();
+        final ClSymbol[] allSymbols = imports.getAllSymbols();
+        for (int i = 1; i < allSymbols.length; i++) {
+          final ClSymbol suffix = allSymbols[i];
+          final String fqn = prefix + "." + suffix.getNameString();
+          for (PsiNamedElement ns : NamespaceUtil.getDeclaredElements(fqn, project)) {
+            if (!ResolveUtil.processElement(processor, ns)) {
+              return true;
+            }
+          }
+        }
+      }
+
+    }
     return false;
   }
 
   private static boolean processImports(PsiScopeProcessor processor, PsiElement place, JavaPsiFacade facade, ClList child, String headText) {
-    if (!ClojureKeywords.IMPORT.equals(headText) && !ListDeclarations.IMPORT.equals(headText)) {
+    if (!(ClojureKeywords.IMPORT.equals(headText) || ListDeclarations.IMPORT.equals(headText))) {
       return false;
     }
 

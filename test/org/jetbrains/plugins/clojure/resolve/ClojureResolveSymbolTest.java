@@ -39,6 +39,19 @@ public class ClojureResolveSymbolTest extends ClojureResolveTestCaseBase {
     assertTrue("encode-str".equals(((ClDef) element).getName()));
   }
 
+  public void testUseNsMany() throws Exception {
+    final PsiElement element = resolveReference();
+    assertTrue(element instanceof ClDef);
+    assertTrue("collection-tag".equals(((ClDef) element).getName()));
+  }
+
+  public void testUseNsResolve() throws Exception {
+    final PsiElement element = resolveReference();
+    assertTrue(element instanceof ClSyntheticNamespace);
+    assertTrue("clojure.inspector".equals(((ClSyntheticNamespace) element).getQualifiedName()));
+  }
+
+
   public void testRequireNs() throws Exception {
     final PsiElement element = resolveReference();
     assertTrue(element instanceof ClSyntheticNamespace);

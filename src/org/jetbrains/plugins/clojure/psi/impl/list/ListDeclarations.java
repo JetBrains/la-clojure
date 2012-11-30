@@ -14,8 +14,11 @@ import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
 import org.jetbrains.plugins.clojure.psi.api.ClVector;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
+import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
 import org.jetbrains.plugins.clojure.psi.impl.symbols.ClSymbolImpl;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
+import org.jetbrains.plugins.clojure.psi.util.ClojureKeywords;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -68,6 +71,38 @@ public class ListDeclarations {
     if (headText.equals(DOSEQ)) return processDoseqDeclaration(processor, list, place, lastParent);
     if (headText.equals(DECLARE)) return processDeclareDeclaration(processor, list, place, lastParent);
     if (LOCAL_BINDINGS.contains(headText)) return processLetDeclaration(processor, list, place);
+
+    final PsiElement parent = list.getParent();
+    if (parent != null && parent instanceof ClList) {
+      return getWithParentContext(processor, list, ((ClList) parent), state, lastParent, place);
+    }
+
+    return true;
+  }
+
+  private static boolean getWithParentContext(PsiScopeProcessor processor, ClList list, ClList parent,
+                                              ResolveState state, PsiElement lastParent, PsiElement place) {
+    final String parentHead = parent.getHeadText();
+    final PsiElement first = list.getFirstNonLeafElement();
+    if (processUseParent(processor, place, parentHead, first, state, lastParent)) return true;
+    return true;
+  }
+
+  /*
+    Handle (:use ...) parent, e.g.
+
+    (ns my-namespace
+     (:use (clojure <caret> data inspector)))
+
+   */
+  private static boolean processUseParent(PsiScopeProcessor processor, PsiElement place, String parentHead,
+                                          PsiElement first, ResolveState state, PsiElement lastParent) {
+    if ((USE.equals(parentHead) || ClojureKeywords.USE.equals(parentHead)) &&
+        first instanceof ClSymbol) {
+      final ClSymbol symbol = (ClSymbol) first;
+      final ClSyntheticNamespace namespace = NamespaceUtil.getNamespace(symbol.getNameString(), place.getProject());
+      return namespace == null? true : namespace.processDeclarations(processor, state, lastParent, place);
+    }
     return true;
   }
 
