@@ -1,10 +1,10 @@
 <component name="libraryTable">
   <library name="community-plugins">
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/lib/LedaSDK/plugins/copyright/lib" />
+      <root url="file://$PROJECT_DIR$/lib/TrunkSDK/plugins/copyright/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
-    <jarDirectory url="file://$PROJECT_DIR$/lib/LedaSDK/plugins/copyright/lib" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/lib/TrunkSDK/plugins/copyright/lib" recursive="false" />
   </library>
 </component>
