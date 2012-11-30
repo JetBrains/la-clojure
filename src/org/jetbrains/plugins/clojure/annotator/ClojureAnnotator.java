@@ -24,7 +24,7 @@ public class ClojureAnnotator implements Annotator {
 
   static {
     IMPLICIT_NAMES.addAll(Arrays.asList("def", "new", "try", "throw", "catch", "finally", "ns", "in-ns", "if", "do",
-        "recur", "quote", "var", "set!"));
+        "recur", "quote", "var", "set!", "monitor-enter", "monitor-exit", "."));
   }
 
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
@@ -49,7 +49,7 @@ public class ClojureAnnotator implements Annotator {
   private void annotateList(ClList list, AnnotationHolder holder) {
     final ClSymbol first = list.getFirstSymbol();
     if (first != null && (first.multiResolve(false).length > 0 ||
-            IMPLICIT_NAMES.contains(list.getHeadText()))) {
+        IMPLICIT_NAMES.contains(list.getHeadText()))) {
       Annotation annotation = holder.createInfoAnnotation(first, null);
       annotation.setTextAttributes(ClojureSyntaxHighlighter.DEF);
     }
