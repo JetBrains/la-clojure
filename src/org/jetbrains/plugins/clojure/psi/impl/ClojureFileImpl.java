@@ -81,10 +81,10 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
   }
 
   public void setNamespace(String newNs) {
-    final ClList nsElem = getNamespaceElement();
+    final ClNs nsElem = getNamespaceElement();
     if (nsElem != null) {
       final ClSymbol first = nsElem.getFirstSymbol();
-      final PsiElement second = nsElem.getSecondNonLeafElement();
+      final PsiElement second = nsElem.getNameSymbol();
       if (first != null && second != null) {
         final ClojurePsiFactory factory = ClojurePsiFactory.getInstance(getProject());
         final ASTNode newNode = factory.createSymbolNodeFromText(newNs);
