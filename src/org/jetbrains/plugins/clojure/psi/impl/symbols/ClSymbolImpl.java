@@ -28,14 +28,18 @@ import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.plugins.clojure.lexer.TokenSets;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
+import org.jetbrains.plugins.clojure.psi.api.ClList;
+import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
 import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResultImpl;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
+import org.jetbrains.plugins.clojure.psi.resolve.completion.CompleteSymbol;
 import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.ResolveProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.SymbolResolveProcessor;
@@ -43,7 +47,6 @@ import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureNsNameIndex;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
 
 import javax.swing.*;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -253,8 +256,30 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
     }
   }
 
-  public ClSymbol getQualifierSymbol() {
+  @Nullable
+  public ClSymbol getRawQualifierSymbol() {
     return findChildByClass(ClSymbol.class);
+  }
+
+  @Nullable
+  public ClSymbol getQualifierSymbol() {
+    final ClSymbol rawQualifierSymbol = getRawQualifierSymbol();
+    if (rawQualifierSymbol != null) return rawQualifierSymbol;
+    final PsiElement list = getParent();
+    if (list instanceof ClList) {
+      PsiElement parent = list.getParent();
+      if (parent instanceof ClQuotedForm) {
+        parent = parent.getParent();
+        if (parent instanceof ClList) {
+          final boolean isImport = ((ClList) parent).getFirstSymbol().getNameString().equals(ListDeclarations.IMPORT);
+          final ClSymbol firstSymbol = ((ClList) list).getFirstSymbol();
+          if (isImport && firstSymbol != this && firstSymbol instanceof ClSymbol) {
+            return firstSymbol;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   public boolean isQualified() {

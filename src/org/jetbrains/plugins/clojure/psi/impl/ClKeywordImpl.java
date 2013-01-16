@@ -26,7 +26,7 @@ import java.util.Set;
 /**
  * @author ilyas
 */
-public class ClKeywordImpl extends ClojureBaseElementImpl<ClKeywordStub> implements ClKeyword, PsiReference, StubBasedPsiElement<ClKeywordStub> {
+public class ClKeywordImpl extends ClojureBaseElementImpl<ClKeywordStub> implements ClKeyword, StubBasedPsiElement<ClKeywordStub> {
   public ClKeywordImpl(ASTNode node) {
     super(node);
   }

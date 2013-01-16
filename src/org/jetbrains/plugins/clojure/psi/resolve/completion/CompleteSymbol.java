@@ -1,6 +1,5 @@
-package org.jetbrains.plugins.clojure.psi.impl.symbols;
+package org.jetbrains.plugins.clojure.psi.resolve.completion;
 
-import com.intellij.codeInsight.TailType;
 import com.intellij.codeInsight.lookup.LookupItem;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
@@ -10,12 +9,10 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.HashMap;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.plugins.clojure.ClojureIcons;
-import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
 import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResult;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
-import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
 
 import java.util.*;
 
@@ -79,14 +76,7 @@ public class CompleteSymbol {
   private static LookupItem[] mapToLookupItems(PsiElement[] elements) {
     final List<LookupItem> list = ContainerUtil.map(elements, new Function<PsiElement, LookupItem>() {
       public LookupItem fun(PsiElement element) {
-        final LookupItem item = new LookupItem<PsiElement>(element, element instanceof PsiNamedElement ? ((PsiNamedElement) element).getName() : element.toString());
-        if (element instanceof ClDef) {
-          ClDef def = (ClDef) element;
-          item.setTailType(TailType.SPACE);
-          item.setAttribute(LookupItem.TAIL_TEXT_ATTR, " " + def.getParameterString());
-          item.setAttribute(LookupItem.TYPE_TEXT_ATTR, def.getContainingFile().getName());
-        }
-        return item;
+        return new ClojureLookupItem(element);
       }
     });
     return list.toArray(LookupItem.EMPTY_ARRAY);
