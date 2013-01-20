@@ -175,6 +175,7 @@ public class ClojurePsiUtil {
     CharSequence chars = editor.getDocument().getCharsSequence();
     int offset = editor.getCaretModel().getOffset();
     if (previous) {
+      if (offset == chars.length()) --offset; // we want the offset positioned at the last character, not at EOF
       while (offset != 0 && offset < chars.length() && !anyOf(chars.charAt(offset), "]})")) {
         --offset;
       }
