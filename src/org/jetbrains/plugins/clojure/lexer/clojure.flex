@@ -86,6 +86,7 @@ mNUM_INT_PART =  0
    | {mDIGIT}+
    | ([0-7])+
  )?
+ | {mDIGIT}+ "r" ({mDIGIT} | {mLETTER})+
  | {mDIGIT}+
 
 // Integer
