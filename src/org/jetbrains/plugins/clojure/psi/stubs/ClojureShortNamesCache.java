@@ -1,12 +1,9 @@
 package org.jetbrains.plugins.clojure.psi.stubs;
 
+import com.intellij.psi.*;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.Processor;
 import com.intellij.util.containers.HashSet;
@@ -34,8 +31,25 @@ public class ClojureShortNamesCache extends PsiShortNamesCache {
 
   Project myProject;
 
+  public static ClojureShortNamesCache getInstance(Project project) {
+    return new ClojureShortNamesCache(project);
+  }
+
   public ClojureShortNamesCache(Project project) {
     myProject = project;
+  }
+
+  public ClNs[] getNsByQualifiedName(String qualifiedName, GlobalSearchScope scope) {
+    final Collection<? extends PsiElement> clNses = StubIndex.getInstance().get(ClojureNsNameIndex.KEY, qualifiedName, myProject, scope);
+    ArrayList<ClNs> result = new ArrayList<ClNs>();
+    for (PsiElement clNs : clNses) {
+      if (clNs instanceof ClNs) {
+        if (((ClNs) clNs).getName().equals(qualifiedName)) {
+          result.add((ClNs) clNs);
+        }
+      }
+    }
+    return result.toArray(new ClNs[result.size()]);
   }
 
 

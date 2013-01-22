@@ -7,29 +7,47 @@ import com.intellij.debugger.engine.CompoundPositionManager;
 import com.intellij.debugger.engine.DebugProcess;
 import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.requests.ClassPrepareRequestor;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.roots.impl.DirectoryIndex;
+import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.PathUtil;
+import com.intellij.util.Processor;
+import com.intellij.util.Query;
+import com.intellij.util.containers.HashSet;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.request.ClassPrepareRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.clojure.ClojureLanguage;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
+import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.stubs.ClojureShortNamesCache;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -76,46 +94,58 @@ public class ClojurePositionManager implements PositionManager {
 
   public ClassPrepareRequest createPrepareRequest(final ClassPrepareRequestor requestor, final SourcePosition position)
       throws NoDataException {
-    PsiFile file = position.getFile();
+    final PsiFile file = position.getFile();
     if (!(file instanceof ClojureFile)) throw new NoDataException();
 
-    final ClojureFile clojureFile = (ClojureFile) file;
-    PsiElement element = clojureFile.findElementAt(position.getOffset());
+    final String query = ApplicationManager.getApplication().runReadAction(new Computable<String>() {
+      public String compute() {
+        final ClojureFile clojureFile = (ClojureFile) file;
+        PsiElement element = clojureFile.findElementAt(position.getOffset());
 
-    String nsName = getNameSpaceName(element);
-    final String nsPrefix = nsName != null ? nsName + "$" : "user$";
+        String nsName = getNameSpaceName(element);
+        final String nsPrefix = nsName != null ? nsName + "$" : "user$";
 
-    final ClDef def = PsiTreeUtil.getParentOfType(element, ClDef.class);
-    final String name = def == null ? "eval" : def.getName();
+        final ClDef def = PsiTreeUtil.getParentOfType(element, ClDef.class);
+        final String name = def == null ? "eval" : def.getName();
 
-    final String query = (nsPrefix + (name != null ? name : "")).replace('-', '_') + "*";
+        return (nsPrefix + (name != null ? name : "")).replace('-', '_') + "*";
+      }
+    });
 
     ClassPrepareRequestor waitRequestor = new MyClassPrepareRequestor(position, requestor);
     final ClassPrepareRequest prepareRequest = myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, query);
-
     prepareRequest.addSourceNameFilter(file.getName());
     return prepareRequest;
   }
 
-  private String getNameSpaceName(PsiElement element) {
-    while (!(element.getParent() instanceof ClojureFile)) {
-      element = element.getParent();
-    }
-    final PsiElement parent = element.getParent();
-    if (parent instanceof ClojureFile) {
-      while (element != null) {
-        if (element instanceof ClList) {
-          ClList list = (ClList) element;
-          final ClSymbol first = list.getFirstSymbol();
-          if (first != null && first.getText().equals("ns")) {
-            final ClSymbol snd = PsiTreeUtil.getNextSiblingOfType(first, ClSymbol.class);
-            if (snd != null) return snd.getText();
+  private String getNameSpaceName(final PsiElement _element) {
+    final Ref<String> stringRef = new Ref<String>(null);
+    ApplicationManager.getApplication().runReadAction(new Runnable() {
+      public void run() {
+        PsiElement element = _element;
+        while (!(element.getParent() instanceof ClojureFile)) {
+          element = element.getParent();
+        }
+        final PsiElement parent = element.getParent();
+        if (parent instanceof ClojureFile) {
+          while (element != null) {
+            if (element instanceof ClList) {
+              ClList list = (ClList) element;
+              final ClSymbol first = list.getFirstSymbol();
+              if (first != null && first.getText().equals("ns")) {
+                final ClSymbol snd = PsiTreeUtil.getNextSiblingOfType(first, ClSymbol.class);
+                if (snd != null) {
+                  stringRef.set(snd.getText());
+                  return;
+                }
+              }
+            }
+            element = element.getPrevSibling();
           }
         }
-        element = element.getPrevSibling();
       }
-    }
-    return null;
+    });
+    return stringRef.get();
   }
 
   @NotNull
@@ -152,24 +182,56 @@ public class ClojurePositionManager implements PositionManager {
 
   @Nullable
   private PsiFile getPsiFileByLocation(final Project project, final Location location) {
-    try {
-      final String path = location.sourcePath();
-      if (path == null) return null;
-      final ProjectRootManager manager = ProjectRootManager.getInstance(project);
-      final VirtualFile[] allFiles = manager.getContentRootsFromAllModules();
-      for (VirtualFile file : allFiles) {
-        final String path2 = file.getPath() + "/";
-        final String prefix = StringUtil.commonPrefix(path, path2);
-        final String relativePath = StringUtil.trimStart(path, prefix);
-        final VirtualFile child = file.findFileByRelativePath(relativePath);
-        if (child != null) {
-          return PsiManager.getInstance(project).findFile(child);
+    final Ref<PsiFile> result = new Ref<PsiFile>(null);
+    ApplicationManager.getApplication().runReadAction(new Runnable() {
+      public void run() {
+        if (location == null) return;
+        final ReferenceType refType = location.declaringType();
+        if (refType == null) return;
+        final String originalQName = refType.name().replace('/', '.');
+        final GlobalSearchScope searchScope = myDebugProcess.getSearchScope();
+        int dollar = originalQName.indexOf('$');
+        final String qName = dollar >= 0 ? originalQName.substring(0, dollar) : originalQName;
+        final ClNs[] nses = ClojureShortNamesCache.getInstance(project).getNsByQualifiedName(qName, searchScope);
+        if (nses.length == 1) {
+          result.set(nses[0].getContainingFile());
+          return;
         }
+
+        String fileName = null;
+        try {
+          fileName = location.sourceName();
+        } catch (AbsentInformationException ignore) {}
+
+
+        DirectoryIndex directoryIndex = DirectoryIndex.getInstance(project);
+        int dotIndex = qName.lastIndexOf(".");
+        String packageName = dotIndex >= 0 ? qName.substring(0, dotIndex) : "";
+        Query<VirtualFile> query = directoryIndex.getDirectoriesByPackageName(packageName, true);
+        if (fileName == null) {
+          fileName = dotIndex >= 0 ? qName.substring(dotIndex + 1) : qName;
+          fileName += ".clj";
+        }
+
+
+        final String finalFileName = fileName;
+        query.forEach(new Processor<VirtualFile>() {
+          public boolean process(VirtualFile vDir) {
+            VirtualFile vFile = vDir.findChild(finalFileName);
+            if (vFile != null) {
+              PsiFile psiFile = PsiManager.getInstance(project).findFile(vFile);
+              if (psiFile instanceof ClojureFile) {
+                result.set(psiFile);
+                return false;
+              }
+            }
+            return true;
+          }
+        });
       }
-    } catch (AbsentInformationException e) {
-      return null;
-    }
-    return null;
+    });
+
+    return result.get();
   }
 
   private static class MyClassPrepareRequestor implements ClassPrepareRequestor {
