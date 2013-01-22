@@ -75,7 +75,7 @@ public class RunClojureConsoleAction extends AnAction implements DumbAware {
             break;
           }
         }
-        if (module == null) {
+        if (module == null && modules.length > 0) {
           module = modules[0];
         }
       }
