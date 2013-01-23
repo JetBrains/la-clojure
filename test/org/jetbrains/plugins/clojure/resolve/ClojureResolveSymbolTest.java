@@ -20,15 +20,64 @@ public class ClojureResolveSymbolTest extends ClojureResolveTestCaseBase {
     return TestUtils.getTestDataPath() + "/resolve/";
   }
 
+  @Override
+  public String folderPath() {
+    return super.folderPath() + "/resolve/";
+  }
+
   private String commonTestFile() {
     return getTestName(true) + "/my_namespace.clj";
   }
 
   private PsiElement resolveReference() throws Exception {
-    final PsiReference reference = configureByFile(commonTestFile());
-    final PsiElement element = reference.resolve();
+    configureByFileName(commonTestFile());
+    final PsiElement element = findReference().resolve();
     assertNotNull(element);
     return element;
+  }
+
+  private PsiElement resolveReference(String testPath) throws Exception {
+    configureByFileName(testPath);
+    final PsiElement element = findReference().resolve();
+    assertNotNull(element);
+    return element;
+  }
+
+  public void testDeftest1() throws Exception {
+    final PsiElement element = resolveReference("useNs/deftest1.clj");
+    assertTrue(element instanceof ClDef);
+    assertTrue("deftest".equals(((ClDef) element).getName()));
+  }
+
+  public void testDeftest2() throws Exception {
+    final PsiElement element = resolveReference("useNs/deftest2.clj");
+    assertTrue(element instanceof ClDef);
+    assertTrue("deftest".equals(((ClDef) element).getName()));
+  }
+
+  public void testDeftest3() throws Exception {
+    final PsiElement element = resolveReference("useNs/deftest3.clj");
+    assertTrue(element instanceof ClDef);
+    assertTrue("deftest".equals(((ClDef) element).getName()));
+  }
+
+  public void testDeftest4() throws Exception {
+    final PsiElement element = resolveReference("useNs/deftest4.clj");
+    assertTrue(element instanceof ClDef);
+    assertTrue("deftest".equals(((ClDef) element).getName()));
+  }
+
+  public void testDeftest5() throws Exception {
+    configureByFileName("useNs/deftest5.clj");
+    final PsiReference reference = findReference();
+    final PsiElement element = reference.resolve();
+    assertNull(element);
+  }
+
+  public void testDeftest6() throws Exception {
+    final PsiElement element = resolveReference("useNs/deftest6.clj");
+    assertTrue(element instanceof ClDef);
+    assertTrue("deftest".equals(((ClDef) element).getName()));
   }
 
   // Actual test cases
@@ -64,7 +113,8 @@ public class ClojureResolveSymbolTest extends ClojureResolveTestCaseBase {
   }
 
   public void testJavaClass() throws Exception {
-    final PsiReference reference = configureByFile(commonTestFile());
+    configureByFileName(commonTestFile());
+    final PsiReference reference = findReference();
     if (reference instanceof PsiMultiReference) {
       PsiMultiReference multiReference = (PsiMultiReference) reference;
       for (ResolveResult result : multiReference.multiResolve(false)) {

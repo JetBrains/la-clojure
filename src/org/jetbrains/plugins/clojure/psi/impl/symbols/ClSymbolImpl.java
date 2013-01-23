@@ -28,9 +28,7 @@ import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.plugins.clojure.lexer.TokenSets;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
-import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
-import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
+import org.jetbrains.plugins.clojure.psi.api.*;
 import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
@@ -41,9 +39,11 @@ import org.jetbrains.plugins.clojure.psi.resolve.ClojureResolveResultImpl;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.completion.CompleteSymbol;
 import org.jetbrains.plugins.clojure.psi.resolve.completion.CompletionProcessor;
+import org.jetbrains.plugins.clojure.psi.resolve.processors.ResolveKind;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.ResolveProcessor;
 import org.jetbrains.plugins.clojure.psi.resolve.processors.SymbolResolveProcessor;
 import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureNsNameIndex;
+import org.jetbrains.plugins.clojure.psi.util.ClojureKeywords;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
 
 import javax.swing.*;
@@ -153,9 +153,13 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
       }
     };
   }
-  
 
+
+  public ResolveKind[] getKinds() {
+    return ResolveKind.allKinds();
+  }
   public static class MyResolver implements ResolveCache.PolyVariantResolver<ClSymbol> {
+
     public ResolveResult[] resolve(ClSymbol symbol, boolean incompleteCode) {
       final String name = symbol.getReferenceName();
       if (name == null) return null;
@@ -167,11 +171,15 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
         return resolveJavaMethodReference(symbol, null, false);
       }
 
-      ResolveProcessor processor = new SymbolResolveProcessor(StringUtil.trimEnd(name, "."), symbol, incompleteCode, nameString.endsWith("."));
+      ResolveKind[] kinds = symbol.getKinds();
+      if (nameString.endsWith(".")) {
+        kinds = ResolveKind.javaClassesKinds();
+      }
+      ResolveProcessor processor = new SymbolResolveProcessor(StringUtil.trimEnd(name, "."), symbol, incompleteCode, kinds);
       resolveImpl(symbol, processor);
 
       if (nameString.contains(".")) {
-        ResolveProcessor nsProcessor = new SymbolResolveProcessor(nameString, symbol, incompleteCode, false);
+        ResolveProcessor nsProcessor = new SymbolResolveProcessor(nameString, symbol, incompleteCode, ResolveKind.namesSpaceKinds());
         resolveNamespace(symbol, nsProcessor);
       }
 
@@ -182,7 +190,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
     }
 
     public static ResolveResult[] resolveJavaMethodReference(final ClSymbol symbol, @Nullable PsiElement start, final boolean forCompletion) {
-      final CompletionProcessor processor = new CompletionProcessor(symbol);
+      final CompletionProcessor processor = new CompletionProcessor(symbol, symbol.getKinds());
       if (start == null) start = symbol;
       ResolveUtil.treeWalkUp(start, processor);
       final String name = symbol.getReferenceName();
@@ -219,26 +227,24 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
           final PsiElement element = result.getElement();
           if (element != null) {
             final PsiElement sep = symbol.getSeparatorToken();
-            if (sep != null) {
-              if ("/".equals(sep.getText())) {
+            if (sep != null && "/".equals(sep.getText())) {
 
-                //get class elements
-                if (element instanceof PsiClass) {
-                  element.processDeclarations(processor, ResolveState.initial(), null, symbol);
-                }
-
-                //get namespace declarations
-                if (element instanceof ClSyntheticNamespace) {
-                  final String fqn = ((ClSyntheticNamespace) element).getQualifiedName();
-                  // namespace declarations
-                  for (PsiNamedElement named : NamespaceUtil.getDeclaredElements(fqn, element.getProject())) {
-                    if (!ResolveUtil.processElement(processor, named)) return;
-                  }
-                }
-
-              } else if (".".equals(sep.getText())) {
+              //get class elements
+              if (element instanceof PsiClass) {
                 element.processDeclarations(processor, ResolveState.initial(), null, symbol);
               }
+
+              //get namespace declarations
+              if (element instanceof ClSyntheticNamespace) {
+                final String fqn = ((ClSyntheticNamespace) element).getQualifiedName();
+                // namespace declarations
+                for (PsiNamedElement named : NamespaceUtil.getDeclaredElements(fqn, element.getProject())) {
+                  if (!ResolveUtil.processElement(processor, named)) return;
+                }
+              }
+
+            } else if (sep == null || ".".equals(sep.getText())) {
+              element.processDeclarations(processor, ResolveState.initial(), null, symbol);
             }
           }
         }
@@ -265,16 +271,34 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
   public ClSymbol getQualifierSymbol() {
     final ClSymbol rawQualifierSymbol = getRawQualifierSymbol();
     if (rawQualifierSymbol != null) return rawQualifierSymbol;
-    final PsiElement list = getParent();
-    if (list instanceof ClList) {
-      PsiElement parent = list.getParent();
-      if (parent instanceof ClQuotedForm) {
-        parent = parent.getParent();
-        if (parent instanceof ClList) {
-          final boolean isImport = ((ClList) parent).getFirstSymbol().getNameString().equals(ListDeclarations.IMPORT);
-          final ClSymbol firstSymbol = ((ClList) list).getFirstSymbol();
+    final PsiElement parent = getParent();
+    if (parent instanceof ClList) {
+      ClList list = (ClList) parent;
+      PsiElement listParent = list.getParent();
+      if (listParent instanceof ClQuotedForm) {
+        listParent = listParent.getParent();
+        if (listParent instanceof ClList) {
+          final boolean isImport = ((ClList) listParent).getFirstSymbol().getNameString().equals(ListDeclarations.IMPORT);
+          final ClSymbol firstSymbol = list.getFirstSymbol();
           if (isImport && firstSymbol != this && firstSymbol instanceof ClSymbol) {
             return firstSymbol;
+          }
+        }
+      }
+    } else if (parent instanceof ClVector) {
+      ClVector vector = (ClVector) parent;
+      final PsiElement list = vector.getParent();
+      if (list instanceof ClList) {
+        final PsiElement firstSymbol = ((ClList) list).getFirstNonLeafElement();
+        if (firstSymbol instanceof ClKeyword) {
+          ClKeyword keyword = (ClKeyword) firstSymbol;
+          final String name = keyword.getName();
+          if (name.equals(ClojureKeywords.IMPORT) || name.equals(ClojureKeywords.USE) ||
+              name.equals(ClojureKeywords.REQUIRE)) {
+            final PsiElement firstNonLeafElement = vector.getFirstNonLeafElement();
+            if (firstNonLeafElement != null && firstNonLeafElement != this && firstNonLeafElement instanceof ClSymbol) {
+              return (ClSymbol) firstNonLeafElement;
+            }
           }
         }
       }

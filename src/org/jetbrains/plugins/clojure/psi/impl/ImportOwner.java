@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.ClListLike;
+import org.jetbrains.plugins.clojure.psi.api.ClVector;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
 import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
@@ -112,25 +113,33 @@ public abstract class ImportOwner {
            (:use (base.name module-1 module-2)))
 
       */
-    final PsiElement second = directive.getSecondNonLeafElement();
-    if (second != null && second instanceof ClList) {
-      final ClList imports = (ClList) second;
-      final PsiElement element = imports.getFirstNonLeafElement();
-      if (element instanceof ClSymbol) {
-        ClSymbol firstSymbol = (ClSymbol) element;
-        final String prefix = firstSymbol.getNameString();
-        final ClSymbol[] allSymbols = imports.getAllSymbols();
-        for (int i = 1; i < allSymbols.length; i++) {
-          final ClSymbol suffix = allSymbols[i];
-          final String fqn = prefix + "." + suffix.getNameString();
-          for (PsiNamedElement ns : NamespaceUtil.getDeclaredElements(fqn, project)) {
-            if (!ResolveUtil.processElement(processor, ns)) {
-              return true;
+    final PsiElement[] children = directive.getChildren();
+    for (PsiElement child : children) {
+      if (child instanceof ClVector || child instanceof ClList) {
+        ClListLike list = (ClListLike) child;
+        final PsiElement element = list.getFirstNonLeafElement();
+        if (element instanceof ClSymbol) {
+          ClSymbol firstSymbol = (ClSymbol) element;
+          final String prefix = firstSymbol.getNameString();
+          final ClSymbol[] allSymbols = list.getAllSymbols();
+          for (int i = 1; i < allSymbols.length; i++) {
+            final ClSymbol suffix = allSymbols[i];
+            final String fqn = prefix + "." + suffix.getNameString();
+            for (PsiNamedElement ns : NamespaceUtil.getDeclaredElements(fqn, project)) {
+              if (!ResolveUtil.processElement(processor, ns)) {
+                return true;
+              }
+            }
+          }
+          if (allSymbols.length == 1 && list instanceof ClVector) {
+            for (PsiNamedElement ns : NamespaceUtil.getDeclaredElements(allSymbols[0].getName(), project)) {
+              if (!ResolveUtil.processElement(processor, ns)) {
+                return true;
+              }
             }
           }
         }
       }
-
     }
     return false;
   }

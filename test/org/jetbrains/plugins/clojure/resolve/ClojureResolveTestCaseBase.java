@@ -8,10 +8,15 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiReference;
 import com.intellij.testFramework.ResolveTestCase;
+import org.jetbrains.plugins.clojure.ClojureLightPlatformCodeInsightTestCase;
 import org.jetbrains.plugins.clojure.ClojureLoader;
 import org.jetbrains.plugins.clojure.util.TestUtils;
 
@@ -21,76 +26,35 @@ import java.io.IOException;
 /**
  * @author ilyas
  */
-public abstract class ClojureResolveTestCaseBase extends ResolveTestCase {
+public abstract class ClojureResolveTestCaseBase extends ClojureLightPlatformCodeInsightTestCase {
+  public String folderPath() {
+    return TestUtils.getTestDataPath() + "/";
+  }
+
   private static String JDK_HOME = TestUtils.getMockJdk();
 
   public abstract String getTestDataPath();
-
-  private void configureFile(final VirtualFile vFile, String exceptName, final VirtualFile newDir) {
-    if (vFile.isDirectory()) {
-      for (VirtualFile file : vFile.getChildren()) {
-        configureFile(file, exceptName, newDir);
-      }
-    } else {
-      if (vFile.getName().equals(exceptName)) {
-        return;
-      }
-      ApplicationManager.getApplication().runWriteAction(new Runnable() {
-        public void run() {
-          try {
-            vFile.copy(null, newDir, vFile.getName());
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
-      });
-    }
-  }
-
-  protected void setUp() throws Exception {
-    super.setUp();
-    ClojureLoader.loadClojure();
-
-    final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();
-
-    final String testDir = getTestFolderPath();
-
-    // Configure source folder
-    final File dir = new File(testDir);
-    assertTrue(dir.exists());
-
-    VirtualFile vDir = LocalFileSystem.getInstance().
-        refreshAndFindFileByPath(dir.getCanonicalPath().replace(File.separatorChar, '/'));
-    assertNotNull(vDir);
-    ContentEntry contentEntry = rootModel.addContentEntry(vDir);
-    contentEntry.addSourceFolder(vDir, false);
-
-    // Set Java SDK
-    rootModel.setSdk(JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false));
-
-    // Add Clojure Library
-    LibraryTable libraryTable = rootModel.getModuleLibraryTable();
-    Library clojureLib = libraryTable.createLibrary("clojureLib");
-    final Library.ModifiableModel libModel = clojureLib.getModifiableModel();
-    File lib = new File(TestUtils.getMockClojureLib());
-    File contrib = new File(TestUtils.getMockClojureContribLib());
-    assertTrue(lib.exists());
-    assertTrue(contrib.exists());
-
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(lib), OrderRootType.CLASSES);
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(contrib), OrderRootType.CLASSES);
-
-    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-      public void run() {
-        libModel.commit();
-        rootModel.commit();
-      }
-    });
-  }
 
   public String getTestFolderPath() {
     VirtualFile testDataRoot = LocalFileSystem.getInstance().findFileByPath(getTestDataPath());
     assertNotNull(testDataRoot);
     return testDataRoot.getPath() + File.separatorChar + getTestName(true) + File.separatorChar;
+  }
+
+  protected void configureByFileName(String fileName) throws IOException {
+    String filePath = folderPath() + File.separator + fileName;
+    File ioFile = new File(filePath);
+    String fileText = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8);
+    fileText = StringUtil.convertLineSeparators(fileText);
+    int offset = fileText.indexOf("<ref>");
+    fileText = fileText.replace("<ref>", "");
+    configureFromFileText(ioFile.getName(), fileText);
+    if (offset != -1) {
+      getEditor().getCaretModel().moveToOffset(offset);
+    }
+  }
+
+  protected PsiReference findReference() {
+    return getFile().findReferenceAt(getEditor().getCaretModel().getOffset());
   }
 }

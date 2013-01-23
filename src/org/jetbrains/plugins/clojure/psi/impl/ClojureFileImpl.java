@@ -261,19 +261,12 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
     //Add top-level package names
     final PsiPackage rootPackage = JavaPsiFacade.getInstance(getProject()).findPackage("");
     if (rootPackage != null) {
-      rootPackage.processDeclarations(processor, state, null, place);
+      NamespaceUtil.getNamespaceElement(rootPackage).processDeclarations(processor, state, null, place);
     }
 
     // Add all symbols from default namespaces
     for (PsiNamedElement element : NamespaceUtil.getDefaultDefinitions(getProject())) {
       if (PsiTreeUtil.findCommonParent(element, place) != element && !ResolveUtil.processElement(processor, element)) {
-        return false;
-      }
-    }
-
-    //todo Add all namespaces, available in project
-    for (ClSyntheticNamespace ns : NamespaceUtil.getTopLevelNamespaces(getProject())) {
-      if (!ResolveUtil.processElement(processor, ns)) {
         return false;
       }
     }

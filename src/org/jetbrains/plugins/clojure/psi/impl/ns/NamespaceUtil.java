@@ -21,6 +21,7 @@ import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * @author ilyas
@@ -100,9 +101,13 @@ public class NamespaceUtil {
       final String synthName = nsName.equals(fqn) ? nsName : fqn;
       final String refName = StringUtil.getShortName(synthName);
 
-      final ClNs navigationElement = fqn.equals(ns.getName()) ? ns : null;
+      ClNs navigationElement = null;
+      for (ClNs clNs : nsWithPrefix) {
+        if (fqn.equals(clNs.getName())) {
+          navigationElement = clNs;
+        }
+      }
       return new MyClSyntheticNamespace(project, refName, synthName, navigationElement);
-
     }
     return null;
   }
@@ -131,13 +136,15 @@ public class NamespaceUtil {
 
     @Override
     public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
+      final HashSet<String> innerNamespaces = new HashSet<String>();
 
       // Add inner namespaces
+      final String outerName = getQualifiedName();
       for (String fqn : StubIndex.getInstance().getAllKeys(ClojureNsNameIndex.KEY, project)) {
-        final String outerName = getQualifiedName();
         if (fqn.startsWith(outerName) && !fqn.equals(outerName) &&
                 !StringUtil.trimStart(fqn, outerName + ".").contains(".")) {
           final ClSyntheticNamespace inner = getNamespace(fqn, project);
+          innerNamespaces.add(fqn);
           if (!ResolveUtil.processElement(processor, inner)) {
             return false;
           }
@@ -152,8 +159,24 @@ public class NamespaceUtil {
         }
       }
 
+      final String qualifiedName = getQualifiedName();
+      final PsiPackage aPackage = JavaPsiFacade.getInstance(getProject()).findPackage(qualifiedName);
+      for (PsiClass clazz : aPackage.getClasses(place.getResolveScope())) {
+        if (!ResolveUtil.processElement(processor, clazz)) return false;
+      }
+      for (PsiPackage pack : aPackage.getSubPackages(place.getResolveScope())) {
+        if (!innerNamespaces.contains(pack.getQualifiedName()) &&
+            !ResolveUtil.processElement(processor, getNamespaceElement(pack))) {
+          return false;
+        }
+      }
+
       return true;
     }
 
+  }
+
+  public static ClSyntheticNamespace getNamespaceElement(PsiPackage pack) {
+    return new MyClSyntheticNamespace(pack.getProject(), pack.getName(), pack.getQualifiedName(), null);
   }
 }

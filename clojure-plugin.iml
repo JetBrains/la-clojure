@@ -6,6 +6,9 @@
       <sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/LedaSDK" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/NikaSDK" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/TrunkSDK" />
     </content>
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />

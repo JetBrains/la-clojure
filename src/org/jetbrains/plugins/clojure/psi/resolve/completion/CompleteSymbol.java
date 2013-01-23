@@ -25,7 +25,7 @@ public class CompleteSymbol {
     Collection<Object> variants = new ArrayList<Object>();
 
     ClSymbol qualifier = symbol.getQualifierSymbol();
-    final CompletionProcessor processor = new CompletionProcessor(symbol);
+    final CompletionProcessor processor = new CompletionProcessor(symbol, symbol.getKinds());
     if (qualifier == null) {
       ResolveUtil.treeWalkUp(symbol, processor);
     } else {
@@ -33,12 +33,11 @@ public class CompleteSymbol {
         final PsiElement element = result.getElement();
         if (element != null) {
           final PsiElement sep = symbol.getSeparatorToken();
-          if (sep != null) {
-            if ("/".equals(sep.getText()) && isNamespaceLike(element)) {
-              element.processDeclarations(processor, ResolveState.initial(), null, symbol);
-            } else if (".".equals(sep.getText())) {
-              element.processDeclarations(processor, ResolveState.initial(), null, symbol);
-            }
+          final String sepText = sep == null ? "." : sep.getText();
+          if ("/".equals(sepText) && isNamespaceLike(element)) {
+            element.processDeclarations(processor, ResolveState.initial(), null, symbol);
+          } else if (".".equals(sepText)) {
+            element.processDeclarations(processor, ResolveState.initial(), null, symbol);
           }
         }
       }

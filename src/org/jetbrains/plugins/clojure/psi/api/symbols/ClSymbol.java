@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
+import org.jetbrains.plugins.clojure.psi.resolve.processors.ResolveKind;
 
 /**
  * @author ilyas
@@ -38,4 +39,6 @@ public interface ClSymbol extends ClojurePsiElement, PsiPolyVariantReference, Ps
 
   @Nullable
   PsiElement getSeparatorToken();
+
+  public ResolveKind[] getKinds();
 }
