@@ -2,8 +2,8 @@
 
 <idea-plugin version="2">
 
-  <extensions defaultExtensionNs="com.intellij">
-    <!-- TODO add copyright updater -->
+  <extensions defaultExtensionNs="com.intellij.copyright">
+    <updater filetype="Clojure" implementationClass="org.jetbrains.plugins.clojure.editor.ClojureCopyrightProvider"/>
   </extensions>
 
 </idea-plugin>
