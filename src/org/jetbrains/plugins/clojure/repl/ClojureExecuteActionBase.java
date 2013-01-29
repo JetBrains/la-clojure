@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.clojure.repl;
 
+import com.intellij.codeInsight.completion.CompletionProcess;
+import com.intellij.codeInsight.completion.CompletionService;
 import com.intellij.codeInsight.lookup.Lookup;
 import com.intellij.codeInsight.lookup.LookupManager;
 import com.intellij.execution.process.ProcessHandler;
@@ -31,10 +33,24 @@ public abstract class ClojureExecuteActionBase extends DumbAwareAction {
   }
 
   public void update(final AnActionEvent e) {
-    final EditorEx editor = myLanguageConsole.getConsoleEditor();
-    final Lookup lookup = LookupManager.getActiveLookup(editor);
-    e.getPresentation().setEnabled(!myProcessHandler.isProcessTerminated() &&
-        (lookup == null || !lookup.isCompletion()));
+    e.getPresentation().setEnabled(isActionEnabled());
+  }
+
+  private boolean isActionEnabled() {
+    if (myProcessHandler.isProcessTerminated()) {
+      return false;
+    }
+
+    final Lookup lookup = LookupManager.getActiveLookup(myLanguageConsole.getConsoleEditor());
+    if (lookup == null || !lookup.isCompletion()) {
+      return true;
+    }
+
+    CompletionProcess completion = CompletionService.getCompletionService().getCurrentCompletion();
+    if (completion != null && completion.isAutopopupCompletion() && !lookup.isSelectionTouched()) {
+      return true;
+    }
+    return false;
   }
 
   public ClojureConsoleExecuteActionHandler getExecuteActionHandler() {
