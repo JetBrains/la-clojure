@@ -9,9 +9,7 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.testFramework.PsiTestCase;
-import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
-import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
-import com.intellij.testFramework.fixtures.TestFixtureBuilder;
+import com.intellij.testFramework.fixtures.*;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
 import junit.framework.Assert;
@@ -28,7 +26,7 @@ import java.io.IOException;
 /**
  * @author ilyas
  */
-public abstract class ClojureBaseTestCase extends PsiTestCase {
+public abstract class ClojureBaseTestCase extends LightPlatformCodeInsightFixtureTestCase {
 
   protected static final String SOURCE_FILE_EXT = ".clj";
   protected static final String TEST_FILE_EXT = ".test";
@@ -58,20 +56,11 @@ public abstract class ClojureBaseTestCase extends PsiTestCase {
 //    css.ALIGN_CLOJURE_FORMS = true;
   }
 
-  protected void setUp() {
+  protected void setUp() throws Exception {
     myFixture = createFixture();
 
-    try {
-      myFixture.setUp();
-    } catch (Exception e) {
-      e.printStackTrace();
-    } catch (AssertionFailedError ae) {
-      // mute
-    } catch (AssertionError ae) {
-      // mute
-    }
+    myFixture.setUp();
     myProject = myFixture.getProject();
-    ClojureLoader.loadClojure();
     setSettings();
   }
 
@@ -80,16 +69,9 @@ public abstract class ClojureBaseTestCase extends PsiTestCase {
     return fixtureBuilder.getFixture();
   }
 
-  protected void tearDown() {
-    ApplicationManager.getApplication().invokeLater(new Runnable() {
-      public void run() {
-        try {
-          myFixture.tearDown();
-        } catch (Exception e) {
-          // mute
-        }
-      }
-    });
+  protected void tearDown() throws Exception {
+    myFixture.tearDown();
+    myFixture = null;
   }
 
   protected PsiFile createPseudoPhysicalFile(final Project project, final String fileName, final String text) throws IncorrectOperationException {

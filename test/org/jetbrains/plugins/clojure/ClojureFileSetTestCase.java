@@ -59,7 +59,6 @@ public abstract class ClojureFileSetTestCase extends FileSetTestCase {
       e.printStackTrace();
     }
 
-    ClojureLoader.loadClojure();
     setSettings();
 
   }

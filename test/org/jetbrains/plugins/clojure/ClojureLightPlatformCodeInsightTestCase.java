@@ -42,7 +42,6 @@ public abstract class ClojureLightPlatformCodeInsightTestCase extends LightPlatf
 
   protected void setUp() throws Exception {
     super.setUp();
-    ClojureLoader.loadClojure();
 
     ModifiableRootModel rootModel = null;
     final ModuleRootManager rootManager = ModuleRootManager.getInstance(getModule());
