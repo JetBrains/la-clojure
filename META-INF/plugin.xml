@@ -49,6 +49,7 @@
     <xdebugger.settings implementation="org.jetbrains.plugins.clojure.debugger.filters.ClojureDebuggerSettings"/>
     <indexPatternBuilder implementation="org.jetbrains.plugins.clojure.editor.todo.ClojureIndexPatternBuilder"/>
     <java.shortNamesCache implementation="org.jetbrains.plugins.clojure.psi.stubs.ClojureShortNamesCache"/>
+    <enterHandlerDelegate implementation="org.jetbrains.plugins.clojure.editor.ClojureEnterHandler" order="first"/>
     <completion.contributor id="clojureClassNameCompletionContributor" language="Clojure"
                             implementationClass="org.jetbrains.plugins.clojure.psi.resolve.completion.ClojureClassNameCompletionContributor" order="first"/>
     <completion.contributor id="clojureCompletionContributor" language="Clojure"
