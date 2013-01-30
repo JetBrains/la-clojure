@@ -106,7 +106,7 @@ public class ClojurePositionManager implements PositionManager {
         final String nsPrefix = nsName != null ? nsName + "$" : "user$";
 
         final ClDef def = PsiTreeUtil.getParentOfType(element, ClDef.class);
-        final String name = def == null ? "eval" : def.getName();
+        final String name = def == null ? null : def.getName();
 
         return (nsPrefix + (name != null ? name : "")).replace('-', '_') + "*";
       }
