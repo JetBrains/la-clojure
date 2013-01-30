@@ -17,6 +17,7 @@ import org.jetbrains.plugins.clojure.ClojureBaseTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
+
 /**
  * @author ilyas
  */
