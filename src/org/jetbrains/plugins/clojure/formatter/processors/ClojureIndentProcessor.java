@@ -27,7 +27,7 @@ public class ClojureIndentProcessor implements ClojureElementTypes{
       if (L_BRACES.contains(child.getElementType())) {
         return Indent.getNoneIndent();
       } else {
-        return Indent.getNormalIndent();
+        return Indent.getNormalIndent(true);
       }
     } 
     return Indent.getNoneIndent();
