@@ -42,6 +42,7 @@
     <renameInputValidator implementation="org.jetbrains.plugins.clojure.refactoring.rename.ClojureRenameInputValidator"/>
     <fileTypeIndentOptionsProvider implementation="org.jetbrains.plugins.clojure.formatter.ClojureIndentOptionsProvider"/>
     <quoteHandler fileType="Clojure" className="org.jetbrains.plugins.clojure.editor.ClojureQuoteHandler"/>
+    <annotator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.editor.braceHighlighter.ClojureBraceHighlighter"/>
     <annotator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.annotator.ClojureAnnotator"/>
     <debuggerClassFilterProvider implementation="org.jetbrains.plugins.clojure.debugger.filters.ClojureDebugClassesFilterProvider"/>
     <gotoSymbolContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToSymbolContributor"/>
@@ -116,10 +117,6 @@
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.clojure.psi.impl.ClojurePsiManager</implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.jetbrains.plugins.clojure.editor.braceHighlighter.ClojureBraceHighlighter
-      </implementation-class>
     </component>
   </project-components>
 
