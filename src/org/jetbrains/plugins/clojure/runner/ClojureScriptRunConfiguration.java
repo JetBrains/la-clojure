@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.clojure.runner;
 
 import com.intellij.execution.CantRunException;
+import com.intellij.execution.CommonProgramRunConfigurationParameters;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.*;
@@ -9,6 +10,9 @@ import com.intellij.execution.filters.TextConsoleBuilderImpl;
 import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.util.ProgramParametersUtil;
+import com.intellij.openapi.components.PathMacroManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.options.SettingsEditor;
@@ -24,6 +28,7 @@ import com.intellij.openapi.util.JDOMExternalizer;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.util.containers.hash.*;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +39,7 @@ import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import java.io.File;
 import java.util.*;
+import java.util.HashSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -50,13 +56,16 @@ import java.util.*;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
+public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration implements CommonProgramRunConfigurationParameters {
+  private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfiguration");
   private ClojureScriptConfigurationFactory factory;
   private String scriptPath;
   private String workDir;
   private String vmParams;
   private String scriptParams;
   private boolean runInREPL;
+  private final Map<String, String> envs = new com.intellij.util.containers.hash.LinkedHashMap<String, String>();
+  public boolean passParentEnv = true;
 
   //  private static final String JLINE_CONSOLE_RUNNER = "jline.ConsoleRunner";
 
@@ -90,6 +99,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
   }
 
   public void readExternal(Element element) throws InvalidDataException {
+    PathMacroManager.getInstance(getProject()).expandPaths(element);
     super.readExternal(element);
     readModule(element);
     scriptPath = JDOMExternalizer.readString(element, "path");
@@ -98,6 +108,9 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     workDir = JDOMExternalizer.readString(element, "workDir");
     runInREPL = Boolean.parseBoolean(JDOMExternalizer.readString(element, "repl"));
     workDir = getWorkDir();
+
+    envs.clear();
+    JDOMExternalizer.readMap(element, envs, null, "env");
   }
 
   public void writeExternal(Element element) throws WriteExternalException {
@@ -108,6 +121,18 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
     JDOMExternalizer.write(element, "params", scriptParams);
     JDOMExternalizer.write(element, "workDir", workDir);
     JDOMExternalizer.write(element, "repl", runInREPL);
+    JDOMExternalizer.writeMap(element, envs, null, "env");
+    PathMacroManager.getInstance(getProject()).collapsePathsRecursively(element);
+  }
+
+  public void setEnvs(@NotNull Map<String, String> envs) {
+    this.envs.clear();
+    this.envs.putAll(envs);
+  }
+
+  @NotNull
+  public Map<String, String> getEnvs() {
+    return envs;
   }
 
   protected ModuleBasedConfiguration createInstance() {
@@ -148,9 +173,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
 
     // Setting up classpath
     configureScriptSystemClassPath(params, module);
-
-    //Set up working dir
-    params.setWorkingDirectory(getAbsoluteWorkDir());
 
     // add user parameters
     params.getVMParametersList().addParametersString(vmParams);
@@ -231,6 +253,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
 
     final JavaCommandLineState state = new JavaCommandLineState(environment) {
       protected JavaParameters createJavaParameters() throws ExecutionException {
+        ProgramParametersUtil.configureConfiguration(params, ClojureScriptRunConfiguration.this);
         configureJavaParams(params, module);
         configureScript(params);
         return params;
@@ -300,6 +323,31 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration {
 
   public boolean getRunInREPL() {
     return runInREPL;
+  }
+
+  public void setPassParentEnvs(boolean passParentEnvs) {
+    this.passParentEnv = passParentEnvs;
+  }
+
+  public boolean isPassParentEnvs() {
+    return passParentEnv;
+  }
+
+  public void setProgramParameters(@Nullable String s) {
+    LOG.error("Don't add program parameters to Clojure script run configuration. Use Script parameters instead");
+  }
+
+  @Nullable
+  public String getProgramParameters() {
+    return null;
+  }
+
+  public void setWorkingDirectory(@Nullable String value) {
+    workDir = value;
+  }
+
+  public String getWorkingDirectory() {
+    return workDir;
   }
 
 }

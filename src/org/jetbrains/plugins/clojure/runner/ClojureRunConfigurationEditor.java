@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.clojure.runner;
 
+import com.intellij.execution.configuration.EnvironmentVariablesComponent;
 import com.intellij.ide.util.BrowseFilesListener;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
@@ -33,6 +34,7 @@ import java.awt.*;
  */
 public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptRunConfiguration> {
 
+  private final EnvironmentVariablesComponent myEnvVariables = new EnvironmentVariablesComponent();
   private DefaultComboBoxModel myModulesModel;
   private JComboBox myModulesBox;
   private JPanel myMainPanel;
@@ -41,6 +43,7 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
   private JPanel scriptPathPanel;
   private JPanel workDirPanel;
   private JCheckBox myReplCB;
+  private JPanel myEnvPanel;
   private JTextField scriptPathField;
   private JTextField workDirField;
 
@@ -67,6 +70,9 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
     final FieldPanel workDirFieldPanel = new FieldPanel(workDirField, ClojureBundle.message("work.dir")+ ":", null, workDirBrowseFilesListener, null);
     workDirPanel.setLayout(new BorderLayout());
     workDirPanel.add(workDirFieldPanel, BorderLayout.CENTER);
+
+    myEnvVariables.setLabelLocation(BorderLayout.WEST);
+    myEnvPanel.add(myEnvVariables);
   }
 
   public void resetEditorFrom(ClojureScriptRunConfiguration configuration) {
@@ -87,6 +93,8 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
       myModulesModel.addElement(module);
     }
     myModulesModel.setSelectedItem(configuration.getModule());
+
+    myEnvVariables.setEnvs(configuration.getEnvs());
   }
 
   public void applyEditorTo(ClojureScriptRunConfiguration configuration) throws ConfigurationException {
@@ -96,6 +104,7 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
     configuration.setScriptParams(myParameters.getText());
     configuration.setScriptPath(scriptPathField.getText());
     configuration.setWorkDir(workDirField.getText());
+    configuration.setEnvs(myEnvVariables.getEnvs());
   }
 
   @NotNull
