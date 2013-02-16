@@ -42,6 +42,11 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
   @Override
   @Nullable
   public String getName() {
+    ClNsStub stub = getStub();
+    if (stub != null) {
+      return stub.getName();
+    }
+
     return getDefinedName();
   }
 

@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author ilyas
  */
 public class ClStubFileElementType extends IStubFileElementType<ClFileStub> {
-  private static final int CACHES_VERSION = 12;
+  private static final int CACHES_VERSION = 13;
 
   public ClStubFileElementType() {
     super(ClojureFileType.CLOJURE_LANGUAGE);
@@ -44,7 +44,7 @@ public class ClStubFileElementType extends IStubFileElementType<ClFileStub> {
   @Override
   public void serialize(final ClFileStub stub, final StubOutputStream dataStream) throws IOException {
     dataStream.writeName(stub.getPackageName().toString());
-    dataStream.writeName(stub.getName().toString());
+    dataStream.writeName(stub.getClassName().toString());
     dataStream.writeBoolean(stub.isClassDefinition());
   }
 
@@ -57,7 +57,7 @@ public class ClStubFileElementType extends IStubFileElementType<ClFileStub> {
   }
 
   public void indexStub(ClFileStub stub, IndexSink sink) {
-    String name = stub.getName().toString();
+    String name = stub.getClassName().toString();
     if (stub.isClassDefinition() && name != null) {
       sink.occurrence(ClojureClassNameIndex.KEY, name);
       final String pName = stub.getPackageName().toString();

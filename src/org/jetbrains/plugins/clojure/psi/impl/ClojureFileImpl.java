@@ -7,6 +7,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.psi.*;
+import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
@@ -21,17 +22,16 @@ import org.jetbrains.plugins.clojure.psi.api.ClList;
 import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClFileStub;
 import org.jetbrains.plugins.clojure.psi.util.ClojureKeywords;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiFactory;
 import org.jetbrains.plugins.clojure.psi.util.ClojurePsiUtil;
 import org.jetbrains.plugins.clojure.psi.util.ClojureTextUtil;
 import org.jetbrains.plugins.clojure.psi.impl.synthetic.ClSyntheticClassImpl;
 import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
-import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.parser.ClojureParser;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -131,6 +131,11 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
 
   @NotNull
   public String getPackageName() {
+    StubElement stub = getStub();
+    if (stub instanceof ClFileStub) {
+      return ((ClFileStub) stub).getPackageName().getString();
+    }
+
     String ns = getNamespace();
     if (ns == null) {
       return "";
@@ -193,6 +198,11 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
   }
 
   public boolean isClassDefiningFile() {
+    StubElement stub = getStub();
+    if (stub instanceof ClFileStub) {
+      return ((ClFileStub) stub).isClassDefinition();
+    }
+
     final ClList ns = ClojurePsiUtil.findFormByName(this, "ns");
     if (ns == null) return false;
     final ClSymbol first = ns.findFirstChildByClass(ClSymbol.class);
@@ -234,6 +244,11 @@ public class ClojureFileImpl extends PsiFileBase implements ClojureFile {
   }
 
   public String getClassName() {
+    StubElement stub = getStub();
+    if (stub instanceof ClFileStub) {
+      return ((ClFileStub) stub).getClassName().getString();
+    }
+
     String namespace = getNamespace();
     if (namespace == null) return null;
     int i = namespace.lastIndexOf(".");

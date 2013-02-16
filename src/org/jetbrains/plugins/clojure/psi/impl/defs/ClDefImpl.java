@@ -25,6 +25,7 @@ import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.list.ClListBaseImpl;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -69,6 +70,11 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
   @Override
   @Nullable
   public String getName() {
+    ClDefStub stub = getStub();
+    if (stub != null) {
+      return stub.getName();
+    }
+
     return getDefinedName();
   }
 

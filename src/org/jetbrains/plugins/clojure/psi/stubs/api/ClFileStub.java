@@ -10,7 +10,7 @@ import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 public interface ClFileStub extends PsiFileStub<ClojureFile> {
   StringRef getPackageName();
 
-  StringRef getName();
+  StringRef getClassName();
 
   boolean isClassDefinition();
 }

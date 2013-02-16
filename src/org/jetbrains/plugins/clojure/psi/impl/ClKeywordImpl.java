@@ -17,6 +17,7 @@ import org.jetbrains.plugins.clojure.psi.ClStubElementType;
 import org.jetbrains.plugins.clojure.psi.ClojureBaseElementImpl;
 import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClKeywordStub;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
 import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureKeywordIndex;
 
 import java.util.Collection;
@@ -43,6 +44,11 @@ public class ClKeywordImpl extends ClojureBaseElementImpl<ClKeywordStub> impleme
   @Override
   @NotNull
   public String getName() {
+    ClKeywordStub stub = getStub();
+    if (stub != null) {
+      return stub.getName();
+    }
+
     return getText();
   }
 
