@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.clojure.repl;
 
+import com.google.common.collect.Maps;
 import com.intellij.execution.*;
 import com.intellij.execution.configurations.CommandLineBuilder;
 import com.intellij.execution.configurations.GeneralCommandLine;
@@ -12,6 +13,7 @@ import com.intellij.execution.ui.actions.CloseAction;
 import com.intellij.facet.FacetManager;
 import com.intellij.ide.CommonActionsManager;
 import com.intellij.ide.DataManager;
+import com.intellij.notification.EventLog;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerPaths;
@@ -24,10 +26,12 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ModuleSourceOrderEntry;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.ui.MessageType;
+import com.intellij.openapi.ui.popup.Balloon;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.IdeFocusManager;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.wm.*;
+import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
@@ -39,6 +43,8 @@ import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.*;
 import java.util.List;
 
@@ -93,8 +99,7 @@ public class ClojureConsoleRunner {
       }
 
       public Map<String, String> getAdditionalEnvs() {
-        // todo add extra env. variables
-        return new HashMap<String, String>();
+        return getClojureREPLEnv(module);
       }
     };
 
@@ -367,11 +372,13 @@ public class ClojureConsoleRunner {
 
     Map<String, String> envParams = new HashMap<String, String>();
     envParams.putAll(System.getenv());
+    envParams.putAll(getClojureREPLEnv(module));
     line.setEnvParams(envParams);
 
     if (!sdkConfigured) {
       ClojureConfigUtil.warningDefaultClojureJar(module);
     }
+
     return line;
   }
 
@@ -380,6 +387,31 @@ public class ClojureConsoleRunner {
     String opts = facet != null ? facet.getJvmOptions() : null;
     if (opts == null || opts.trim().isEmpty()) return Arrays.asList();
     return Arrays.asList(opts.split("\\s+"));
+  }
+
+  private static Map<String, String> getClojureREPLEnv(Module module) {
+    final ClojureFacet facet = getClojureFacet(module);
+    String envVars = facet != null ? facet.getEnvVars() : null;
+    if (envVars == null || envVars.trim().isEmpty()) return new HashMap<String, String>();
+
+    StatusBar statusBar = WindowManager.getInstance()
+        .getStatusBar(module.getProject());
+
+    Map<String, String> env = new HashMap<String, String>();
+    for (String pair : envVars.split("\\s+")) {
+      String[] keyVal = pair.split("=");
+      // XXX TODO assert / roustify
+      env.put(keyVal[0].trim(), keyVal[1].trim());
+    }
+
+    JBPopupFactory.getInstance()
+        .createHtmlTextBalloonBuilder(env.toString(), MessageType.INFO, null)
+        .setFadeoutTime(7500)
+        .createBalloon()
+        .showInCenterOf(statusBar.getComponent());
+
+
+    return env;
   }
 
   private static ClojureFacet getClojureFacet(Module module) {

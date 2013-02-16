@@ -17,4 +17,6 @@ public class ClojureModuleSettings {
   @NotNull
   public String myReplOpts = "";
 
+  @NotNull
+  public String myEnvVars = "";
 }

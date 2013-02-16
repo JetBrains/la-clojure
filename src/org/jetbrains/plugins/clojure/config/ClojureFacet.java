@@ -64,4 +64,8 @@ public class ClojureFacet extends Facet<ClojureFacetConfiguration> {
   public String getReplOptions() {
     return getConfiguration().getState().myReplOpts;
   }
+
+  public String getEnvVars() {
+    return getConfiguration().getState().myEnvVars;
+  }
 }

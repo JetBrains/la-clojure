@@ -42,6 +42,7 @@ public class ClojureFacetSettingsTab extends FacetEditorTab {
   private JTextField myReplOpts;
   private JTextField myReplClass;
   private JPanel myReplPanel;
+  private JTextField myEnvVars;
   private FacetEditorContext myEditorContext;
   private FacetValidatorsManager myValidatorsManager;
   private final ClojureModuleSettings mySettings;
@@ -56,6 +57,7 @@ public class ClojureFacetSettingsTab extends FacetEditorTab {
     myJvmOpts.setText(mySettings.myJvmOpts);
     myReplClass.setText(mySettings.myReplClass);
     myReplOpts.setText(mySettings.myReplOpts);
+    myEnvVars.setText(mySettings.myEnvVars);
 
     reset();
   }
@@ -72,7 +74,8 @@ public class ClojureFacetSettingsTab extends FacetEditorTab {
   public boolean isModified() {
     return !myJvmOpts.getText().trim().equals(mySettings.myJvmOpts) ||
         !myReplClass.getText().trim().equals(mySettings.myReplClass) ||
-        !myReplOpts.getText().trim().equals(mySettings.myReplOpts);
+        !myReplOpts.getText().trim().equals(mySettings.myReplOpts) ||
+        !myEnvVars.getText().trim().equals((mySettings.myEnvVars));
   }
 
   @Override
@@ -87,12 +90,14 @@ public class ClojureFacetSettingsTab extends FacetEditorTab {
     mySettings.myJvmOpts = myJvmOpts.getText().trim();
     mySettings.myReplClass = myReplClass.getText().trim();
     mySettings.myReplOpts = myReplOpts.getText().trim();
+    mySettings.myEnvVars = myEnvVars.getText().trim();
   }
 
   public void reset() {
     myJvmOpts.setText(mySettings.myJvmOpts);
     myReplClass.setText(mySettings.myReplClass);
     myReplClass.setText(mySettings.myReplClass);
+    myEnvVars.setText(mySettings.myEnvVars);
   }
 
   public void disposeUIResources() {
