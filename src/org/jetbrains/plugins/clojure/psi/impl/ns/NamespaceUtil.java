@@ -53,11 +53,11 @@ public class NamespaceUtil {
           });
 
           for (PsiElement elem : elems) {
-            if (elem instanceof PsiNamedElement &&
-                    ((PsiNamedElement) elem).getName() != null &&
-                    ((PsiNamedElement) elem).getName().length() > 0 &&
-                    suitsByPosition(((PsiNamedElement) elem), ns)) {
-              result.add(((PsiNamedElement) elem));
+            if (elem instanceof PsiNamedElement) {
+              String name = ((PsiNamedElement) elem).getName();
+              if (name != null && name.length() > 0 && suitsByPosition(((PsiNamedElement) elem), ns)) {
+                result.add(((PsiNamedElement) elem));
+              }
             }
           }
         }
@@ -161,13 +161,15 @@ public class NamespaceUtil {
 
       final String qualifiedName = getQualifiedName();
       final PsiPackage aPackage = JavaPsiFacade.getInstance(getProject()).findPackage(qualifiedName);
-      for (PsiClass clazz : aPackage.getClasses(place.getResolveScope())) {
-        if (!ResolveUtil.processElement(processor, clazz)) return false;
-      }
-      for (PsiPackage pack : aPackage.getSubPackages(place.getResolveScope())) {
-        if (!innerNamespaces.contains(pack.getQualifiedName()) &&
-            !ResolveUtil.processElement(processor, getNamespaceElement(pack))) {
-          return false;
+      if (aPackage != null) {
+        for (PsiClass clazz : aPackage.getClasses(place.getResolveScope())) {
+          if (!ResolveUtil.processElement(processor, clazz)) return false;
+        }
+        for (PsiPackage pack : aPackage.getSubPackages(place.getResolveScope())) {
+          if (!innerNamespaces.contains(pack.getQualifiedName()) &&
+              !ResolveUtil.processElement(processor, getNamespaceElement(pack))) {
+            return false;
+          }
         }
       }
 
