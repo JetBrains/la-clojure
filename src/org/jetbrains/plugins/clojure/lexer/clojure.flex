@@ -74,7 +74,8 @@ mCOMMA = ","
 
 mHEX_DIGIT = [0-9A-Fa-f]
 mDIGIT = [0-9]
-mBIG_SUFFIX = g | G
+mBIG_INT_SUFFIX = N
+mBIG_DECIMAL_SUFFIX = M
 mFLOAT_SUFFIX = f | F
 mLONG_SUFFIX = l | L
 mINT_SUFFIX = i | I
@@ -89,28 +90,18 @@ mNUM_INT_PART =  0
  | {mDIGIT}+ "r" ({mDIGIT} | {mLETTER})+
  | {mDIGIT}+
 
-// Integer
-mNUM_INT = {mNUM_INT_PART} {mINT_SUFFIX}?
-
 // Long
-mNUM_LONG = {mNUM_INT_PART} {mLONG_SUFFIX}
+mNUM_LONG = {mNUM_INT_PART}
 
 // BigInteger
-mNUM_BIG_INT = {mNUM_INT_PART} {mBIG_SUFFIX}
-
-//Float
-mNUM_FLOAT = {mNUM_INT_PART} ( ("." {mDIGIT}+ {mEXPONENT}? {mFLOAT_SUFFIX})
- | {mFLOAT_SUFFIX}
- | {mEXPONENT} {mFLOAT_SUFFIX} )
+mNUM_BIG_INT = {mNUM_INT_PART} {mBIG_INT_SUFFIX}
 
 // Double
-mNUM_DOUBLE = {mNUM_INT_PART} ( ("." {mDIGIT}+ {mEXPONENT}? {mDOUBLE_SUFFIX})
- | {mDOUBLE_SUFFIX}
- | {mEXPONENT} {mDOUBLE_SUFFIX})
+mNUM_DOUBLE = {mNUM_INT_PART} ( ("." {mDIGIT}* {mEXPONENT}?) | {mEXPONENT})
 
 // BigDecimal
-mNUM_BIG_DECIMAL = {mNUM_INT_PART} ( ("." {mDIGIT}+ {mEXPONENT}? {mBIG_SUFFIX}?)
- | {mEXPONENT} {mBIG_SUFFIX}? )
+mNUM_BIG_DECIMAL = {mNUM_INT_PART} ( ("." {mDIGIT}* {mEXPONENT}? {mBIG_DECIMAL_SUFFIX})
+ | {mEXPONENT} {mBIG_DECIMAL_SUFFIX} | {mBIG_DECIMAL_SUFFIX})
 
 //Ratios
 mRATIO = {mNUM_INT_PART} "/" {mNUM_INT_PART}
@@ -230,10 +221,8 @@ mFALSE = "false"
   {mTRUE}                                   {  return TRUE; }
   {mFALSE}                                  {  return FALSE; }
 
-  {mNUM_INT}                                {  return INTEGER_LITERAL; }
   {mNUM_LONG}                               {  return LONG_LITERAL; }
   {mNUM_BIG_INT}                            {  return BIG_INT_LITERAL; }
-  {mNUM_FLOAT}                              {  return FLOAT_LITERAL; }
   {mNUM_DOUBLE}                             {  return DOUBLE_LITERAL; }
   {mNUM_BIG_DECIMAL}                        {  return BIG_DECIMAL_LITERAL; }
   {mRATIO}                                  {  return RATIO; }

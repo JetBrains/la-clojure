@@ -1,0 +1,21 @@
+(+ 123 1N 1. 1.2 1e2 1M 1.2M 1e2M)
+-----
+( {(}
+atom {+}
+WHITE_SPACE { }
+long literal {123}
+WHITE_SPACE { }
+big integer literal {1N}
+WHITE_SPACE { }
+double literal {1.}
+WHITE_SPACE { }
+double literal {1.2}
+WHITE_SPACE { }
+double literal {1e2}
+WHITE_SPACE { }
+big deciamel literal {1M}
+WHITE_SPACE { }
+big deciamel literal {1.2M}
+WHITE_SPACE { }
+big deciamel literal {1e2M}
+) {)}

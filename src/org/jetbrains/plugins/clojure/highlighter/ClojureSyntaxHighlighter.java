@@ -38,7 +38,7 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
 
 
   static final TokenSet sNUMBERS = TokenSet.create(
-      INTEGER_LITERAL, LONG_LITERAL, BIG_INT_LITERAL, FLOAT_LITERAL, DOUBLE_LITERAL, BIG_DECIMAL_LITERAL, RATIO
+      LONG_LITERAL, BIG_INT_LITERAL, DOUBLE_LITERAL, BIG_DECIMAL_LITERAL, RATIO
   );
 
   static final TokenSet sLINE_COMMENTS = TokenSet.create(
