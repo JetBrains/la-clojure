@@ -89,6 +89,11 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
 
   @Override
   public int getTextOffset() {
+    ClNsStub stub = getStub();
+    if (stub != null) {
+      return stub.getTextOffset();
+    }
+
     final ClSymbol symbol = getNameSymbol();
     if (symbol != null) {
       return symbol.getTextRange().getStartOffset();

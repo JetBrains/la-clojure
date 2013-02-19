@@ -9,7 +9,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.plugins.clojure.psi.ClStubElementType;
 import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
-import org.jetbrains.plugins.clojure.psi.stubs.impl.ClNsStubImpl;
 import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureNsNameIndex;
 
 import java.io.IOException;
@@ -26,11 +25,13 @@ public abstract class ClNsElementTypeBase extends ClStubElementType<ClNsStub, Cl
 
   public void serialize(ClNsStub stub, StubOutputStream dataStream) throws IOException {
     dataStream.writeName(stub.getName());
+    dataStream.writeInt(stub.getTextOffset());
   }
 
   public ClNsStub deserialize(StubInputStream dataStream, StubElement parentStub) throws IOException {
     StringRef ref = dataStream.readName();
-    return new ClNsStubImpl(parentStub, ref, this);
+    int textOffset = dataStream.readInt();
+    return new ClNsStub(parentStub, ref, this, textOffset);
   }
 
   @Override

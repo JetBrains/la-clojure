@@ -8,7 +8,6 @@ import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
 import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClInNsImpl;
 import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
-import org.jetbrains.plugins.clojure.psi.stubs.impl.ClNsStubImpl;
 
 /**
  * @author ilyas
@@ -27,7 +26,7 @@ public class ClInNsElementType extends ClNsElementTypeBase {
   }
   
   public ClNsStub createStub(ClNs psi, StubElement parentStub) {
-    return new ClNsStubImpl(parentStub, StringRef.fromString(psi.getDefinedName()), ClojureElementTypes.IN_NS);
+    return new ClNsStub(parentStub, StringRef.fromString(psi.getDefinedName()), ClojureElementTypes.IN_NS, psi.getTextOffset());
   }
 
 }
