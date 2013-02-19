@@ -70,7 +70,7 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
   final IElementType TILDAAT_EXPRESSION = new ClojureElementType("tildaat expression");
 
 
-  TokenSet LIST_LIKE_FORMS = TokenSet.create(LIST, VECTOR, MAP, SET, DEF, DEFMETHOD, NS);
+  TokenSet LIST_LIKE_FORMS = TokenSet.create(LIST, VECTOR, MAP, SET, DEF, DEFMETHOD, NS, IN_NS, CREATE_NS);
 
   TokenSet BRACES = TokenSet.create(LEFT_CURLY, LEFT_PAREN, LEFT_SQUARE,
       RIGHT_CURLY, RIGHT_PAREN, RIGHT_SQUARE);
