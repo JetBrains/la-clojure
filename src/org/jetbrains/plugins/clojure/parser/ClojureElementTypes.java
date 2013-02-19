@@ -1,24 +1,22 @@
 package org.jetbrains.plugins.clojure.parser;
 
-import com.intellij.psi.stubs.IStubElementType;
+import com.intellij.psi.stubs.EmptyStub;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import org.jetbrains.plugins.clojure.psi.ClStubElementType;
 import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
-import org.jetbrains.plugins.clojure.psi.stubs.api.ClKeywordStub;
-import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefElementType;
-import org.jetbrains.plugins.clojure.psi.stubs.elements.ClDefMethodElementType;
-import org.jetbrains.plugins.clojure.psi.stubs.elements.ClKeywordElementType;
-import org.jetbrains.plugins.clojure.psi.stubs.elements.ClStubFileElementType;
-import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClNsElementType;
-import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClInNsElementType;
-import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClCreateNsElementType;
-import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
-import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
-import org.jetbrains.plugins.clojure.psi.ClStubElementType;
+import org.jetbrains.plugins.clojure.psi.impl.list.ClListImpl;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClKeywordStub;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClNsStub;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.*;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClCreateNsElementType;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClInNsElementType;
+import org.jetbrains.plugins.clojure.psi.stubs.elements.ns.ClNsElementType;
 
 /**
  * User: peter
@@ -38,7 +36,7 @@ public interface ClojureElementTypes extends ClojureTokenTypes {
   final IStubFileElementType FILE = new ClStubFileElementType();
 
   final IElementType TOPLIST = new ClojureElementType("toplist");
-  final IElementType LIST = new ClojureElementType("list");
+  final ClStubElementType<EmptyStub, ClListImpl> LIST = new ClListElementType();
   final IElementType VECTOR = new ClojureElementType("vector");
   final IElementType MAP = new ClojureElementType("map");
   final IElementType SET = new ClojureElementType("map");

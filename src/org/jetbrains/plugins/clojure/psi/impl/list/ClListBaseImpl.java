@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.clojure.psi.impl.list;
 
 import com.intellij.openapi.util.Condition;
+import com.intellij.psi.StubBasedPsiElement;
+import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
@@ -17,13 +19,14 @@ import com.intellij.psi.stubs.NamedStub;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.lang.ASTNode;
+import org.jetbrains.plugins.clojure.psi.stubs.api.ClDefStub;
 
 import java.util.List;
 
 /**
  * @author ilyas
  */
-public abstract class ClListBaseImpl<T extends NamedStub> extends ClojureBaseElementImpl<T> implements ClList {
+public abstract class ClListBaseImpl<T extends StubElement> extends ClojureBaseElementImpl<T> implements ClList, StubBasedPsiElement<T> {
 
   public ClListBaseImpl(T stub, @NotNull IStubElementType nodeType) {
     super(stub, nodeType);
