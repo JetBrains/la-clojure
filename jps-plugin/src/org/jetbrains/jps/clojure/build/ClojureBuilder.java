@@ -121,7 +121,7 @@ public class ClojureBuilder extends ModuleLevelBuilder {
     List<String> vmParams = new ArrayList<String>();
     List<String> programParams = new ArrayList<String>();
     File outputDir = chunk.representativeTarget().getOutputDir();
-    File fileWithCompileScript = File.createTempFile("clojurekul", ".clj");
+    File fileWithCompileScript = FileUtil.createTempFile("clojurekul", ".clj");
     fillFileWithClojureCompilerParams(toCompile, toCompileNamespace, fileWithCompileScript, outputDir);
     programParams.add(fileWithCompileScript.getAbsolutePath());
     List<String> commandLine =
