@@ -217,6 +217,11 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
 
   @Override
   public int getTextOffset() {
+    ClDefStub stub = getStub();
+    if (stub != null) {
+      return stub.getTextOffset();
+    }
+
     final ClSymbol symbol = getNameSymbol();
     if (symbol != null) {
       return symbol.getTextRange().getStartOffset();
