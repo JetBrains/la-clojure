@@ -278,10 +278,13 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
       if (listParent instanceof ClQuotedForm) {
         listParent = listParent.getParent();
         if (listParent instanceof ClList) {
-          final boolean isImport = ((ClList) listParent).getFirstSymbol().getNameString().equals(ListDeclarations.IMPORT);
-          final ClSymbol firstSymbol = list.getFirstSymbol();
-          if (isImport && firstSymbol != this && firstSymbol instanceof ClSymbol) {
-            return firstSymbol;
+          final ClSymbol listParentFirstSymbol = ((ClList) listParent).getFirstSymbol();
+          if (listParentFirstSymbol != null) {
+            final boolean isImport = listParentFirstSymbol.getNameString().equals(ListDeclarations.IMPORT);
+            final ClSymbol firstSymbol = list.getFirstSymbol();
+            if (isImport && firstSymbol != this && firstSymbol instanceof ClSymbol) {
+              return firstSymbol;
+            }
           }
         }
       }

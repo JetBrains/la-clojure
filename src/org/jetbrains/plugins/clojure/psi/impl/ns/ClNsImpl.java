@@ -82,9 +82,7 @@ public class ClNsImpl extends ClListBaseImpl<ClNsStub> implements ClNs, StubBase
 
   @Override
   public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
-    final JavaPsiFacade facade = JavaPsiFacade.getInstance(getProject());
-    if (ImportOwner.processImports(this, processor, place, facade)) return false;
-    return true;
+    return ImportOwner.processDeclarations(this, processor, place);
   }
 
   @Override

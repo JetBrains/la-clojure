@@ -10,6 +10,8 @@ import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
 import org.jetbrains.plugins.clojure.util.TestUtils;
 
+import java.io.IOException;
+
 /**
  * @author ilyas
  */
@@ -68,10 +70,7 @@ public class ClojureResolveSymbolTest extends ClojureResolveTestCaseBase {
   }
 
   public void testDeftest5() throws Exception {
-    configureByFileName("useNs/deftest5.clj");
-    final PsiReference reference = findReference();
-    final PsiElement element = reference.resolve();
-    assertNull(element);
+    checkReferenceIsUnresolved("useNs/deftest5.clj");
   }
 
   public void testDeftest6() throws Exception {
@@ -110,6 +109,60 @@ public class ClojureResolveSymbolTest extends ClojureResolveTestCaseBase {
     final PsiElement element = resolveReference();
     assertTrue(element instanceof ClDef);
     assertTrue("trace-fn-call".equals(((ClDef) element).getName()));
+  }
+
+  public void testImport1() throws Exception {
+    checkResolveToDate("javaClass/import1.clj");
+  }
+
+  public void testImport2() throws Exception {
+    checkResolveToDate("javaClass/import2.clj");
+  }
+
+  public void testImport3() throws Exception {
+    checkResolveToDate("javaClass/import3.clj");
+  }
+
+  public void testImport4() throws Exception {
+    checkResolveToDate("javaClass/import4.clj");
+  }
+
+  public void testImport5() throws Exception {
+    checkResolveToDate("javaClass/import5.clj");
+  }
+
+  public void testImport6() throws Exception {
+    checkResolveToDate("javaClass/import6.clj");
+  }
+
+  public void testImport7() throws Exception {
+    checkResolveToDate("javaClass/import7.clj");
+  }
+
+  private void checkResolveToDate(String filePath) throws IOException {
+    configureByFileName(filePath);
+    final PsiReference reference = findReference();
+    final PsiElement element = reference.resolve();
+    assert(element instanceof PsiClass && ((PsiClass) element).getQualifiedName().equals("java.util.Date"));
+  }
+
+  public void testImportFails1() throws Exception {
+    checkReferenceIsUnresolved("javaClass/importFails1.clj");
+  }
+
+  public void testImportFails2() throws Exception {
+    checkReferenceIsUnresolved("javaClass/importFails2.clj");
+  }
+
+  private void checkReferenceIsUnresolved(String filePath) throws IOException {
+    configureByFileName(filePath);
+    final PsiReference reference = findReference();
+    final PsiElement element = reference.resolve();
+    assertNull(element);
+  }
+
+  public void testImportFails3() throws Exception {
+    checkReferenceIsUnresolved("javaClass/importFails3.clj");
   }
 
   public void testJavaClass() throws Exception {

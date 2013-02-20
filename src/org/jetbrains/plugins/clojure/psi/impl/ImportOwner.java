@@ -6,56 +6,43 @@ import com.intellij.psi.scope.NameHint;
 import com.intellij.psi.scope.PsiScopeProcessor;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
-import org.jetbrains.plugins.clojure.psi.api.ClListLike;
-import org.jetbrains.plugins.clojure.psi.api.ClVector;
+import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
+import org.jetbrains.plugins.clojure.psi.api.*;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
 import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
 import org.jetbrains.plugins.clojure.psi.resolve.ResolveUtil;
 import org.jetbrains.plugins.clojure.psi.util.ClojureKeywords;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author ilya
  */
 public abstract class ImportOwner {
-  public static boolean processImports(PsiElement self, PsiScopeProcessor processor, PsiElement place, JavaPsiFacade facade) {
+  public static boolean processDeclarations(PsiElement self, PsiScopeProcessor processor, PsiElement place) {
     for (PsiElement element : self.getChildren()) {
       if (element instanceof ClList) {
         ClList directive = (ClList) element;
         final PsiElement first = directive.getFirstNonLeafElement();
-        if (first == null) {
-          return true;
-        }
+        if (first == null) return true;
         final String headText = first.getText();
-        if (processImports(processor, place, facade, directive, headText)) {
-          return true;
-        }
-        if (processUses(processor, place, facade, directive, headText)) {
-          return true;
-        }
-        if (processRequires(processor, place, facade, directive, headText)) {
-          return true;
-        }
+        if (!processImports(processor, place, directive, headText)) return false;
+        if (!processUses(processor, place, directive, headText)) return false;
+        if (!processRequires(processor, place, directive, headText)) return false;
       }
     }
-    return false;
+    return true;
   }
 
-  private static boolean processRequires(PsiScopeProcessor processor, PsiElement place, JavaPsiFacade facade, ClList directive, String headText) {
+  public static boolean processRequires(PsiScopeProcessor processor, PsiElement place, ClList directive, String headText) {
     if (!ClojureKeywords.REQUIRE.equals(headText) &&
         !ListDeclarations.REQUIRE.equals(headText)) {
-      return false;
+      return true;
     }
 
     final ClListLike[] clauses = PsiTreeUtil.getChildrenOfType(directive, ClListLike.class);
-    if (clauses == null) return false;
+    if (clauses == null) return true;
 
     // process :as aliases for namespaces
     for (ClListLike clause : clauses) {
@@ -77,16 +64,16 @@ public abstract class ImportOwner {
             }
           }
         } else if (nameHint == null) {
-          processor.execute(to, ResolveState.initial());
+          if (!processor.execute(to, ResolveState.initial())) return false;
         }
       }
     }
-    return false;
+    return true;
   }
 
-  private static boolean processUses(PsiScopeProcessor processor, PsiElement place, JavaPsiFacade facade, ClList directive, String headText) {
+  public static boolean processUses(PsiScopeProcessor processor, PsiElement place, ClList directive, String headText) {
     if (!(ClojureKeywords.USE.equals(headText) || ListDeclarations.USE.equals(headText))) {
-      return false;
+      return true;
     }
 
     final Set<ClSymbol> accum = new HashSet<ClSymbol>();
@@ -100,7 +87,7 @@ public abstract class ImportOwner {
     for (ClSymbol symbol : accum) {
       for (PsiNamedElement element : NamespaceUtil.getDeclaredElements(symbol.getNameString(), project)) {
         if (element != null && !ResolveUtil.processElement(processor, element)) {
-          return true;
+          return false;
         }
       }
     }
@@ -127,63 +114,93 @@ public abstract class ImportOwner {
             final String fqn = prefix + "." + suffix.getNameString();
             for (PsiNamedElement ns : NamespaceUtil.getDeclaredElements(fqn, project)) {
               if (!ResolveUtil.processElement(processor, ns)) {
-                return true;
+                return false;
               }
             }
           }
           if (allSymbols.length == 1 && list instanceof ClVector) {
             for (PsiNamedElement ns : NamespaceUtil.getDeclaredElements(allSymbols[0].getName(), project)) {
               if (!ResolveUtil.processElement(processor, ns)) {
-                return true;
+                return false;
               }
             }
           }
         }
       }
     }
-    return false;
+    return true;
   }
 
-  private static boolean processImports(PsiScopeProcessor processor, PsiElement place, JavaPsiFacade facade, ClList child, String headText) {
-    if (!(ClojureKeywords.IMPORT.equals(headText) || ListDeclarations.IMPORT.equals(headText))) {
-      return false;
-    }
-
-    for (PsiElement stmt : child.getChildren()) {
-      if (stmt instanceof ClListLike) {
-        final ClListLike listLike = (ClListLike) stmt;
-        final PsiElement fst = listLike.getFirstNonLeafElement();
-        if (fst instanceof ClSymbol) {
-          final PsiPackage pack = facade.findPackage(((ClSymbol) fst).getNameString());
-          if (pack != null) {
-            if (place.getParent() == listLike && place != fst) {
-              pack.processDeclarations(processor, ResolveState.initial(), null, place);
-            } else {
-              PsiElement next = fst.getNextSibling();
-              while (next != null) {
-                if (next instanceof ClSymbol) {
-                  ClSymbol clazzSym = (ClSymbol) next;
-                  final PsiClass clazz = facade.findClass(pack.getQualifiedName() + "." + clazzSym.getNameString(),
-                      GlobalSearchScope.allScope(place.getProject()));
-                  if (clazz != null && !ResolveUtil.processElement(processor, clazz)) {
-                    return false;
-                  }
-                  if (clazz != null) {
-                    for (PsiMethod method : clazz.getAllMethods()) {
-                      if (!ResolveUtil.processElement(processor, method)) return false;
-                    }
-                    for (PsiField field : clazz.getAllFields()) {
-                      if (!ResolveUtil.processElement(processor, field)) return false;
-                    }
-                  }
-                }
-                next = next.getNextSibling();
-              }
-            }
-          }
+  /**
+   * Import directive imports Java classes.
+   * Syntax in namespace:
+   * {Import in namespace} ::= '(' ':import' {Import Directive}* ')'
+   * {Import Directive} ::= '(' {Package} {Class Name}* ')' |
+   *                        '[' {Package} {Class Name}* ']' |
+   *                        {Class Qualified Name}
+   *
+   * Examples:
+   * (:import java.util.Date)
+   * (:import (java.util Date ArrayList))
+   * (:import [java.util Date ArrayList])
+   *
+   * Syntax for function call is the same, you just can quote it.
+   *
+   * Examples:
+   * (import 'java.util.Date)
+   * (import java.util.Date)
+   * (import '(java.util Date))
+   * (import '[java.util Date])
+   * (import (java.util Date ArrayList))
+   */
+  public static boolean processImports(PsiScopeProcessor processor, PsiElement place, ClList child, String headText) {
+    final boolean isImportKeyword = ClojureKeywords.IMPORT.equals(headText);
+    final boolean isImportFunction = ListDeclarations.IMPORT.equals(headText);
+    if (isImportKeyword || isImportFunction) {
+      for (PsiElement stmt : child.getChildren()) {
+        if (!checkStatement(processor, place, child, stmt)) return false;
+        if (isImportFunction && stmt instanceof ClQuotedForm) {
+          final ClojurePsiElement quotedElement = ((ClQuotedForm) stmt).getQuotedElement();
+          if (!checkStatement(processor, place, child, quotedElement)) return false;
         }
       }
     }
-    return false;
+
+    return true;
+  }
+
+  private static boolean checkStatement(PsiScopeProcessor processor, PsiElement place, ClList child, PsiElement stmt) {
+    if (stmt instanceof ClSymbol) {
+      if (!checkQualifier(processor, place, child, ((ClSymbol) stmt).getNameString())) return false;
+    } else if (stmt instanceof ClVector || stmt instanceof ClList) {
+      final ClListLike listLike = (ClListLike) stmt;
+      final List<String> qualifiedNames = extractQualifiedNames(listLike);
+      for (String qualifiedName : qualifiedNames) {
+        if (!checkQualifier(processor, place, child, qualifiedName)) return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean checkQualifier(PsiScopeProcessor processor, PsiElement place, ClList child, String qualifiedName) {
+    final PsiClass clazz = JavaPsiFacade.getInstance(child.getProject()).
+        findClass(qualifiedName, GlobalSearchScope.allScope(place.getProject()));
+    return !(clazz != null && !ResolveUtil.processElement(processor, clazz));
+  }
+
+  private static List<String> extractQualifiedNames(ClListLike listLike) {
+    final List<String> qualifiedNames = new ArrayList<String>();
+    final PsiElement fst = listLike.getFirstNonLeafElement();
+    if (fst instanceof ClSymbol) {
+      PsiElement next = fst.getNextSibling();
+      while (next != null) {
+        if (next instanceof ClSymbol) {
+          ClSymbol clazzSym = (ClSymbol) next;
+          qualifiedNames.add(((ClSymbol) fst).getNameString() + "." + clazzSym.getNameString());
+        }
+        next = next.getNextSibling();
+      }
+    }
+    return qualifiedNames;
   }
 }
