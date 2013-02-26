@@ -123,9 +123,6 @@ public class CompleteSymbol {
     for (PsiElement element : psiElements) {
       if (element instanceof PsiClass) {
         PsiClass clazz = (PsiClass) element;
-        if (clazz.getName().equals("Pattern")) {
-          System.out.println("");
-        }
         for (PsiMethod method : clazz.getAllMethods()) {
           if (!method.isConstructor() && method.hasModifierProperty(PsiModifier.PUBLIC)) {
             final MethodSignature sig = method.getSignature(PsiSubstitutor.EMPTY);
