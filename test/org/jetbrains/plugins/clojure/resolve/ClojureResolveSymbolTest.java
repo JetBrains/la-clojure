@@ -139,11 +139,42 @@ public class ClojureResolveSymbolTest extends ClojureResolveTestCaseBase {
     checkResolveToDate("javaClass/import7.clj");
   }
 
+  public void testRequire1() throws Exception {
+    checkResolveToCapitalize("requireNs/require1.clj");
+  }
+
+  public void testRequire2() throws Exception {
+    checkResolveToCapitalize("requireNs/require2.clj");
+  }
+
+  public void testRequire3() throws Exception {
+    checkResolveToCapitalize("requireNs/require3.clj");
+  }
+
+  public void testRequire4() throws Exception {
+    checkResolveToCapitalize("requireNs/require4.clj");
+  }
+
+  public void testRequire5() throws Exception {
+    checkResolveToCapitalize("requireNs/require5.clj");
+  }
+
+  public void testRequire6() throws Exception {
+    checkResolveToCapitalize("requireNs/require6.clj");
+  }
+
   private void checkResolveToDate(String filePath) throws IOException {
     configureByFileName(filePath);
     final PsiReference reference = findReference();
     final PsiElement element = reference.resolve();
     assert(element instanceof PsiClass && ((PsiClass) element).getQualifiedName().equals("java.util.Date"));
+  }
+
+  private void checkResolveToCapitalize(String filePath) throws IOException {
+    configureByFileName(filePath);
+    final PsiReference reference = findReference();
+    final PsiElement element = reference.resolve();
+    assert(element instanceof ClDef && ((ClDef) element).getName().equals("is"));
   }
 
   public void testImportFails1() throws Exception {
@@ -152,6 +183,14 @@ public class ClojureResolveSymbolTest extends ClojureResolveTestCaseBase {
 
   public void testImportFails2() throws Exception {
     checkReferenceIsUnresolved("javaClass/importFails2.clj");
+  }
+
+  public void testRequireFails1() throws Exception {
+    checkReferenceIsUnresolved("requireNs/requireFails1.clj");
+  }
+
+  public void testRequireFails2() throws Exception {
+    checkReferenceIsUnresolved("requireNs/requireFails2.clj");
   }
 
   private void checkReferenceIsUnresolved(String filePath) throws IOException {

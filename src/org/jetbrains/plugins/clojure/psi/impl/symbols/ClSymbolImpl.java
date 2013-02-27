@@ -31,6 +31,7 @@ import org.jetbrains.plugins.clojure.psi.ClojurePsiElementImpl;
 import org.jetbrains.plugins.clojure.psi.api.*;
 import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
+import org.jetbrains.plugins.clojure.psi.impl.ImportOwner;
 import org.jetbrains.plugins.clojure.psi.impl.list.ListDeclarations;
 import org.jetbrains.plugins.clojure.psi.impl.ns.ClSyntheticNamespace;
 import org.jetbrains.plugins.clojure.psi.impl.ns.NamespaceUtil;
@@ -267,44 +268,82 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
     return findChildByClass(ClSymbol.class);
   }
 
+  /**
+   * For references, which hasn't prefix
+   * (import '(prefix symbol))
+   * (require '(prefix symbol))
+   * (require '[prefix symbol])
+   * (require '(prefix [symbol :as id]))
+   * @return qualifier symbol
+   */
   @Nullable
   public ClSymbol getQualifierSymbol() {
     final ClSymbol rawQualifierSymbol = getRawQualifierSymbol();
     if (rawQualifierSymbol != null) return rawQualifierSymbol;
     final PsiElement parent = getParent();
+    return getQualifiedNameInner(parent, false);
+  }
+
+  private ClSymbol getQualifiedNameInner(PsiElement parent, boolean onlyRequireOrUse) {
     if (parent instanceof ClList) {
-      ClList list = (ClList) parent;
-      PsiElement listParent = list.getParent();
-      if (listParent instanceof ClQuotedForm) {
-        listParent = listParent.getParent();
-        if (listParent instanceof ClList) {
-          final ClSymbol listParentFirstSymbol = ((ClList) listParent).getFirstSymbol();
-          if (listParentFirstSymbol != null) {
-            final boolean isImport = listParentFirstSymbol.getNameString().equals(ListDeclarations.IMPORT);
-            final ClSymbol firstSymbol = list.getFirstSymbol();
-            if (isImport && firstSymbol != this && firstSymbol instanceof ClSymbol) {
-              return firstSymbol;
-            }
-          }
-        }
-      }
+      return getListQualifier(onlyRequireOrUse, (ClList) parent, parent.getParent(), false);
+    } else if (parent instanceof ClVector && ImportOwner.isAliasVector((ClVector) parent)) {
+      final ClSymbol[] symbols = ((ClVector) parent).getAllSymbols();
+      return symbols[0] == this ? getQualifiedNameInner(parent.getParent(), true) : null;
     } else if (parent instanceof ClVector) {
-      ClVector vector = (ClVector) parent;
-      final PsiElement list = vector.getParent();
-      if (list instanceof ClList) {
-        final PsiElement firstSymbol = ((ClList) list).getFirstNonLeafElement();
-        if (firstSymbol instanceof ClKeyword) {
-          ClKeyword keyword = (ClKeyword) firstSymbol;
-          final String name = keyword.getName();
-          if (name.equals(ClojureKeywords.IMPORT) || name.equals(ClojureKeywords.USE) ||
-              name.equals(ClojureKeywords.REQUIRE)) {
-            final PsiElement firstNonLeafElement = vector.getFirstNonLeafElement();
-            if (firstNonLeafElement != null && firstNonLeafElement != this && firstNonLeafElement instanceof ClSymbol) {
-              return (ClSymbol) firstNonLeafElement;
-            }
+      return getVectorQualifier(onlyRequireOrUse, (ClVector) parent, parent.getParent(), false);
+    }
+    return null;
+  }
+
+  private ClSymbol getListQualifier(boolean onlyRequireOrUse, ClList list, PsiElement listParent, boolean isQuoted) {
+    if (listParent instanceof ClQuotedForm) {
+      return getListQualifier(onlyRequireOrUse, list, listParent.getParent(), true);
+    } else if (listParent instanceof ClList) {
+      final PsiElement listParentFirstSymbol = ((ClList) listParent).getFirstNonLeafElement();
+      if (listParentFirstSymbol instanceof ClSymbol || listParentFirstSymbol instanceof ClKeyword) {
+        final String name;
+        if (listParentFirstSymbol instanceof ClSymbol) {
+          name = ((ClSymbol) listParentFirstSymbol).getNameString();
+        } else {
+          name = ((ClKeyword) listParentFirstSymbol).getName();
+        }
+        boolean isOk = false;
+        if ((name.equals(ClojureKeywords.IMPORT) || name.equals(ListDeclarations.IMPORT)) && !onlyRequireOrUse) isOk = true;
+        else if ((name.equals(ClojureKeywords.REQUIRE) || name.equals(ClojureKeywords.USE)) && !isQuoted) isOk = true;
+        else if ((name.equals(ListDeclarations.REQUIRE) || name.equals(ListDeclarations.USE)) && isQuoted) isOk = true;
+        final ClSymbol firstSymbol = list.getFirstSymbol();
+        if (isOk && firstSymbol != this && firstSymbol instanceof ClSymbol) {
+          return firstSymbol;
+        }
+      }
+    }
+    return null;
+  }
+
+  private ClSymbol getVectorQualifier(boolean onlyRequireOrUse, ClVector vector, PsiElement list, boolean isQuoted) {
+    if (list instanceof ClList) {
+      final PsiElement firstSymbol = ((ClList) list).getFirstNonLeafElement();
+      if (firstSymbol instanceof ClSymbol || firstSymbol instanceof ClKeyword) {
+        final String name;
+        if (firstSymbol instanceof ClSymbol) {
+          name = ((ClSymbol) firstSymbol).getNameString();
+        } else {
+          name = ((ClKeyword) firstSymbol).getName();
+        }
+        boolean isOk = false;
+        if ((name.equals(ClojureKeywords.IMPORT) || name.equals(ListDeclarations.IMPORT)) && !onlyRequireOrUse) isOk = true;
+        else if ((name.equals(ClojureKeywords.REQUIRE) || name.equals(ClojureKeywords.USE)) && !isQuoted) isOk = true;
+        else if ((name.equals(ListDeclarations.REQUIRE) || name.equals(ListDeclarations.USE)) && isQuoted) isOk = true;
+        if (isOk) {
+          final PsiElement firstNonLeafElement = vector.getFirstNonLeafElement();
+          if (firstNonLeafElement != null && firstNonLeafElement != this && firstNonLeafElement instanceof ClSymbol) {
+            return (ClSymbol) firstNonLeafElement;
           }
         }
       }
+    } else if (list instanceof ClQuotedForm) {
+      return getVectorQualifier(onlyRequireOrUse, vector, list.getParent(), true);
     }
     return null;
   }
