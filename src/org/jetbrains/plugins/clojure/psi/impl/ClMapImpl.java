@@ -47,7 +47,7 @@ public class ClMapImpl extends ClojurePsiElementImpl implements ClMap {
   public ClojurePsiElement getValue(final String key) {
     final ClMapEntry entry = ContainerUtil.find(getEntries(), new Condition<ClMapEntry>() {
       public boolean value(ClMapEntry clMapEntry) {
-        final ClKeyword clKeyword = clMapEntry.getKey();
+        final ClKeyword clKeyword = clMapEntry.getKeywordKey();
         if (clKeyword == null) return false;
         final String text = StringUtil.trimStart(clKeyword.getText(), ":");
         return text.equals(key);

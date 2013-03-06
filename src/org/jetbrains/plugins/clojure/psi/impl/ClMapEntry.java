@@ -9,7 +9,11 @@ import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
  */
 public interface ClMapEntry extends ClojurePsiElement {
 
-  ClKeyword getKey();
+  @Nullable
+  ClKeyword getKeywordKey();
+
+  @Nullable
+  ClojurePsiElement getKey();
 
   @Nullable
   ClojurePsiElement getValue();

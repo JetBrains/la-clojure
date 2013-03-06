@@ -32,7 +32,7 @@ public class ClMetadataImpl extends ClojurePsiElementImpl implements ClMetadata 
     if (map == null) return Collections.emptyList();
     return ContainerUtil.map(map.getEntries(), new Function<ClMapEntry, ClKeyword>() {
       public ClKeyword fun(ClMapEntry clMapEntry) {
-        return clMapEntry.getKey();
+        return clMapEntry.getKeywordKey();
       }
     });
   }

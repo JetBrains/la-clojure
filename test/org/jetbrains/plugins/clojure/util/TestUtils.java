@@ -49,7 +49,7 @@ public class TestUtils {
 
 
   public static String getMockClojureLib() {
-    return getTestDataPath() + "/mockClojureLib/clojure.jar" ;
+    return getTestDataPath() + "/mockClojureLib/clojure-1.5.jar" ;
   }
 
   public static String getMockClojureContribLib() {

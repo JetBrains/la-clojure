@@ -177,6 +177,93 @@ public class ClojureResolveSymbolTest extends ClojureResolveTestCaseBase {
     assert(element instanceof ClDef && ((ClDef) element).getName().equals("is"));
   }
 
+  private void checkResolveToSplit(String filePath) throws IOException {
+    configureByFileName(filePath);
+    final PsiReference reference = findReference();
+    final PsiElement element = reference.resolve();
+    assert(element instanceof ClDef && ((ClDef) element).getName().equals("split"));
+  }
+
+  public void testUse1() throws Exception {
+    checkResolveToSplit("use/use1.clj");
+  }
+
+  public void testUse2() throws Exception {
+    checkResolveToSplit("use/use2.clj");
+  }
+
+  public void testUse3() throws Exception {
+    checkResolveToSplit("use/use3.clj");
+  }
+
+  public void testUse4() throws Exception {
+    checkResolveToSplit("use/use4.clj");
+  }
+
+  public void testUse5() throws Exception {
+    checkResolveToSplit("use/use5.clj");
+  }
+
+  public void testUse6() throws Exception {
+    checkResolveToSplit("use/use6.clj");
+  }
+
+  public void testUse7() throws Exception {
+    checkResolveToSplit("use/use7.clj");
+  }
+
+  public void testUse8() throws Exception {
+    checkResolveToSplit("use/use8.clj");
+  }
+
+  public void testUse9() throws Exception {
+    checkResolveToSplit("use/use9.clj");
+  }
+
+  public void testUse10() throws Exception {
+    checkResolveToSplit("use/use10.clj");
+  }
+
+  public void testUse11() throws Exception {
+    checkResolveToSplit("use/use11.clj");
+  }
+
+  public void testUse12() throws Exception {
+    checkResolveToSplit("use/use12.clj");
+  }
+
+  public void testUse13() throws Exception {
+    checkResolveToSplit("use/use13.clj");
+  }
+
+  public void testUse14() throws Exception {
+    checkResolveToSplit("use/use14.clj");
+  }
+
+  public void testUse15() throws Exception {
+    checkResolveToSplit("use/use15.clj");
+  }
+
+  public void testUse16() throws Exception {
+    checkResolveToSplit("use/use16.clj");
+  }
+
+  public void testUseFails1() throws Exception {
+    checkReferenceIsUnresolved("use/useFailed1.clj");
+  }
+
+  public void testUseFails2() throws Exception {
+    checkReferenceIsUnresolved("use/useFailed2.clj");
+  }
+
+  public void testUseFails4() throws Exception {
+    checkReferenceIsUnresolved("use/useFailed4.clj");
+  }
+
+  public void testUseFails5() throws Exception {
+    checkReferenceIsUnresolved("use/useFailed5.clj");
+  }
+
   public void testImportFails1() throws Exception {
     checkReferenceIsUnresolved("javaClass/importFails1.clj");
   }

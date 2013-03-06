@@ -287,7 +287,7 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
   private ClSymbol getQualifiedNameInner(PsiElement parent, boolean onlyRequireOrUse) {
     if (parent instanceof ClList) {
       return getListQualifier(onlyRequireOrUse, (ClList) parent, parent.getParent(), false);
-    } else if (parent instanceof ClVector && ImportOwner.isAliasVector((ClVector) parent)) {
+    } else if (parent instanceof ClVector && ImportOwner.isSpecialVector((ClVector) parent)) {
       final ClSymbol[] symbols = ((ClVector) parent).getAllSymbols();
       return symbols[0] == this ? getQualifiedNameInner(parent.getParent(), true) : null;
     } else if (parent instanceof ClVector) {
