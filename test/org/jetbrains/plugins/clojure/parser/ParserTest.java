@@ -81,6 +81,10 @@ public class ParserTest extends ClojureBaseTestCase {
     doParse("multiline_string");
   }
 
+  public void testUnicodeSymbol() {
+    doParse("unicode_symbol");
+  }
+
   @Test
   public void testSexp1() {
     doParse("sexp");
