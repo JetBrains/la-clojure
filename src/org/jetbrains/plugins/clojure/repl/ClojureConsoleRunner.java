@@ -15,6 +15,10 @@ import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerPaths;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdkType;
@@ -217,6 +221,20 @@ public class ClojureConsoleRunner {
         myProcessHandler, myConsoleExecuteActionHandler, getHistoryModel());
     myRunAction = executionActions.get(0);
     actionList.addAll(executionActions);
+
+    actionList.add(new ToggleUseSoftWrapsToolbarAction(SoftWrapAppliancePlaces.CONSOLE) {
+      @Override
+      public void setSelected(AnActionEvent e, boolean state) {
+        EditorEx consoleEditor = getLanguageConsole().getConsoleEditor();
+        EditorEx historyViewer = getLanguageConsole().getHistoryViewer();
+
+        consoleEditor.getSettings().setUseSoftWraps(state);
+        historyViewer.getSettings().setUseSoftWraps(state);
+
+        consoleEditor.reinitSettings();
+        historyViewer.reinitSettings();
+      }
+    });
 
     // help action
     actionList.add(CommonActionsManager.getInstance().createHelpAction("interactive_console"));
