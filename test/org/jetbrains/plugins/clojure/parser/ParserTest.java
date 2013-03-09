@@ -37,7 +37,7 @@ public class ParserTest extends ClojureBaseTestCase {
 
   public void doParse(String fileName) {
     String contents = fetchFile("", fileName, TEST_FILE_EXT);
-    PsiFile psiFile = createPseudoPhysicalFile(getProject(), "test.clj", contents);
+    PsiFile psiFile = createPseudoPhysicalFile(getProject(), "clj_98.clj", contents);
     String psiTree = DebugUtil.psiToString(psiFile, false);
 
     try {

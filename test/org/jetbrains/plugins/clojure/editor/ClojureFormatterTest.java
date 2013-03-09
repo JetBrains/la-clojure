@@ -42,8 +42,8 @@ public class ClojureFormatterTest extends ClojureBaseTestCase {
   public void doFormat() {
     final String testName = getTestName();
 
-    final String contents = fetchFile(testName, TEST_FILE_NAME, SOURCE_FILE_EXT);
-    final String expected = fetchFile(testName, TEST_FILE_NAME, TEST_FILE_EXT);
+    final String contents = fetchFile("", testName, SOURCE_FILE_EXT);
+    final String expected = fetchFile("", testName, TEST_FILE_EXT);
 
     final PsiFile psiFile = createPseudoPhysicalFile(getProject(), "test.clj", contents);
     final TextRange textRange = psiFile.getTextRange();
@@ -52,29 +52,17 @@ public class ClojureFormatterTest extends ClojureBaseTestCase {
       public void run() {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
           public void run() {
-            performFormatting(psiFile, textRange);
+            CodeStyleManager.getInstance(getProject()).reformatText(psiFile, textRange.getStartOffset(), textRange.getEndOffset());
           }
         });
       }
     }, null, null);
 
-    Assert.assertEquals(expected, psiFile.getText());
-
+    assertEquals(expected, psiFile.getText());
   }
 
-  @Override
-  protected IdeaProjectTestFixture createFixture() {
-    TestFixtureBuilder<IdeaProjectTestFixture> fixtureBuilder = IdeaTestFixtureFactory.getFixtureFactory().createLightFixtureBuilder();
-    return fixtureBuilder.getFixture();
-
-  }
-
-  private void performFormatting(PsiFile psiFile, TextRange textRange) {
-    CodeStyleManager.getInstance(getProject()).reformatText(psiFile, textRange.getStartOffset(), textRange.getEndOffset());
-  }
-
-  @Test
   public void testClj_98() {
     doFormat();
   }
+
 }
