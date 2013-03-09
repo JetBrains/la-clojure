@@ -1,0 +1,19 @@
+ClojureFile
+  ClMap
+    PsiElement({)('{')
+    PsiWhiteSpace('\n     ')
+    ClMapEntry
+      ClLiteral
+        PsiElement(character literal)('\\')
+      PsiWhiteSpace('  ')
+      ClLiteral
+        PsiElement(string literal)('"\\\\"')
+    PsiWhiteSpace('\n     ')
+    ClMapEntry
+      ClLiteral
+        PsiElement(character literal)('\backspace')
+      PsiWhiteSpace(' ')
+      ClLiteral
+        PsiElement(string literal)('"\\b"')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

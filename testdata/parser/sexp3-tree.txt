@@ -1,0 +1,37 @@
+ClojureFile
+  ClList
+    PsiElement(()('(')
+    ClSymbol
+      PsiElement(atom)('fn')
+    PsiWhiteSpace(' ')
+    ClVector
+      PsiElement([)('[')
+      ClVector
+        PsiElement([)('[')
+        ClSymbol
+          PsiElement(atom)('m')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('p')
+        PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ClMap
+      PsiElement({)('{')
+      ClMapEntry
+        ClList
+          PsiElement(()('(')
+          ClSymbol
+            PsiElement(atom)('str')
+          PsiWhiteSpace(' ')
+          ClSymbol
+            PsiElement(atom)('m')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        ClVector
+          PsiElement([)('[')
+          ClSymbol
+            PsiElement(atom)('p')
+          PsiElement(])(']')
+      PsiElement(})('}')
+    PsiElement())(')')

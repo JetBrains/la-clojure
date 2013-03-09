@@ -1,0 +1,15 @@
+ClojureFile
+  ClSymbol
+    ClSymbol
+      ClSymbol
+        ClSymbol
+          ClSymbol
+            ClSymbol
+              PsiElement(atom)('Aaaa')
+            PsiElement(ns-sep)('/')
+          PsiElement(ns-sep)('/')
+        PsiElement(ns-sep)('/')
+        PsiElement(atom)('ddd')
+      PsiElement(ns-sep)('/')
+    PsiElement(ns-sep)('/')
+    PsiElement(atom)('Ccccc')

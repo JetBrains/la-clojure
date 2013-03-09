@@ -1,0 +1,21 @@
+ClojureFile
+  ClList
+    PsiElement(()('(')
+    ClSymbol
+      PsiElement(dot)('.')
+    PsiWhiteSpace(' ')
+    ClList
+      PsiElement(()('(')
+      ClSymbol
+        PsiElement(atom)('identity')
+      PsiWhiteSpace(' ')
+      ClSymbol
+        PsiElement(atom)('Classname')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('instanceMember')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('args')
+    PsiElement())(')')

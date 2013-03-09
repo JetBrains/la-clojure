@@ -1,0 +1,431 @@
+ClojureFile
+  ClDef
+    PsiElement(()('(')
+    ClSymbol
+      PsiElement(atom)('defn-')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('non-private-methods')
+    PsiWhiteSpace(' ')
+    ClVector
+      PsiElement([)('[')
+      ClMetadata
+        PsiElement(#^)('#^')
+        ClSymbol
+          PsiElement(atom)('Class')
+      PsiWhiteSpace(' ')
+      ClSymbol
+        PsiElement(atom)('c')
+      PsiElement(])(']')
+    PsiWhiteSpace('\n  ')
+    ClList
+      PsiElement(()('(')
+      ClSymbol
+        PsiElement(atom)('loop')
+      PsiWhiteSpace(' ')
+      ClVector
+        PsiElement([)('[')
+        ClSymbol
+          PsiElement(atom)('mm')
+        PsiWhiteSpace(' ')
+        ClMap
+          PsiElement({)('{')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n         ')
+        ClSymbol
+          PsiElement(atom)('considered')
+        PsiWhiteSpace(' ')
+        ClSet
+          PsiElement(#)('#')
+          PsiElement({)('{')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n         ')
+        ClSymbol
+          PsiElement(atom)('c')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('c')
+        PsiElement(])(']')
+      PsiWhiteSpace('\n    ')
+      ClList
+        PsiElement(()('(')
+        ClSymbol
+          PsiElement(atom)('if')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('c')
+        PsiWhiteSpace('\n      ')
+        ClList
+          PsiElement(()('(')
+          ClSymbol
+            PsiElement(atom)('let')
+          PsiWhiteSpace(' ')
+          ClVector
+            PsiElement([)('[')
+            ClVector
+              PsiElement([)('[')
+              ClSymbol
+                PsiElement(atom)('mm')
+              PsiWhiteSpace(' ')
+              ClSymbol
+                PsiElement(atom)('considered')
+              PsiElement(])(']')
+            PsiWhiteSpace('\n            ')
+            ClList
+              PsiElement(()('(')
+              ClSymbol
+                PsiElement(atom)('loop')
+              PsiWhiteSpace(' ')
+              ClVector
+                PsiElement([)('[')
+                ClSymbol
+                  PsiElement(atom)('mm')
+                PsiWhiteSpace(' ')
+                ClSymbol
+                  PsiElement(atom)('mm')
+                PsiWhiteSpace('\n                   ')
+                ClSymbol
+                  PsiElement(atom)('considered')
+                PsiWhiteSpace(' ')
+                ClSymbol
+                  PsiElement(atom)('considered')
+                PsiWhiteSpace('\n                   ')
+                ClSymbol
+                  PsiElement(atom)('meths')
+                PsiWhiteSpace(' ')
+                ClList
+                  PsiElement(()('(')
+                  ClSymbol
+                    PsiElement(atom)('concat')
+                  PsiWhiteSpace('\n                          ')
+                  ClList
+                    PsiElement(()('(')
+                    ClSymbol
+                      PsiElement(atom)('seq')
+                    PsiWhiteSpace(' ')
+                    ClList
+                      PsiElement(()('(')
+                      ClSymbol
+                        PsiElement(dot)('.')
+                      PsiWhiteSpace(' ')
+                      ClSymbol
+                        PsiElement(atom)('c')
+                      PsiWhiteSpace(' ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(atom)('getDeclaredMethods')
+                        PsiElement())(')')
+                      PsiElement())(')')
+                    PsiElement())(')')
+                  PsiWhiteSpace('\n                          ')
+                  ClList
+                    PsiElement(()('(')
+                    ClSymbol
+                      PsiElement(atom)('seq')
+                    PsiWhiteSpace(' ')
+                    ClList
+                      PsiElement(()('(')
+                      ClSymbol
+                        PsiElement(dot)('.')
+                      PsiWhiteSpace(' ')
+                      ClSymbol
+                        PsiElement(atom)('c')
+                      PsiWhiteSpace(' ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(atom)('getMethods')
+                        PsiElement())(')')
+                      PsiElement())(')')
+                    PsiElement())(')')
+                  PsiElement())(')')
+                PsiElement(])(']')
+              PsiWhiteSpace('\n              ')
+              ClList
+                PsiElement(()('(')
+                ClSymbol
+                  PsiElement(atom)('if')
+                PsiWhiteSpace(' ')
+                ClSymbol
+                  PsiElement(atom)('meths')
+                PsiWhiteSpace('\n                ')
+                ClList
+                  PsiElement(()('(')
+                  ClSymbol
+                    PsiElement(atom)('let')
+                  PsiWhiteSpace(' ')
+                  ClVector
+                    PsiElement([)('[')
+                    ClMetadata
+                      PsiElement(#^)('#^')
+                      ClSymbol
+                        ClSymbol
+                          ClSymbol
+                            ClSymbol
+                              PsiElement(atom)('java')
+                            PsiElement(dot)('.')
+                            PsiElement(atom)('lang')
+                          PsiElement(dot)('.')
+                          PsiElement(atom)('reflect')
+                        PsiElement(dot)('.')
+                        PsiElement(atom)('Method')
+                    PsiWhiteSpace(' ')
+                    ClSymbol
+                      PsiElement(atom)('meth')
+                    PsiWhiteSpace(' ')
+                    ClList
+                      PsiElement(()('(')
+                      ClSymbol
+                        PsiElement(atom)('first')
+                      PsiWhiteSpace(' ')
+                      ClSymbol
+                        PsiElement(atom)('meths')
+                      PsiElement())(')')
+                    PsiWhiteSpace('\n                      ')
+                    ClSymbol
+                      PsiElement(atom)('mods')
+                    PsiWhiteSpace(' ')
+                    ClList
+                      PsiElement(()('(')
+                      ClSymbol
+                        PsiElement(dot)('.')
+                      PsiWhiteSpace(' ')
+                      ClSymbol
+                        PsiElement(atom)('meth')
+                      PsiWhiteSpace(' ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(atom)('getModifiers')
+                        PsiElement())(')')
+                      PsiElement())(')')
+                    PsiWhiteSpace('\n                      ')
+                    ClSymbol
+                      PsiElement(atom)('mk')
+                    PsiWhiteSpace(' ')
+                    ClList
+                      PsiElement(()('(')
+                      ClSymbol
+                        PsiElement(atom)('method-sig')
+                      PsiWhiteSpace(' ')
+                      ClSymbol
+                        PsiElement(atom)('meth')
+                      PsiElement())(')')
+                    PsiElement(])(']')
+                  PsiWhiteSpace('\n                  ')
+                  ClList
+                    PsiElement(()('(')
+                    ClSymbol
+                      PsiElement(atom)('if')
+                    PsiWhiteSpace(' ')
+                    ClList
+                      PsiElement(()('(')
+                      ClSymbol
+                        PsiElement(atom)('or')
+                      PsiWhiteSpace(' ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(atom)('considered')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('mk')
+                        PsiElement())(')')
+                      PsiWhiteSpace('\n                          ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(dot)('.')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('Modifier')
+                        PsiWhiteSpace(' ')
+                        ClList
+                          PsiElement(()('(')
+                          ClSymbol
+                            PsiElement(atom)('isPrivate')
+                          PsiWhiteSpace(' ')
+                          ClSymbol
+                            PsiElement(atom)('mods')
+                          PsiElement())(')')
+                        PsiElement())(')')
+                      PsiWhiteSpace('\n                          ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(dot)('.')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('Modifier')
+                        PsiWhiteSpace(' ')
+                        ClList
+                          PsiElement(()('(')
+                          ClSymbol
+                            PsiElement(atom)('isStatic')
+                          PsiWhiteSpace(' ')
+                          ClSymbol
+                            PsiElement(atom)('mods')
+                          PsiElement())(')')
+                        PsiElement())(')')
+                      PsiWhiteSpace('\n                          ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(dot)('.')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('Modifier')
+                        PsiWhiteSpace(' ')
+                        ClList
+                          PsiElement(()('(')
+                          ClSymbol
+                            PsiElement(atom)('isFinal')
+                          PsiWhiteSpace(' ')
+                          ClSymbol
+                            PsiElement(atom)('mods')
+                          PsiElement())(')')
+                        PsiElement())(')')
+                      PsiWhiteSpace('\n                          ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(atom)('=')
+                        PsiWhiteSpace(' ')
+                        ClLiteral
+                          PsiElement(character literal)('\"')
+                        ClSymbol
+                          PsiElement(atom)('finalize')
+                        ClLiteral
+                          PsiElement(character literal)('\"')
+                        PsiWhiteSpace(' ')
+                        ClList
+                          PsiElement(()('(')
+                          ClSymbol
+                            PsiElement(atom)('.getName')
+                          PsiWhiteSpace(' ')
+                          ClSymbol
+                            PsiElement(atom)('meth')
+                          PsiElement())(')')
+                        PsiElement())(')')
+                      PsiElement())(')')
+                    PsiWhiteSpace('\n                    ')
+                    ClList
+                      PsiElement(()('(')
+                      ClSymbol
+                        PsiElement(atom)('recur')
+                      PsiWhiteSpace(' ')
+                      ClSymbol
+                        PsiElement(atom)('mm')
+                      PsiWhiteSpace(' ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(atom)('conj')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('considered')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('mk')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(atom)('rest')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('meths')
+                        PsiElement())(')')
+                      PsiElement())(')')
+                    PsiWhiteSpace('\n                    ')
+                    ClList
+                      PsiElement(()('(')
+                      ClSymbol
+                        PsiElement(atom)('recur')
+                      PsiWhiteSpace(' ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(atom)('assoc')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('mm')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('mk')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('meth')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(atom)('conj')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('considered')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('mk')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      ClList
+                        PsiElement(()('(')
+                        ClSymbol
+                          PsiElement(atom)('rest')
+                        PsiWhiteSpace(' ')
+                        ClSymbol
+                          PsiElement(atom)('meths')
+                        PsiElement())(')')
+                      PsiElement())(')')
+                    PsiElement())(')')
+                  PsiElement())(')')
+                PsiWhiteSpace('\n                ')
+                ClVector
+                  PsiElement([)('[')
+                  ClSymbol
+                    PsiElement(atom)('mm')
+                  PsiWhiteSpace(' ')
+                  ClSymbol
+                    PsiElement(atom)('considered')
+                  PsiElement(])(']')
+                PsiElement())(')')
+              PsiElement())(')')
+            PsiElement(])(']')
+          PsiWhiteSpace('\n        ')
+          ClList
+            PsiElement(()('(')
+            ClSymbol
+              PsiElement(atom)('recur')
+            PsiWhiteSpace(' ')
+            ClSymbol
+              PsiElement(atom)('mm')
+            PsiWhiteSpace(' ')
+            ClSymbol
+              PsiElement(atom)('considered')
+            PsiWhiteSpace(' ')
+            ClList
+              PsiElement(()('(')
+              ClSymbol
+                PsiElement(dot)('.')
+              PsiWhiteSpace(' ')
+              ClSymbol
+                PsiElement(atom)('c')
+              PsiWhiteSpace(' ')
+              ClList
+                PsiElement(()('(')
+                ClSymbol
+                  PsiElement(atom)('getSuperclass')
+                PsiElement())(')')
+              PsiElement())(')')
+            PsiElement())(')')
+          PsiElement())(')')
+        PsiWhiteSpace('\n      ')
+        ClSymbol
+          PsiElement(atom)('mm')
+        PsiElement())(')')
+      PsiElement())(')')
+    PsiElement())(')')

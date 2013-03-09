@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.clojure.parser;
 
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.DebugUtil;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import org.jetbrains.plugins.clojure.ClojureBaseTestCase;
 import org.junit.Test;
 import junit.framework.Assert;
+
+import java.io.File;
+import java.io.IOException;
 
 
 /**
@@ -36,7 +40,11 @@ public class ParserTest extends ClojureBaseTestCase {
     PsiFile psiFile = createPseudoPhysicalFile(getProject(), "test.clj", contents);
     String psiTree = DebugUtil.psiToString(psiFile, false);
 
-    System.out.println(psiTree);
+    try {
+      assertEquals(FileUtil.loadFile(new File(getDataPath() + fileName + "-tree.txt")), psiTree);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test

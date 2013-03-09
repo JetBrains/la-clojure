@@ -1,0 +1,4 @@
+ClojureFile
+  ClVector
+    PsiElement([)('[')
+    PsiElement(])(']')

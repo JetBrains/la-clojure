@@ -1,0 +1,3 @@
+ClojureFile
+  ClLiteral
+    PsiElement(string literal)('"this is\n            a multiline\n            string"')

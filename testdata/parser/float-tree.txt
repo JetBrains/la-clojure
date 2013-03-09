@@ -1,0 +1,3 @@
+ClojureFile
+  ClLiteral
+    PsiElement(double literal)('123.123')

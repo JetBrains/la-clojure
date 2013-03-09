@@ -1,0 +1,31 @@
+ClojureFile
+  ClMap
+    PsiElement({)('{')
+    PsiWhiteSpace(' ')
+    ClMapEntry
+      ClKeyword
+        PsiElement(key)(':a')
+      PsiWhiteSpace(' ')
+      ClSymbol
+        PsiElement(atom)('a')
+    PsiWhiteSpace(' ')
+    ClMapEntry
+      ClKeyword
+        PsiElement(key)(':b')
+      PsiWhiteSpace(' ')
+      ClSymbol
+        PsiElement(atom)('b')
+    PsiWhiteSpace(' ')
+    ClMapEntry
+      ClKeyword
+        PsiElement(key)(':cd')
+      PsiWhiteSpace(' ')
+      ClList
+        PsiElement(()('(')
+        ClSymbol
+          PsiElement(atom)('c')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('d')
+        PsiElement())(')')
+    PsiElement(})('}')

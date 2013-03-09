@@ -1,0 +1,114 @@
+ClojureFile
+  ClNs
+    PsiElement(()('(')
+    ClSymbol
+      PsiElement(atom)('ns')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      ClSymbol
+        PsiElement(atom)('clojure')
+      PsiElement(dot)('.')
+      PsiElement(atom)('inspector')
+    PsiWhiteSpace('\n    ')
+    ClList
+      PsiElement(()('(')
+      ClKeyword
+        PsiElement(key)(':import')
+      PsiWhiteSpace('\n     ')
+      ClList
+        PsiElement(()('(')
+        ClSymbol
+          ClSymbol
+            PsiElement(atom)('java')
+          PsiElement(dot)('.')
+          PsiElement(atom)('awt')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('BorderLayout')
+        PsiElement())(')')
+      PsiWhiteSpace('\n     ')
+      ClList
+        PsiElement(()('(')
+        ClSymbol
+          ClSymbol
+            ClSymbol
+              PsiElement(atom)('java')
+            PsiElement(dot)('.')
+            PsiElement(atom)('awt')
+          PsiElement(dot)('.')
+          PsiElement(atom)('event')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('ActionEvent')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('ActionListener')
+        PsiElement())(')')
+      PsiWhiteSpace('\n     ')
+      ClList
+        PsiElement(()('(')
+        ClSymbol
+          ClSymbol
+            ClSymbol
+              PsiElement(atom)('javax')
+            PsiElement(dot)('.')
+            PsiElement(atom)('swing')
+          PsiElement(dot)('.')
+          PsiElement(atom)('tree')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('TreeModel')
+        PsiElement())(')')
+      PsiWhiteSpace('\n     ')
+      ClList
+        PsiElement(()('(')
+        ClSymbol
+          ClSymbol
+            ClSymbol
+              PsiElement(atom)('javax')
+            PsiElement(dot)('.')
+            PsiElement(atom)('swing')
+          PsiElement(dot)('.')
+          PsiElement(atom)('table')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('TableModel')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('AbstractTableModel')
+        PsiElement())(')')
+      PsiWhiteSpace('\n     ')
+      ClList
+        PsiElement(()('(')
+        ClSymbol
+          ClSymbol
+            PsiElement(atom)('javax')
+          PsiElement(dot)('.')
+          PsiElement(atom)('swing')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('JPanel')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('JTree')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('JTable')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('JScrollPane')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('JFrame')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('JToolBar')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('JButton')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('SwingUtilities')
+        PsiElement())(')')
+      PsiElement())(')')
+    PsiElement())(')')

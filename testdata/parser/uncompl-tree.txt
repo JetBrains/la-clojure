@@ -1,0 +1,3 @@
+ClojureFile
+  PsiErrorElement:Uncompleted string literal
+    PsiElement(wrong string literal)('" sdfsdfsdf \" fgbnfgn')

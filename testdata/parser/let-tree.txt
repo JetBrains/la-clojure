@@ -1,0 +1,75 @@
+ClojureFile
+  ClList
+    PsiElement(()('(')
+    ClSymbol
+      PsiElement(atom)('let')
+    PsiWhiteSpace(' ')
+    ClVector
+      PsiElement([)('[')
+      ClVector
+        PsiElement([)('[')
+        ClSymbol
+          PsiElement(atom)('a')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('b')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('c')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('&')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('d')
+        PsiWhiteSpace(' ')
+        ClKeyword
+          PsiElement(key)(':as')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('e')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ClVector
+        PsiElement([)('[')
+        ClLiteral
+          PsiElement(long literal)('1')
+        PsiWhiteSpace(' ')
+        ClLiteral
+          PsiElement(long literal)('2')
+        PsiWhiteSpace(' ')
+        ClLiteral
+          PsiElement(long literal)('3')
+        PsiWhiteSpace(' ')
+        ClLiteral
+          PsiElement(long literal)('4')
+        PsiWhiteSpace(' ')
+        ClLiteral
+          PsiElement(long literal)('5')
+        PsiWhiteSpace(' ')
+        ClLiteral
+          PsiElement(long literal)('6')
+        PsiWhiteSpace(' ')
+        ClLiteral
+          PsiElement(long literal)('7')
+        PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ClVector
+      PsiElement([)('[')
+      ClSymbol
+        PsiElement(atom)('a')
+      PsiWhiteSpace(' ')
+      ClSymbol
+        PsiElement(atom)('b')
+      PsiWhiteSpace(' ')
+      ClSymbol
+        PsiElement(atom)('c')
+      PsiWhiteSpace(' ')
+      ClSymbol
+        PsiElement(atom)('d')
+      PsiWhiteSpace(' ')
+      ClSymbol
+        PsiElement(atom)('e')
+      PsiElement(])(']')
+    PsiElement())(')')

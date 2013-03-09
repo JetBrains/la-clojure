@@ -1,0 +1,4 @@
+ClojureFile
+  ClMap
+    PsiElement({)('{')
+    PsiElement(})('}')

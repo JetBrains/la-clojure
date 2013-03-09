@@ -1,0 +1,63 @@
+ClojureFile
+  ClList
+    PsiElement(()('(')
+    ClSymbol
+      PsiElement(atom)('fn')
+    PsiWhiteSpace(' ')
+    ClVector
+      PsiElement([)('[')
+      ClSymbol
+        PsiElement(atom)('cs')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ClList
+      PsiElement(()('(')
+      ClSymbol
+        PsiElement(atom)('if')
+      PsiWhiteSpace(' ')
+      ClList
+        PsiElement(()('(')
+        ClSymbol
+          PsiElement(atom)('pos?')
+        PsiWhiteSpace(' ')
+        ClList
+          PsiElement(()('(')
+          ClSymbol
+            PsiElement(atom)('count')
+          PsiWhiteSpace(' ')
+          ClSymbol
+            PsiElement(atom)('cs')
+          PsiElement())(')')
+        PsiElement())(')')
+      PsiWhiteSpace('\n        ')
+      ClList
+        PsiElement(()('(')
+        ClSymbol
+          PsiElement(atom)('into-array')
+        PsiWhiteSpace(' ')
+        ClList
+          PsiElement(()('(')
+          ClSymbol
+            PsiElement(atom)('map')
+          PsiWhiteSpace(' ')
+          ClSymbol
+            PsiElement(atom)('totype')
+          PsiWhiteSpace(' ')
+          ClSymbol
+            PsiElement(atom)('cs')
+          PsiElement())(')')
+        PsiElement())(')')
+      PsiWhiteSpace('\n        ')
+      ClList
+        PsiElement(()('(')
+        ClSymbol
+          PsiElement(atom)('make-array')
+        PsiWhiteSpace(' ')
+        ClSymbol
+          PsiElement(atom)('Type')
+        PsiWhiteSpace(' ')
+        ClLiteral
+          PsiElement(long literal)('0')
+        PsiElement())(')')
+      PsiElement())(')')
+    PsiElement())(')')

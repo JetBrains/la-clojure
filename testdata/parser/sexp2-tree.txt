@@ -1,0 +1,18 @@
+ClojureFile
+  ClList
+    PsiElement(()('(')
+    ClSymbol
+      PsiElement(atom)('a')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('b')
+    PsiWhiteSpace(' ')
+    ClList
+      PsiElement(()('(')
+      ClSymbol
+        PsiElement(atom)('c')
+      PsiWhiteSpace(' ')
+      ClSymbol
+        PsiElement(atom)('d')
+      PsiElement())(')')
+    PsiElement())(')')

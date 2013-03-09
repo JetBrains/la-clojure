@@ -1,0 +1,11 @@
+ClojureFile
+  ClList
+    PsiElement(()('(')
+    ClKeyword
+      PsiElement(key)(':static')
+    PsiWhiteSpace(' ')
+    MetaForm
+      PsiElement(^)('^')
+      ClSymbol
+        PsiElement(atom)('foo')
+    PsiElement())(')')

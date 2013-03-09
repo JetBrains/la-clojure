@@ -1,0 +1,3 @@
+ClojureFile
+  ClSymbol
+    PsiElement(atom)('foo')

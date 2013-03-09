@@ -1,0 +1,45 @@
+ClojureFile
+  ClDef
+    PsiElement(()('(')
+    ClSymbol
+      PsiElement(atom)('defn')
+    PsiWhiteSpace('\n    ')
+    ClLiteral
+      PsiElement(string literal)('"#^{:doc "')
+    ClSymbol
+      PsiElement(atom)('mymax')
+    PsiWhiteSpace(' ')
+    ClVector
+      PsiElement([)('[')
+      ClSymbol
+        PsiElement(atom)('xs+')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('gets')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('the')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('maximum')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('value')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('in')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('xs')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('using')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('>')
+    PsiWhiteSpace(' ')
+    PsiErrorElement:Uncompleted string literal
+      PsiElement(wrong string literal)('"\n        :test (fn []\n                  (assert (= 42  (max 2 42 5 4))))\n        :user/comment \"this is the best fn ever!\"}\n      mymax\n      ([x] x)\n      ([x y] (if (> x y) x y))\n      ([x y & more]\n      (reduce mymax (mymax x y) more)))')
+    PsiErrorElement:Expected ')'
+      <empty list>

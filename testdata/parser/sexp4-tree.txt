@@ -1,0 +1,19 @@
+ClojureFile
+  ClList
+    PsiElement(()('(')
+    ClSymbol
+      PsiElement(atom)('apply')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('merge-with')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('concat')
+    PsiWhiteSpace(' ')
+    ClMap
+      PsiElement({)('{')
+      PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('all-sigs')
+    PsiElement())(')')

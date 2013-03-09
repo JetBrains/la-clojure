@@ -1,0 +1,12 @@
+ClojureFile
+  ClMetadata
+    PsiElement(#^)('#^')
+    ClMap
+      PsiElement({)('{')
+      ClMapEntry
+        ClKeyword
+          PsiElement(key)(':foo')
+        PsiWhiteSpace(' ')
+        ClLiteral
+          PsiElement(string literal)('"bah"')
+      PsiElement(})('}')
