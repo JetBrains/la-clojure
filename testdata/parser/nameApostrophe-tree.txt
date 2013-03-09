@@ -1,0 +1,12 @@
+ClojureFile
+  ClDef
+    PsiElement(()('(')
+    ClSymbol
+      PsiElement(atom)('def')
+    PsiWhiteSpace(' ')
+    ClSymbol
+      PsiElement(atom)('f'')
+    PsiWhiteSpace(' ')
+    ClLiteral
+      PsiElement(long literal)('2')
+    PsiElement())(')')

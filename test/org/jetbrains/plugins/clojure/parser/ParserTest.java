@@ -85,6 +85,10 @@ public class ParserTest extends ClojureBaseTestCase {
     doParse("unicode_symbol");
   }
 
+  public void testNameApostrophe() {
+    doParse(getTestName(true));
+  }
+
   @Test
   public void testSexp1() {
     doParse("sexp");

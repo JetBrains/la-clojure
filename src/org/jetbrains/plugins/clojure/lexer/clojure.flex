@@ -169,8 +169,8 @@ mNoDigit = ({mLETTER} | {mOTHER})
 mOTHER_REDUCED = "_" | "-" | "*" | "+" | "=" | "&" | "<" | ">" | "$" | "?" | "!"
 mNoDigit1 = ({mLETTER} | {mOTHER_REDUCED})
 
-mIDENT = {mNoDigit} ({mNoDigit} | {mDIGIT} | "#")*
-mIDENT_KEY = ({mNoDigit} | "#") ({mNoDigit} | {mDIGIT} | "#")*
+mIDENT = {mNoDigit} ({mNoDigit} | {mDIGIT} | "#" | {mQUOTE})*
+mIDENT_KEY = ({mNoDigit} | "#") ({mNoDigit} | {mDIGIT} | "#" | {mQUOTE})*
 
 //':' is also included here
 mNOT_MACROS = [^\";@'\^`~()\\\[\]{}%\r\n\t\f ]
@@ -201,8 +201,8 @@ mFALSE = "false"
 <SYMBOL> {
   "."                                       {  return symDOT; }
   "/"                                       {  return symNS_SEP; }
-  ({mNoDigit1} | {mDIGIT} | ":")+           {  return symATOM; }
-  (({mNoDigit1} | {mDIGIT} | ":")+)? "#"    {  yybegin(YYINITIAL); return symATOM; }
+  ({mNoDigit1} | {mDIGIT} | ":" | {mQUOTE})+           {  return symATOM; }
+  (({mNoDigit1} | {mDIGIT} | ":" | {mQUOTE})+)? "#"    {  yybegin(YYINITIAL); return symATOM; }
   [^]                                       {  yypushback(yytext().length()); yybegin(YYINITIAL); }
 }
 
