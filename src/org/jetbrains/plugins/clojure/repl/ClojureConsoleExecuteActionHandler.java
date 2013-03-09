@@ -46,7 +46,7 @@ public class ClojureConsoleExecuteActionHandler {
     final OutputStream outputStream = myProcessHandler.getProcessInput();
     try {
       //byte[] bytes = (line + "\n").getBytes(charset.name());
-      byte[] bytes = (line + "\n").getBytes();
+      byte[] bytes = (line + "\n").getBytes("UTF-8");
       outputStream.write(bytes);
       outputStream.flush();
     } catch (IOException e) {
