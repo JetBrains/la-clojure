@@ -48,7 +48,7 @@ public class ClojureBraceHighlighter implements Annotator {
         if (level >= 0) {
           final EditorColorsScheme scheme = EditorColorsManager.getInstance().getGlobalScheme();
           TextAttributes attrs = ClojureBraceAttributes.getBraceAttributes(level, scheme.getDefaultBackground());
-          annotationHolder.createInfoAnnotation(psiElement, "").setEnforcedTextAttributes(attrs);
+          annotationHolder.createInfoAnnotation(psiElement, null).setEnforcedTextAttributes(attrs);
         }
       }
     }
