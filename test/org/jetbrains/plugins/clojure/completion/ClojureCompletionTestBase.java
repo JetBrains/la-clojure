@@ -7,6 +7,7 @@ import com.intellij.codeInsight.lookup.LookupManager;
 import com.intellij.codeInsight.lookup.impl.LookupImpl;
 import com.intellij.psi.statistics.StatisticsManager;
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureLightPlatformCodeInsightTestCase;
 
 /**
@@ -37,18 +38,22 @@ public abstract class ClojureCompletionTestBase extends ClojureLightPlatformCode
     }
   }
 
+  @Nullable
   protected CompleteResult complete() {
     return complete(1);
   }
 
+  @Nullable
   protected CompleteResult complete(CompletionType completionType) {
     return complete(1, completionType);
   }
 
+  @Nullable
   protected CompleteResult complete(int time) {
     return complete(time, CompletionType.BASIC);
   }
 
+  @Nullable
   protected CompleteResult complete(int time, CompletionType completionType) {
     new CodeCompletionHandlerBase(completionType, false, false, true).
         invokeCompletion(getProject(), getEditor(), time, false, false);

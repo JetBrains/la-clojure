@@ -210,7 +210,10 @@ public class ListDeclarations {
 
   private static boolean processFnDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place, PsiElement lastParent) {
     final PsiElement second = list.getSecondNonLeafElement();
-    if ((second instanceof ClSymbol) && place != second && !ResolveUtil.processElement(processor, ((ClSymbol) second)))
+
+    if (lastParent == second) return true;
+
+    if ((second instanceof ClSymbol) && !ResolveUtil.processElement(processor, ((ClSymbol) second)))
       return false;
 
     if (PsiTreeUtil.findCommonParent(place, list) == list) {

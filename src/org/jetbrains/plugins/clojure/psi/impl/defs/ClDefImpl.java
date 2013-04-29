@@ -92,14 +92,15 @@ public class ClDefImpl extends ClListBaseImpl<ClDefStub> implements ClDef, StubB
       }
       // for recursive functions
       if (getNameSymbol() != null && lastParent != getNameSymbol() && !ResolveUtil.processElement(processor, getNameSymbol())) return false;
-
-      // overloaded function
-      else if (lastParent instanceof ClList) {
+      else if (lastParent instanceof ClList) { // overloaded function (defn ([x] body))
         ClList list = (ClList) lastParent;
-        final ClVector params = list.findFirstChildByClass(ClVector.class);
-        if (params != null) {
-          for (ClSymbol symbol : params.getAllSymbols()) {
-            if (!ResolveUtil.processElement(processor, symbol)) return false;
+        final PsiElement elem = list.getFirstNonLeafElement();
+        if (elem instanceof ClVector && !PsiTreeUtil.isAncestor(elem, place, false)) {
+          final ClVector params = (ClVector) elem;
+          if (params != null) {
+            for (ClSymbol symbol : params.getAllSymbols()) {
+              if (!ResolveUtil.processElement(processor, symbol)) return false;
+            }
           }
         }
       }
