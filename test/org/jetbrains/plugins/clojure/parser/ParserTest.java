@@ -39,10 +39,10 @@ public class ParserTest extends ClojureBaseTestCase {
   public void doParse(String fileName) {
     String contents = fetchFile("", fileName, TEST_FILE_EXT);
     PsiFile psiFile = createPseudoPhysicalFile(getProject(), "clj_98.clj", contents);
-    String psiTree = StringUtil.convertLineSeparators(DebugUtil.psiToString(psiFile, false));
+    String psiTree = DebugUtil.psiToString(psiFile, false);
 
     try {
-      final String expected = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(getDataPath() + fileName + "-tree.txt")));
+      final String expected = FileUtil.loadFile(new File(getDataPath() + fileName + "-tree.txt"), true);
       assertEquals(expected, psiTree);
     } catch (IOException e) {
       throw new RuntimeException(e);
