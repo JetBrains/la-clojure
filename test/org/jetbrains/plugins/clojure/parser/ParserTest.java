@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.clojure.parser;
 
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.DebugUtil;
 import com.intellij.openapi.fileTypes.FileTypeManager;
@@ -38,10 +39,11 @@ public class ParserTest extends ClojureBaseTestCase {
   public void doParse(String fileName) {
     String contents = fetchFile("", fileName, TEST_FILE_EXT);
     PsiFile psiFile = createPseudoPhysicalFile(getProject(), "clj_98.clj", contents);
-    String psiTree = DebugUtil.psiToString(psiFile, false);
+    String psiTree = StringUtil.convertLineSeparators(DebugUtil.psiToString(psiFile, false));
 
     try {
-      assertEquals(FileUtil.loadFile(new File(getDataPath() + fileName + "-tree.txt")), psiTree);
+      final String expected = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(getDataPath() + fileName + "-tree.txt")));
+      assertEquals(expected, psiTree);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
