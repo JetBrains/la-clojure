@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.clojure.runner;
 
-import com.intellij.execution.LocatableConfigurationType;
 import com.intellij.execution.Location;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.configurations.ConfigurationFactory;
-import static com.intellij.execution.configurations.ConfigurationTypeUtil.findConfigurationType;
-import com.intellij.execution.configurations.RunConfiguration;
+import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
@@ -17,6 +15,8 @@ import org.jetbrains.plugins.clojure.ClojureIcons;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
 import javax.swing.*;
+
+import static com.intellij.execution.configurations.ConfigurationTypeUtil.findConfigurationType;
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,7 +33,7 @@ import javax.swing.*;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ClojureScriptRunConfigurationType implements LocatableConfigurationType {
+public class ClojureScriptRunConfigurationType implements ConfigurationType {
 
 
   private ClojureScriptConfigurationFactory myConfigurationFactory;
@@ -83,10 +83,6 @@ public class ClojureScriptRunConfigurationType implements LocatableConfiguration
       return settings;
     }
     return null;
-  }
-
-  public boolean isConfigurationByLocation(RunConfiguration configuration, Location location) {
-    return false;
   }
 
   public static ClojureScriptRunConfigurationType getInstance() {

@@ -1,11 +1,16 @@
 package org.jetbrains.plugins.clojure.runner;
 
 import com.intellij.execution.Location;
+import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.actions.ConfigurationContext;
+import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
 import com.intellij.execution.junit.RuntimeConfigurationProducer;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
 /**
@@ -48,4 +53,26 @@ public class ClojureScriptRunConfigurationProducer extends RuntimeConfigurationP
   public int compareTo(final Object o) {
     return PREFERED;
   }
+
+  @Override
+  protected RunnerAndConfigurationSettings findExistingByElement(Location location,
+                                                                 @NotNull RunnerAndConfigurationSettings[] existingConfigurations,
+                                                                 ConfigurationContext context) {
+    for (RunnerAndConfigurationSettings existingConfiguration : existingConfigurations) {
+      final RunConfiguration configuration = existingConfiguration.getConfiguration();
+      final ClojureScriptRunConfiguration existing = (ClojureScriptRunConfiguration)configuration;
+      final String path = existing.getScriptPath();
+      if (path != null) {
+        final PsiFile file = location.getPsiElement().getContainingFile();
+        if (file instanceof ClojureFile) {
+          final VirtualFile vfile = file.getVirtualFile();
+          if (vfile != null && FileUtil.toSystemIndependentName(path).equals(vfile.getPath())) {
+            return existingConfiguration;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
 }
