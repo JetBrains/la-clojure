@@ -50,7 +50,12 @@ public final class SlurpForwardsAction extends ClojureEditorAction {
 
       PsiElement copy = slurpee.copy();
       slurpee.delete();
-      sexp.addAfter(copy, ClojurePsiUtil.lastChildSexp(sexp));
+      PsiElement lastChild = ClojurePsiUtil.lastChildSexp(sexp);
+      if (lastChild != null) {
+        sexp.addAfter(copy, lastChild);
+      } else {
+        sexp.addBefore(copy, sexp.getLastBrace());
+      }
     }
   }
 
