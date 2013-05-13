@@ -219,7 +219,7 @@ public class ClojurePsiUtil {
 
   public static PsiElement lastChildSexp(PsiElement element) {
     PsiElement[] children = element.getChildren();
-    return children[children.length - 1];
+    return children.length != 0 ? children[children.length - 1] : null;
   }
 
   public static boolean isValidClojureExpression(String text, @NotNull Project project) {
