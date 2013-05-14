@@ -6,7 +6,9 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.plugins.clojure.formatter.ClojureBlock;
+import org.jetbrains.plugins.clojure.lexer.TokenSets;
 import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
@@ -64,6 +66,7 @@ public class ClojureSpacingProcessor implements ClojureElementTypes {
   }
 
   private static Spacing psiBasedSpacing(PsiElement psi1, PsiElement psi2) {
+    final IElementType rightElementType = psi2.getNode().getElementType();
     // Namespace declaration
     if (ClojurePsiCheckers.isNs(psi1)) {
       return NS_SPACING;
@@ -74,7 +77,8 @@ public class ClojureSpacingProcessor implements ClojureElementTypes {
     }
 
     // todo questionable: should be adjustable
-    if (psi1 instanceof ClKeyword && !(psi2 instanceof LeafPsiElement)) {
+    if (psi1 instanceof ClKeyword) {
+      if (TokenSets.RIGHT_PARENTHESES.contains(rightElementType)) return null;
       return NO_NEWLINE;
     }
 
