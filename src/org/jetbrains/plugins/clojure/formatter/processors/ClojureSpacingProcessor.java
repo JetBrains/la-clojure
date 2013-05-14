@@ -4,6 +4,7 @@ import com.intellij.formatting.Block;
 import com.intellij.formatting.Spacing;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.plugins.clojure.formatter.ClojureBlock;
 import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
@@ -73,7 +74,7 @@ public class ClojureSpacingProcessor implements ClojureElementTypes {
     }
 
     // todo questionable: should be adjustable
-    if (psi1 instanceof ClKeyword) {
+    if (psi1 instanceof ClKeyword && !(psi2 instanceof LeafPsiElement)) {
       return NO_NEWLINE;
     }
 

@@ -68,4 +68,8 @@ public class ClojureFormatterTest extends ClojureBaseTestCase {
   public void testNameApostrophe() {
     doFormat();
   }
+
+  public void testKeywordBeforeBrace() {
+    doFormat();
+  }
 }
