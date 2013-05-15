@@ -400,15 +400,36 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
     if (isReferenceTo(element)) return this;
     final PsiFile file = getContainingFile();
     if (element instanceof PsiClass && (file instanceof ClojureFile)) {
-      // todo test me!!
       final PsiClass clazz = (PsiClass) element;
-      final Application application = ApplicationManager.getApplication();
-      application.runWriteAction(new Runnable() {
-        public void run() {
-          final ClNs ns = ((ClojureFile) file).findOrCreateNamespaceElement();
-          ns.addImportForClass(ClSymbolImpl.this, clazz);
-        }
-      });
+      // is this a legitimate way to tell if we're in the REPL?
+      if (file.getViewProvider().isPhysical()) {
+        // it's a real file, use a namespace declaration with :import clause - derive the namespace from the file name
+        // todo test me!!
+        final Application application = ApplicationManager.getApplication();
+        application.runWriteAction(new Runnable() {
+          public void run() {
+            final ClNs ns = ((ClojureFile) file).findOrCreateNamespaceElement();
+            ns.addImportForClass(ClSymbolImpl.this, clazz);
+          }
+        });
+      } else {
+        // it's the REPL and there's no easy way to find out the namespace, use the (import ...) macro
+        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+          public void run() {
+            String className = clazz.getQualifiedName();
+            if (className != null) {
+              ClojurePsiFactory psiFactory = ClojurePsiFactory.getInstance(getProject());
+              ClList importList = psiFactory.createListFromText("import");
+              PsiElement classNameElement = psiFactory.createSymbolNodeFromText(className).getPsi();
+              importList.addBefore(classNameElement, importList.getLastBrace());
+              file.addAfter(importList, null);
+              //PsiElement newline = psiFactory.createWhitespace("\n");
+              //file.addAfter(newline, importList);
+              //importList.addAfter(newline, importList.getLastBrace());
+            }
+          }
+        });
+      }
       return this;
     }
     return this;

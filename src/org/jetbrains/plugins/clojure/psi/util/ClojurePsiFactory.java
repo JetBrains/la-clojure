@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
@@ -31,6 +32,8 @@ public abstract class ClojurePsiFactory {
   public abstract ClList createListFromText(@NotNull String text);
 
   public abstract ClVector createVectorFromText(@NotNull String text);
+
+  public abstract PsiElement createWhitespace(@NotNull String text);
 
   @Nullable
   public abstract ClListLike findOrCreateJavaImportForClass(PsiClass clazz, ClList importClause);
