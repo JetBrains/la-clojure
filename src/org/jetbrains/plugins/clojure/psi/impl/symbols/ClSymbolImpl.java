@@ -423,9 +423,6 @@ public class ClSymbolImpl extends ClojurePsiElementImpl implements ClSymbol {
               PsiElement classNameElement = psiFactory.createSymbolNodeFromText(className).getPsi();
               importList.addBefore(classNameElement, importList.getLastBrace());
               file.addAfter(importList, null);
-              //PsiElement newline = psiFactory.createWhitespace("\n");
-              //file.addAfter(newline, importList);
-              //importList.addAfter(newline, importList.getLastBrace());
             }
           }
         });

@@ -86,12 +86,6 @@ public class ClojurePsiElementFactoryImpl extends ClojurePsiFactory {
   }
 
   @Override
-  public PsiElement createWhitespace(@NotNull String text) {
-    ClojureFile file = createClojureFileFromText(text);
-    return file.getFirstChild();
-  }
-
-  @Override
   @Nullable
   public ClListLike findOrCreateJavaImportForClass(PsiClass clazz, ClList importClause) {
     final String name = clazz.getQualifiedName();
