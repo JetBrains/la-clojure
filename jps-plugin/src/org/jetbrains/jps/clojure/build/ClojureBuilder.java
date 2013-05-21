@@ -7,10 +7,10 @@ import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
-import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.ModuleChunk;
 import org.jetbrains.jps.builders.DirtyFilesHolder;
+import org.jetbrains.jps.builders.FileProcessor;
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor;
 import org.jetbrains.jps.builders.storage.SourceToOutputMapping;
 import org.jetbrains.jps.clojure.model.JpsClojureCompilerSettingsExtension;
@@ -64,41 +64,30 @@ public class ClojureBuilder extends ModuleLevelBuilder {
     if (!myBeforeJava && extension != null && extension.isClojureBefore()) return ExitCode.NOTHING_DONE;
     if (extension != null && !extension.isCompileClojure()) return ExitCode.NOTHING_DONE;
 
-    final List<File> toCompile = new ArrayList<File>();
-    final HashMap<File, String> toCompileNamespace = new HashMap<File, String>();
-    List<JpsModule> javaModules = new ArrayList<JpsModule>();
+    final LinkedHashSet<JpsModule> javaModules = new LinkedHashSet<JpsModule>();
     for (JpsModule module : chunk.getModules()) {
       if (module.getModuleType().equals(JpsJavaModuleType.INSTANCE)) {
         javaModules.add(module);
       }
     }
-    for (JpsModule module : javaModules) {
-      for (final JpsModuleSourceRoot root : module.getSourceRoots()) {
-        FileUtil.processFilesRecursively(root.getFile(), new Processor<File>() {
-          public boolean process(File file) {
-            if (file.getName().endsWith(".clj") && context.getScope().isAffected(chunk.representativeTarget(), file)) {
-              toCompile.add(file);
-              String filePath = file.getAbsolutePath();
-              toCompileNamespace.put(file, filePath.substring(root.getFile().getAbsolutePath().length() + 1, filePath.length() - 4).
-                  replace(File.separator, "."));
-            }
-            return true;
-          }
-        });
-      }
-    }
 
-    if (toCompile.isEmpty()) return ExitCode.NOTHING_DONE;
-/*
+    final List<File> toCompile = new ArrayList<File>();
+    final HashMap<File, String> toCompileNamespace = new HashMap<File, String>();
     dirtyFilesHolder.processDirtyFiles(new FileProcessor<JavaSourceRootDescriptor, ModuleBuildTarget>() {
-      public boolean apply(ModuleBuildTarget target, File file, JavaSourceRootDescriptor root) throws IOException {
-        if (file.getName().endsWith(".clj")) {
+      public boolean apply(ModuleBuildTarget target, File file, JavaSourceRootDescriptor sourceRoot) throws IOException {
+        if (javaModules.contains(target.getModule()) && file.getName().endsWith(".clj")) {
           toCompile.add(file);
+          
+          String filePath = file.getAbsolutePath();
+          File rootFile = sourceRoot.getRootFile();
+          String relPath = filePath.substring(rootFile.getAbsolutePath().length() + 1, filePath.length() - ".clj".length());
+          toCompileNamespace.put(file, relPath.replace(File.separator, "."));
         }
         return true;
       }
     });
-*/
+
+    if (toCompile.isEmpty()) return ExitCode.NOTHING_DONE;
 
     JpsSdk<JpsDummyElement> sdk = chunk.representativeTarget().getModule().getSdk(JpsJavaSdkType.INSTANCE);
     if (sdk == null) {
@@ -119,8 +108,11 @@ public class ClojureBuilder extends ModuleLevelBuilder {
     }
 
     List<String> vmParams = new ArrayList<String>();
+//    vmParams.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5239");
     List<String> programParams = new ArrayList<String>();
     File outputDir = chunk.representativeTarget().getOutputDir();
+    outputDir.mkdirs();
+    
     File fileWithCompileScript = FileUtil.createTempFile("clojurekul", ".clj");
     fillFileWithClojureCompilerParams(toCompile, toCompileNamespace, fileWithCompileScript, outputDir);
     programParams.add(fileWithCompileScript.getAbsolutePath());
@@ -146,6 +138,7 @@ public class ClojureBuilder extends ModuleLevelBuilder {
         if (outputType != ProcessOutputTypes.STDERR) return;
         String text = event.getText().trim();
         context.processMessage(new ProgressMessage(text));
+//        context.processMessage(new CompilerMessage(COMPILER_NAME, BuildMessage.Kind.WARNING, text));
         if (text.startsWith(ERROR_PREFIX)) {
           String errorDescription = text.substring(ERROR_PREFIX.length());
           Pattern pattern = Pattern.compile("(.*)@@((.*) compiling:[(](.*):([\\d]*)(:([\\d]*))?[)])");
@@ -194,6 +187,9 @@ public class ClojureBuilder extends ModuleLevelBuilder {
 
     handler.startNotify();
     handler.waitFor();
+    if (process.exitValue() != 0) {
+      context.processMessage(new CompilerMessage(COMPILER_NAME, BuildMessage.Kind.ERROR, "Clojure compiler returned code " + process.exitValue()));
+    }
 
     return ExitCode.OK;
   }
