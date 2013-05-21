@@ -6,6 +6,7 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.ModuleChunk;
@@ -76,6 +77,10 @@ public class ClojureBuilder extends ModuleLevelBuilder {
     dirtyFilesHolder.processDirtyFiles(new FileProcessor<JavaSourceRootDescriptor, ModuleBuildTarget>() {
       public boolean apply(ModuleBuildTarget target, File file, JavaSourceRootDescriptor sourceRoot) throws IOException {
         if (javaModules.contains(target.getModule()) && file.getName().endsWith(".clj")) {
+          if (!hasGenClass(file)) {
+            return true;
+          }
+          
           toCompile.add(file);
           
           String filePath = file.getAbsolutePath();
@@ -192,6 +197,10 @@ public class ClojureBuilder extends ModuleLevelBuilder {
     }
 
     return ExitCode.OK;
+  }
+
+  private static boolean hasGenClass(File file) throws IOException {
+    return new String(FileUtilRt.loadFileText(file)).contains(":gen-class");
   }
 
   private void fillFileWithClojureCompilerParams(List<File> toCompile, HashMap<File, String> toCompileNamespace,
