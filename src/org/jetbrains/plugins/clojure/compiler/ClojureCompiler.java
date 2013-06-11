@@ -48,18 +48,20 @@ public class ClojureCompiler implements TranslatingCompiler {
 
   public boolean isCompilableFile(final VirtualFile file, CompileContext context) {
     final ClojureCompilerSettings settings = ClojureCompilerSettings.getInstance(myProject);
-    final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
-    PsiFile psi = ApplicationManager.getApplication().runReadAction(new Computable<PsiFile>() {
-      public PsiFile compute() {
-        return PsiManager.getInstance(myProject).findFile(file);
+    return ApplicationManager.getApplication().runReadAction(new Computable<Boolean>() {
+      public Boolean compute() {
+        if (!file.isValid()) return false;
+
+        final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
+        if (!fileType.equals(ClojureFileType.CLOJURE_FILE_TYPE)) return false;
+        
+        PsiFile psi = PsiManager.getInstance(myProject).findFile(file);
+        if (!(psi instanceof ClojureFile)) return false;
+
+        return (settings.getState().COPY_CLJ_SOURCES || settings.getState().COMPILE_CLOJURE && ((ClojureFile) psi).isClassDefiningFile());
       }
     });
 
-    final boolean isClojureFile = fileType.equals(ClojureFileType.CLOJURE_FILE_TYPE) &&
-        psi instanceof ClojureFile;
-
-    return isClojureFile && (settings.getState().COPY_CLJ_SOURCES ||
-        settings.getState().COMPILE_CLOJURE && ((ClojureFile) psi).isClassDefiningFile());
   }
 
 
