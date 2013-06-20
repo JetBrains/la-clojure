@@ -141,7 +141,7 @@
       <action id="org.jetbrains.plugins.clojure.repl.actions.RunSelectedTextAction"
               class="org.jetbrains.plugins.clojure.repl.actions.RunSelectedTextAction"
               text="Run selected text in REPL">
-        <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift J"/>
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift K"/>
       </action>
 
       <action id="org.jetbrains.plugins.clojure.repl.actions.RunLastSExprAction"
