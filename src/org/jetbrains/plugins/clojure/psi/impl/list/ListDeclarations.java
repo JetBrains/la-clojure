@@ -1,16 +1,11 @@
 package org.jetbrains.plugins.clojure.psi.impl.list;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.scope.PsiScopeProcessor;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
-import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
 import org.jetbrains.plugins.clojure.psi.api.ClList;
-import org.jetbrains.plugins.clojure.psi.api.ClQuotedForm;
 import org.jetbrains.plugins.clojure.psi.api.ClVector;
 import org.jetbrains.plugins.clojure.psi.api.defs.ClDef;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
@@ -74,7 +69,8 @@ public class ListDeclarations {
     if (headText.equals(LOOP)) return processLoopDeclaration(processor, list, place, lastParent);
     if (headText.equals(DOSEQ)) return processDoseqDeclaration(processor, list, place, lastParent);
     if (headText.equals(DECLARE)) return processDeclareDeclaration(processor, list, place, lastParent);
-    if (LOCAL_BINDINGS.contains(headText)) return processLetDeclaration(processor, list, place);
+    if (headText.equals(LET) && !processLetContents(processor, list, place)) return false;
+    if (LOCAL_BINDINGS.contains(headText)) return processBindings(processor, list, place);
 
     final PsiElement parent = list.getParent();
     if (parent != null && parent instanceof ClList) {
@@ -195,13 +191,24 @@ public class ListDeclarations {
     return true;
   }
 
-  private static boolean processLetDeclaration(PsiScopeProcessor processor, ClList list, PsiElement place) {
+  private static boolean processBindings(PsiScopeProcessor processor, ClList list, PsiElement place) {
     if (PsiTreeUtil.findCommonParent(place, list) == list) {
       final ClVector paramVector = list.findFirstChildByClass(ClVector.class);
       if (paramVector != null) {
         for (ClSymbol symbol : paramVector.getOddSymbols()) {
           if (!ResolveUtil.processElement(processor, symbol)) return false;
         }
+      }
+      return true;
+    }
+    return true;
+  }
+
+  private static boolean processLetContents(PsiScopeProcessor processor, ClList list, PsiElement place) {
+    if (PsiTreeUtil.findCommonParent(place, list) != list) {
+      final ClDef def = list.findFirstChildByClass(ClDef.class);
+      if (def != null) {
+        return ResolveUtil.processElement(processor, def);
       }
       return true;
     }

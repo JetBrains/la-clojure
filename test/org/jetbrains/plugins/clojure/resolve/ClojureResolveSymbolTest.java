@@ -45,6 +45,12 @@ public class ClojureResolveSymbolTest extends ClojureResolveTestCaseBase {
     return element;
   }
 
+  public void testDefinitionInsideLet() throws Exception {
+    final PsiElement element = resolveReference("base/definitionInsideLet.clj");
+    assertTrue(element instanceof ClDef);
+    assertEquals("foo", ((ClDef) element).getName());
+  }
+
   public void testDeftest1() throws Exception {
     final PsiElement element = resolveReference("useNs/deftest1.clj");
     assertTrue(element instanceof ClDef);
