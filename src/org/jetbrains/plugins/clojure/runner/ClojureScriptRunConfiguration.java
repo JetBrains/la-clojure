@@ -177,11 +177,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
     // add user parameters
     params.getVMParametersList().addParametersString(vmParams);
 
-    if (runInREPL) {
-      params.setMainClass(ClojureUtils.CLOJURE_REPL);
-    } else {
-      params.setMainClass(ClojureUtils.CLOJURE_MAIN);
-    }
+    params.setMainClass(ClojureUtils.CLOJURE_MAIN);
   }
 
   private boolean isJarFromJRE(String path, Module module) {
@@ -214,11 +210,13 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
   }
 
   private void configureScript(JavaParameters params) {
-    // add script
-    params.getProgramParametersList().add(scriptPath);
+    final ParametersList list = params.getProgramParametersList();
 
-    // add script parameters
-    params.getProgramParametersList().addParametersString(scriptParams);
+    if (runInREPL) list.add("-i");
+    list.add(scriptPath);
+
+    if (runInREPL) list.add("-r");
+    list.addParametersString(scriptParams);
   }
 
   public Module getModule() {
