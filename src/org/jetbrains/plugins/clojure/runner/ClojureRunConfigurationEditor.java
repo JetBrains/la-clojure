@@ -15,6 +15,8 @@ import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 
 /**
@@ -44,6 +46,7 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
   private JPanel workDirPanel;
   private JCheckBox myReplCB;
   private JPanel myEnvPanel;
+  private JCheckBox runMainFunction;
   private JTextField scriptPathField;
   private JTextField workDirField;
 
@@ -73,6 +76,18 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
 
     myEnvVariables.setLabelLocation(BorderLayout.WEST);
     myEnvPanel.add(myEnvVariables);
+
+    runMainFunction.getModel().addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        updateReplCheckBoxState();
+      }
+    });
+
+    updateReplCheckBoxState();
+  }
+
+  private void updateReplCheckBoxState() {
+    myReplCB.setEnabled(!runMainFunction.isSelected());
   }
 
   public void resetEditorFrom(ClojureScriptRunConfiguration configuration) {
@@ -85,8 +100,9 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
     scriptPathField.setText(configuration.getScriptPath());
     workDirField.setText(configuration.getWorkDir());
 
-    myReplCB.setEnabled(true);
     myReplCB.setSelected(configuration.getRunInREPL());
+
+    runMainFunction.setSelected(configuration.getRunMainFunction());
 
     myModulesModel.removeAllElements();
     for (Module module : configuration.getValidModules()) {
@@ -101,6 +117,7 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
     configuration.setModule((Module) myModulesBox.getSelectedItem());
     configuration.setVmParams(myVMParameters.getText());
     configuration.setRunInREPL(myReplCB.isSelected());
+    configuration.setRunMainFunction(runMainFunction.isSelected());
     configuration.setScriptParams(myParameters.getText());
     configuration.setScriptPath(scriptPathField.getText());
     configuration.setWorkDir(workDirField.getText());
@@ -111,7 +128,6 @@ public class ClojureRunConfigurationEditor extends SettingsEditor<ClojureScriptR
   public JComponent createEditor() {
     myModulesModel = new DefaultComboBoxModel();
     myModulesBox.setModel(myModulesModel);
-    myReplCB.setEnabled(true);
     myReplCB.setSelected(false);
 
     myModulesBox.setRenderer(new DefaultListCellRenderer() {

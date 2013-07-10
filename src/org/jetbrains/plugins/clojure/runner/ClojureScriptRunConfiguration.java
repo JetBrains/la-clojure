@@ -26,15 +26,17 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizer;
 import com.intellij.openapi.util.WriteExternalException;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.containers.hash.*;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
+import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import java.io.File;
@@ -64,6 +66,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
   private String vmParams;
   private String scriptParams;
   private boolean runInREPL;
+  private boolean runMainFunction;
   private final Map<String, String> envs = new com.intellij.util.containers.hash.LinkedHashMap<String, String>();
   public boolean passParentEnv = true;
 
@@ -107,6 +110,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
     scriptParams = JDOMExternalizer.readString(element, "params");
     workDir = JDOMExternalizer.readString(element, "workDir");
     runInREPL = Boolean.parseBoolean(JDOMExternalizer.readString(element, "repl"));
+    runMainFunction = Boolean.parseBoolean(JDOMExternalizer.readString(element, "main"));
     workDir = getWorkDir();
 
     envs.clear();
@@ -121,6 +125,7 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
     JDOMExternalizer.write(element, "params", scriptParams);
     JDOMExternalizer.write(element, "workDir", workDir);
     JDOMExternalizer.write(element, "repl", runInREPL);
+    JDOMExternalizer.write(element, "main", runMainFunction);
     JDOMExternalizer.writeMap(element, envs, null, "env");
     PathMacroManager.getInstance(getProject()).collapsePathsRecursively(element);
   }
@@ -209,14 +214,17 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
     return buffer;
   }
 
-  private void configureScript(JavaParameters params) {
-    final ParametersList list = params.getProgramParametersList();
-
+  private void configureScript(ParametersList list) {
     if (runInREPL) list.add("-i");
     list.add(scriptPath);
 
     if (runInREPL) list.add("-r");
     list.addParametersString(scriptParams);
+  }
+
+  private void configureMainFunction(ParametersList list, String namespace) {
+    list.add("--main");
+    list.add(namespace);
   }
 
   public Module getModule() {
@@ -249,11 +257,46 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
     final ClojureConfigUtil.RunConfigurationParameters params =
         new ClojureConfigUtil.RunConfigurationParameters();
 
+    final String namespace;
+
+    if (runMainFunction) {
+      final VirtualFile virtualFile = VfsUtil.findFileByIoFile(new File(scriptPath), true);
+      if (virtualFile == null) {
+        showCannotDetermineNamespaceError();
+        return null;
+      }
+
+      final PsiFile file = PsiManager.getInstance(getProject()).findFile(virtualFile);
+      if (!(file instanceof ClojureFile)) {
+        showCannotDetermineNamespaceError();
+        return null;
+      }
+
+      final String ns = ((ClojureFile) file).getNamespace();
+      if (ns == null) {
+        showCannotDetermineNamespaceError();
+        return null;
+      }
+
+      namespace = ns;
+    } else {
+      namespace = null;
+    }
+
     final JavaCommandLineState state = new JavaCommandLineState(environment) {
       protected JavaParameters createJavaParameters() throws ExecutionException {
         ProgramParametersUtil.configureConfiguration(params, ClojureScriptRunConfiguration.this);
+
         configureJavaParams(params, module);
-        configureScript(params);
+
+        final ParametersList list = params.getProgramParametersList();
+
+        if (runMainFunction) {
+          configureMainFunction(list, namespace);
+        } else {
+          configureScript(list);
+        }
+
         return params;
       }
     };
@@ -286,9 +329,11 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
 
   }
 
-  @Nullable
-  private VirtualFile findScriptFile() {
-    return VirtualFileManager.getInstance().findFileByUrl("file://" + scriptPath);
+  private void showCannotDetermineNamespaceError() {
+    Messages.showErrorDialog(getProject(),
+        ClojureBundle.message("error.running.configuration.with.error.error.message", getName(),
+            ClojureBundle.message("cannot.determine.namespace", scriptPath)),
+        ClojureBundle.message("run.error.message.title"));
   }
 
   public void setScriptPath(String path) {
@@ -321,6 +366,14 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
 
   public boolean getRunInREPL() {
     return runInREPL;
+  }
+
+  public boolean getRunMainFunction() {
+    return runMainFunction;
+  }
+
+  public void setRunMainFunction(boolean b) {
+    runMainFunction = b;
   }
 
   public void setPassParentEnvs(boolean passParentEnvs) {
