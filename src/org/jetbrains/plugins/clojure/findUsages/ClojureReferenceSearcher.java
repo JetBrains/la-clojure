@@ -1,22 +1,32 @@
 package org.jetbrains.plugins.clojure.findUsages;
 
+import com.intellij.openapi.application.QueryExecutorBase;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.*;
-import com.intellij.psi.search.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.PsiReference;
+import com.intellij.psi.PsiVariable;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.RequestResultProcessor;
+import com.intellij.psi.search.SearchScope;
+import com.intellij.psi.search.UsageSearchContext;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.util.Processor;
-import com.intellij.util.QueryExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
 import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 
-import java.util.List;
-
 /**
  * @author ilyas
  */
-public class ClojureReferenceSearcher implements QueryExecutor<PsiReference, ReferencesSearch.SearchParameters> {
-  public boolean execute(ReferencesSearch.SearchParameters params, final Processor<PsiReference> consumer) {
+public class ClojureReferenceSearcher extends QueryExecutorBase<PsiReference, ReferencesSearch.SearchParameters> {
+
+  public ClojureReferenceSearcher() {
+    super(true);
+  }
+
+  @Override
+  public void processQuery(@NotNull ReferencesSearch.SearchParameters params, @NotNull Processor<PsiReference> consumer) {
     final PsiElement elem = params.getElementToSearch();
     SearchScope scope = params.getEffectiveSearchScope();
     if (elem instanceof PsiNamedElement
@@ -50,7 +60,6 @@ public class ClojureReferenceSearcher implements QueryExecutor<PsiReference, Ref
         }
       }
     }
-    return true;
   }
 
 }
