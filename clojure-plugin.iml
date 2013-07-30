@@ -10,7 +10,7 @@
       <excludeFolder url="file://$MODULE_DIR$/lib/NikaSDK" />
       <excludeFolder url="file://$MODULE_DIR$/lib/TrunkSDK" />
     </content>
-    <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="clojure-netbeans-repl" level="project" />
     <orderEntry type="library" name="clojure.sdk" level="project" />

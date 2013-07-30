@@ -2,29 +2,43 @@ package org.jetbrains.plugins.clojure.lexer;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.psi.tree.IElementType;
-import junit.framework.Test;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.clojure.BaseClojureFileSetTestCase;
+import org.jetbrains.plugins.clojure.ClojureLightPlatformCodeInsightTestCase;
+import org.junit.Assert;
 
 /**
  * @author ilyas
  */
-public class LexerTest extends BaseClojureFileSetTestCase {
+@SuppressWarnings("SpellCheckingInspection")
+public class LexerTest extends ClojureLightPlatformCodeInsightTestCase {
 
-  @NonNls
-  private static final String DATA_PATH = "test/org/jetbrains/plugins/clojure/lexer/data";
-
-  public LexerTest() {
-    super(System.getProperty("path") != null ?
-        System.getProperty("path") :
-        DATA_PATH
-    );
+  public void testNumeric_literals() { 
+    doTest("(+ 123 1N 1. 1.2 1e2 1M 1.2M 1e2M)", "( {(}\n" +
+        "atom {+}\n" +
+        "WHITE_SPACE { }\n" +
+        "long literal {123}\n" +
+        "WHITE_SPACE { }\n" +
+        "big integer literal {1N}\n" +
+        "WHITE_SPACE { }\n" +
+        "double literal {1.}\n" +
+        "WHITE_SPACE { }\n" +
+        "double literal {1.2}\n" +
+        "WHITE_SPACE { }\n" +
+        "double literal {1e2}\n" +
+        "WHITE_SPACE { }\n" +
+        "big deciamel literal {1M}\n" +
+        "WHITE_SPACE { }\n" +
+        "big deciamel literal {1.2M}\n" +
+        "WHITE_SPACE { }\n" +
+        "big deciamel literal {1e2M}\n" +
+        ") {)}"); 
   }
+  public void testKeyword() { doTest(":sdfsd/sdfsdf/sdfsdf", "key {:sdfsd/sdfsdf/sdfsdf}"); }
+  public void testKeyword2() { doTest(":123", "key {:123}"); }
+  public void testKeyword3() { doTest(":fadfa/adfasdf:dafasdf/asdfad", "key {:fadfa/adfasdf:dafasdf/asdfad}"); }
+  public void testKeyword4() { doTest(":fadf#adfasdf", "key {:fadf#adfasdf}"); }
+  public void testInteger_radix() { doTest("36rXYZ", "long literal {36rXYZ}"); }
 
-
-  public String transform(String testName, String[] data) throws Exception {
-    String fileText = data[0];
-
+  private void doTest(String fileText, String tokens) {
     Lexer lexer = new ClojureFlexLexer();
     lexer.start(fileText.trim());
 
@@ -41,17 +55,7 @@ public class LexerTest extends BaseClojureFileSetTestCase {
       }
     }
 
-    System.out.println("------------------------ " + testName + " ------------------------");
-    System.out.println(buffer.toString());
-    System.out.println();
-
-    return buffer.toString();
-
+    Assert.assertEquals(tokens, buffer.toString());
   }
-
-  public static Test suite() {
-    return new LexerTest();
-  }
-
 
 }
