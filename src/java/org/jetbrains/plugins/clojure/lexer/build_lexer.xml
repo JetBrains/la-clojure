@@ -2,7 +2,6 @@
   <property name="project.dir" value="./../../../../../../.."/>
   <property name="project.lib" value="${project.dir}/lib"/>
 
-
   <target name="make.lexer">
     <java jar="${project.lib}/JFlex.jar" output="jflex.log" fork="true" maxmemory="512m">
       <arg value="--charat"/>
