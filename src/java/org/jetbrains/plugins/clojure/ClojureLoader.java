@@ -48,6 +48,8 @@ public class ClojureLoader implements ApplicationComponent {
   @NotNull
   public static final Set<String> CLOJURE_EXTENSIONS = new HashSet<String>();
 
+  private static final String INIT_CLOJURE = "org.jetbrains.plugins.clojure.init_clojure";
+
   static {
     adjustClojureCompilerLoader();
 
@@ -99,8 +101,8 @@ public class ClojureLoader implements ApplicationComponent {
           RT.var("clojure.core", "*warn-on-reflection*"), true,
           RT.ERR, writer));
 
-      RT.var("clojure.core", "require").invoke(Symbol.intern("org.jetbrains.plugins.clojure.init_clojure"));
-      Var.find(Symbol.intern("org.jetbrains.plugins.clojure.init_clojure/init")).invoke();
+      RT.var("clojure.core", "require").invoke(Symbol.intern(INIT_CLOJURE));
+      Var.find(Symbol.intern(INIT_CLOJURE + "/init")).invoke();
 
       String result = writer.toString();
       LOG.error("Reflection warnings:\n" + result);
