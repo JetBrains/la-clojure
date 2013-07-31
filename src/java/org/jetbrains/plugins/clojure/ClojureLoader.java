@@ -13,11 +13,14 @@ import com.intellij.openapi.project.ProjectManagerAdapter;
 import com.intellij.refactoring.rename.RenameInputValidatorRegistry;
 import com.intellij.util.Function;
 import com.intellij.util.containers.HashSet;
+import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.debugger.ClojurePositionManager;
 import org.jetbrains.plugins.clojure.refactoring.rename.ClojureRenameInputValidator;
 import org.jetbrains.plugins.clojure.refactoring.rename.ClojureSymbolPattern;
+import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
+import java.io.StringWriter;
 import java.util.Set;
 
 /**
@@ -36,6 +39,8 @@ import java.util.Set;
  * limitations under the License.
  */
 public class ClojureLoader implements ApplicationComponent {
+
+  private final Logger LOG = Logger.getLogger(ClojureLoader.class);
 
   @NotNull
   public static final String CLOJURE_EXTENSION = "clj";
@@ -82,6 +87,29 @@ public class ClojureLoader implements ApplicationComponent {
   }
 
   public void initComponent() {
+    ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
+
+    try {
+      ClassLoader loader = ClojureLoader.class.getClassLoader();
+      Thread.currentThread().setContextClassLoader(loader);
+
+      StringWriter writer = new StringWriter();
+
+      Var.pushThreadBindings(RT.map(clojure.lang.Compiler.LOADER, loader,
+          RT.var("clojure.core", "*warn-on-reflection*"), true,
+          RT.ERR, writer));
+
+      RT.var("clojure.core", "require").invoke(Symbol.intern("org.jetbrains.plugins.clojure.init_clojure"));
+      Var.find(Symbol.intern("org.jetbrains.plugins.clojure.init_clojure/init")).invoke();
+
+      String result = writer.toString();
+      LOG.error("Reflection warnings:\n" + result);
+    } catch (Exception e) {
+      LOG.error(e.getMessage(), e);
+    } finally {
+      Var.popThreadBindings();
+      Thread.currentThread().setContextClassLoader(oldLoader);
+    }
   }
 
 

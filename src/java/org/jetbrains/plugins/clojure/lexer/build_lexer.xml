@@ -1,0 +1,14 @@
+<project name="Build Clojure plugin for IntelliJ IDEA" default="deploy.plugin">
+  <property name="project.dir" value="./../../../../../../.."/>
+  <property name="project.lib" value="${project.dir}/lib"/>
+
+
+  <target name="make.lexer">
+    <java jar="${project.lib}/JFlex.jar" output="jflex.log" fork="true" maxmemory="512m">
+      <arg value="--charat"/>
+      <arg value="-skel"/>
+      <arg value="${project.lib}/idea-flex.skeleton"/>
+      <arg value="clojure.flex"/>
+    </java>
+  </target>
+</project>
