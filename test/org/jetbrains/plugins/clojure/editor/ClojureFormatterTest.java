@@ -8,14 +8,9 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.codeStyle.CodeStyleManager;
-import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
-import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
-import com.intellij.testFramework.fixtures.TestFixtureBuilder;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
-import org.jetbrains.plugins.clojure.ClojureBaseTestCase;
-import org.junit.Assert;
-import org.junit.Test;
+import org.jetbrains.plugins.clojure.base.ClojureBaseTestCase;
 
 /**
  * @author ilyas
