@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ilyas
@@ -137,7 +137,7 @@ public class TestUtils {
 
   public static ModifiableRootModel addLibrary(ModifiableRootModel rootModel,
                                                ModuleRootManager rootManager, OrderEnumerator libs,
-                                               ArrayList<Library.ModifiableModel> libModels,
+                                               List<Library.ModifiableModel> libModels,
                                                final String clojureLibraryName, String mockLib, String mockLibSrc) {
     class CustomProcessor implements Processor<Library> {
       public boolean result = true;

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.clojure.util.TestUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Alefas
@@ -61,7 +62,7 @@ public abstract class ClojureLightPlatformCodeInsightTestCase extends LightPlatf
 
     // Add Clojure Library
     OrderEnumerator libs = rootManager.orderEntries().librariesOnly();
-    final ArrayList<Library.ModifiableModel> libModels = new ArrayList<Library.ModifiableModel>();
+    final List<Library.ModifiableModel> libModels = new ArrayList<Library.ModifiableModel>();
 
     rootModel = TestUtils.addLibrary(rootModel, rootManager, libs, libModels, "clojureLib", TestUtils.getMockClojureLib(), null);
     rootModel = TestUtils.addLibrary(rootModel, rootManager, libs, libModels, "clojureContrib", TestUtils.getMockClojureContribLib(), null);
