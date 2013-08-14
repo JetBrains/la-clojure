@@ -1,27 +1,31 @@
-package org.jetbrains.plugins.clojure;
+package org.jetbrains.plugins.clojure.base;
 
+import com.intellij.ide.startup.impl.StartupManagerImpl;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.OrderEnumerator;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.startup.StartupManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-import com.intellij.testFramework.PsiTestCase;
-import com.intellij.testFramework.fixtures.*;
+import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
 import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import org.jetbrains.plugins.clojure.file.ClojureFileType;
-import org.jetbrains.plugins.clojure.formatter.codeStyle.ClojureCodeStyleSettings;
+import org.jetbrains.plugins.clojure.util.TestUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ilyas
@@ -32,7 +36,6 @@ public abstract class ClojureBaseTestCase extends LightPlatformCodeInsightFixtur
   protected static final String TEST_FILE_EXT = ".test";
 
   private Project myProject;
-  protected IdeaProjectTestFixture myFixture;
   protected CodeStyleSettings mySettings;
 
   public Project getProject() {
@@ -51,27 +54,46 @@ public abstract class ClojureBaseTestCase extends LightPlatformCodeInsightFixtur
     mySettings.getIndentOptions(fileType).INDENT_SIZE = 2;
     mySettings.getIndentOptions(fileType).CONTINUATION_INDENT_SIZE = 2;
     mySettings.getIndentOptions(fileType).TAB_SIZE = 2;
-
-    ClojureCodeStyleSettings css = mySettings.getCustomSettings(ClojureCodeStyleSettings.class);
-//    css.ALIGN_CLOJURE_FORMS = true;
   }
 
   protected void setUp() throws Exception {
-    myFixture = createFixture();
-
-    myFixture.setUp();
+    super.setUp();
+    myFixture.setTestDataPath(getDataPath());
     myProject = myFixture.getProject();
     setSettings();
+    setupLibraries();
   }
 
-  protected IdeaProjectTestFixture createFixture() {
-    TestFixtureBuilder<IdeaProjectTestFixture> fixtureBuilder = IdeaTestFixtureFactory.getFixtureFactory().createLightFixtureBuilder();
-    return fixtureBuilder.getFixture();
+  private void setupLibraries() {
+    ModifiableRootModel rootModel = null;
+    final ModuleRootManager rootManager = ModuleRootManager.getInstance(myFixture.getModule());
+
+    // Add Clojure Library
+    OrderEnumerator libs = rootManager.orderEntries().librariesOnly();
+    final List<Library.ModifiableModel> libModels = new ArrayList<Library.ModifiableModel>();
+
+    rootModel = TestUtils.addLibrary(rootModel, rootManager, libs, libModels, "clojureLib", TestUtils.getMockClojureLib(), null);
+    rootModel = TestUtils.addLibrary(rootModel, rootManager, libs, libModels, "clojureContrib", TestUtils.getMockClojureContribLib(), null);
+
+    if (rootModel != null || !libModels.isEmpty()) {
+      final ModifiableRootModel finalRootModel = rootModel;
+      ApplicationManager.getApplication().runWriteAction(new Runnable() {
+        public void run() {
+          for (Library.ModifiableModel model : libModels) {
+            model.commit();
+          }
+          if (finalRootModel != null) {
+            finalRootModel.commit();
+          }
+          final StartupManagerImpl startupManager = (StartupManagerImpl) StartupManager.getInstance(myProject);
+          startupManager.startCacheUpdate();
+        }
+      });
+    }
   }
 
   protected void tearDown() throws Exception {
-    myFixture.tearDown();
-    myFixture = null;
+    super.tearDown();
   }
 
   protected PsiFile createPseudoPhysicalFile(final Project project, final String fileName, final String text) throws IncorrectOperationException {
@@ -83,7 +105,7 @@ public abstract class ClojureBaseTestCase extends LightPlatformCodeInsightFixtur
         true);
   }
 
-  public  String getTestName() {
+  public String getTestName() {
     final String s = getName().substring(4);
     return s.substring(0, 1).toLowerCase() + s.substring(1);
   }
@@ -100,7 +122,7 @@ public abstract class ClojureBaseTestCase extends LightPlatformCodeInsightFixtur
     try {
       BufferedReader input = new BufferedReader(new FileReader(file));
       try {
-        String line = null;
+        String line;
         if ((line = input.readLine()) != null) {
           contents.append(line);
         }

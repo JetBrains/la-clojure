@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.clojure.parser;
 
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.DebugUtil;
-import com.intellij.openapi.fileTypes.FileTypeManager;
-import org.jetbrains.plugins.clojure.ClojureBaseTestCase;
-import org.junit.Test;
 import junit.framework.Assert;
+import org.jetbrains.plugins.clojure.base.ClojureBaseTestCase;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
