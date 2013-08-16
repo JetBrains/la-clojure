@@ -1,6 +1,6 @@
 (ns org.jetbrains.plugins.clojure.refactoring.utils.refactoring-utils
   (:use [org.jetbrains.plugins.clojure.utils.psi-utils])
-  (:import [com.intellij.openapi.editor Editor SelectionModel]
+  (:import [com.intellij.openapi.editor Editor SelectionModel EditorSettings]
    [com.intellij.openapi.project Project]
    [com.intellij.psi PsiFile PsiDocumentManager]
    [com.intellij.openapi.vfs ReadonlyStatusHandler]
@@ -55,3 +55,10 @@
       .getSelectionModel
       .hasSelection)
     (invokes editor))) ;todo
+
+(defn is-inplace-available?
+  [^Editor editor]
+  (true?
+    (some-> editor
+      .getSettings
+      .isVariableInplaceRenameEnabled)))
