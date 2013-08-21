@@ -1,23 +1,12 @@
 package org.jetbrains.plugins.clojure.resolve;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.roots.ContentEntry;
-import com.intellij.openapi.roots.ModifiableRootModel;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiReference;
-import com.intellij.testFramework.ResolveTestCase;
-import org.jetbrains.plugins.clojure.ClojureLightPlatformCodeInsightTestCase;
-import org.jetbrains.plugins.clojure.ClojureLoader;
+import org.jetbrains.plugins.clojure.base.ClojureLightPlatformCodeInsightTestCase;
 import org.jetbrains.plugins.clojure.util.TestUtils;
 
 import java.io.File;

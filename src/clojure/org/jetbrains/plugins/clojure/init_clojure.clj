@@ -2,4 +2,5 @@
   (:require org.jetbrains.plugins.clojure.intention.convert_import_intention))
 
 (defn init []
-  (org.jetbrains.plugins.clojure.intention.convert_import_intention/init))
+  (do
+    (org.jetbrains.plugins.clojure.intention.convert_import_intention/init)))
