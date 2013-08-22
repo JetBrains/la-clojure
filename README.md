@@ -28,8 +28,17 @@ If you selected "Set up library later", configure the library as below:
 
 Now you can start a Clojure Console via "Tools -> Clojure Console" or "Ctrl+Shift+F10".
 
-
 Develop (Clojure) with Pleasure!
+
+Release cycle
+--
+Master branch is compatible only with IDEA 13. We are planning to update builds to [plugins site](http://plugins.jetbrains.com/plugin/4050?pr=) for every IDEA 13 EAP, which breaks compatibility and at the beggining of every month.
+
+We don't use GitHub issue tracker, so all issues from here will be moved to our main [issure tracker](http://youtrack.jetbrains.com/issues/CLJ).
+
+We also started [nighlty builds](http://confluence.jetbrains.com/display/SCA/Clojure+Plugin+Nightly+Builds+for+IDEA+13).
+
+If you have any questions related to this project, use our [Developer Forum](http://devnet.jetbrains.com/community/idea/clojure?view=discussions).
 
 Setting up "La Clojure" project
 --
@@ -44,3 +53,4 @@ Follow these steps:
 7. Now you can compile and run IDEA run configuration.
 8. To build plugin, run 'Production' artifact from IDEA (Build -> Build Artifacts)
 9. To attach IDEA sources you need to create sources.zip file (and put it to 'IDEA13SDK' directory) with the following structure: community/java, community/platform and so on (from plugins sources you need only copyright plugin).
+10. To run tests use 'AllTests' run configuration. To run single test, configure defaults for JUnit configuration like it's done in 'AllTests' run configuration.
