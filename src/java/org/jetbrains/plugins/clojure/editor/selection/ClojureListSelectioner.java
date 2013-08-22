@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.editor.selection;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.psi.ClojurePsiElement;
 import org.jetbrains.plugins.clojure.psi.api.*;
 
@@ -43,5 +44,9 @@ public class ClojureListSelectioner extends ClojureBasicSelectioner {
 
 
     return result;
+  }
+
+  public int getMinimalTextRangeLength(@NotNull PsiElement element) {
+    return 0;
   }
 }

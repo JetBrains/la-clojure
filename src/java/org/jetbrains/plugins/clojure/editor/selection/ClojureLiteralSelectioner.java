@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor;
 
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.psi.api.ClLiteral;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 
@@ -37,5 +38,9 @@ public class ClojureLiteralSelectioner extends ClojureBasicSelectioner {
       result.add(new TextRange(range.getStartOffset() + 1, range.getEndOffset() - 1));
     }
     return result;
+  }
+
+  public int getMinimalTextRangeLength(@NotNull PsiElement element) {
+    return 0;
   }
 }
