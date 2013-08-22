@@ -1,19 +1,52 @@
-(ns org.jetbrains.plugins.clojure.utils.psi-utils
-  (:import [com.intellij.psi PsiFile PsiElement PsiReference]
-           [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory]
-           [org.jetbrains.plugins.clojure.parser ClojureElementTypes ClojurePsiCreator]
-           [com.intellij.openapi.editor Editor]
+(ns org.jetbrains.plugins.clojure.utils.clojure-utils
+  (:import [com.intellij.psi PsiFile PsiElement PsiReference PsiDocumentManager]
+   [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory ClojurePsiUtil]
+   [org.jetbrains.plugins.clojure.parser ClojureElementTypes ClojurePsiCreator]
+   [com.intellij.openapi.editor Editor]
            [org.jetbrains.plugins.clojure.file ClojureFileType]
            [com.intellij.lang ASTNode]
            [com.intellij.psi.tree IElementType]
-           [org.jetbrains.plugins.clojure.psi.api ClojureFile]
-           [org.jetbrains.plugins.clojure.psi.api.defs ClDef]))
+           [org.jetbrains.plugins.clojure.psi.api ClojureFile ClVector]
+           [org.jetbrains.plugins.clojure.psi.api.defs ClDef]
+           [org.jetbrains.plugins.clojure ClojureBundle]
+           [com.intellij.refactoring.util CommonRefactoringUtil]
+           [com.intellij.openapi.project Project]
+           [org.jetbrains.plugins.clojure.psi ClojurePsiElement]
+           [com.intellij.psi.util PsiTreeUtil]))
+
+
+(defn show-error
+  [project editor msg]
+  (CommonRefactoringUtil/showErrorHint
+    project
+    editor
+    msg
+    msg
+    "IntellijIdeaRulezzzzzz"))
+
+
+(defn bundle-message
+  [msg-name]
+  (ClojureBundle/message msg-name (into-array [])))
+
 
 (defmacro maybe
   [f]
   `(fn [arg#]
      (if-let [x# arg#]
        (~f x#))))
+
+
+(defn with-error
+  [pred project editor msg]
+  (fn
+    [& args]
+    (if-let [pr (apply pred args)]
+      pr
+      (do
+        (show-error project editor msg)
+        pr)))) ;wtf?
+
 
 (defn n-iter
   [x n f]
@@ -136,3 +169,28 @@
         .getContainingFile
         get-namespace)
       check-ns)))
+
+(defn commit-document
+  [^Editor editor]
+  (let [document (.getDocument editor)]
+    (some-> editor
+      .getProject
+      (PsiDocumentManager/getInstance)
+      (.commitDocument document))))
+
+(defn is-let-form?
+  [^ClojurePsiElement form]
+  (=
+    "let"
+    (some-> (ClojurePsiUtil/firstChildSexp form)
+      (.getText))))
+
+(defn get-let-body
+  [^PsiElement let-form]
+  (ClojurePsiUtil/lastChildSexp let-form))
+
+(defn get-let-bindings
+  [^PsiElement let-form]
+  (PsiTreeUtil/getChildOfType
+    let-form
+    ClVector))

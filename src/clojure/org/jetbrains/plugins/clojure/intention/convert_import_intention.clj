@@ -1,14 +1,14 @@
 (ns org.jetbrains.plugins.clojure.intention.convert_import_intention
-  (:use [org.jetbrains.plugins.clojure.utils.psi-utils])
+  (:use [org.jetbrains.plugins.clojure.utils.clojure-utils])
   (:import [com.intellij.lang LanguageAnnotators ASTNode]
-           [com.intellij.codeInsight.intention IntentionAction IntentionManager]
-           [com.intellij.psi PsiFile PsiElement PsiReference]
-           [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory]
-           [org.jetbrains.plugins.clojure.lexer ClojureTokenTypes]
-           [org.jetbrains.plugins.clojure.parser ClojurePsiCreator ClojureElementTypes]
-           [com.intellij.openapi.editor Editor]
-           [org.jetbrains.plugins.clojure.file ClojureFileType]
-           [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]))
+   [com.intellij.codeInsight.intention IntentionAction IntentionManager]
+   [com.intellij.psi PsiFile PsiElement PsiReference]
+   [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory]
+   [org.jetbrains.plugins.clojure.lexer ClojureTokenTypes]
+   [org.jetbrains.plugins.clojure.parser ClojurePsiCreator ClojureElementTypes]
+   [com.intellij.openapi.editor Editor]
+   [org.jetbrains.plugins.clojure.file ClojureFileType]
+   [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]))
 
 
 (defn- is-import?
