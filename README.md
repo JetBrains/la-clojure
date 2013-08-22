@@ -30,3 +30,17 @@ Now you can start a Clojure Console via "Tools -> Clojure Console" or "Ctrl+Shif
 
 
 Develop (Clojure) with Pleasure!
+
+Setting up "La Clojure" project
+--
+Follow these steps:
+
+1. Clone this repository.
+2. Create 'IDEA13SDK' directory (or symlink) in folder 'lib'
+3. Download archive of the latest [IDEA 13 EAP](http://confluence.jetbrains.com/display/IDEADEV/IDEA+13+EAP) Ultimate or Community edition. Note, that for Windows and COmmunity edition you need to download installer.
+4. Unpack it into 'IDEA13SDK' directory (or symlink), 'bin' directory should be in the root.
+5. Open 'La Clojure' project now
+6. Setup JDK. Additionally add tools.jar, from jdk lib directory. It contains JDI classes.
+7. Now you can compile and run IDEA run configuration.
+8. To build plugin, run 'Production' artifact from IDEA (Build -> Build Artifacts)
+9. To attach IDEA sources you need to create sources.zip file (and put it to 'IDEA13SDK' directory) with the following structure: community/java, community/platform and so on (from plugins sources you need only copyright plugin).
