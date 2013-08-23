@@ -16,15 +16,15 @@
                         "introduce.variable.title"))
 
 
-(defn- file-ok?
+(defn- file-ok?!
   [^Project project ^Editor editor ^PsiFile file]
-  (let [clojure? (with-error
+  (let [clojure? (with-error!
                    is-clojure?
                    project
                    editor
                    (bundle-message
                      "must.be.clojure"))
-        writable? (with-error
+        writable? (with-error!
                     is-writable?
                     project
                     editor
@@ -33,7 +33,8 @@
     (if-let [answer (and
                       (clojure? file)
                       (writable? file project))]
-      answer)))
+      answer
+      false)))
 
 (defn- can-introduce?
   [expression ^Project project ^Editor editor]
@@ -140,7 +141,7 @@
   [project editor file context start end]
   (do
     (commit-all-documents project)
-    (if (file-ok? project editor file)
+    (if (file-ok?! project editor file)
       (invoke-on-expression! project editor file start end))))
 
 (defn invoke!

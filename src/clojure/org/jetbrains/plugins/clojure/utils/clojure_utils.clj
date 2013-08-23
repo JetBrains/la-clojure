@@ -37,15 +37,13 @@
        (~f x#))))
 
 
-(defn with-error
+(defn with-error!
   [pred project editor msg]
   (fn
     [& args]
-    (if-let [pr (apply pred args)]
-      pr
-      (do
-        (show-error project editor msg)
-        pr)))) ;wtf?
+    (if-let [par (apply pred args)]
+      par
+      (show-error project editor msg))))
 
 
 (defn n-iter
