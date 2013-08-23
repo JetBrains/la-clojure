@@ -6,7 +6,7 @@
    [com.intellij.openapi.util Pass Computable TextRange]
    [com.intellij.openapi.command CommandProcessor]
    [com.intellij.openapi.project Project]
-   [com.intellij.openapi.editor Editor Document]
+   [com.intellij.openapi.editor Editor Document SelectionModel]
    [com.intellij.psi PsiFile PsiElement]
    [com.intellij.openapi.application ApplicationManager Application]
    [org.jetbrains.plugins.clojure.psi.api ClVector]
@@ -83,19 +83,24 @@
 
 
 (defn- run-inplace!
-  [expression container occurences name bindings project editor file]
+  [expression container occurences name bindings project ^Editor editor file]
   (-> (CommandProcessor/getInstance)
     (.executeCommand
       project
-      (fn [] (refactor-cmd!
-               expression
-               container
-               occurences
-               name
-               bindings
-               project
-               file
-               editor))
+      (fn []
+        (do
+          (refactor-cmd!
+            expression
+            container
+            occurences
+            name
+            bindings
+            project
+            file
+            editor)
+          (-> editor
+            .getSelectionModel
+            .removeSelection)))
       refactoring-name
       nil)))
 

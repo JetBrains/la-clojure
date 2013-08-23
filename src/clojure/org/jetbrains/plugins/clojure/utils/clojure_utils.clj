@@ -3,16 +3,16 @@
    [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory ClojurePsiUtil]
    [org.jetbrains.plugins.clojure.parser ClojureElementTypes ClojurePsiCreator]
    [com.intellij.openapi.editor Editor]
-           [org.jetbrains.plugins.clojure.file ClojureFileType]
-           [com.intellij.lang ASTNode]
-           [com.intellij.psi.tree IElementType]
-           [org.jetbrains.plugins.clojure.psi.api ClojureFile ClVector]
-           [org.jetbrains.plugins.clojure.psi.api.defs ClDef]
-           [org.jetbrains.plugins.clojure ClojureBundle]
-           [com.intellij.refactoring.util CommonRefactoringUtil]
-           [com.intellij.openapi.project Project]
-           [org.jetbrains.plugins.clojure.psi ClojurePsiElement]
-           [com.intellij.psi.util PsiTreeUtil]))
+   [org.jetbrains.plugins.clojure.file ClojureFileType]
+   [com.intellij.lang ASTNode]
+   [com.intellij.psi.tree IElementType]
+   [org.jetbrains.plugins.clojure.psi.api ClojureFile ClVector]
+   [org.jetbrains.plugins.clojure.psi.api.defs ClDef]
+   [org.jetbrains.plugins.clojure ClojureBundle]
+   [com.intellij.refactoring.util CommonRefactoringUtil]
+   [com.intellij.openapi.project Project]
+   [org.jetbrains.plugins.clojure.psi ClojurePsiElement]
+   [com.intellij.psi.util PsiTreeUtil]))
 
 
 (defn show-error
