@@ -136,7 +136,7 @@
   "IDEA") ;todo
 
 
-(defn replace-occurence
+(defn replace-occurence!
   [^PsiElement expression new-name ^Editor editor]
   (let [document (.getDocument editor)
         text-range (.getTextRange expression)
@@ -155,12 +155,12 @@
         document-manager
         document))))
 
-(defn replace-occurences
+(defn replace-occurences!
   [occurences name editor]
   (do
     (commit-document editor)
     (doseq
       [o (reverse occurences)]
-      (replace-occurence o name editor))))
+      (replace-occurence! o name editor))))
 
 

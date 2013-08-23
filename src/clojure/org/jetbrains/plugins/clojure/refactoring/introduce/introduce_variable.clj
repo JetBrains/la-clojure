@@ -55,22 +55,22 @@
                             body)]
     (.replace container created-container)))
 
-(defn- introduce-runner
+(defn- introduce-runner!
   [expression ^PsiElement container occurences name bindings project file editor]
   (let [container-position (-> container
                              .getTextRange
                              .getStartOffset)]
     (do
-      (replace-occurences occurences name editor)
+      (replace-occurences! occurences name editor)
       (some-> (find-element-by-offset file container-position)
         (modify-psi-tree bindings project)))))
 
 
-(defn- refactor-cmd
+(defn- refactor-cmd!
   [expression container occurences name bindings project file editor]
   (-> (ApplicationManager/getApplication)
     (.runWriteAction
-      (fn [] (introduce-runner
+      (fn [] (introduce-runner!
                expression
                container
                occurences
@@ -81,12 +81,12 @@
                editor)))))
 
 
-(defn- run-inplace
+(defn- run-inplace!
   [expression container occurences name bindings project editor file]
   (-> (CommandProcessor/getInstance)
     (.executeCommand
       project
-      (fn [] (refactor-cmd
+      (fn [] (refactor-cmd!
                expression
                container
                occurences
@@ -118,7 +118,7 @@
         (vector declaration))
       project)))
 
-(defn- do-refactoring
+(defn- do-refactoring!
   [expression project editor file]
   (let [name (get-var-name)
         container (get-container
@@ -126,29 +126,29 @@
         occurences (get-occurences container expression)
         bindings (get-container-bindings container expression name project)]
     (if (inplace-available? editor)
-      (run-inplace expression container occurences name bindings project editor file))))
+      (run-inplace! expression container occurences name bindings project editor file))))
 
 
-(defn- invoke-on-expression
+(defn- invoke-on-expression!
   [project editor file start end]
   (if-let [expression (get-expression file start end)]
     (if (can-introduce? expression project editor)
-      (do-refactoring expression project editor file))
+      (do-refactoring! expression project editor file))
     (show-error project editor "Selected block should be a list form")))
 
-(defn- invoke-selection
+(defn- invoke-selection!
   [project editor file context start end]
   (do
     (commit-all-documents project)
     (if (file-ok? project editor file)
-      (invoke-on-expression project editor file start end))))
+      (invoke-on-expression! project editor file start end))))
 
-(defn invoke
+(defn invoke!
   [project editor file context]
   (let [invokes (fn [e]
                   (let [start (get-selection-start editor)
                         end (get-selection-end editor)]
-                    (invoke-selection project e file context start end)))]
+                    (invoke-selection! project e file context start end)))]
     (invoke-refactoring project editor file context invokes)))
 
 
@@ -157,7 +157,7 @@
   (reify
     RefactoringActionHandler
     (invoke [this project editor file context]
-      (invoke project editor file context))))
+      (invoke! project editor file context))))
 
 
 

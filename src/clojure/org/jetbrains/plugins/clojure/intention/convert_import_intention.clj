@@ -96,7 +96,7 @@
         ((maybe is-import?) import)
         (is-symbol-or-quoted-symbol? statement)))))
 
-(defn invoke [project editor file]
+(defn invoke! [project editor file]
   (when (isAvailable project editor file)
     (let [before (get-import-statement
                    (get-caret-psi-element editor file))
@@ -117,7 +117,7 @@
       (isAvailable [this project editor file]
         (isAvailable project editor file))
       (invoke [this project editor file]
-        (invoke project editor file))
+        (invoke! project editor file))
       (startInWriteAction [this]
         (startInWriteAction)))
     (into-array java.lang.String ["Clojure"])))
