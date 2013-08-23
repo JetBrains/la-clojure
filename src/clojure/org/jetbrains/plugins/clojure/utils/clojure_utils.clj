@@ -41,8 +41,8 @@
   [pred project editor msg]
   (fn
     [& args]
-    (if-let [par (apply pred args)]
-      par
+    (if-let [answer (apply pred args)]
+      answer
       (show-error project editor msg))))
 
 

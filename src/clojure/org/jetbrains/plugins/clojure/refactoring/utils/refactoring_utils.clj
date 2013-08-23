@@ -8,7 +8,7 @@
    [com.intellij.refactoring.util CommonRefactoringUtil]
    [com.intellij.openapi.vfs ReadonlyStatusHandler VirtualFile]
    [com.intellij.openapi.util TextRange]
-   [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory]
+   [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory ClojurePsiUtil]
    [java.util Comparator]
    [com.intellij.codeInsight PsiEquivalenceUtil]))
 
@@ -123,12 +123,32 @@
     .hasSelection))
 
 
-(defn invoke-refactoring
+(defn- find-expression-and-invoke!
+  [project ^Editor editor file invokes]
+  (if-let [expression (ClojurePsiUtil/findSexpAtCaret editor false)]
+    (do
+      (let [start (-> expression
+                    .getTextRange
+                    .getStartOffset)
+            end (-> expression
+                  .getTextRange
+                  .getEndOffset)]
+        (-> editor
+          .getSelectionModel
+          (.setSelection start end)))
+      (invokes editor))
+    (show-error project editor (bundle-message
+                                 "cannot.refactor.not.form"))))
+
+(defn invoke-refactoring!
   [project editor file context invokes]
   (if (has-selection? editor)
     (invokes editor)
-    (show-error project editor (bundle-message
-                                 "cannot.refactor.not.list"))))
+    (find-expression-and-invoke!
+      project
+      editor
+      file
+      invokes)))
 
 
 (defn get-var-name

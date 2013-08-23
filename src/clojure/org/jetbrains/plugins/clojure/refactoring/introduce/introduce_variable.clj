@@ -140,7 +140,8 @@
   (if-let [expression (get-expression file start end)]
     (if (can-introduce? expression project editor)
       (do-refactoring! expression project editor file))
-    (show-error project editor "Selected block should be a list form")))
+    (show-error project editor (bundle-message
+                                 "cannot.refactor.not.form"))))
 
 (defn- invoke-selection!
   [project editor file context start end]
@@ -155,7 +156,7 @@
                   (let [start (get-selection-start editor)
                         end (get-selection-end editor)]
                     (invoke-selection! project e file context start end)))]
-    (invoke-refactoring project editor file context invokes)))
+    (invoke-refactoring! project editor file context invokes)))
 
 
 (defn introduce-variable-action-handler
