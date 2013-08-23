@@ -1,4 +1,4 @@
-(ns org.jetbrains.plugins.clojure.intention.convert_import_intention
+(ns org.jetbrains.plugins.clojure.intention.convert-import-intention
   (:use [org.jetbrains.plugins.clojure.utils.clojure-utils])
   (:import [com.intellij.lang LanguageAnnotators ASTNode]
    [com.intellij.codeInsight.intention IntentionAction IntentionManager]

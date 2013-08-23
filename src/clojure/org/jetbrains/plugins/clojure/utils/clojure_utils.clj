@@ -194,3 +194,7 @@
   (PsiTreeUtil/getChildOfType
     let-form
     ClVector))
+
+(defn get-text
+  [^PsiElement element]
+  (.getText element))

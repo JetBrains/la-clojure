@@ -1,22 +1,22 @@
 (ns org.jetbrains.plugins.clojure.refactoring.utils.refactoring-utils
-  (:use [org.jetbrains.plugins.clojure.utils.clojure-utils])
+  (:use [org.jetbrains.plugins.clojure.utils.clojure-utils :as clojure-utils])
   (:import [com.intellij.openapi.editor Editor SelectionModel EditorSettings Document]
    [com.intellij.openapi.project Project]
-   [com.intellij.psi PsiFile PsiDocumentManager]
+   [com.intellij.psi PsiFile PsiDocumentManager PsiElement]
    [com.intellij.psi.util PsiTreeUtil]
    [org.jetbrains.plugins.clojure.psi.api ClList ClVector]
    [com.intellij.refactoring.util CommonRefactoringUtil]
-   [com.intellij.openapi.vfs ReadonlyStatusHandler]
+   [com.intellij.openapi.vfs ReadonlyStatusHandler VirtualFile]
    [com.intellij.openapi.util TextRange]
    [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory]
    [java.util Comparator]
    [com.intellij.codeInsight PsiEquivalenceUtil]))
 
 
-(defrecord Declaration [name expression])
+(defrecord Declaration [name ^PsiElement expression])
 
 (defn get-occurences
-  [container element]
+  [^PsiElement container ^PsiElement element]
   (if (PsiEquivalenceUtil/areElementsEquivalent
         container
         element)
@@ -25,20 +25,20 @@
       #(lazy-seq (get-occurences %1 element))
       (seq (.getChildren container)))))
 
-(defn get-text
+(defn- get-text-from-Declaration
   [declaration]
   (str
     (:name declaration)
     " "
     (-> declaration
-      :expression .getText)))
+      :expression get-text)))
 
 (defn join-Declarations
   [declarations]
   (clojure.string/join
     "\n"
     (map
-      get-text
+      get-text-from-Declaration
       declarations)))
 
 (defn get-ClVector-form-string-declarations
@@ -52,7 +52,7 @@
     (get-ClVector-form-string-declarations project)))
 
 (defn create-let-form
-  [project ^ClVector bindings body]
+  [project ^ClVector bindings ^PsiElement body]
   (-> (ClojurePsiFactory/getInstance project)
     (.createListFromText
       (str
@@ -64,9 +64,9 @@
           body)))))
 
 (defn get-Declarations-from-ClVector
-  [bindings]
+  [^ClVector bindings]
   (map
-    (fn [[name expr]]
+    (fn [[^PsiElement name ^PsiElement expr]]
       (Declaration.
         (.getText
           name)
@@ -101,16 +101,13 @@
     PsiDocumentManager/getInstance
     .commitAllDocuments))
 
-
 (defn is-writable?
   [^PsiFile file ^Project project]
-  (let [read-only-handler (ReadonlyStatusHandler/getInstance project)]
-    (some->> file
-      .getVirtualFile
-      vector
-      (.ensureFilesWritable read-only-handler)
-      .hasReadonlyFiles
-      false?)))
+  (some->> file
+    .getVirtualFile
+    vector
+    (into-array VirtualFile)
+    (ReadonlyStatusHandler/ensureFilesWritable project)))
 
 
 (defn get-expression
@@ -138,8 +135,9 @@
   []
   "IDEA") ;todo
 
+
 (defn replace-occurence
-  [expression new-name editor]
+  [^PsiElement expression new-name ^Editor editor]
   (let [document (.getDocument editor)
         text-range (.getTextRange expression)
         start-offset (.getStartOffset text-range)

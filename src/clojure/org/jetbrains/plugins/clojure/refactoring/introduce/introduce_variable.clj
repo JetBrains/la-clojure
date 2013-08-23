@@ -1,4 +1,4 @@
-(ns org.jetbrains.plugins.clojure.refactoring.introduceVariable.introduce-variable
+(ns org.jetbrains.plugins.clojure.refactoring.introduce.introduce-variable
   (:use [org.jetbrains.plugins.clojure.refactoring.utils.refactoring-utils])
   (:use [org.jetbrains.plugins.clojure.utils.clojure-utils])
   (:import [com.intellij.refactoring RefactoringActionHandler]
@@ -47,7 +47,7 @@
     container))
 
 (defn- modify-psi-tree
-  [container bindings project]
+  [^PsiElement container bindings project]
   (let [body (get-container-body container)
         created-container (create-let-form
                             project
@@ -56,7 +56,7 @@
     (.replace container created-container)))
 
 (defn- introduce-runner
-  [expression container occurences name bindings project file editor]
+  [expression ^PsiElement container occurences name bindings project file editor]
   (let [container-position (-> container
                              .getTextRange
                              .getStartOffset)]
