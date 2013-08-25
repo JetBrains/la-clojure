@@ -7,7 +7,7 @@
    [com.intellij.openapi.command CommandProcessor]
    [com.intellij.openapi.project Project]
    [com.intellij.openapi.editor Editor Document SelectionModel]
-   [com.intellij.psi PsiFile PsiElement]
+   [com.intellij.psi PsiFile PsiElement PsiDocumentManager]
    [com.intellij.openapi.application ApplicationManager Application]
    [org.jetbrains.plugins.clojure.psi.api ClVector]
    [org.jetbrains.plugins.clojure.refactoring.utils.refactoring_utils Declaration]))
@@ -83,7 +83,7 @@
 
 
 (defn- run-inplace!
-  [expression container occurences name bindings project ^Editor editor file]
+  [expression container occurences name bindings ^Project project ^Editor editor file]
   (-> (CommandProcessor/getInstance)
     (.executeCommand
       project
@@ -100,7 +100,13 @@
             editor)
           (-> editor
             .getSelectionModel
-            .removeSelection)))
+            .removeSelection)
+          (-> project
+            PsiDocumentManager/getInstance
+            (.commitDocument (.getDocument editor)))
+          (-> project
+            PsiDocumentManager/getInstance
+            (.doPostponedOperationsAndUnblockDocument (.getDocument editor)))))
       refactoring-name
       nil)))
 

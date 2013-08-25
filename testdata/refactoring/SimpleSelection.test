@@ -1,15 +1,2 @@
-(defn pascal-trapezoid
-  [coll]
-  (letfn [(next-row [c] (map
-                          (let [IDEA (partial reduce +)]
-IDEA)
-                          (partition
-                            2
-                            1
-                            (cons 0
-                              (conj
-                                (vec c)
-                                0)))))]
-    (cons
-      (vec coll)
-      (lazy-seq (pascal-trapezoid (next-row coll))))))
+(defn foo [a b] (let [IDEA (+ a b)]
+                  IDEA))
