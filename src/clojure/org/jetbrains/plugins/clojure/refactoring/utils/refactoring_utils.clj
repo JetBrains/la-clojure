@@ -110,9 +110,30 @@
     (ReadonlyStatusHandler/ensureFilesWritable project)))
 
 
+(defn get-first-expression-inside-range
+  [^PsiElement element start end]
+  (if-let [expression  (some-> element
+               (.findElementAt start)
+               (ClojurePsiUtil/getNextNonWhiteSpace))]
+    (if (-> expression
+          get-end-offset
+          (#(>= % end)))
+      expression)))
+
 (defn get-expression
-  [file start end]
-  (PsiTreeUtil/findElementOfClassAtRange file start end ClList))
+  [^PsiFile file start end]
+  (if-let [expression (PsiTreeUtil/findElementOfClassAtRange file start end ClList)]
+    expression
+    (if-let [expression (get-first-expression-inside-range file start end)]
+      (if (and
+            (instance? ClList expression)
+            (if-let [next-expression (get-first-expression-inside-range
+                                       file
+                                       (get-end-offset expression)
+                                       end)]
+              false
+              true))
+        expression))))
 
 
 

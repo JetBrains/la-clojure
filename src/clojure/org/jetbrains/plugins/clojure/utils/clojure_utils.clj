@@ -12,7 +12,8 @@
    [com.intellij.refactoring.util CommonRefactoringUtil]
    [com.intellij.openapi.project Project]
    [org.jetbrains.plugins.clojure.psi ClojurePsiElement]
-   [com.intellij.psi.util PsiTreeUtil]))
+   [com.intellij.psi.util PsiTreeUtil]
+   [com.intellij.openapi.util TextRange]))
 
 
 (defn show-error
@@ -196,3 +197,16 @@
 (defn get-text
   [^PsiElement element]
   (.getText element))
+
+(defn get-start-offset
+  [^PsiElement element]
+  (-> element
+    .getTextRange
+    .getStartOffset))
+
+
+(defn get-end-offset
+  [^PsiElement element]
+  (-> element
+    .getTextRange
+    .getEndOffset))
