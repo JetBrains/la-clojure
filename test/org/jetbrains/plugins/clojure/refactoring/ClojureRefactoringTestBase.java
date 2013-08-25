@@ -9,7 +9,7 @@ import org.jetbrains.plugins.clojure.base.ClojureBaseTestCase;
  */
 public abstract class ClojureRefactoringTestBase extends ClojureBaseTestCase {
 
-  private static final String DATA_PATH = System.getProperty("user.dir") + "/testData/refactoring";
+  private static final String DATA_PATH = System.getProperty("user.dir") + "/testdata/refactoring";
 
   @Override
   public String getDataPath() {
