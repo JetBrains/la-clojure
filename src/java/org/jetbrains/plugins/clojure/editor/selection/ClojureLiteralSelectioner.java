@@ -1,14 +1,13 @@
 package org.jetbrains.plugins.clojure.editor.selection;
 
-import com.intellij.psi.PsiElement;
 import com.intellij.lang.ASTNode;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
+import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import org.jetbrains.plugins.clojure.psi.api.ClLiteral;
 
 import java.util.List;
-
-import org.jetbrains.plugins.clojure.psi.api.ClLiteral;
-import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
 
 /**
  * @author ilyas

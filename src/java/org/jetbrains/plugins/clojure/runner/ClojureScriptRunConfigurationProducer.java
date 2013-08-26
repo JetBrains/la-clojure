@@ -13,6 +13,8 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 
+import java.util.List;
+
 /**
  * Created by IntelliJ IDEA.
  * User: peter
@@ -56,7 +58,7 @@ public class ClojureScriptRunConfigurationProducer extends RuntimeConfigurationP
 
   @Override
   protected RunnerAndConfigurationSettings findExistingByElement(Location location,
-                                                                 @NotNull RunnerAndConfigurationSettings[] existingConfigurations,
+                                                                 @NotNull final List<RunnerAndConfigurationSettings> existingConfigurations,
                                                                  ConfigurationContext context) {
     for (RunnerAndConfigurationSettings existingConfiguration : existingConfigurations) {
       final RunConfiguration configuration = existingConfiguration.getConfiguration();
