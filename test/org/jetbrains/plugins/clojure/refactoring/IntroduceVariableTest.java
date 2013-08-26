@@ -19,4 +19,19 @@ public class IntroduceVariableTest extends ClojureRefactoringTestBase {
     doTest();
   }
 
+  public void testContainerChooser() throws Exception {
+    doTest();
+  }
+
+  public void testGuard() throws Exception {
+    doTest();
+  }
+
+  public void testFuzzySelection() throws Exception {
+    doTest();
+  }
+
+  public void testCaret() throws Exception {
+    doTest();
+  }
 }

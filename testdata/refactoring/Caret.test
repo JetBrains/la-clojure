@@ -1,0 +1,2 @@
+(defn problem-ten [n] (let [IDEA (primes n)]
+                        (reduce + IDEA)))

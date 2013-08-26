@@ -1,0 +1,1 @@
+(defn problem-ten [n] (reduce + (prime<caret>s n)))

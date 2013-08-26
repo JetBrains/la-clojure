@@ -1,0 +1,3 @@
+(defn is-prime? [n]
+  (let [IDEA (divisors n)]
+    (empty? IDEA)))
