@@ -2,16 +2,17 @@
   (:use [org.jetbrains.plugins.clojure.refactoring.utils.refactoring-utils])
   (:use [org.jetbrains.plugins.clojure.utils.clojure-utils])
   (:import [com.intellij.refactoring RefactoringActionHandler]
-   [com.intellij.refactoring.introduce.inplace OccurrencesChooser]
+   [com.intellij.refactoring.introduce.inplace OccurrencesChooser InplaceVariableIntroducer]
    [com.intellij.openapi.util Pass Computable TextRange]
    [com.intellij.openapi.command CommandProcessor]
    [com.intellij.openapi.project Project]
-   [com.intellij.openapi.editor Editor Document SelectionModel]
-   [com.intellij.psi PsiFile PsiElement PsiDocumentManager]
+   [com.intellij.openapi.editor Editor Document SelectionModel CaretModel]
+   [com.intellij.psi PsiFile PsiElement PsiDocumentManager PsiNamedElement]
    [com.intellij.openapi.application ApplicationManager Application]
    [org.jetbrains.plugins.clojure.psi.api ClVector ClList]
    [org.jetbrains.plugins.clojure.refactoring.utils.refactoring_utils Declaration]
-   [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]))
+   [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]
+   [java.util LinkedHashSet]))
 
 (def refactoring-name (bundle-message
                         "introduce.variable.title"))
@@ -67,20 +68,22 @@
       (some-> (find-element-by-offset file container-position)
         (modify-psi-tree bindings project)))))
 
-
 (defn- refactor-cmd!
   [expression container occurences name bindings project file editor]
   (-> (ApplicationManager/getApplication)
     (.runWriteAction
-      (fn [] (introduce-runner!
-               expression
-               container
-               occurences
-               name
-               bindings
-               project
-               file
-               editor)))))
+      (reify
+        Computable
+        (compute [this]
+          (introduce-runner!
+            expression
+            container
+            occurences
+            name
+            bindings
+            project
+            file
+            editor))))))
 
 
 (defn- run-inplace!
@@ -89,25 +92,37 @@
     (.executeCommand
       project
       (fn []
-        (do
-          (refactor-cmd!
-            expression
-            container
-            occurences
-            name
-            bindings
-            project
-            file
-            editor)
-          (-> editor
-            .getSelectionModel
-            .removeSelection)
-          (-> project
-            PsiDocumentManager/getInstance
-            (.commitDocument (.getDocument editor)))
-          (-> project
-            PsiDocumentManager/getInstance
-            (.doPostponedOperationsAndUnblockDocument (.getDocument editor)))))
+        (letfn [(run-inplace-introducer!
+                  [^PsiNamedElement named-element]
+                  (let [introducer (proxy
+                                     [InplaceVariableIntroducer]
+                                     [named-element editor project refactoring-name (into-array PsiElement occurences) nil]
+                                     (checkLocalScope []
+                                       (.getContainingFile named-element)))]
+                    (.performInplaceRefactoring introducer (new LinkedHashSet))))
+                (do-inplace-refactoring!
+                  [replace]
+                  (do
+                    (-> editor
+                      .getSelectionModel
+                      .removeSelection)
+                    (-> editor
+                      .getCaretModel
+                      (.moveToOffset
+                        (some-> replace
+                          (get-binding-symbol-by-name name)
+                          get-text-offset)))
+                    (-> project
+                      PsiDocumentManager/getInstance
+                      (.commitDocument (.getDocument editor)))
+                    (-> project
+                      PsiDocumentManager/getInstance
+                      (.doPostponedOperationsAndUnblockDocument (.getDocument editor)))
+                    (some-> replace
+                      (get-binding-symbol-by-name name)
+                      run-inplace-introducer!)))]
+          (-> (refactor-cmd! expression container occurences name bindings project file editor)
+            do-inplace-refactoring!)))
       refactoring-name
       nil)))
 
@@ -117,7 +132,7 @@
     (if-let [ancestor (find-ancestor-by-name-set expression guards)]
     (if (->> ancestor
           .getParent
-          get-name-string
+          get-list-name
           (contains? containers))
       (.getParent ancestor)
       ancestor)
@@ -140,7 +155,7 @@
 
 (defn- do-refactoring!
   [expression project editor file]
-  (let [name (get-var-name)
+  (let [name (get-var-name expression)
         container (get-container
                     expression)
         occurences (get-occurences container expression)

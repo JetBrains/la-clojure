@@ -40,7 +40,8 @@
     "with-bindings*"
     "with-redefs"
     "bindings"
-    "lazy-seq"})
+    "lazy-seq"
+    "if"})
 
 (def containers
   #{"let"})
@@ -204,12 +205,6 @@
       file
       invokes)))
 
-
-(defn get-var-name
-  []
-  "IDEA") ;todo
-
-
 (defn replace-occurence!
   [^PsiElement expression new-name ^Editor editor]
   (let [document (.getDocument editor)
@@ -237,7 +232,7 @@
       [o (reverse occurences)]
       (replace-occurence! o name editor))))
 
-(defn get-name-string
+(defn get-list-name
   [^ClList list]
   (some-> list
     .getFirstSymbol
@@ -249,7 +244,42 @@
   (loop [ancestor (.getParent element) prev element]
     (if (instance? ClList ancestor)
       (if (some->> ancestor
-            get-name-string
+            get-list-name
             (contains? names))
         prev
         (recur (.getParent ancestor) ancestor)))))
+
+(defn get-var-name
+  [^PsiElement element]
+  (if (instance? ClList element)
+    (let [parts (-> element
+                  get-list-name
+                  (clojure.string/split #"-"))]
+      (if (not=
+            "get"
+            (first parts))
+        (str
+          "a-"
+          (first parts))
+        (str
+          "a-"
+          (second parts)))))) ;todo
+
+
+(defn get-name-string
+  [^ClSymbol symbol]
+  (.getNameString symbol))
+
+(defn get-text-offset
+  [^PsiElement element]
+  (.getTextOffset element))
+
+(defn get-binding-symbol-by-name
+  [^ClList let-form name]
+  (let [symbols (some-> let-form
+                    get-let-bindings
+                    (PsiTreeUtil/findChildrenOfType ClSymbol))]
+    (-> (filter #(=
+                   name
+                   (get-name-string %)) symbols)
+      first)))

@@ -189,7 +189,7 @@
   [^PsiElement let-form]
   (ClojurePsiUtil/lastChildSexp let-form))
 
-(defn get-let-bindings
+(defn ^ClVector get-let-bindings
   [^PsiElement let-form]
   (PsiTreeUtil/getChildOfType
     let-form
