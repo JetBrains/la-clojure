@@ -6,7 +6,7 @@
    [org.jetbrains.plugins.clojure.file ClojureFileType]
    [com.intellij.lang ASTNode]
    [com.intellij.psi.tree IElementType]
-   [org.jetbrains.plugins.clojure.psi.api ClojureFile ClVector]
+   [org.jetbrains.plugins.clojure.psi.api ClojureFile ClVector ClList]
    [org.jetbrains.plugins.clojure.psi.api.defs ClDef]
    [org.jetbrains.plugins.clojure ClojureBundle]
    [com.intellij.refactoring.util CommonRefactoringUtil]
@@ -57,9 +57,11 @@
 
 (defn find-element-by-offset
   [^PsiFile file offset]
-  (.findElementAt
+  (PsiTreeUtil/findElementOfClassAtOffset
     file
-    offset))
+    offset
+    ClojurePsiElement
+    true))
 
 (defn find-ref-by-offset
   [^PsiFile file offset]
@@ -74,8 +76,8 @@
     .getOffset))
 
 (defn get-caret-psi-element
-  [editor file]
-  (find-element-by-offset
+  [editor ^PsiElement file]
+  (.findElementAt
     file
     (get-current-position editor)))
 
@@ -100,7 +102,6 @@
       .getNode
       .getElementType)
     expected))
-
 
 
 (defn is-quoted?

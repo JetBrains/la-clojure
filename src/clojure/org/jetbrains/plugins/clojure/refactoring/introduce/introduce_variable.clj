@@ -9,8 +9,9 @@
    [com.intellij.openapi.editor Editor Document SelectionModel]
    [com.intellij.psi PsiFile PsiElement PsiDocumentManager]
    [com.intellij.openapi.application ApplicationManager Application]
-   [org.jetbrains.plugins.clojure.psi.api ClVector]
-   [org.jetbrains.plugins.clojure.refactoring.utils.refactoring_utils Declaration]))
+   [org.jetbrains.plugins.clojure.psi.api ClVector ClList]
+   [org.jetbrains.plugins.clojure.refactoring.utils.refactoring_utils Declaration]
+   [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]))
 
 (def refactoring-name (bundle-message
                         "introduce.variable.title"))
@@ -110,10 +111,17 @@
       refactoring-name
       nil)))
 
+
 (defn- get-container
   [expression]
-  expression) ;todo
-
+    (if-let [ancestor (find-ancestor-by-name-set expression guards)]
+    (if (->> ancestor
+          .getParent
+          get-name-string
+          (contains? containers))
+      (.getParent ancestor)
+      ancestor)
+    expression))
 
 
 (defn- ^ClVector get-container-bindings
@@ -123,9 +131,9 @@
       (if (is-let-form?
             container)
         (conj
-          (get-Declarations-from-ClVector
-            (get-let-bindings
-              container))
+          (vec
+            (get-Declarations-from-ClVector
+              (get-let-bindings container)))
           declaration)
         (vector declaration))
       project)))

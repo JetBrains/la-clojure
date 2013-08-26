@@ -1,4 +1,5 @@
 (ns org.jetbrains.plugins.clojure.refactoring.utils.refactoring-utils
+  (:use [clojure.set])
   (:use [org.jetbrains.plugins.clojure.utils.clojure-utils :as clojure-utils])
   (:import [com.intellij.openapi.editor Editor SelectionModel EditorSettings Document]
    [com.intellij.openapi.project Project]
@@ -10,10 +11,42 @@
    [com.intellij.openapi.util TextRange]
    [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory ClojurePsiUtil]
    [java.util Comparator]
-   [com.intellij.codeInsight PsiEquivalenceUtil]))
+   [com.intellij.codeInsight PsiEquivalenceUtil]
+   [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]))
 
 
 (defrecord Declaration [name ^PsiElement expression])
+
+(def sentinels
+  #{"with-open"
+    "when-let"
+    "when-first"
+    "letfn"
+    "letfn-"
+    "for"
+    "if-let"
+    "loop"
+    "doseq"
+    "declare"
+    "fn"
+    "defn"
+    "defn-"
+    "def"
+    "ns"
+    "import"
+    "use"
+    "with-local-vars"
+    "with-bindings"
+    "with-bindings*"
+    "with-redefs"
+    "bindings"
+    "lazy-seq"})
+
+(def containers
+  #{"let"})
+
+(def guards
+  (union sentinels containers))
 
 (defn get-occurences
   [^PsiElement container ^PsiElement element]
@@ -117,7 +150,7 @@
                (ClojurePsiUtil/getNextNonWhiteSpace))]
     (if (-> expression
           get-end-offset
-          (#(>= % end)))
+          (#(<= % end)))
       expression)))
 
 (defn get-expression
@@ -204,4 +237,19 @@
       [o (reverse occurences)]
       (replace-occurence! o name editor))))
 
+(defn get-name-string
+  [^ClList list]
+  (some-> list
+    .getFirstSymbol
+    .getNameString))
 
+(defn ^PsiElement find-ancestor-by-name-set
+  "Finds ancestor of element with name from names and returns it previous child"
+  [^PsiElement element names]
+  (loop [ancestor (.getParent element) prev element]
+    (if (instance? ClList ancestor)
+      (if (some->> ancestor
+            get-name-string
+            (contains? names))
+        prev
+        (recur (.getParent ancestor) ancestor)))))
