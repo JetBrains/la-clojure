@@ -4,7 +4,7 @@
   (:use [org.jetbrains.plugins.clojure.utils.java-wrappers])
   (:import [com.intellij.openapi.editor Editor SelectionModel EditorSettings Document]
    [com.intellij.openapi.project Project]
-   [com.intellij.psi PsiFile PsiDocumentManager PsiElement]
+   [com.intellij.psi PsiFile PsiDocumentManager PsiElement PsiRecursiveElementVisitor]
    [com.intellij.psi.util PsiTreeUtil]
    [org.jetbrains.plugins.clojure.psi.api ClList ClVector]
    [com.intellij.refactoring.util CommonRefactoringUtil]
@@ -232,25 +232,35 @@
         prev
         (recur (.getParent ancestor) ancestor)))))
 
-(defn get-var-name
+
+(defn get-var-names
   [^PsiElement element]
-  (if (instance? ClList element)
-    (let [parts (-> element
-                  get-list-name
-                  (clojure.string/split #"-"))
-          f (first parts)
-          s (second parts)]
-      (if (not=
-            "get"
-            f)
-        (if-let [name (re-find #"\w+" f)]
-          (str
-            "a-"
-            name)
-          "a-var")
-        (str
-          "a-"
-          s))))) ;todo
+  (let [names (atom ["var"])
+        parse-list-name (fn
+                          [name]
+                          (let [parts (-> name
+                                        (clojure.string/split #"-"))
+                                suggestions (filter
+                                              (complement nil?)
+                                              (map
+                                                (partial re-find #"\w+")
+                                                parts))]
+                            (swap! names into suggestions)))
+        visit-element (fn
+                        [^PsiElement psi-element]
+                        (if (instance? ClList psi-element)
+                          (parse-list-name
+                            (get-list-name psi-element))))
+        names-builder (proxy
+                        [PsiRecursiveElementVisitor]
+                        []
+                        (visitElement [^PsiElement psi-element]
+                          (do
+                            (visit-element psi-element)
+                            (.acceptChildren psi-element this))))]
+    (do
+      (.accept element names-builder)
+      @names)))
 
 (defn get-binding-symbol-by-name
   [^ClList let-form name]

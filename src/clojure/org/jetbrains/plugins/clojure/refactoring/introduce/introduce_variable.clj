@@ -89,7 +89,7 @@
 
 
 (defn- run-inplace!
-  [expression container occurences name bindings ^Project project ^Editor editor file]
+  [expression container occurences name suggestions bindings ^Project project ^Editor editor file]
   (-> (CommandProcessor/getInstance)
     (.executeCommand
       project
@@ -102,7 +102,9 @@
                                      (checkLocalScope []
                                        (.getContainingFile named-element)))]
                     (if (inplace-available? editor)
-                      (.performInplaceRefactoring introducer (new LinkedHashSet)))))
+                      (.performInplaceRefactoring introducer (doto
+                                                               (new LinkedHashSet)
+                                                               (.addAll suggestions))))))
                 (do-inplace-refactoring!
                   [replace]
                   (do
@@ -158,7 +160,8 @@
 
 (defn- do-refactoring!
   [expression project editor file]
-  (let [name (get-var-name expression)
+  (let [names (get-var-names expression)
+        name (first names)
         container (get-container
                     expression)
         occurences (get-occurences container expression)
@@ -172,7 +175,7 @@
                                           replace-choice)
                                       (vector expression)
                                       occurences)]
-                       (run-inplace! expression container replaces name bindings project editor file))))]
+                       (run-inplace! expression container replaces name names bindings project editor file))))]
     (if (inplace-available? editor)
       (-> (OccurrencesChooser/simpleChooser editor)
         (.showChooser expression occurences callback))

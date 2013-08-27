@@ -1,2 +1,2 @@
-(defn problem-ten [n] (let [a-primes (primes n)]
-                        (reduce + a-primes)))
+(defn problem-ten [n] (let [var (primes n)]
+                        (reduce + var)))
