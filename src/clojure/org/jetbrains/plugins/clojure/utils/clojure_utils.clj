@@ -1,4 +1,5 @@
 (ns org.jetbrains.plugins.clojure.utils.clojure-utils
+  (:use [org.jetbrains.plugins.clojure.utils.java-wrappers])
   (:import [com.intellij.psi PsiFile PsiElement PsiReference PsiDocumentManager]
    [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory ClojurePsiUtil]
    [org.jetbrains.plugins.clojure.parser ClojureElementTypes ClojurePsiCreator]
@@ -23,7 +24,7 @@
     editor
     msg
     msg
-    "IntellijIdeaRulezzzzzz"))
+    nil))
 
 
 (defn bundle-message
@@ -62,24 +63,6 @@
     offset
     ClojurePsiElement
     true))
-
-(defn find-ref-by-offset
-  [^PsiFile file offset]
-  (.findReferenceAt
-    file
-    offset))
-
-(defn get-current-position
-  [^Editor editor]
-  (some-> editor
-    .getCaretModel
-    .getOffset))
-
-(defn get-caret-psi-element
-  [editor ^PsiElement file]
-  (.findElementAt
-    file
-    (get-current-position editor)))
 
 
 (defn get-caret-psi-ref
@@ -122,10 +105,6 @@
     psi
     (ClojureElementTypes/DEF)))
 
-(defn create-psi
-  [^ASTNode node]
-  (ClojurePsiCreator/createElement node))
-
 
 (defn ^PsiElement lift
   [^PsiElement psi by-n]
@@ -154,10 +133,6 @@
     (ClojurePsiFactory/getInstance project)
     text))
 
-(defn get-namespace
-  [^ClojureFile file]
-  (.getNamespace file))
-
 (defn check-def
   [^ClDef def check-name check-ns]
   (and
@@ -169,14 +144,6 @@
         .getContainingFile
         get-namespace)
       check-ns)))
-
-(defn commit-document
-  [^Editor editor]
-  (let [document (.getDocument editor)]
-    (some-> editor
-      .getProject
-      (PsiDocumentManager/getInstance)
-      (.commitDocument document))))
 
 (defn is-let-form?
   [^ClojurePsiElement form]
@@ -195,24 +162,8 @@
     let-form
     ClVector))
 
-(defn get-text
-  [^PsiElement element]
-  (.getText element))
-
-(defn get-start-offset
-  [^PsiElement element]
-  (-> element
-    .getTextRange
-    .getStartOffset))
 
 
-(defn get-end-offset
-  [^PsiElement element]
-  (-> element
-    .getTextRange
-    .getEndOffset))
 
-(defn get-children
-  [^PsiElement element]
-  (vec
-    (.getChildren element)))
+
+

@@ -1,6 +1,7 @@
 (ns org.jetbrains.plugins.clojure.refactoring.utils.refactoring-utils
   (:use [clojure.set])
   (:use [org.jetbrains.plugins.clojure.utils.clojure-utils :as clojure-utils])
+  (:use [org.jetbrains.plugins.clojure.utils.java-wrappers])
   (:import [com.intellij.openapi.editor Editor SelectionModel EditorSettings Document]
    [com.intellij.openapi.project Project]
    [com.intellij.psi PsiFile PsiDocumentManager PsiElement]
@@ -73,7 +74,7 @@
     (-> declaration
       :expression get-text)))
 
-(defn join-Declarations
+(defn- join-Declarations
   [declarations]
   (clojure.string/join
     "\n"
@@ -81,7 +82,7 @@
       get-text-from-Declaration
       declarations)))
 
-(defn get-ClVector-form-string-declarations
+(defn- get-ClVector-from-string-declarations
   [declarations-string ^Project project]
   (-> (ClojurePsiFactory/getInstance project)
     (.createVectorFromText declarations-string)))
@@ -89,7 +90,7 @@
 (defn create-ClVector-from-Declarations
   [declarations project]
   (-> (join-Declarations declarations)
-    (get-ClVector-form-string-declarations project)))
+    (get-ClVector-from-string-declarations project)))
 
 (defn create-let-form
   [project ^ClVector bindings ^PsiElement body]
@@ -128,23 +129,6 @@
         (-> (ApplicationManager/getApplication)
           .isUnitTestMode)))))
 
-(defn get-selection-start
-  [^Editor editor]
-  (some-> editor
-    .getSelectionModel
-    .getSelectionStart))
-
-(defn get-selection-end
-  [^Editor editor]
-  (some-> editor
-    .getSelectionModel
-    .getSelectionEnd))
-
-(defn commit-all-documents
-  [^Project project]
-  (-> project
-    PsiDocumentManager/getInstance
-    .commitAllDocuments))
 
 (defn is-writable?
   [^PsiFile file ^Project project]
@@ -180,13 +164,6 @@
               true))
         expression))))
 
-
-
-(defn has-selection?
-  [^Editor editor]
-  (-> editor
-    .getSelectionModel
-    .hasSelection))
 
 
 (defn- find-expression-and-invoke!
@@ -243,11 +220,6 @@
       [o (reverse occurences)]
       (replace-occurence! o name editor))))
 
-(defn get-list-name
-  [^ClList list]
-  (some-> list
-    .getFirstSymbol
-    .getNameString))
 
 (defn ^PsiElement find-ancestor-by-name-set
   "Finds ancestor of element with name from names and returns it previous child"
@@ -279,15 +251,6 @@
         (str
           "a-"
           s))))) ;todo
-
-
-(defn get-name-string
-  [^ClSymbol symbol]
-  (.getNameString symbol))
-
-(defn get-text-offset
-  [^PsiElement element]
-  (.getTextOffset element))
 
 (defn get-binding-symbol-by-name
   [^ClList let-form name]

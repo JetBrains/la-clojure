@@ -1,5 +1,6 @@
 (ns org.jetbrains.plugins.clojure.intention.convert-import-intention
   (:use [org.jetbrains.plugins.clojure.utils.clojure-utils])
+  (:use [org.jetbrains.plugins.clojure.utils.java-wrappers])
   (:import [com.intellij.lang LanguageAnnotators ASTNode]
    [com.intellij.codeInsight.intention IntentionAction IntentionManager]
    [com.intellij.psi PsiFile PsiElement PsiReference]

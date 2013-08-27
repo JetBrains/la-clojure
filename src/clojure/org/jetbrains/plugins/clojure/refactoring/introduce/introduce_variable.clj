@@ -1,6 +1,7 @@
 (ns org.jetbrains.plugins.clojure.refactoring.introduce.introduce-variable
   (:use [org.jetbrains.plugins.clojure.refactoring.utils.refactoring-utils])
   (:use [org.jetbrains.plugins.clojure.utils.clojure-utils])
+  (:use [org.jetbrains.plugins.clojure.utils.java-wrappers])
   (:import [com.intellij.refactoring RefactoringActionHandler]
    [com.intellij.refactoring.introduce.inplace OccurrencesChooser InplaceVariableIntroducer]
    [com.intellij.openapi.util Pass Computable TextRange]
@@ -69,7 +70,7 @@
       (some-> (find-element-by-offset file container-position)
         (modify-psi-tree bindings project)))))
 
-(defn- refactor-cmd!
+(defn- refactor-write-action!
   [expression container occurences name bindings project file editor]
   (-> (ApplicationManager/getApplication)
     (.runWriteAction
@@ -123,7 +124,7 @@
                     (some-> replace
                       (get-binding-symbol-by-name name)
                       run-inplace-introducer!)))]
-          (-> (refactor-cmd! expression container occurences name bindings project file editor)
+          (-> (refactor-write-action! expression container occurences name bindings project file editor)
             do-inplace-refactoring!)))
       refactoring-name
       nil)))
