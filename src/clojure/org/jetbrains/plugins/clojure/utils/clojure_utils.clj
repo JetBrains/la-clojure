@@ -211,3 +211,8 @@
   (-> element
     .getTextRange
     .getEndOffset))
+
+(defn get-children
+  [^PsiElement element]
+  (vec
+    (.getChildren element)))

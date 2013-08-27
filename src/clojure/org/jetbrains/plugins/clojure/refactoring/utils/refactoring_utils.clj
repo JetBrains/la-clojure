@@ -12,7 +12,8 @@
    [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory ClojurePsiUtil]
    [java.util Comparator]
    [com.intellij.codeInsight PsiEquivalenceUtil]
-   [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]))
+   [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]
+   [com.intellij.openapi.application ApplicationManager Application]))
 
 
 (defrecord Declaration [name ^PsiElement expression])
@@ -51,13 +52,18 @@
 
 (defn get-occurences
   [^PsiElement container ^PsiElement element]
-  (if (PsiEquivalenceUtil/areElementsEquivalent
-        container
-        element)
-    (cons element '())
-    (mapcat
-      #(lazy-seq (get-occurences %1 element))
-      (seq (.getChildren container)))))
+  (loop [containers [container]  occurences []]
+    (if (empty? containers)
+      occurences
+      (if (PsiEquivalenceUtil/areElementsEquivalent
+            (first containers)
+            element)
+        (recur (rest containers) (cons (first containers) occurences))
+        (recur
+          (into
+            (rest containers)
+            (get-children (first containers)))
+          occurences)))))
 
 (defn- get-text-from-Declaration
   [declaration]
@@ -113,9 +119,14 @@
 
 (defn inplace-available?
   [^Editor editor]
-  (some-> editor
-    (.getSettings)
-    (.isVariableInplaceRenameEnabled)))
+  (true?
+    (and
+      (some-> editor
+        (.getSettings)
+        (.isVariableInplaceRenameEnabled))
+      (not
+        (-> (ApplicationManager/getApplication)
+          .isUnitTestMode)))))
 
 (defn get-selection-start
   [^Editor editor]
@@ -254,16 +265,20 @@
   (if (instance? ClList element)
     (let [parts (-> element
                   get-list-name
-                  (clojure.string/split #"-"))]
+                  (clojure.string/split #"-"))
+          f (first parts)
+          s (second parts)]
       (if (not=
             "get"
-            (first parts))
+            f)
+        (if-let [name (re-find #"\w+" f)]
+          (str
+            "a-"
+            name)
+          "a-var")
         (str
           "a-"
-          (first parts))
-        (str
-          "a-"
-          (second parts)))))) ;todo
+          s))))) ;todo
 
 
 (defn get-name-string

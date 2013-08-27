@@ -12,7 +12,8 @@
    [org.jetbrains.plugins.clojure.psi.api ClVector ClList]
    [org.jetbrains.plugins.clojure.refactoring.utils.refactoring_utils Declaration]
    [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]
-   [java.util LinkedHashSet]))
+   [java.util LinkedHashSet]
+   [com.intellij.refactoring.introduce.inplace OccurrencesChooser$ReplaceChoice]))
 
 (def refactoring-name (bundle-message
                         "introduce.variable.title"))
@@ -99,7 +100,8 @@
                                      [named-element editor project refactoring-name (into-array PsiElement occurences) nil]
                                      (checkLocalScope []
                                        (.getContainingFile named-element)))]
-                    (.performInplaceRefactoring introducer (new LinkedHashSet))))
+                    (if (inplace-available? editor)
+                      (.performInplaceRefactoring introducer (new LinkedHashSet)))))
                 (do-inplace-refactoring!
                   [replace]
                   (do
@@ -159,9 +161,22 @@
         container (get-container
                     expression)
         occurences (get-occurences container expression)
-        bindings (get-container-bindings container expression name project)]
+        bindings (get-container-bindings container expression name project)
+        callback (proxy
+                   [Pass]
+                   []
+                   (pass [replace-choice]
+                     (let [replaces (if (=
+                                          OccurrencesChooser$ReplaceChoice/NO
+                                          replace-choice)
+                                      (vector expression)
+                                      occurences)]
+                       (run-inplace! expression container replaces name bindings project editor file))))]
     (if (inplace-available? editor)
-      (run-inplace! expression container occurences name bindings project editor file))))
+      (-> (OccurrencesChooser/simpleChooser editor)
+        (.showChooser expression occurences callback))
+      (->> OccurrencesChooser$ReplaceChoice/ALL
+        (.pass callback)))))
 
 
 (defn- invoke-on-expression!
