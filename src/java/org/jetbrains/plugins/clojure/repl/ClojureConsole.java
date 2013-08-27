@@ -11,14 +11,20 @@ import org.jetbrains.plugins.clojure.ClojureLanguage;
 public class ClojureConsole extends LanguageConsoleImpl {
 
   private final ConsoleHistoryModel myHistoryModel;
+  private final String myNReplHost;
+  private final String myNReplPort;
   private ClojureConsoleExecuteActionHandler myExecuteHandler;
 
   public ClojureConsole(Project project,
                         String title,
                         ConsoleHistoryModel historyModel,
-                        ClojureConsoleExecuteActionHandler handler) {
+                        ClojureConsoleExecuteActionHandler handler,
+                        String nReplHost,
+                        String nReplPort) {
     super(project, title, ClojureLanguage.getInstance());
     myHistoryModel = historyModel;
+    myNReplHost = nReplHost;
+    myNReplPort = nReplPort;
   }
 
   public ConsoleHistoryModel getHistoryModel() {
@@ -31,5 +37,13 @@ public class ClojureConsole extends LanguageConsoleImpl {
 
   public void setExecuteHandler(ClojureConsoleExecuteActionHandler handler) {
     this.myExecuteHandler = handler;
+  }
+
+  public String getNReplPort() {
+    return myNReplPort;
+  }
+
+  public String getNReplHost() {
+    return myNReplHost;
   }
 }

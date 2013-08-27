@@ -100,12 +100,12 @@ public class ClojureConsoleExecuteActionHandler {
     }
   }
 
-  private void execute(LanguageConsoleImpl languageConsole,
+  private void execute(ClojureConsole languageConsole,
                        ConsoleHistoryModel consoleHistoryModel) {
 
     // Process input and add to history
     final Document document = languageConsole.getCurrentEditor().getDocument();
-    final String text = document.getText();
+    String text = document.getText();
     final TextRange range = new TextRange(0, document.getTextLength());
 
     languageConsole.getCurrentEditor().getSelectionModel().setSelection(range.getStartOffset(), range.getEndOffset());
@@ -115,6 +115,14 @@ public class ClojureConsoleExecuteActionHandler {
       consoleHistoryModel.addToHistory(text);
     }
     // Send to interpreter / server
+    if (languageConsole.getNReplHost() != null) {
+      text = "(do (use '[clojure.tools.nrepl :as repl])" +
+          " (with-open [conn (repl/connect :host \"" + languageConsole.getNReplHost() +
+          "\" :port " + languageConsole.getNReplPort() + ")]\n" +
+          "  (-> (repl/client conn 1000)\n" +
+          "    (repl/message {:op :eval :code \"" + text + "\"})\n" +
+          "    repl/response-values)))";
+    }
     processLine(text);
   }
 

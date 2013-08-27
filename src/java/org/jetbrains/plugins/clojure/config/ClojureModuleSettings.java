@@ -17,4 +17,12 @@ public class ClojureModuleSettings {
   @NotNull
   public String myReplOpts = "";
 
+  public boolean myRunNrepl = false;
+
+  @NotNull
+  public String myNreplHost = "http://localhost";
+
+  @NotNull
+  public String myReplPort = "7888";
+
 }

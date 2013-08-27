@@ -9,8 +9,8 @@ import com.intellij.openapi.project.Project;
  */
 public class ClojureConsoleView extends LanguageConsoleViewImpl {
   public ClojureConsoleView(Project project, String title, ConsoleHistoryModel historyModel,
-                            ClojureConsoleExecuteActionHandler executeHandler) {
-    super(new ClojureConsole(project, title, historyModel, executeHandler));
+                            ClojureConsoleExecuteActionHandler executeHandler, String nReplHost, String nReplPort) {
+    super(new ClojureConsole(project, title, historyModel, executeHandler, nReplHost, nReplPort));
   }
 
   @Override

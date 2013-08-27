@@ -28,6 +28,8 @@ import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.config.ClojureModuleSettings;
 
 import javax.swing.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 /**
  * @author ilyas
@@ -42,6 +44,9 @@ public class ClojureFacetSettingsTab extends FacetEditorTab {
   private JTextField myReplOpts;
   private JTextField myReplClass;
   private JPanel myReplPanel;
+  private JCheckBox myUseNREPLCheckBox;
+  private JTextField myHostTextField;
+  private JTextField myPortTextField;
   private FacetEditorContext myEditorContext;
   private FacetValidatorsManager myValidatorsManager;
   private final ClojureModuleSettings mySettings;
@@ -56,6 +61,21 @@ public class ClojureFacetSettingsTab extends FacetEditorTab {
     myJvmOpts.setText(mySettings.myJvmOpts);
     myReplClass.setText(mySettings.myReplClass);
     myReplOpts.setText(mySettings.myReplOpts);
+
+    boolean runNrepl = mySettings.myRunNrepl;
+    myUseNREPLCheckBox.setSelected(runNrepl);
+    myHostTextField.setEnabled(runNrepl);
+    myPortTextField.setEnabled(runNrepl);
+    myHostTextField.setText(mySettings.myNreplHost);
+    myPortTextField.setText(mySettings.myReplPort);
+
+    myUseNREPLCheckBox.addItemListener(new ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        final boolean selected = myUseNREPLCheckBox.isSelected();
+        myHostTextField.setEnabled(selected);
+        myPortTextField.setEnabled(selected);
+      }
+    });
 
     reset();
   }
@@ -72,7 +92,10 @@ public class ClojureFacetSettingsTab extends FacetEditorTab {
   public boolean isModified() {
     return !myJvmOpts.getText().trim().equals(mySettings.myJvmOpts) ||
         !myReplClass.getText().trim().equals(mySettings.myReplClass) ||
-        !myReplOpts.getText().trim().equals(mySettings.myReplOpts);
+        !myReplOpts.getText().trim().equals(mySettings.myReplOpts) ||
+        !myHostTextField.getText().trim().equals(mySettings.myNreplHost) ||
+        !myPortTextField.getText().trim().equals(mySettings.myReplPort) ||
+        myUseNREPLCheckBox.isSelected() != mySettings.myRunNrepl;
   }
 
   @Override
@@ -87,12 +110,18 @@ public class ClojureFacetSettingsTab extends FacetEditorTab {
     mySettings.myJvmOpts = myJvmOpts.getText().trim();
     mySettings.myReplClass = myReplClass.getText().trim();
     mySettings.myReplOpts = myReplOpts.getText().trim();
+    mySettings.myNreplHost = myHostTextField.getText().trim();
+    mySettings.myReplPort = myPortTextField.getText().trim();
+    mySettings.myRunNrepl = myUseNREPLCheckBox.isSelected();
   }
 
   public void reset() {
     myJvmOpts.setText(mySettings.myJvmOpts);
     myReplClass.setText(mySettings.myReplClass);
     myReplClass.setText(mySettings.myReplClass);
+    myPortTextField.setText(mySettings.myReplPort);
+    myHostTextField.setText(mySettings.myNreplHost);
+    myUseNREPLCheckBox.setSelected(mySettings.myRunNrepl);
   }
 
   public void disposeUIResources() {

@@ -64,4 +64,18 @@ public class ClojureFacet extends Facet<ClojureFacetConfiguration> {
   public String getReplOptions() {
     return getConfiguration().getState().myReplOpts;
   }
+
+  public boolean isRunNrepl() {
+    return getConfiguration().getState().myRunNrepl;
+  }
+
+  public String getNreplHost() {
+    if (!isRunNrepl()) return null;
+    return getConfiguration().getState().myNreplHost;
+  }
+
+  public String getNreplPort() {
+    if (!isRunNrepl()) return null;
+    return getConfiguration().getState().myReplPort;
+  }
 }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.clojure.repl;
 
+import clojure.tools.nrepl.Connection;
 import com.intellij.execution.*;
 import com.intellij.execution.configurations.CommandLineBuilder;
 import com.intellij.execution.configurations.GeneralCommandLine;
@@ -15,7 +16,6 @@ import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerPaths;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces;
@@ -32,12 +32,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.clojure.ClojureBundle;
 import org.jetbrains.plugins.clojure.config.ClojureConfigUtil;
 import org.jetbrains.plugins.clojure.config.ClojureFacet;
-import org.jetbrains.plugins.clojure.settings.ClojureProjectSettings;
 import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import javax.swing.*;
@@ -52,6 +52,7 @@ import java.util.List;
 public class ClojureConsoleRunner {
 
   public static final String REPL_TITLE = ClojureBundle.message("repl.toolWindowName");
+  public static final String nREPL_TITLE = ClojureBundle.message("nrepl.toolWindowName");
   public static final String EXECUTE_ACTION_IMMEDIATELY_ID = "Clojure.Console.Execute.Immediately";
   public static final String EXECUTE_ACTION_ID = "Clojure.Console.Execute";
 
@@ -103,20 +104,23 @@ public class ClojureConsoleRunner {
     };
 
     final Project project = module.getProject();
-    final ClojureConsoleRunner runner = new ClojureConsoleRunner(module, REPL_TITLE, provider, workingDir);
+    final ClojureFacet clojureFacet = getClojureFacet(module);
+    String title = REPL_TITLE;
+    if (clojureFacet != null && clojureFacet.isRunNrepl()) title = nREPL_TITLE;
+    final ClojureConsoleRunner runner = new ClojureConsoleRunner(module, title, provider, workingDir);
 
     try {
-      runner.initAndRun(statements2execute);
+      runner.initAndRun(module, statements2execute);
     } catch (ExecutionException e) {
-      ExecutionHelper.showErrors(project, Arrays.<Exception>asList(e), REPL_TITLE, null);
+      ExecutionHelper.showErrors(project, Arrays.<Exception>asList(e), title, null);
     }
   }
 
-  public void initAndRun(final String... statements2execute) throws ExecutionException {
+  public void initAndRun(Module module, final String... statements2execute) throws ExecutionException {
     // Create Server process
     final Process process = createProcess(myProvider);
     // !!! do not change order!!!
-    myConsoleView = createConsoleView();
+    myConsoleView = createConsoleView(module);
     myProcessHandler = new ClojureConsoleProcessHandler(process, myProvider.getCommandLineString(), getLanguageConsole());
     myConsoleExecuteActionHandler = new ClojureConsoleExecuteActionHandler(getProcessHandler(), getProject(), false);
     getLanguageConsole().setExecuteHandler(myConsoleExecuteActionHandler);
@@ -275,8 +279,16 @@ public class ClojureConsoleRunner {
   }
 
 
-  protected ClojureConsoleView createConsoleView() {
-    return new ClojureConsoleView(getProject(), getConsoleTitle(), getHistoryModel(), getConsoleExecuteActionHandler());
+  protected ClojureConsoleView createConsoleView(Module module) {
+    String nReplHost = null;
+    String nReplPort = null;
+    final ClojureFacet facet = getClojureFacet(module);
+    if (facet != null) {
+      nReplHost = facet.getNreplHost();
+      nReplPort = facet.getNreplPort();
+    }
+    return new ClojureConsoleView(getProject(), getConsoleTitle(), getHistoryModel(), getConsoleExecuteActionHandler(),
+        nReplHost, nReplPort);
   }
 
   private static ArrayList<String> createRuntimeArgs(Module module, String workingDir) throws CantRunException {
@@ -339,6 +351,14 @@ public class ClojureConsoleRunner {
     return facet.getReplClass();
   }
 
+  private static boolean isRunNrepl(Module module) {
+    final ClojureFacet facet = getClojureFacet(module);
+    if (facet == null) {
+      return false;
+    }
+    return facet.isRunNrepl();
+  }
+
   private GeneralCommandLine createCommandLine(Module module, String workingDir) throws CantRunException {
     final JavaParameters params = new JavaParameters();
     params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
@@ -351,6 +371,11 @@ public class ClojureConsoleRunner {
       final String jarPath = ClojureConfigUtil.CLOJURE_SDK;
       assert jarPath != null;
       params.getClassPath().add(jarPath);
+    }
+
+    if (isRunNrepl(module)) {
+      final String jarPathForNRepl = PathUtil.getJarPathForClass(Connection.class);
+      params.getClassPath().add(jarPathForNRepl);
     }
 
     Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();

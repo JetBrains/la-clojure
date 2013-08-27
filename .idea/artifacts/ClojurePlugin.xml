@@ -18,6 +18,7 @@
             </element>
           </element>
         </element>
+        <element id="library" level="project" name="nrepl" />
       </element>
     </root>
   </artifact>
