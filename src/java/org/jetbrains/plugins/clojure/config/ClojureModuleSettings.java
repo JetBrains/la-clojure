@@ -20,7 +20,7 @@ public class ClojureModuleSettings {
   public boolean myRunNrepl = false;
 
   @NotNull
-  public String myNreplHost = "http://localhost";
+  public String myNreplHost = "localhost";
 
   @NotNull
   public String myReplPort = "7888";
