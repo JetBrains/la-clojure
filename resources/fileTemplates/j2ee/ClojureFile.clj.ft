@@ -1,4 +1,4 @@
-  #if ($PACKAGE_NAME != "")(ns
-    ^{author: ${USER}}
-    ${PACKAGE_NAME}.${NAME.replace('_','-')})
-  #end
+#if ($PACKAGE_NAME != "")(ns
+  ^{author: ${USER}}
+  ${PACKAGE_NAME}.${NAME.replace('_','-')})
+#end
