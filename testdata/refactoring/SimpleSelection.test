@@ -1,2 +1,2 @@
-(defn foo [a b] (let [IDEA (+ a b)]
-                  IDEA))
+(defn foo [a b] (let [a-var (+ a b)]
+                  a-var))

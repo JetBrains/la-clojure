@@ -34,4 +34,14 @@ public class IntroduceVariableTest extends ClojureRefactoringTestBase {
   public void testCaret() throws Exception {
     doTest();
   }
+
+  public void testLetAddition() throws Exception {
+    doTest();
+  }
+
+  public void testOccurences() throws Exception {
+    doTest();
+  }
+
+
 }
