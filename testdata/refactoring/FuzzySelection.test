@@ -1,3 +1,3 @@
 (defn func [a b]
-  (let [var (+ a b)]
-    var))
+  (let [val (+ a b)]
+    val))

@@ -2,7 +2,7 @@
   [a t]
   (let [a 3
         b (+ 4 a)
-        var (range 10)]
+        val (range 10)]
     (filter
       odd?
-      var)))
+      val)))

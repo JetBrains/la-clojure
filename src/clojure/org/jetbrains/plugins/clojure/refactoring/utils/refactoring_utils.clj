@@ -53,18 +53,25 @@
 
 (defn get-occurences
   [^PsiElement container ^PsiElement element]
-  (loop [containers [container]  occurences []]
-    (if (empty? containers)
-      occurences
-      (if (PsiEquivalenceUtil/areElementsEquivalent
-            (first containers)
-            element)
-        (recur (rest containers) (cons (first containers) occurences))
-        (recur
-          (into
-            (rest containers)
-            (get-children (first containers)))
-          occurences)))))
+  (letfn [(equal?
+            [^PsiElement e1 ^PsiElement e2]
+             (PsiEquivalenceUtil/areElementsEquivalent
+              e1
+              e2))
+          (branch?
+            [^PsiElement e]
+            (and
+              (not
+                (equal?
+                  e
+                  element))
+              (some-> e
+                .getChildren
+                empty?
+                false?)))]
+    (filter
+      #(equal? element %)
+      (psi-tree-seq container branch?))))
 
 (defn- get-text-from-Declaration
   [declaration]
@@ -72,7 +79,8 @@
     (:name declaration)
     " "
     (-> declaration
-      :expression get-text)))
+      :expression
+      get-text)))
 
 (defn- join-Declarations
   [declarations]
@@ -194,73 +202,51 @@
       invokes)))
 
 (defn replace-occurence!
-  [^PsiElement expression new-name ^Editor editor]
+  [^TextRange text-range new-name ^Editor editor]
   (let [document (.getDocument editor)
-        text-range (.getTextRange expression)
-        start-offset (.getStartOffset text-range)
-        end-offset (.getEndOffset text-range)
-        document-manager (-> editor
-                           .getProject
-                           (PsiDocumentManager/getInstance))]
-    (do
-      (.replaceString
-        document
-        start-offset
-        end-offset
-        new-name)
-      (.commitDocument
-        document-manager
-        document))))
+        start (.getStartOffset text-range)
+        end (.getEndOffset text-range)]
+    (.replaceString
+      document
+      start
+      end
+      new-name)))
 
 (defn replace-occurences!
-  [occurences name editor]
+  [ranges name editor]
   (do
     (commit-document editor)
     (doseq
-      [o (reverse occurences)]
-      (replace-occurence! o name editor))))
+      [text-range (reverse ranges)]
+      (replace-occurence! text-range name editor))
+    (commit-document editor)))
 
 
 (defn ^PsiElement find-ancestor-by-name-set
   "Finds ancestor of element with name from names and returns it previous child"
   [^PsiElement element names]
-  (loop [ancestor (.getParent element) prev element]
-    (if (instance? ClList ancestor)
-      (if (some->> ancestor
-            get-list-name
-            (contains? names))
-        prev
-        (recur (.getParent ancestor) ancestor)))))
+  (letfn [(guard?
+            [^PsiElement element]
+            (and
+              (instance? ClList element)
+              (contains?
+                names
+                (get-list-name element))))
+          (vector?
+            [element]
+            (instance? ClVector element))
+          (should-stop?
+            [element]
+            (or
+              (nil? element)
+              (guard? element)
+              (vector? element)))]
+    (first
+      (drop-while
+        (comp not should-stop? get-parent)
+        (iterate get-parent element)))))
 
 
-(defn get-var-names
-  [^PsiElement element]
-  (let [names (atom ["var"])
-        parse-list-name (fn
-                          [name]
-                          (let [parts (-> name
-                                        (clojure.string/split #"-"))
-                                suggestions (filter
-                                              (complement nil?)
-                                              (map
-                                                (partial re-find #"\w+")
-                                                parts))]
-                            (swap! names into suggestions)))
-        visit-element (fn
-                        [^PsiElement psi-element]
-                        (if (instance? ClList psi-element)
-                          (parse-list-name
-                            (get-list-name psi-element))))
-        names-builder (proxy
-                        [PsiRecursiveElementVisitor]
-                        []
-                        (visitElement [^PsiElement psi-element]
-                          (do
-                            (visit-element psi-element)
-                            (.acceptChildren psi-element this))))]
-    (do
-      (.accept element names-builder)
-      @names)))
 
 (defn get-binding-symbol-by-name
   [^ClList let-form name]

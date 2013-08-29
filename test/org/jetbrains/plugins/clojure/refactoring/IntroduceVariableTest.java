@@ -43,5 +43,11 @@ public class IntroduceVariableTest extends ClojureRefactoringTestBase {
     doTest();
   }
 
+  public void testJavaNames() throws Exception {
+    doTest();
+  }
 
+  public void testClojureNames() throws Exception {
+    doTest();
+  }
 }

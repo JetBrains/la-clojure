@@ -2,6 +2,6 @@
           (* x 2))
         (six-times [y]
           (* (twice y) 3))]
-  (let [var (println "Twice 15 =" (twice 15))]
-    var)
+  (let [val (println "Twice 15 =" (twice 15))]
+    val)
   (println "Six times 15 =" (six-times 15)))

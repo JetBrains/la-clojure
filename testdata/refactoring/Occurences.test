@@ -1,12 +1,12 @@
 (defn func
   [a b]
-  (let [var (+ a b)]
+  (let [val (+ a b)]
     (and
       (> 56
         (+
-          var
+          val
           (*
-            var
+            val
             (/ a
-              var))
-          var)))))
+              val))
+          val)))))

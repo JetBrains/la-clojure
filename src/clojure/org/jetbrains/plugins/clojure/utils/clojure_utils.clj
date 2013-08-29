@@ -14,7 +14,8 @@
    [com.intellij.openapi.project Project]
    [org.jetbrains.plugins.clojure.psi ClojurePsiElement]
    [com.intellij.psi.util PsiTreeUtil]
-   [com.intellij.openapi.util TextRange]))
+   [com.intellij.openapi.util TextRange]
+   [com.intellij.openapi.command CommandProcessor]))
 
 
 (defn show-error
@@ -161,6 +162,20 @@
   (PsiTreeUtil/getChildOfType
     let-form
     ClVector))
+
+(defn psi-tree-seq
+  ([^PsiElement element branch?]
+      (tree-seq branch? get-children element))
+  ([^PsiElement element]
+    (letfn [(branch?
+              [e]
+              (some-> e
+                get-children
+                empty?
+                false?))]
+      (tree-seq branch? get-children element))))
+
+
 
 
 

@@ -2,7 +2,7 @@
   (:import [com.intellij.psi PsiFile PsiElement PsiReference PsiDocumentManager]
            [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory ClojurePsiUtil]
            [org.jetbrains.plugins.clojure.parser ClojureElementTypes ClojurePsiCreator]
-           [com.intellij.openapi.editor Editor]
+           [com.intellij.openapi.editor Editor CaretModel]
            [org.jetbrains.plugins.clojure.file ClojureFileType]
            [com.intellij.lang ASTNode]
            [com.intellij.psi.tree IElementType]
@@ -13,8 +13,11 @@
            [com.intellij.openapi.project Project]
            [org.jetbrains.plugins.clojure.psi ClojurePsiElement]
            [com.intellij.psi.util PsiTreeUtil]
-           [com.intellij.openapi.util TextRange]
-           [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]))
+           [com.intellij.openapi.util TextRange Computable]
+           [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]
+           [com.intellij.openapi.application ApplicationManager Application]
+           [com.intellij.openapi.command CommandProcessor]
+           [com.intellij.util.containers ContainerUtil]))
 
 
 
@@ -24,11 +27,18 @@
     .getCaretModel
     .getOffset))
 
+(defn get-text-range
+  [^PsiElement e]
+  (some-> e
+    .getTextRange))
+
+
 
 (defn get-children
   [^PsiElement element]
-  (vec
-    (.getChildren element)))
+  (some-> element
+    .getChildren
+    vec))
 
 (defn get-end-offset
   [^PsiElement element]
@@ -54,10 +64,17 @@
       (PsiDocumentManager/getInstance)
       (.commitDocument document))))
 
+(defn do-postponed-operations-and-release-document
+  [^Editor editor]
+  (let [document (.getDocument editor)]
+    (some-> editor
+      .getProject
+      (PsiDocumentManager/getInstance)
+      (.doPostponedOperationsAndUnblockDocument document))))
+
 (defn get-namespace
   [^ClojureFile file]
   (.getNamespace file))
-
 
 (defn create-psi
   [^ASTNode node]
@@ -115,4 +132,46 @@
 
 (defn get-text-offset
   [^PsiElement element]
-  (.getTextOffset element))
+  (some-> element
+    .getTextOffset))
+
+(defn execute-command!
+  [^Project project cmd refactoring-name group-id]
+  (-> (CommandProcessor/getInstance)
+    (.executeCommand
+      project
+      cmd
+      refactoring-name
+      group-id)))
+
+(defn run-computable-write-action!
+  [^Computable write-action]
+  (-> (ApplicationManager/getApplication)
+    (.runWriteAction write-action)))
+
+(defn remove-selection
+  [^Editor editor]
+  (-> editor
+    .getSelectionModel
+    .removeSelection))
+
+(defn move-to-offset
+  [^Editor editor offset]
+  (-> editor
+    .getCaretModel
+    (.moveToOffset offset)))
+
+(defn get-parent
+  [^PsiElement element]
+  (some-> element
+    .getParent))
+
+(defn new-linked-hash-set
+  [^Iterable coll]
+  (ContainerUtil/newLinkedHashSet coll))
+
+
+(defn shift-right
+  [^TextRange text-range offset]
+  (if-let [range text-range]
+    (.shiftRight text-range offset)))

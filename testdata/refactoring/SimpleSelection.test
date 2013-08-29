@@ -1,2 +1,2 @@
-(defn foo [a b] (let [var (+ a b)]
-                  var))
+(defn foo [a b] (let [val (+ a b)]
+                  val))

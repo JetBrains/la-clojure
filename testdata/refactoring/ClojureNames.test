@@ -1,0 +1,6 @@
+(defn clojure-name
+  [config]
+  (let [divisors (get-divisors
+                   (+ a b)
+                   (run-config config))]
+    divisors))
