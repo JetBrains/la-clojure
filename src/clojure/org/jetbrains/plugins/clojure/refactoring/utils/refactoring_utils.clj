@@ -122,7 +122,7 @@
         expr))
     (partition
       2
-      (.getChildren
+      (get-children
         bindings))))
 
 

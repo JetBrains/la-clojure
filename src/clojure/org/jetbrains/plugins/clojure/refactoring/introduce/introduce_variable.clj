@@ -46,6 +46,34 @@
   [expression ^Project project ^Editor editor]
   true) ;todo
 
+(defn- get-container-bindings
+  [container]
+  (if (is-let-form? container)
+    (get-let-bindings
+      container)))
+
+
+(defn- create-bindings
+  [container name expression position project]
+  (let [get-offset (comp get-end-offset :expression)
+        before? (fn
+                  [declaration]
+                  (> position
+                    (get-offset declaration)))
+        bindings (get-container-bindings container)
+        new-declaration (Declaration. name expression)
+        declarations (get-Declarations-from-ClVector bindings)
+        before (take-while before? declarations)
+        after (drop (count before) declarations)
+        new-declarations (concat
+                           before
+                           (cons
+                             new-declaration
+                             after))]
+    (create-ClVector-from-Declarations
+      new-declarations
+      project)))
+
 (defn- get-container-body
   [container]
   (if (is-let-form? container)
@@ -53,9 +81,16 @@
       container)
     container))
 
+
 (defn- modify-psi-tree
-  [^PsiElement container bindings project]
+  [^PsiElement container expression name position project]
   (let [body (get-container-body container)
+        bindings (create-bindings
+                   container
+                   name
+                   expression
+                   position
+                   project)
         created-container (create-let-form
                             project
                             bindings
@@ -63,18 +98,19 @@
     (.replace container created-container)))
 
 (defn- introduce-runner!
-  [expression ^PsiElement container occurences name bindings project file editor]
+  [expression ^PsiElement container occurences name project file editor]
   (let [container-position (get-text-offset container)
+        first-position (get-text-offset (first occurences))
         ranges (map
                  get-text-range
                  occurences)]
     (do
       (replace-occurences! ranges name editor)
       (some-> (find-element-by-offset file container-position)
-        (modify-psi-tree bindings project)))))
+        (modify-psi-tree expression name first-position project)))))
 
 (defn- refactor-write-action!
-  [expression container occurences name bindings project file editor]
+  [expression container occurences name project file editor]
   (run-computable-write-action!
     (reify
       Computable
@@ -84,14 +120,13 @@
           container
           occurences
           name
-          bindings
           project
           file
           editor)))))
 
 
 (defn- run-inplace!
-  [expression container occurences name suggestions bindings ^Project project ^Editor editor file]
+  [expression container occurences name suggestions ^Project project ^Editor editor file]
   (letfn [(run-inplace-introducer!
             [^PsiNamedElement named-element]
             (let [introducer (proxy
@@ -119,7 +154,7 @@
                 run-inplace-introducer!)))
            (cmd
              []
-             (-> (refactor-write-action! expression container occurences name bindings project file editor)
+             (-> (refactor-write-action! expression container occurences name project file editor)
                do-inplace-refactoring!))]
     (execute-command!
       project
@@ -146,21 +181,6 @@
         parent
         ancestor))))
 
-
-(defn- ^ClVector get-container-bindings
-  [container expression name project]
-  (let [declaration (Declaration. name expression)]
-    (create-ClVector-from-Declarations
-      (if (is-let-form?
-            container)
-        (conj
-          (vec
-            (get-Declarations-from-ClVector
-              (get-let-bindings container)))
-          declaration)
-        (vector declaration))
-      project)))
-
 (defn- do-refactoring!
   [expression project editor file]
   (let [container (get-container
@@ -169,7 +189,6 @@
         name (first names)
         occurences (doall
                      (get-occurences container expression))
-        bindings (get-container-bindings container expression name project)
         callback (proxy
                    [Pass]
                    []
@@ -179,7 +198,7 @@
                                           replace-choice)
                                       (vector expression)
                                       occurences)]
-                       (run-inplace! expression container replaces name names bindings project editor file))))]
+                       (run-inplace! expression container replaces name names project editor file))))]
     (if (inplace-available? editor)
       (-> (OccurrencesChooser/simpleChooser editor)
         (.showChooser expression occurences callback))

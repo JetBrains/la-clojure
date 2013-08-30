@@ -50,4 +50,8 @@ public class IntroduceVariableTest extends ClojureRefactoringTestBase {
   public void testClojureNames() throws Exception {
     doTest();
   }
+
+  public void testLetInLet() throws Exception {
+    doTest();
+  }
 }
