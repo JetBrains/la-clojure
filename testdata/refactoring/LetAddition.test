@@ -1,0 +1,8 @@
+(defn test
+  [a t]
+  (let [a 3
+        b (+ 4 a)
+        val (range 10)]
+    (filter
+      odd?
+      val)))

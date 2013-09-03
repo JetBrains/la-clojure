@@ -1,14 +1,15 @@
-(ns org.jetbrains.plugins.clojure.intention.convert_import_intention
-  (:use [org.jetbrains.plugins.clojure.utils.psi-utils])
+(ns org.jetbrains.plugins.clojure.intention.convert-import-intention
+  (:use [org.jetbrains.plugins.clojure.utils.clojure-utils])
+  (:use [org.jetbrains.plugins.clojure.utils.java-wrappers])
   (:import [com.intellij.lang LanguageAnnotators ASTNode]
-           [com.intellij.codeInsight.intention IntentionAction IntentionManager]
-           [com.intellij.psi PsiFile PsiElement PsiReference]
-           [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory]
-           [org.jetbrains.plugins.clojure.lexer ClojureTokenTypes]
-           [org.jetbrains.plugins.clojure.parser ClojurePsiCreator ClojureElementTypes]
-           [com.intellij.openapi.editor Editor]
-           [org.jetbrains.plugins.clojure.file ClojureFileType]
-           [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]))
+   [com.intellij.codeInsight.intention IntentionAction IntentionManager]
+   [com.intellij.psi PsiFile PsiElement PsiReference]
+   [org.jetbrains.plugins.clojure.psi.util ClojurePsiFactory]
+   [org.jetbrains.plugins.clojure.lexer ClojureTokenTypes]
+   [org.jetbrains.plugins.clojure.parser ClojurePsiCreator ClojureElementTypes]
+   [com.intellij.openapi.editor Editor]
+   [org.jetbrains.plugins.clojure.file ClojureFileType]
+   [org.jetbrains.plugins.clojure.psi.api.symbols ClSymbol]))
 
 
 (defn- is-import?
@@ -96,7 +97,7 @@
         ((maybe is-import?) import)
         (is-symbol-or-quoted-symbol? statement)))))
 
-(defn invoke [project editor file]
+(defn invoke! [project editor file]
   (when (isAvailable project editor file)
     (let [before (get-import-statement
                    (get-caret-psi-element editor file))
@@ -117,7 +118,7 @@
       (isAvailable [this project editor file]
         (isAvailable project editor file))
       (invoke [this project editor file]
-        (invoke project editor file))
+        (invoke! project editor file))
       (startInWriteAction [this]
         (startInWriteAction)))
     (into-array java.lang.String ["Clojure"])))

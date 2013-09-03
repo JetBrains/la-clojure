@@ -9,7 +9,7 @@ import org.jetbrains.plugins.clojure.base.ClojureBaseTestCase;
  */
 public abstract class ClojureIntentionTestBase extends ClojureBaseTestCase {
 
-  private static final String DATA_PATH = System.getProperty("user.dir") + "/testData/intention";
+  private static final String DATA_PATH = System.getProperty("user.dir") + "/testdata/intention";
 
   @Override
   public String getDataPath() {

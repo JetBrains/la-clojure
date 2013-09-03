@@ -38,7 +38,7 @@ public class ClojureLoader implements ApplicationComponent {
   @NotNull
   public static final Set<String> CLOJURE_EXTENSIONS = new HashSet<String>();
 
-  private static final String INIT_CLOJURE = "org.jetbrains.plugins.clojure.init_clojure";
+  private static final String INIT_CLOJURE = "org.jetbrains.plugins.clojure.init-clojure";
 
   static {
     adjustClojureCompilerLoader();

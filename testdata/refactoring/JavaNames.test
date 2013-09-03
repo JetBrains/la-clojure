@@ -1,0 +1,4 @@
+(defn java-name
+  []
+  (let [collections (Collections/emptyList)]
+    collections))

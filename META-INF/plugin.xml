@@ -24,29 +24,42 @@
   <extensions defaultExtensionNs="com.intellij">
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.clojure.file.ClojureFileTypeLoader"/>
-    <lang.braceMatcher language="Clojure" implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureBraceMatcher"/>
-    <syntaxHighlighter key="Clojure" implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureSyntaxHighlighter"/>
+    <lang.braceMatcher language="Clojure"
+                       implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureBraceMatcher"/>
+    <syntaxHighlighter key="Clojure"
+                       implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureSyntaxHighlighter"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.clojure.highlighter.ClojureColorsAndFontsPage"/>
-    <lang.commenter language="Clojure" implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureCommenter"/>
-    <lang.parserDefinition language="Clojure" implementationClass="org.jetbrains.plugins.clojure.parser.ClojureParserDefinition"/>
+    <lang.commenter language="Clojure"
+                    implementationClass="org.jetbrains.plugins.clojure.highlighter.ClojureCommenter"/>
+    <lang.parserDefinition language="Clojure"
+                           implementationClass="org.jetbrains.plugins.clojure.parser.ClojureParserDefinition"/>
     <lang.foldingBuilder language="Clojure" implementationClass="org.jetbrains.plugins.clojure.ClojureFoldingBuilder"/>
-    <lang.psiStructureViewFactory language="Clojure" implementationClass="org.jetbrains.plugins.clojure.structure.ClojureStructureViewBuilderFactory"/>
-    <lang.formatter language="Clojure" implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
-    <lang.refactoringSupport language="Clojure"
-                             implementationClass="org.jetbrains.plugins.clojure.refactoring.ClojureRefactoringSupportProvider"/>
-    <codeStyleSettingsProvider implementation="org.jetbrains.plugins.clojure.formatter.codeStyle.ClojureCodeStyleSettingsProvider"/>
-    <lang.findUsagesProvider language="Clojure" implementationClass="org.jetbrains.plugins.clojure.findUsages.ClojureFindUsagesProvider"/>
+    <lang.psiStructureViewFactory language="Clojure"
+                                  implementationClass="org.jetbrains.plugins.clojure.structure.ClojureStructureViewBuilderFactory"/>
+    <lang.formatter language="Clojure"
+                    implementationClass="org.jetbrains.plugins.clojure.formatter.ClojureFormattingModelBuilder"/>
+    <!--<lang.refactoringSupport language="Clojure"-->
+    <!--implementationClass="org.jetbrains.plugins.clojure.refactoring.ClojureRefactoringSupportProvider"/>-->
+    <codeStyleSettingsProvider
+        implementation="org.jetbrains.plugins.clojure.formatter.codeStyle.ClojureCodeStyleSettingsProvider"/>
+    <lang.findUsagesProvider language="Clojure"
+                             implementationClass="org.jetbrains.plugins.clojure.findUsages.ClojureFindUsagesProvider"/>
     <consoleFilterProvider implementation="org.jetbrains.plugins.clojure.runner.console.ClojureConsoleFilterProvider"/>
-    <compiler.makeDependencyProcessor implementation="org.jetbrains.plugins.clojure.compiler.ClojureDependencyProcessor"/>
+    <compiler.makeDependencyProcessor
+        implementation="org.jetbrains.plugins.clojure.compiler.ClojureDependencyProcessor"/>
     <configurationType implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationType"/>
     <configurationProducer implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>
     <fileTemplateGroup implementation="org.jetbrains.plugins.clojure.actions.ClojureTemplatesFactory"/>
-    <renameInputValidator implementation="org.jetbrains.plugins.clojure.refactoring.rename.ClojureRenameInputValidator"/>
-    <fileTypeIndentOptionsProvider implementation="org.jetbrains.plugins.clojure.formatter.ClojureIndentOptionsProvider"/>
+    <renameInputValidator
+        implementation="org.jetbrains.plugins.clojure.refactoring.rename.ClojureRenameInputValidator"/>
+    <fileTypeIndentOptionsProvider
+        implementation="org.jetbrains.plugins.clojure.formatter.ClojureIndentOptionsProvider"/>
     <quoteHandler fileType="Clojure" className="org.jetbrains.plugins.clojure.editor.ClojureQuoteHandler"/>
-    <annotator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.editor.braceHighlighter.ClojureBraceHighlighter"/>
+    <annotator language="Clojure"
+               implementationClass="org.jetbrains.plugins.clojure.editor.braceHighlighter.ClojureBraceHighlighter"/>
     <annotator language="Clojure" implementationClass="org.jetbrains.plugins.clojure.annotator.ClojureAnnotator"/>
-    <debuggerClassFilterProvider implementation="org.jetbrains.plugins.clojure.debugger.filters.ClojureDebugClassesFilterProvider"/>
+    <debuggerClassFilterProvider
+        implementation="org.jetbrains.plugins.clojure.debugger.filters.ClojureDebugClassesFilterProvider"/>
     <gotoSymbolContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToSymbolContributor"/>
     <gotoClassContributor implementation="org.jetbrains.plugins.clojure.gotoclass.ClojureGoToClassContributor"/>
     <xdebugger.settings implementation="org.jetbrains.plugins.clojure.debugger.filters.ClojureDebuggerSettings"/>
@@ -54,9 +67,11 @@
     <java.shortNamesCache implementation="org.jetbrains.plugins.clojure.psi.stubs.ClojureShortNamesCache"/>
     <enterHandlerDelegate implementation="org.jetbrains.plugins.clojure.editor.ClojureEnterHandler" order="first"/>
     <completion.contributor id="clojureClassNameCompletionContributor" language="Clojure"
-                            implementationClass="org.jetbrains.plugins.clojure.psi.resolve.completion.ClojureClassNameCompletionContributor" order="first"/>
+                            implementationClass="org.jetbrains.plugins.clojure.psi.resolve.completion.ClojureClassNameCompletionContributor"
+                            order="first"/>
     <completion.contributor id="clojureCompletionContributor" language="Clojure"
-                            implementationClass="org.jetbrains.plugins.clojure.psi.resolve.completion.ClojureCompletionContributor" order="first"/>
+                            implementationClass="org.jetbrains.plugins.clojure.psi.resolve.completion.ClojureCompletionContributor"
+                            order="first"/>
 
     <stubElementTypeHolder class="org.jetbrains.plugins.clojure.parser.ClojureElementTypes"/>
 
@@ -67,7 +82,8 @@
     <stubIndex implementation="org.jetbrains.plugins.clojure.psi.stubs.index.ClojureFullScriptNameIndex"/>
 
     <extendWordSelectionHandler implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureListSelectioner"/>
-    <extendWordSelectionHandler implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureLiteralSelectioner"/>
+    <extendWordSelectionHandler
+        implementation="org.jetbrains.plugins.clojure.editor.selection.ClojureLiteralSelectioner"/>
     <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.clojure.debugger.ClojureCodeFragmentFactory"/>
     <!-- <unscrambleSupport implementation="org.jetbrains.plugins.clojure.debugger.ClojureUnscrambler"/> -->
     <compilerSettingsFactory implementation="org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettingsFactory"/>
@@ -91,7 +107,8 @@
                                 implementationClass="org.jetbrains.plugins.clojure.documentation.ClojureDocumentationProvider"/>
     <renamePsiElementProcessor
         implementation="org.jetbrains.plugins.clojure.refactoring.rename.RenameClojureFileProcessor" order="first"/>
-    <debugger.positionManagerFactory implementation="org.jetbrains.plugins.clojure.debugger.ClojurePositionManagerFactory"/>
+    <debugger.positionManagerFactory
+        implementation="org.jetbrains.plugins.clojure.debugger.ClojurePositionManagerFactory"/>
 
   </extensions>
 

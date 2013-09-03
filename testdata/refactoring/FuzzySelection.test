@@ -1,0 +1,3 @@
+(defn func [a b]
+  (let [val (+ a b)]
+    val))

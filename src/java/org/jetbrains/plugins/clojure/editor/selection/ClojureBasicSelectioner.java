@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.clojure.editor.selection;
 
-import com.intellij.openapi.util.TextRange;
+import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandler;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.text.CharArrayUtil;
-import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandler;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ilyas
@@ -104,5 +105,10 @@ public abstract class ClojureBasicSelectioner implements ExtendWordSelectionHand
     }
 
     return result;
+  }
+
+  @Override
+  public int getMinimalTextRangeLength(@NotNull PsiElement element) {
+    return element.getTextLength();
   }
 }

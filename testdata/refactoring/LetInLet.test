@@ -1,0 +1,13 @@
+(defn func
+  [a b c]
+  (let [name0 bind0
+        val (bind2
+              bind)
+        name1 (bind1
+                val)
+        name2 (bind4
+                val)]
+    (op1
+      (op2
+        expr1
+        expr2))))
