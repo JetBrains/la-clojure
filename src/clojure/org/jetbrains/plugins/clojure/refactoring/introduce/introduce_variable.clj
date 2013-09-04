@@ -74,33 +74,54 @@
       new-declarations
       project)))
 
-(defn- get-container-body
+(defn- create-bindings-text
+  [container name expression position project]
+  (get-text
+    (create-bindings
+      container
+      name
+      expression
+      position
+      project)))
+
+(defn- get-container-body-text
   [container]
   (if (is-let-form? container)
-    (get-let-body
-      container)
-    container))
+    (let [body-expr (get-let-body-expr container)
+          offset (get-start-offset container)
+          start (- ((comp get-start-offset first) body-expr)
+                  offset)
+          end (- ((comp get-end-offset last) body-expr)
+                offset)
+          range (TextRange/create start end)
+          container-text (get-text container)]
+      (range-substring
+        range
+        container-text))
+    (get-text
+      container)))
 
 
 (defn- modify-psi-tree
   [^PsiElement container expression name position project]
-  (let [body (get-container-body container)
-        bindings (create-bindings
-                   container
-                   name
-                   expression
-                   position
-                   project)
+  (let [body-text (get-container-body-text
+                    container)
+        bindings-text (create-bindings-text
+                        container
+                        name
+                        expression
+                        position
+                        project)
         created-container (create-let-form
                             project
-                            bindings
-                            body)]
+                            bindings-text
+                            body-text)]
     (.replace container created-container)))
 
 (defn- introduce-runner!
   [expression ^PsiElement container occurences name project file editor]
-  (let [container-position (get-text-offset container)
-        first-position (get-text-offset (first occurences))
+  (let [container-position (get-start-offset container)
+        first-position (get-start-offset (first occurences))
         ranges (map
                  get-text-range
                  occurences)]
@@ -162,17 +183,17 @@
       refactoring-name
       nil)))
 
+(defn- container?
+  [element]
+  (if (instance? ClList element)
+    (contains?
+      containers
+      (get-list-name element))))
+
 (defn- get-container
-  [expression]
-  (let [ancestor (find-ancestor-by-name-set expression guards)
-        parent (get-parent ancestor)
-        grand-parent (get-parent parent)
-        container? (fn
-                     [element]
-                     (if (instance? ClList element)
-                       (contains?
-                         containers
-                         (get-list-name element))))]
+  [ancestor]
+  (let [parent (get-parent ancestor)
+        grand-parent (get-parent parent)]
     (if (and
           (instance? ClVector parent)
           (container? grand-parent))
@@ -181,14 +202,29 @@
         parent
         ancestor))))
 
+(defn- get-search-scope
+  [ancestor]
+  (let [parent (get-parent ancestor)
+        grand-parent (get-parent parent)]
+    (if (and
+          (instance? ClVector parent)
+          (container? grand-parent))
+      grand-parent
+      ancestor)))
+
 (defn- do-refactoring!
   [expression project editor file]
-  (let [container (get-container
-                    expression)
+  (let [ancestor (find-ancestor-by-name-set
+                   expression
+                   guards)
+        container (get-container
+                    ancestor)
+        search-scope (get-search-scope
+                       ancestor)
         names (get-var-names expression container)
         name (first names)
         occurences (doall
-                     (get-occurences container expression))
+                     (get-occurences search-scope expression))
         callback (proxy
                    [Pass]
                    []

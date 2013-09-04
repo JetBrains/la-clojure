@@ -54,4 +54,8 @@ public class IntroduceVariableTest extends ClojureRefactoringTestBase {
   public void testLetInLet() throws Exception {
     doTest();
   }
+
+  public void testMultiBody() throws Exception {
+    doTest();
+  }
 }
