@@ -1,7 +1,7 @@
 (defn func
   [a b]
-  (let [val (+ a b)]
-    (and
+  (and
+    (let [val (+ a b)]
       (> 56
         (+
           val
