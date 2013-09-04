@@ -153,9 +153,11 @@
     (some-> (ClojurePsiUtil/firstChildSexp form)
       (.getText))))
 
-(defn get-let-body
+(defn get-let-body-expr
   [^PsiElement let-form]
-  (ClojurePsiUtil/lastChildSexp let-form))
+  (some->> let-form
+    get-children
+    (drop 2)))
 
 (defn ^ClVector get-let-bindings
   [^PsiElement let-form]

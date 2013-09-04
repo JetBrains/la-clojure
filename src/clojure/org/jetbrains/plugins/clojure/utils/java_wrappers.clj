@@ -19,7 +19,10 @@
            [com.intellij.openapi.command CommandProcessor]
            [com.intellij.util.containers ContainerUtil]))
 
-
+(defn range-substring
+  [^TextRange text-range ^String s]
+  (some-> text-range
+    (.substring s)))
 
 (defn get-current-position
   [^Editor editor]

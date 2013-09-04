@@ -34,7 +34,6 @@
     "defn"
     "defn-"
     "def"
-    "ns"
     "import"
     "use"
     "with-local-vars"
@@ -43,7 +42,11 @@
     "with-redefs"
     "bindings"
     "lazy-seq"
-    "if"})
+    "if"
+    "ns"
+    "and"
+    "or"
+    "do"})
 
 (def containers
   #{"let"})
@@ -101,16 +104,14 @@
     (get-ClVector-from-string-declarations project)))
 
 (defn create-let-form
-  [project ^ClVector bindings ^PsiElement body]
+  [project bindings-text body-text]
   (-> (ClojurePsiFactory/getInstance project)
     (.createListFromText
       (str
         "let "
-        (.getText
-          bindings)
+        bindings-text
         "\n"
-        (.getText
-          body)))))
+        body-text))))
 
 (defn get-Declarations-from-ClVector
   [^ClVector bindings]
@@ -235,10 +236,14 @@
           (vector?
             [element]
             (instance? ClVector element))
+          (psi-file?
+            [element]
+            (instance? PsiFile element))
           (should-stop?
             [element]
             (or
               (nil? element)
+              (psi-file? element)
               (guard? element)
               (vector? element)))]
     (first

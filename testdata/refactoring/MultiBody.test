@@ -1,0 +1,12 @@
+(fact
+  "Better constructor works"
+  (let [test-user (new-user "Mark" "Mandel" "email" "password")
+        val (:password test-user)]
+    (:id test-user) => truthy
+    (:firstname test-user) => "Mark"
+    (:lastname test-user) => "Mandel"
+    val => "password"
+    (:email test-user) => "email"
+    (:photo test-user) => nil
+    (:last-logged-in test-user) => nil)
+  )
