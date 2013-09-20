@@ -3,12 +3,14 @@ package org.jetbrains.plugins.clojure.repl;
 import com.intellij.execution.console.LanguageConsoleImpl;
 import com.intellij.execution.process.ConsoleHistoryModel;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import org.jetbrains.plugins.clojure.ClojureLanguage;
 
 /**
  * @author ilyas
  */
 public class ClojureConsole extends LanguageConsoleImpl {
+  public static final Key<Boolean> CLOJURE_CONSOLE_EDITOR = Key.create("CLOJURE_CONSOLE_EDITOR");
 
   private final ConsoleHistoryModel myHistoryModel;
   private final String myNReplHost;
@@ -18,13 +20,13 @@ public class ClojureConsole extends LanguageConsoleImpl {
   public ClojureConsole(Project project,
                         String title,
                         ConsoleHistoryModel historyModel,
-                        ClojureConsoleExecuteActionHandler handler,
                         String nReplHost,
                         String nReplPort) {
     super(project, title, ClojureLanguage.getInstance());
     myHistoryModel = historyModel;
     myNReplHost = nReplHost;
     myNReplPort = nReplPort;
+    getConsoleEditor().getDocument().putUserData(CLOJURE_CONSOLE_EDITOR, Boolean.TRUE);
   }
 
   public ConsoleHistoryModel getHistoryModel() {
