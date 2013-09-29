@@ -94,7 +94,7 @@ public class ClojureBlock implements Block, ClojureElementTypes{
       return new ChildAttributes(Indent.getNoneIndent(), null);
     }
     if (LIST_LIKE_FORMS.contains(astNode.getElementType())) {
-      return new ChildAttributes(Indent.getNormalIndent(), myChildAlignment);
+      return new ChildAttributes(Indent.getNormalIndent(), null);
     }
     return new ChildAttributes(Indent.getNoneIndent(), null);
   }

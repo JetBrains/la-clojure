@@ -13,4 +13,10 @@ public class ClojureEditingTest extends LightCodeInsightFixtureTestCase {
     myFixture.checkResult(" ;;; hello\n ;;; <caret>world");
   }
 
+  public void testEnterInLet() {
+    myFixture.configureByText("a.clj", "(let [foo bar]<caret>\n\n)");
+    myFixture.type('\n');
+    myFixture.checkResult("(let [foo bar]\n  <caret>\n\n)");
+  }
+
 }
