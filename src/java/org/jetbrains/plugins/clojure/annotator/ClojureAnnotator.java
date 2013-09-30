@@ -8,10 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.ClojureBundle;
-import org.jetbrains.plugins.clojure.highlighter.ClojureSyntaxHighlighter;
 import org.jetbrains.plugins.clojure.psi.api.ClKeyword;
-import org.jetbrains.plugins.clojure.psi.api.ClList;
-import org.jetbrains.plugins.clojure.psi.api.symbols.ClSymbol;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -28,30 +25,8 @@ public class ClojureAnnotator implements Annotator {
   }
 
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-    if (element instanceof ClList) {
-      annotateList((ClList) element, holder);
-    }
-    if (element instanceof ClSymbol) {
-      ClSymbol symbol = (ClSymbol) element;
-      if (symbol.isQualified()) {
-        checkNonQualifiedSymbol(symbol, holder);
-      }
-    }
     if (element instanceof ClKeyword) {
       checkKeywordTextConsistency((ClKeyword) element, holder);
-    }
-  }
-
-  private void checkNonQualifiedSymbol(ClSymbol symbol, AnnotationHolder holder) {
-    // todo add import fixo
-  }
-
-  private void annotateList(ClList list, AnnotationHolder holder) {
-    final ClSymbol first = list.getFirstSymbol();
-    if (first != null && (first.multiResolve(false).length > 0 ||
-        IMPLICIT_NAMES.contains(list.getHeadText()))) {
-      Annotation annotation = holder.createInfoAnnotation(first, null);
-      annotation.setTextAttributes(ClojureSyntaxHighlighter.DEF);
     }
   }
 

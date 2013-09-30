@@ -2,17 +2,19 @@ package org.jetbrains.plugins.clojure.highlighter;
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import com.intellij.lexer.Lexer;
+import com.intellij.lexer.LookAheadLexer;
+import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
-import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.clojure.lexer.ClojureFlexLexer;
 import org.jetbrains.plugins.clojure.lexer.ClojureTokenTypes;
+import org.jetbrains.plugins.clojure.parser.ClojureElementType;
+import org.jetbrains.plugins.clojure.parser.ClojureElementTypes;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -33,49 +35,25 @@ import java.util.Map;
  * limitations under the License.
  */
 public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements ClojureTokenTypes {
-
   private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
 
-
-  static final TokenSet sNUMBERS = TokenSet.create(
-      LONG_LITERAL, BIG_INT_LITERAL, DOUBLE_LITERAL, BIG_DECIMAL_LITERAL, RATIO
-  );
-
-  static final TokenSet sLINE_COMMENTS = TokenSet.create(
-      ClojureTokenTypes.LINE_COMMENT
-  );
-
-  static final TokenSet sBAD_CHARACTERS = TokenSet.create(
-      ClojureTokenTypes.BAD_CHARACTER
-  );
-
-  static final TokenSet sLITERALS = TokenSet.create(ClojureTokenTypes.TRUE, ClojureTokenTypes.FALSE, ClojureTokenTypes.NIL);
-
-  static final TokenSet sSTRINGS = ClojureTokenTypes.STRINGS;
-
-  static final TokenSet sCHARS = TokenSet.create(ClojureTokenTypes.CHAR_LITERAL);
-
-  static final TokenSet sPARENTS = TokenSet.create(
-      ClojureTokenTypes.LEFT_PAREN,
-      ClojureTokenTypes.RIGHT_PAREN
-  );
-
-  static final TokenSet sBRACES = TokenSet.create(
-      ClojureTokenTypes.LEFT_SQUARE,
-      ClojureTokenTypes.RIGHT_SQUARE,
-      ClojureTokenTypes.LEFT_CURLY,
-      ClojureTokenTypes.RIGHT_CURLY
-  );
-
-  public static final TokenSet sATOMS = symS;
-
-  public static final TokenSet sKEYS = TokenSet.create(
-      ClojureTokenTypes.COLON_SYMBOL
-  );
-
+  public static final IElementType FIRST_LIST_ELEMENT = new ClojureElementType("first list element");
+  
   @NotNull
   public Lexer getHighlightingLexer() {
-    return new ClojureFlexLexer();
+    return new LookAheadLexer(new ClojureFlexLexer()) {
+      @Override
+      protected void lookAhead(Lexer baseLexer) {
+        if (baseLexer.getTokenType() == ClojureElementTypes.LEFT_PAREN) {
+          advanceAs(baseLexer, ClojureElementTypes.LEFT_PAREN);
+          if (baseLexer.getTokenType() == ClojureElementTypes.symATOM) {
+            advanceAs(baseLexer, FIRST_LIST_ELEMENT);
+          }
+        } else {
+          super.lookAhead(baseLexer);
+        }
+      }
+    };
   }
 
   @NotNull
@@ -108,48 +86,49 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
 
   public static final TextAttributes ATOM_ATTRIB = HighlighterColors.TEXT.getDefaultAttributes().clone();
 
-
-  // Registering TextAttributes
   static {
-    TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID, SyntaxHighlighterColors.LINE_COMMENT.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(KEY_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey().getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(DEF_ID, SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(NUMBER_ID, SyntaxHighlighterColors.NUMBER.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(STRING_ID, SyntaxHighlighterColors.STRING.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(BRACES_ID, SyntaxHighlighterColors.BRACES.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(PAREN_ID, SyntaxHighlighterColors.PARENTHS.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(LITERAL_ID, SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(CHAR_ID, SyntaxHighlighterColors.STRING.getDefaultAttributes());
-    TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER.getDefaultAttributes());
+    TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID, DefaultLanguageHighlighterColors.LINE_COMMENT);
+    TextAttributesKey.createTextAttributesKey(KEY_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey());
+    TextAttributesKey.createTextAttributesKey(DEF_ID, DefaultLanguageHighlighterColors.KEYWORD);
+    TextAttributesKey.createTextAttributesKey(NUMBER_ID, DefaultLanguageHighlighterColors.NUMBER);
+    TextAttributesKey.createTextAttributesKey(STRING_ID, DefaultLanguageHighlighterColors.STRING);
+    TextAttributesKey.createTextAttributesKey(BRACES_ID, DefaultLanguageHighlighterColors.BRACES);
+    TextAttributesKey.createTextAttributesKey(PAREN_ID, DefaultLanguageHighlighterColors.PARENTHESES);
+    TextAttributesKey.createTextAttributesKey(LITERAL_ID, DefaultLanguageHighlighterColors.KEYWORD);
+    TextAttributesKey.createTextAttributesKey(CHAR_ID, DefaultLanguageHighlighterColors.STRING);
+    TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER);
 
-    final Color deepBlue = SyntaxHighlighterColors.KEYWORD.getDefaultAttributes().getForegroundColor();
+    final Color deepBlue = DefaultLanguageHighlighterColors.KEYWORD.getDefaultAttributes().getForegroundColor();
     ATOM_ATTRIB.setForegroundColor(deepBlue);
     TextAttributesKey.createTextAttributesKey(ATOM_ID, ATOM_ATTRIB);
   }
 
-  public static TextAttributesKey LINE_COMMENT = TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID);
-  public static TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID);
-  public static TextAttributesKey DEF = TextAttributesKey.createTextAttributesKey(DEF_ID);
-  public static TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID);
-  public static TextAttributesKey NUMBER = TextAttributesKey.createTextAttributesKey(NUMBER_ID);
-  public static TextAttributesKey STRING = TextAttributesKey.createTextAttributesKey(STRING_ID);
-  public static TextAttributesKey BRACES = TextAttributesKey.createTextAttributesKey(BRACES_ID);
-  public static TextAttributesKey PARENTS = TextAttributesKey.createTextAttributesKey(PAREN_ID);
-  public static TextAttributesKey LITERAL = TextAttributesKey.createTextAttributesKey(LITERAL_ID);
-  public static TextAttributesKey CHAR = TextAttributesKey.createTextAttributesKey(CHAR_ID);
-  public static TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID);
+  public static final TextAttributesKey LINE_COMMENT = TextAttributesKey.createTextAttributesKey(LINE_COMMENT_ID);
+  public static final TextAttributesKey KEY = TextAttributesKey.createTextAttributesKey(KEY_ID);
+  public static final TextAttributesKey DEF = TextAttributesKey.createTextAttributesKey(DEF_ID);
+  public static final TextAttributesKey ATOM = TextAttributesKey.createTextAttributesKey(ATOM_ID);
+  public static final TextAttributesKey NUMBER = TextAttributesKey.createTextAttributesKey(NUMBER_ID);
+  public static final TextAttributesKey STRING = TextAttributesKey.createTextAttributesKey(STRING_ID);
+  public static final TextAttributesKey BRACES = TextAttributesKey.createTextAttributesKey(BRACES_ID);
+  public static final TextAttributesKey PARENTS = TextAttributesKey.createTextAttributesKey(PAREN_ID);
+  public static final TextAttributesKey LITERAL = TextAttributesKey.createTextAttributesKey(LITERAL_ID);
+  public static final TextAttributesKey CHAR = TextAttributesKey.createTextAttributesKey(CHAR_ID);
+  public static final TextAttributesKey BAD_CHARACTER = TextAttributesKey.createTextAttributesKey(BAD_CHARACTER_ID);
 
 
   static {
-    fillMap(ATTRIBUTES, sLINE_COMMENTS, LINE_COMMENT);
-    fillMap(ATTRIBUTES, sKEYS, KEY);
-    fillMap(ATTRIBUTES, sATOMS, ATOM);
-    fillMap(ATTRIBUTES, sNUMBERS, NUMBER);
-    fillMap(ATTRIBUTES, sSTRINGS, STRING);
-    fillMap(ATTRIBUTES, sBRACES, BRACES);
-    fillMap(ATTRIBUTES, sPARENTS, PARENTS);
-    fillMap(ATTRIBUTES, sLITERALS, LITERAL);
-    fillMap(ATTRIBUTES, sCHARS, CHAR);
+    fillMap(ATTRIBUTES, LINE_COMMENT, ClojureTokenTypes.LINE_COMMENT);
+    fillMap(ATTRIBUTES, KEY, ClojureTokenTypes.COLON_SYMBOL);
+    fillMap(ATTRIBUTES, symS, ATOM);
+    fillMap(ATTRIBUTES, NUMBER, LONG_LITERAL, BIG_INT_LITERAL, DOUBLE_LITERAL, BIG_DECIMAL_LITERAL, RATIO);
+    fillMap(ATTRIBUTES, ClojureTokenTypes.STRINGS, STRING);
+    fillMap(ATTRIBUTES, BRACES, 
+        ClojureTokenTypes.LEFT_SQUARE, ClojureTokenTypes.RIGHT_SQUARE,
+        ClojureTokenTypes.LEFT_CURLY, ClojureTokenTypes.RIGHT_CURLY);
+    fillMap(ATTRIBUTES, PARENTS, ClojureTokenTypes.LEFT_PAREN, ClojureTokenTypes.RIGHT_PAREN);
+    fillMap(ATTRIBUTES, LITERAL, ClojureTokenTypes.TRUE, ClojureTokenTypes.FALSE, ClojureTokenTypes.NIL);
+    fillMap(ATTRIBUTES, CHAR, ClojureTokenTypes.CHAR_LITERAL);
+    fillMap(ATTRIBUTES, DEF, FIRST_LIST_ELEMENT);
   }
 
 }
