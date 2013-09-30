@@ -46,15 +46,20 @@ public class CompleteSymbol {
     final ClojureResolveResult[] candidates = processor.getCandidates();
     if (candidates.length == 0) return PsiNamedElement.EMPTY_ARRAY;
 
-    // Add everything resolved
-    final PsiElement[] psiElements = ResolveUtil.mapToElements(candidates);
-    variants.addAll(Arrays.asList(mapToLookupItems(psiElements)));
+    List<PsiElement> psiElements = ContainerUtil.newArrayList();
+    for (ClojureResolveResult candidate : candidates) {
+      PsiElement element = candidate.getElement();
+      if (element != null && element != symbol) {
+        variants.add(new ClojureLookupItem(element));
+        psiElements.add(element);
+      }
+    }
 
     // Add Java methods for all imported classes
     final boolean withoutDot = mayBeMethodReference(symbol);
     if (symbol.getChildren().length == 0 && symbol.getText().startsWith(".") ||
             withoutDot) {
-      addJavaMethods(psiElements, variants, withoutDot);
+      addJavaMethods(psiElements.toArray(new PsiElement[psiElements.size()]), variants, withoutDot);
     }
 
     return variants.toArray(new Object[variants.size()]);

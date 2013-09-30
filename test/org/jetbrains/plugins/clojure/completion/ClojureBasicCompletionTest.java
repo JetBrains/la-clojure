@@ -14,4 +14,11 @@ public class ClojureBasicCompletionTest extends ClojureCompletionTestBase {
     final CompleteResult complete = complete();
     assertNull(complete);
   }
+
+  public void testNothingInLet() throws IOException {
+    configureFromFileText("dummy.clj", "(let [xxx<caret>])");
+    CompleteResult result = complete();
+    assertNull(result);
+
+  }
 }
