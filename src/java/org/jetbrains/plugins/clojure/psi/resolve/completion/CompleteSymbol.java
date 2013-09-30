@@ -77,15 +77,6 @@ public class CompleteSymbol {
     return false;
   }
 
-  private static LookupItem[] mapToLookupItems(PsiElement[] elements) {
-    final List<LookupItem> list = ContainerUtil.map(elements, new Function<PsiElement, LookupItem>() {
-      public LookupItem fun(PsiElement element) {
-        return new ClojureLookupItem(element);
-      }
-    });
-    return list.toArray(LookupItem.EMPTY_ARRAY);
-  }
-
   private static void addJavaMethods(PsiElement[] psiElements, Collection<Object> variants, boolean withoutDot) {
     final HashMap<MethodSignature, HashSet<PsiMethod>> sig2Methods = collectAvailableMethods(psiElements);
 
