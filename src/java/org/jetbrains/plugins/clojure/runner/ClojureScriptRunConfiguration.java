@@ -41,24 +41,8 @@ import org.jetbrains.plugins.clojure.utils.ClojureUtils;
 
 import java.io.File;
 import java.util.*;
-import java.util.HashSet;
 
-/**
- * Created by IntelliJ IDEA.
- * User: peter
- * Date: Jan 7, 2009
- * Time: 6:04:34 PM
- * Copyright 2007, 2008, 2009 Red Shark Technology
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration implements CommonProgramRunConfigurationParameters {
+public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration<RunConfigurationModule> implements CommonProgramRunConfigurationParameters {
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfiguration");
   private ClojureScriptConfigurationFactory factory;
   private String scriptPath;
@@ -91,13 +75,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
   }
 
   public String getWorkDir() {
-    return workDir;
-  }
-
-  public String getAbsoluteWorkDir() {
-    if (!new File(workDir).isAbsolute()) {
-      return new File(getProject().getLocation(), workDir).getAbsolutePath();
-    }
     return workDir;
   }
 
@@ -144,17 +121,18 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
     return new ClojureScriptRunConfiguration(factory, getConfigurationModule().getProject(), getName());
   }
 
+  @NotNull
   public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
     return new ClojureRunConfigurationEditor();
   }
 
   private static void configureScriptSystemClassPath(final ClojureConfigUtil.RunConfigurationParameters params, final Module module) throws CantRunException {
-    params.configureByModule(module, JavaParameters.JDK_ONLY);
-    params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
+    params.setJdk(JavaParameters.getModuleJdk(module));
+    params.configureByModule(module, JavaParameters.CLASSES_AND_TESTS);
 
     ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
     OrderEntry[] entries = moduleRootManager.getOrderEntries();
-    Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
+    Set<VirtualFile> cpVFiles = new LinkedHashSet<VirtualFile>();
     for (OrderEntry orderEntry : entries) {
       // Add module sources to classpath
       if (orderEntry instanceof ModuleSourceOrderEntry) {
@@ -170,8 +148,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
       params.getClassPath().add(ClojureConfigUtil.CLOJURE_SDK);
       params.setDefaultClojureJarUsed(true);
     }
-
-//    params.getClassPath().add("/home/ilya/work/clojure-plugin/lib/jline.jar");
   }
 
   private void configureJavaParams(ClojureConfigUtil.RunConfigurationParameters params, Module module) throws CantRunException {
@@ -183,35 +159,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration impl
     params.getVMParametersList().addParametersString(vmParams);
 
     params.setMainClass(ClojureUtils.CLOJURE_MAIN);
-  }
-
-  private boolean isJarFromJRE(String path, Module module) {
-    if (path == null) return false;
-    OrderEntry[] entries = ModuleRootManager.getInstance(module).getOrderEntries();
-    for (OrderEntry entry : entries) {
-      if (entry instanceof JdkOrderEntry) {
-        JdkOrderEntry jdkEntry = (JdkOrderEntry) entry;
-        for (VirtualFile file : jdkEntry.getFiles(OrderRootType.CLASSES)) {
-          if (file.getPresentableUrl().equals(path)) return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  public StringBuffer getClearClassPathString(JavaParameters params, final Module module) {
-    List<String> list = params.getClassPath().getPathList();
-    Sdk jdk = params.getJdk();
-    StringBuffer buffer = new StringBuffer();
-    if (jdk != null) {
-      for (String libPath : list) {
-        if (!isJarFromJRE(libPath, module) /*&& !isJarFromClojureLib(libPath, module)*/) {
-          buffer.append(libPath).append(File.pathSeparator);
-        }
-      }
-    }
-    //buffer.append(CLOJURE_SDK);
-    return buffer;
   }
 
   private void configureScript(ParametersList list) {
