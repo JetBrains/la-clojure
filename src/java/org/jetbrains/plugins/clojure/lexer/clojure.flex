@@ -173,9 +173,9 @@ mIDENT = {mNoDigit} ({mNoDigit} | {mDIGIT} | "#" | {mQUOTE})*
 mIDENT_KEY = ({mNoDigit} | "#") ({mNoDigit} | {mDIGIT} | "#" | {mQUOTE})*
 
 //':' is also included here
-mNOT_MACROS = [^\";@'\^`~()\\\[\]{}%\r\n\t\f ]
+mNOT_MACROS = [^\";@'\^`~()\\\[\]{}\r\n\t\f ]
 mNOT_MACROS_IDENT = ({mNOT_MACROS})+
-mNOT_MACROS_AND_BACKSLASH = [^\";@'\^`~()\\\[\]{}%/\r\n\t\f ]
+mNOT_MACROS_AND_BACKSLASH = [^\";@'\^`~()\\\[\]{}/\r\n\t\f ]
 mNOT_MACROS_AND_BACKSLASH_IDENT = ({mNOT_MACROS_AND_BACKSLASH})+
 mNOT_DIGIT_AND_BACKSLASH = [^0-9/]
 mNOT_DIGIT_AND_BACKSLASH_IDENT = {mNOT_DIGIT_AND_BACKSLASH} ({mNOT_MACROS_AND_BACKSLASH})*

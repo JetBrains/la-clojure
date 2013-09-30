@@ -38,7 +38,7 @@ public class LexerTest extends ClojureLightPlatformCodeInsightTestCase {
   }
 
   public void testKeyword2() {
-    doTest(":123", "key {:123}");
+    doTest(":123 :%abc", "key {:123}\nWHITE_SPACE { }\nkey {:%abc}");
   }
 
   public void testKeyword3() {
