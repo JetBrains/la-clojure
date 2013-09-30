@@ -46,7 +46,7 @@ public class ClojureSyntaxHighlighter extends SyntaxHighlighterBase implements C
       protected void lookAhead(Lexer baseLexer) {
         if (baseLexer.getTokenType() == ClojureElementTypes.LEFT_PAREN) {
           advanceAs(baseLexer, ClojureElementTypes.LEFT_PAREN);
-          if (baseLexer.getTokenType() == ClojureElementTypes.symATOM) {
+          while (ClojureTokenTypes.symS.contains(baseLexer.getTokenType())) {
             advanceAs(baseLexer, FIRST_LIST_ELEMENT);
           }
         } else {
