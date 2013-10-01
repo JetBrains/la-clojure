@@ -33,7 +33,9 @@ public class ClojureLoader implements ApplicationComponent {
       Var.find(Symbol.intern(INIT_CLOJURE + "/init")).invoke();
 
       String result = writer.toString();
-      LOG.error("Reflection warnings:\n" + result);
+      if (result.length() > 0) {
+        LOG.error("Reflection warnings:\n" + result);
+      }
     } catch (Exception e) {
       LOG.error(e.getMessage(), e);
     } finally {
