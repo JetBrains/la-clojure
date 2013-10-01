@@ -19,4 +19,15 @@ public class ClojureEditingTest extends LightCodeInsightFixtureTestCase {
     myFixture.checkResult("(let [foo bar]\n  <caret>\n\n)");
   }
 
+  public void testEnterAfterDoc() {
+    myFixture.configureByText("a.clj", "(defn foo\n" +
+        "  \"Doc section\"<caret>");
+    myFixture.type('\n');
+    myFixture.checkResult("(defn foo\n" +
+        "  \"Doc section\"\n" +
+        "  <caret>");
+  }
+  
+
+
 }
