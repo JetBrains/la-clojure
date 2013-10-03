@@ -32,7 +32,7 @@ public class ClojureFilter implements Filter {
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.clojure.runner.console.ClojureFilter");
 
   private static final Pattern FILE_PATTERN = Pattern.compile(".*\\((\\w*\\.clj):(\\d+)(:(\\d+))?\\)(\\s|.)*");
-  private static final Pattern ASSERT_PATTERN = Pattern.compile("  actual: \\((not \\(=) \"(.*)\" \"(.*)\"\\)\\)\n");
+  private static final Pattern ASSERT_PATTERN = Pattern.compile("  actual: (\\(not \\(= \"(.*)\" \"(.*)\"\\)\\))\n");
 
   public ClojureFilter(Project project) {
     myProject = project;
