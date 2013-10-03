@@ -200,7 +200,7 @@ public class ClojureBuilder extends ModuleLevelBuilder {
   }
 
   private static boolean hasGenClass(File file) throws IOException {
-    return new String(FileUtilRt.loadFileText(file)).contains(":gen-class");
+    return new String(FileUtilRt.loadFileText(file)).contains("gen-class");
   }
 
   private void fillFileWithClojureCompilerParams(List<File> toCompile, HashMap<File, String> toCompileNamespace,
