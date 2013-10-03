@@ -11,6 +11,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.PopupChooserBuilder;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.*;
 import com.intellij.psi.search.FilenameIndex;
@@ -29,7 +30,7 @@ public class ClojureFilter implements Filter {
 
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.clojure.runner.console.ClojureFilter");
 
-  private static final Pattern PATTERN = Pattern.compile(".*\\((\\w*\\.clj):(\\d*)\\)(\\s|.)*");
+  private static final Pattern PATTERN = Pattern.compile(".*\\((\\w*\\.clj):(\\d+)(:(\\d+))?\\)(\\s|.)*");
 
   public ClojureFilter(Project project) {
     myProject = project;
@@ -41,19 +42,20 @@ public class ClojureFilter implements Filter {
       if (matcher.matches()) {
         final String fileName = matcher.group(1);
         final int lineNumber = Integer.parseInt(matcher.group(2));
+        String colGroup = matcher.group(4);
+        boolean hasColumn = !StringUtil.isEmpty(colGroup);
 
         final int textStartOffset = entireLength - line.length();
 
         final PsiFile[] psiFiles = FilenameIndex.getFilesByName(myProject, fileName, GlobalSearchScope.allScope(myProject));
-
         if (psiFiles.length == 0) return null;
 
 
         final HyperlinkInfo info = psiFiles.length == 1 ?
-            new OpenFileHyperlinkInfo(myProject, psiFiles[0].getVirtualFile(), lineNumber - 1) :
+            new OpenFileHyperlinkInfo(myProject, psiFiles[0].getVirtualFile(), lineNumber - 1, hasColumn ? Integer.parseInt(colGroup) - 1 : 0) :
             new MyHyperlinkInfo(psiFiles);
 
-        return new Result(textStartOffset + matcher.start(1), textStartOffset + matcher.end(2), info);
+        return new Result(textStartOffset + matcher.start(1), textStartOffset + matcher.end(hasColumn ? 4 : 2), info);
       }
     }
     catch (NumberFormatException e) {
