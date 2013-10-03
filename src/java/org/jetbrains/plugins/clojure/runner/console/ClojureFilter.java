@@ -3,6 +3,7 @@ package org.jetbrains.plugins.clojure.runner.console;
 import com.intellij.execution.filters.Filter;
 import com.intellij.execution.filters.HyperlinkInfo;
 import com.intellij.execution.filters.OpenFileHyperlinkInfo;
+import com.intellij.execution.testframework.stacktrace.DiffHyperlink;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.ide.util.PsiElementListCellRenderer;
@@ -30,15 +31,21 @@ public class ClojureFilter implements Filter {
 
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.clojure.runner.console.ClojureFilter");
 
-  private static final Pattern PATTERN = Pattern.compile(".*\\((\\w*\\.clj):(\\d+)(:(\\d+))?\\)(\\s|.)*");
+  private static final Pattern FILE_PATTERN = Pattern.compile(".*\\((\\w*\\.clj):(\\d+)(:(\\d+))?\\)(\\s|.)*");
+  private static final Pattern ASSERT_PATTERN = Pattern.compile("  actual: \\((not \\(=) \"(.*)\" \"(.*)\"\\)\\)\n");
 
   public ClojureFilter(Project project) {
     myProject = project;
   }
 
   public Result applyFilter(String line, int entireLength) {
+    Result result = matchFileName(line, entireLength);
+    return result == null ? matchComparisonFailure(line, entireLength) : result;
+  }
+
+  private Result matchFileName(String line, int entireLength) {
     try {
-      final Matcher matcher = PATTERN.matcher(line);
+      final Matcher matcher = FILE_PATTERN.matcher(line);
       if (matcher.matches()) {
         final String fileName = matcher.group(1);
         final int lineNumber = Integer.parseInt(matcher.group(2));
@@ -63,7 +70,21 @@ public class ClojureFilter implements Filter {
     }
 
     return null;
+  }
 
+  private static Result matchComparisonFailure(String line, int entireLength) {
+    Matcher matcher = ASSERT_PATTERN.matcher(line);
+    if (matcher.matches()) {
+      String expected = StringUtil.replace(matcher.group(2), "\\n", "\n");
+      String actual = StringUtil.replace(matcher.group(3), "\\n", "\n");
+      if (expected.contains("\n") && actual.contains("\n")) {
+        final int textStartOffset = entireLength - line.length();
+        DiffHyperlink diffHyperlink = new DiffHyperlink(expected, actual, null);
+        DiffHyperlink.DiffHyperlinkInfo hyperlinkInfo = diffHyperlink.new DiffHyperlinkInfo();
+        return new Result(textStartOffset + matcher.start(1), textStartOffset + matcher.end(1), hyperlinkInfo);
+      }
+    }
+    return null;
   }
 
   private static class MyHyperlinkInfo implements HyperlinkInfo {
