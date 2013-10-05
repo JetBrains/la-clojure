@@ -2,14 +2,14 @@ package org.jetbrains.plugins.clojure.lexer;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.psi.tree.IElementType;
-import org.jetbrains.plugins.clojure.base.ClojureLightPlatformCodeInsightTestCase;
+import com.intellij.testFramework.UsefulTestCase;
 import org.junit.Assert;
 
 /**
  * @author ilyas
  */
 @SuppressWarnings("SpellCheckingInspection")
-public class LexerTest extends ClojureLightPlatformCodeInsightTestCase {
+public class LexerTest extends UsefulTestCase {
 
   public void testNumeric_literals() {
     doTest("(+ 123 1N 1. 1.2 1e2 1M 1.2M 1e2M)", "( {(}\n" +
@@ -51,6 +51,11 @@ public class LexerTest extends ClojureLightPlatformCodeInsightTestCase {
 
   public void testInteger_radix() {
     doTest("36rXYZ", "long literal {36rXYZ}");
+  }
+
+  public void testBadKeyword() {
+    doTest(":,", "BAD_CHARACTER {:}\n" +
+        ", {,}");
   }
 
   private void doTest(String fileText, String tokens) {
