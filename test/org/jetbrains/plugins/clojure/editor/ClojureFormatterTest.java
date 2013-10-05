@@ -16,9 +16,7 @@ import org.jetbrains.plugins.clojure.base.ClojureBaseTestCase;
  * @author ilyas
  */
 public class ClojureFormatterTest extends ClojureBaseTestCase {
-
   private static final String DATA_PATH = System.getProperty("user.dir") + "/testdata/formatter/";
-  private static final String TEST_FILE_NAME = "test";
 
   public String getDataPath() {
     return DATA_PATH;

@@ -27,6 +27,19 @@ public class ClojureEditingTest extends LightCodeInsightFixtureTestCase {
         "  \"Doc section\"\n" +
         "  <caret>");
   }
+
+  public void testEnterInVector() {
+    myFixture.configureByText("a.clj", 
+        "(for [[x y] [[:foo1 bar1]<caret>\n" +
+        "             ]])\n");
+    myFixture.type('\n');
+    myFixture.checkResult(
+        "(for [[x y] [[:foo1 bar1]\n" +
+        "             <caret>\n" +
+        "             ]])\n");
+    
+    
+  }
   
 
 

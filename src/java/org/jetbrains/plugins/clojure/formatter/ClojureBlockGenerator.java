@@ -25,19 +25,17 @@ import java.util.List;
  * @author ilyas
  */
 public class ClojureBlockGenerator {
-
-  private static ASTNode myNode;
-  private static Alignment myAlignment;
-  private static Wrap myWrap;
-  private static CodeStyleSettings mySettings;
-  private static ClojureBlock myBlock;
   private static final TokenSet RIGHT_BRACES = TokenSet.create(ClojureTokenTypes.RIGHT_CURLY, ClojureTokenTypes.RIGHT_SQUARE);
+  
+  private ASTNode myNode;
+  private Wrap myWrap;
+  private CodeStyleSettings mySettings;
+  private ClojureBlock myBlock;
 
-  public static List<Block> generateSubBlocks(ASTNode node, Alignment alignment, Wrap wrap, CodeStyleSettings settings, ClojureBlock block) {
+  public List<Block> generateSubBlocks(ASTNode node, Wrap wrap, CodeStyleSettings settings, ClojureBlock block) {
     myNode = node;
     myWrap = wrap;
     mySettings = settings;
-    myAlignment = alignment;
     myBlock = block;
 
     PsiElement blockPsi = myBlock.getNode().getPsi();
@@ -48,19 +46,15 @@ public class ClojureBlockGenerator {
     final ClojureCodeStyleSettings clSettings = block.getSettings().getCustomSettings(ClojureCodeStyleSettings.class);
 
 
-    Alignment childAlignment = null;
     for (ASTNode childNode : children) {
       if (canBeCorrectBlock(childNode)) {
 
         final PsiElement childPsi = childNode.getPsi();
         final boolean mustAlign = mustAlign(blockPsi, childPsi, clSettings);
-        if (mustAlign && childAlignment == null ) {
-          childAlignment = Alignment.createAlignment();
-        }
 
         final Indent indent = ClojureIndentProcessor.getChildIndent(myBlock, prevChildNode, childNode);
         subBlocks.add(new ClojureBlock(childNode,
-            childAlignment == null ? Alignment.createAlignment() : childAlignment,
+            mustAlign ? block.childAlignment : Alignment.createAlignment(),
             indent, myWrap, mySettings));
         prevChildNode = childNode;
 
