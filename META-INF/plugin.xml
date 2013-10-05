@@ -196,25 +196,25 @@
       <action id="org.jetbrains.plugins.clojure.actions.editor.BarfBackwardsAction"
               class="org.jetbrains.plugins.clojure.actions.editor.BarfBackwardsAction"
               text="Barf Backwards" description="Spit out the first element in the current s-expression">
-        <keyboard-shortcut keymap="$default" first-keystroke="meta shift 9"/>
+        <keyboard-shortcut keymap="$default" first-keystroke="alt shift 9"/>
       </action>
 
       <action id="org.jetbrains.plugins.clojure.actions.editor.BarfForwardsAction"
               class="org.jetbrains.plugins.clojure.actions.editor.BarfForwardsAction"
               text="Barf Forwards" description="Spit out the last element in the current s-expression">
-        <keyboard-shortcut keymap="$default" first-keystroke="meta shift 0"/>
+        <keyboard-shortcut keymap="$default" first-keystroke="alt shift 0"/>
       </action>
 
       <action id="org.jetbrains.plugins.clojure.actions.editor.SlurpBackwardsAction"
               class="org.jetbrains.plugins.clojure.actions.editor.SlurpBackwardsAction"
               text="Slurp Backwards" description="Swallow the element preceeding the current s-expression">
-        <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift 9"/>
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift 9"/>
       </action>
 
       <action id="org.jetbrains.plugins.clojure.actions.editor.SlurpForwardsAction"
               class="org.jetbrains.plugins.clojure.actions.editor.SlurpForwardsAction"
               text="Slurp Forwards" description="Swallow the element following the current s-expression">
-        <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift 0"/>
+        <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift 0"/>
       </action>
 
       <action id="org.jetbrains.plugins.clojure.actions.editor.SpliceAction"
