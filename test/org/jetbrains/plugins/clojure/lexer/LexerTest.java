@@ -58,6 +58,11 @@ public class LexerTest extends UsefulTestCase {
         ", {,}");
   }
 
+  public void testCommaAfterKeyword() {
+    doTest(":a,", "key {:a}\n" +
+        ", {,}");
+  }
+
   private void doTest(String fileText, String tokens) {
     Lexer lexer = new ClojureFlexLexer();
     lexer.start(fileText.trim());
