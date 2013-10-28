@@ -107,7 +107,10 @@ public abstract class ClojureBasicSelectioner implements ExtendWordSelectionHand
     return result;
   }
 
-  @Override
+  public int getMinimalTextRangeLength(@NotNull PsiElement element, @NotNull CharSequence text, int cursorOffset) {
+    return element.getTextLength();
+  }
+
   public int getMinimalTextRangeLength(@NotNull PsiElement element) {
     return element.getTextLength();
   }
