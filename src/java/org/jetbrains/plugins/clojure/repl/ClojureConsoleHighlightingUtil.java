@@ -3,8 +3,10 @@ package org.jetbrains.plugins.clojure.repl;
 import com.intellij.execution.console.LanguageConsoleImpl;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.Pair;
 import org.intellij.lang.annotations.Language;
 
+import java.util.Collections;
 import java.util.regex.Pattern;
 
 /**
@@ -33,7 +35,7 @@ public class ClojureConsoleHighlightingUtil {
   public static void processOutput(LanguageConsoleImpl console, String text, Key attributes) {
     final ConsoleViewContentType outputType = ConsoleViewContentType.NORMAL_OUTPUT;
     // todo implement multiple cases for error etc.
-    LanguageConsoleImpl.printToConsole(console, text, outputType, null);
+    LanguageConsoleImpl.printToConsole(console, outputType, Collections.singletonList(Pair.create(text, outputType)));
   }
 
 }
