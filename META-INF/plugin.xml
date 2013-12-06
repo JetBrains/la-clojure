@@ -17,7 +17,7 @@
     Inc.
   </vendor>
 
-  <idea-version since-build="132.1045" until-build="134.0"/>
+  <idea-version since-build="133.193" until-build="134.0"/>
 
   <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
 
