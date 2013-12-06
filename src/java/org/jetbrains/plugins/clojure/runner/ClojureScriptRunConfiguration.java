@@ -254,7 +254,6 @@ public class ClojureScriptRunConfiguration extends ModuleBasedConfiguration<RunC
       @Override
       public ConsoleView getConsole() {
         final ConsoleViewImpl view = new ConsoleViewImpl(project, false);
-        view.setFileType(ClojureFileType.CLOJURE_FILE_TYPE);
         for (Filter filter : filters) {
           view.addMessageFilter(filter);
         }

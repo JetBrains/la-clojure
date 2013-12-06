@@ -154,10 +154,6 @@ public class ClSynteticMethodImpl extends LightElement implements ClSyntheticMet
     return PsiSuperMethodImplUtil.getHierarchicalMethodSignature(this);
   }
 
-  public PsiMethodReceiver getMethodReceiver() {
-    return null;
-  }
-
   public PsiClass getContainingClass() {
     return myClass;
   }

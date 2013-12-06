@@ -17,6 +17,7 @@ import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ArrayFactory;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
@@ -132,7 +133,13 @@ public class ClojureConfigUtil {
   }
 
   public static Library[] getAllClojureLibraries(@Nullable Project project) {
-    return ArrayUtil.mergeArrays(getGlobalClojureLibraries(), getProjectClojureLibraries(project), Library.class);
+    return ArrayUtil.mergeArrays(getGlobalClojureLibraries(), getProjectClojureLibraries(project),
+        new ArrayFactory<Library>() {
+          @NotNull
+          public Library[] create(int count) {
+            return new Library[count];
+          }
+        });
   }
 
   public static Library[] getGlobalClojureLibraries() {
