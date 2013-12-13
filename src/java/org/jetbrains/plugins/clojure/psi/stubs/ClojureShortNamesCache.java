@@ -1,28 +1,26 @@
 package org.jetbrains.plugins.clojure.psi.stubs;
 
-import com.intellij.psi.*;
-import com.intellij.psi.search.PsiShortNamesCache;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.stubs.StubIndex;
-import com.intellij.util.Processor;
-import com.intellij.util.containers.HashSet;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.Function;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.*;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiShortNamesCache;
+import com.intellij.psi.stubs.StubIndex;
+import com.intellij.util.Function;
+import com.intellij.util.Processor;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureClassNameIndex;
-import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureFullScriptNameIndex;
-import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureNsNameIndex;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettings;
 import org.jetbrains.plugins.clojure.psi.api.ClojureFile;
 import org.jetbrains.plugins.clojure.psi.api.ns.ClNs;
-import org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettings;
+import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureClassNameIndex;
+import org.jetbrains.plugins.clojure.psi.stubs.index.ClojureNsNameIndex;
 
-import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * @author ilyas
@@ -121,7 +119,7 @@ public class ClojureShortNamesCache extends PsiShortNamesCache {
 
   @Override
   public boolean processMethodsWithName(@NonNls @NotNull String s, @NotNull GlobalSearchScope globalSearchScope, @NotNull Processor<PsiMethod> psiMethodProcessor) {
-    return false;
+    return true;
   }
 
   @NotNull
