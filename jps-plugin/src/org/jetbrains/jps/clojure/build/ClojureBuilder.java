@@ -199,6 +199,11 @@ public class ClojureBuilder extends ModuleLevelBuilder {
     return ExitCode.OK;
   }
 
+  @Override
+  public List<String> getCompilableFileExtensions() {
+    return Arrays.asList("clj");
+  }
+
   private static boolean hasGenClass(File file) throws IOException {
     return new String(FileUtilRt.loadFileText(file)).contains("gen-class");
   }
