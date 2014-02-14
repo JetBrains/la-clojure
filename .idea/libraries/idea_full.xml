@@ -6,6 +6,7 @@
     </ANNOTATIONS>
     <CLASSES>
       <root url="file://$PROJECT_DIR$/lib/IDEA13SDK/lib" />
+      <root url="jar://$PROJECT_DIR$/lib/hamcrest-all-1.3.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
