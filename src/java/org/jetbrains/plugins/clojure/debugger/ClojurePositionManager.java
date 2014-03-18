@@ -188,20 +188,24 @@ public class ClojurePositionManager implements PositionManager {
         if (location == null) return;
         final ReferenceType refType = location.declaringType();
         if (refType == null) return;
+
+        String fileName = null;
+        try {
+          fileName = location.sourceName();
+        } catch (AbsentInformationException ignore) {}
+
         final String originalQName = refType.name().replace('/', '.');
         final GlobalSearchScope searchScope = myDebugProcess.getSearchScope();
         int dollar = originalQName.indexOf('$');
         final String qName = dollar >= 0 ? originalQName.substring(0, dollar) : originalQName;
         final ClNs[] nses = ClojureShortNamesCache.getInstance(project).getNsByQualifiedName(qName, searchScope);
         if (nses.length == 1) {
-          result.set(nses[0].getContainingFile());
-          return;
+          final PsiFile containingFile = nses[0].getContainingFile();
+          if (fileName == null || containingFile.getName().equals(fileName)) {
+            result.set(containingFile);
+            return;
+          }
         }
-
-        String fileName = null;
-        try {
-          fileName = location.sourceName();
-        } catch (AbsentInformationException ignore) {}
 
 
         DirectoryIndex directoryIndex = DirectoryIndex.getInstance(project);
