@@ -13,7 +13,7 @@
       (proxy
         [RefactoringSupportProvider] []
                                      (getIntroduceVariableHandler
-                                       []
-                                       (introduce-variable-action-handler))))))
+                                       ([] (introduce-variable-action-handler))
+                                       ([elem] (introduce-variable-action-handler)))))))
 
 
