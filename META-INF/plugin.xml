@@ -17,7 +17,7 @@
     Inc.
   </vendor>
 
-  <idea-version since-build="134.1007" until-build="135.0"/>
+  <idea-version since-build="135.475" until-build="136.0"/>
 
   <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
 
@@ -181,6 +181,11 @@
               class="org.jetbrains.plugins.clojure.repl.actions.RunTopSExprAction"
               text="Run Top S-expression in REPL">
         <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift G"/>
+      </action>
+
+      <action id="org.jetbrains.plugins.clojure.repl.actions.SwitchNamespaceClojureFileInConsoleAction"
+              class="org.jetbrains.plugins.clojure.repl.actions.SwitchNamespaceClojureFileInConsoleAction"
+              text="Switch to file's namespace in REPL">
       </action>
 
       <add-to-group group-id="ToolsMenu" anchor="last"/>
