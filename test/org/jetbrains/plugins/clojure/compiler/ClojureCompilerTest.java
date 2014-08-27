@@ -17,7 +17,7 @@ public class ClojureCompilerTest extends JavaCodeInsightFixtureTestCase {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    myTester = new CompilerTester(true, myModule);
+    myTester = new CompilerTester(myModule);
     ClojureCompilerSettings.getInstance(getProject()).getState().COMPILE_CLOJURE = true;
     File jar = new File(TestUtils.getMockClojureLib());
     PsiTestUtil.addLibrary(myModule, "clojure", jar.getParent(), jar.getName());

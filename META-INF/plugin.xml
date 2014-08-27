@@ -17,7 +17,7 @@
     Inc.
   </vendor>
 
-  <idea-version since-build="135.475" until-build="136.0"/>
+  <idea-version since-build="138.1696" until-build="139.0"/>
 
   <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
 
@@ -45,8 +45,6 @@
     <lang.findUsagesProvider language="Clojure"
                              implementationClass="org.jetbrains.plugins.clojure.findUsages.ClojureFindUsagesProvider"/>
     <consoleFilterProvider implementation="org.jetbrains.plugins.clojure.runner.console.ClojureConsoleFilterProvider"/>
-    <compiler.makeDependencyProcessor
-        implementation="org.jetbrains.plugins.clojure.compiler.ClojureDependencyProcessor"/>
     <configurationType implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationType"/>
     <configurationProducer implementation="org.jetbrains.plugins.clojure.runner.ClojureScriptRunConfigurationProducer"/>
     <fileTemplateGroup implementation="org.jetbrains.plugins.clojure.actions.ClojureTemplatesFactory"/>
@@ -133,10 +131,6 @@
   <project-components>
     <component>
       <implementation-class>org.jetbrains.plugins.clojure.compiler.ClojureCompilerSettings</implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.jetbrains.plugins.clojure.compiler.component.ClojureCompilerProjectComponent
-      </implementation-class>
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.clojure.psi.impl.javaView.ClojureClassFinder
