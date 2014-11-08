@@ -10,23 +10,19 @@ import java.awt.*;
 public abstract class ClojureBraceAttributes {
   private static final Color[] CLOJURE_BRACE_COLORS =
       {
-          Color.BLUE, // 0
-          new Color(139, 0, 0), // 10 red
-          new Color(47, 79, 47),     // 1
-          new Color(199, 21, 133), // 7 MediumVioletRed
-          new Color(85, 26, 139), // 2 purple
-          Color.DARK_GRAY,   // 3
-          new Color(0, 0, 128), // 8 navy - blue
-          Color.RED,             // 5
-          new Color(47, 79, 47), // 6 Dark green
-          new Color(255, 100, 0),   // 1 orange
-          new Color(139, 101, 8), // 9 Dark golden
-
+          new Color(160, 160, 160), // gray
+          new Color(255, 160,   0), // orange
+          new Color(255, 255,   0), // yellow
+          new Color(160, 255,  62), // green
+          new Color( 32, 255, 224), // cyan
+          new Color( 64, 160, 255), // blue
+          new Color(160, 128, 255), // magenta
+          new Color(224, 128, 192), // pink
       };
 
   public static TextAttributes getBraceAttributes(int level, Color background) {
     Color braceColor = CLOJURE_BRACE_COLORS[level % CLOJURE_BRACE_COLORS.length];
-    Color adjustedBraceColor = new Color(braceColor.getRGB() ^ background.getRGB() ^ 0xFFFFFF);
+    Color adjustedBraceColor = braceColor; // TODO make it preserve the original colors for Darcula: new Color(braceColor.getRGB() ^ background.getRGB() ^ 0xFFFFFF);
     return new TextAttributes(adjustedBraceColor, null, null, null, 1);
   }
 }
