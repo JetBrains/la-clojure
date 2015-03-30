@@ -39,6 +39,10 @@ public enum ClojureVersion {
 
   Clojure_1_5_1("1.5.1", new LibraryInfo[]{
       createJarDownloadInfo(false, "clojure.jar", "1.5.1", ClojureUtils.CLOJURE_MAIN),
+  }),
+
+  Clojure_1_6_0("1.6.0", new LibraryInfo[]{
+      createJarDownloadInfo(false, "clojure.jar", "1.6.0", ClojureUtils.CLOJURE_MAIN),
   });
 
   private final String myName;
