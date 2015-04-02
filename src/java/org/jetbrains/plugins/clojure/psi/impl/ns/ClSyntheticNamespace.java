@@ -33,6 +33,10 @@ public class ClSyntheticNamespace extends LightElement implements PsiPackage {
     myNamespace = ns;
   }
 
+  public PsiFile[] getFiles(@NotNull GlobalSearchScope globalSearchScope) {
+    return new PsiFile[0];
+  }
+
   public String getText() {
     return "";
   }

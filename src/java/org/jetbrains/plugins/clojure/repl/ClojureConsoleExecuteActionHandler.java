@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.clojure.repl;
 
-import com.intellij.execution.console.LanguageConsoleImpl;
-import com.intellij.execution.process.ConsoleHistoryModel;
+import com.intellij.execution.console.ConsoleHistoryController;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.lang.FileASTNode;
 import com.intellij.openapi.application.ApplicationManager;
@@ -57,7 +56,7 @@ public class ClojureConsoleExecuteActionHandler {
   public void runExecuteAction(final ClojureConsole console,
                                boolean executeImmediately) {
 
-    final ConsoleHistoryModel consoleHistoryModel = console.getHistoryModel();
+    final ConsoleHistoryController consoleHistoryModel = console.getHistoryController();
     if (executeImmediately) {
       execute(console, consoleHistoryModel);
       return;
@@ -101,7 +100,7 @@ public class ClojureConsoleExecuteActionHandler {
   }
 
   private void execute(ClojureConsole languageConsole,
-                       ConsoleHistoryModel consoleHistoryModel) {
+                       ConsoleHistoryController consoleHistoryController) {
 
     // Process input and add to history
     final Document document = languageConsole.getCurrentEditor().getDocument();
@@ -109,10 +108,10 @@ public class ClojureConsoleExecuteActionHandler {
     final TextRange range = new TextRange(0, document.getTextLength());
 
     languageConsole.getCurrentEditor().getSelectionModel().setSelection(range.getStartOffset(), range.getEndOffset());
-    languageConsole.addCurrentToHistory(range, false, myPreserveMarkup);
+    languageConsole.addToHistory(range, languageConsole.getConsoleEditor(), myPreserveMarkup);
     languageConsole.setInputText("");
     if (!StringUtil.isEmptyOrSpaces(text)) {
-      consoleHistoryModel.addToHistory(text);
+      consoleHistoryController.addToHistory(text);
     }
     // Send to interpreter / server
     if (languageConsole.getNReplHost() != null) {

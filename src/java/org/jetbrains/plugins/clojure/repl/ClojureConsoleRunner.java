@@ -62,9 +62,9 @@ public class ClojureConsoleRunner {
   private final String myConsoleTitle;
   private final CommandLineArgumentsProvider myProvider;
   private final String myWorkingDir;
-  private final ConsoleHistoryModel myHistory;
 
-  private ClojureConsoleView myConsoleView;
+  private ConsoleHistoryController myHistory;
+  private ClojureConsole myConsoleView;
   private ProcessHandler myProcessHandler;
 
   private ClojureConsoleExecuteActionHandler myConsoleExecuteActionHandler;
@@ -80,7 +80,6 @@ public class ClojureConsoleRunner {
     myConsoleTitle = consoleTitle;
     myProvider = provider;
     myWorkingDir = workingDir;
-    myHistory = new ConsoleHistoryModel();
   }
 
   public static void run(@NotNull final Module module,
@@ -121,9 +120,10 @@ public class ClojureConsoleRunner {
     final Process process = createProcess(myProvider);
     // !!! do not change order!!!
     myConsoleView = createConsoleView(module);
-    myProcessHandler = new ClojureConsoleProcessHandler(process, myProvider.getCommandLineString(), getLanguageConsole());
+    myHistory = new ConsoleHistoryController("clojure", null, myConsoleView);
+    myProcessHandler = new ClojureConsoleProcessHandler(process, myProvider.getCommandLineString(), getConsoleView());
     myConsoleExecuteActionHandler = new ClojureConsoleExecuteActionHandler(getProcessHandler(), getProject(), false);
-    getLanguageConsole().setExecuteHandler(myConsoleExecuteActionHandler);
+    getConsoleView().setExecuteHandler(myConsoleExecuteActionHandler);
 
     // Init a console view
     ProcessTerminatedListener.attach(myProcessHandler);
@@ -132,11 +132,11 @@ public class ClojureConsoleRunner {
       @Override
       public void processTerminated(ProcessEvent event) {
         myRunAction.getTemplatePresentation().setEnabled(false);
-        myConsoleView.getConsole().setPrompt("");
-        myConsoleView.getConsole().getConsoleEditor().setRendererMode(true);
+        myConsoleView.setPrompt("");
+        myConsoleView.getConsoleEditor().setRendererMode(true);
         ApplicationManager.getApplication().invokeLater(new Runnable() {
           public void run() {
-            myConsoleView.getConsole().getConsoleEditor().getComponent().updateUI();
+            myConsoleView.getConsoleEditor().getComponent().updateUI();
           }
         });
       }
@@ -159,7 +159,7 @@ public class ClojureConsoleRunner {
 
     // tool bar actions
     final AnAction[] actions = fillToolBarActions(toolbarActions, defaultExecutor, myDescriptor);
-    registerActionShortcuts(actions, getLanguageConsole().getConsoleEditor().getComponent());
+    registerActionShortcuts(actions, getConsoleView().getConsoleEditor().getComponent());
     registerActionShortcuts(actions, panel);
     panel.updateUI();
 
@@ -173,7 +173,7 @@ public class ClojureConsoleRunner {
     final ToolWindow window = ToolWindowManager.getInstance(myProject).getToolWindow(defaultExecutor.getId());
     window.activate(new Runnable() {
       public void run() {
-        IdeFocusManager.getInstance(myProject).requestFocus(getLanguageConsole().getCurrentEditor().getContentComponent(), true);
+        IdeFocusManager.getInstance(myProject).requestFocus(getConsoleView().getCurrentEditor().getContentComponent(), true);
       }
     });
 
@@ -181,7 +181,7 @@ public class ClojureConsoleRunner {
     myProcessHandler.startNotify();
 
 
-    final ClojureConsole console = getConsoleView().getConsole();
+    final ClojureConsole console = getConsoleView();
     for (String statement : statements2execute) {
       final String st = statement + "\n";
       ClojureConsoleHighlightingUtil.processOutput(console, st, ProcessOutputTypes.SYSTEM);
@@ -192,8 +192,8 @@ public class ClojureConsoleRunner {
   }
 
   private void createAndRegisterEnterAction(JPanel panel) {
-    final AnAction enterAction = new ClojureConsoleEnterAction(getLanguageConsole(), getProcessHandler(), getConsoleExecuteActionHandler());
-    enterAction.registerCustomShortcutSet(enterAction.getShortcutSet(), getLanguageConsole().getConsoleEditor().getComponent());
+    final AnAction enterAction = new ClojureConsoleEnterAction(getConsoleView(), getProcessHandler(), getConsoleExecuteActionHandler());
+    enterAction.registerCustomShortcutSet(enterAction.getShortcutSet(), getConsoleView().getConsoleEditor().getComponent());
     enterAction.registerCustomShortcutSet(enterAction.getShortcutSet(), panel);
   }
 
@@ -221,16 +221,16 @@ public class ClojureConsoleRunner {
     actionList.add(closeAction);
 
     // run and history actions
-    ArrayList<AnAction> executionActions = createConsoleExecActions(getLanguageConsole(),
-        myProcessHandler, myConsoleExecuteActionHandler, getHistoryModel());
+    ArrayList<AnAction> executionActions = createConsoleExecActions(getConsoleView(),
+        myProcessHandler, myConsoleExecuteActionHandler, getHistoryController());
     myRunAction = executionActions.get(0);
     actionList.addAll(executionActions);
 
     actionList.add(new ToggleUseSoftWrapsToolbarAction(SoftWrapAppliancePlaces.CONSOLE) {
       @Override
       public void setSelected(AnActionEvent e, boolean state) {
-        EditorEx consoleEditor = getLanguageConsole().getConsoleEditor();
-        EditorEx historyViewer = getLanguageConsole().getHistoryViewer();
+        EditorEx consoleEditor = getConsoleView().getConsoleEditor();
+        EditorEx historyViewer = getConsoleView().getHistoryViewer();
 
         consoleEditor.getSettings().setUseSoftWraps(state);
         historyViewer.getSettings().setUseSoftWraps(state);
@@ -251,11 +251,11 @@ public class ClojureConsoleRunner {
   public static ArrayList<AnAction> createConsoleExecActions(final ClojureConsole languageConsole,
                                                              final ProcessHandler processHandler,
                                                              final ClojureConsoleExecuteActionHandler consoleExecuteActionHandler,
-                                                             final ConsoleHistoryModel historyModel) {
+                                                             final ConsoleHistoryController historyModel) {
 
     final AnAction runImmediatelyAction = new ClojureExecuteImmediatelyAction(languageConsole, processHandler, consoleExecuteActionHandler);
 
-    final ConsoleHistoryController historyController = new ConsoleHistoryController("clojure", null, languageConsole, historyModel);
+    final ConsoleHistoryController historyController = new ConsoleHistoryController("clojure", null, languageConsole);
     historyController.install();
 
     final AnAction upAction = historyController.getHistoryPrev();
@@ -279,7 +279,7 @@ public class ClojureConsoleRunner {
   }
 
 
-  protected ClojureConsoleView createConsoleView(Module module) {
+  protected ClojureConsole createConsoleView(Module module) {
     String nReplHost = null;
     String nReplPort = null;
     final ClojureFacet facet = getClojureFacet(module);
@@ -287,8 +287,7 @@ public class ClojureConsoleRunner {
       nReplHost = facet.getNreplHost();
       nReplPort = facet.getNreplPort();
     }
-    return new ClojureConsoleView(getProject(), getConsoleTitle(), getHistoryModel(), getConsoleExecuteActionHandler(),
-        nReplHost, nReplPort);
+    return new ClojureConsole(getProject(), getConsoleTitle(), getHistoryController(), nReplHost, nReplPort);
   }
 
   private static ArrayList<String> createRuntimeArgs(Module module, String workingDir) throws CantRunException {
@@ -464,11 +463,7 @@ public class ClojureConsoleRunner {
     return myConsoleTitle;
   }
 
-  public ClojureConsole getLanguageConsole() {
-    return myConsoleView.getConsole();
-  }
-
-  public ClojureConsoleView getConsoleView() {
+  public ClojureConsole getConsoleView() {
     return myConsoleView;
   }
 
@@ -480,7 +475,7 @@ public class ClojureConsoleRunner {
     return myConsoleExecuteActionHandler;
   }
 
-  public ConsoleHistoryModel getHistoryModel() {
+  public ConsoleHistoryController getHistoryController() {
     return myHistory;
   }
 
