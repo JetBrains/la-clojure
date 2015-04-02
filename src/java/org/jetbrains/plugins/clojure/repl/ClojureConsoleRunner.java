@@ -121,6 +121,7 @@ public class ClojureConsoleRunner {
     // !!! do not change order!!!
     myConsoleView = createConsoleView(module);
     myHistory = new ConsoleHistoryController("clojure", null, myConsoleView);
+    myConsoleView.setHistoryController(myHistory);
     myProcessHandler = new ClojureConsoleProcessHandler(process, myProvider.getCommandLineString(), getConsoleView());
     myConsoleExecuteActionHandler = new ClojureConsoleExecuteActionHandler(getProcessHandler(), getProject(), false);
     getConsoleView().setExecuteHandler(myConsoleExecuteActionHandler);
@@ -287,7 +288,7 @@ public class ClojureConsoleRunner {
       nReplHost = facet.getNreplHost();
       nReplPort = facet.getNreplPort();
     }
-    return new ClojureConsole(getProject(), getConsoleTitle(), getHistoryController(), nReplHost, nReplPort);
+    return new ClojureConsole(getProject(), getConsoleTitle(), nReplHost, nReplPort);
   }
 
   private static ArrayList<String> createRuntimeArgs(Module module, String workingDir) throws CantRunException {
