@@ -1,3 +1,8 @@
+Project state
+=============
+
+The project is closed because of [Cursive Clojure](https://cursiveclojure.com/), which is more stable and feature-rich and it was originally based on La Clojure sources. The last update is available for IntelliJ IDEA 14.
+
 la-clojure
 ==========
 
