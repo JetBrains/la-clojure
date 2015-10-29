@@ -395,7 +395,11 @@ public class ClojureConsoleRunner {
     params.setMainClass(getMainReplClass(module));
     params.setWorkingDirectory(new File(workingDir));
 
-    final GeneralCommandLine line = CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true);
+    Map<String, String> envParams = new HashMap<String, String>();
+    envParams.putAll(System.getenv());
+    final GeneralCommandLine line =
+        CommandLineBuilder.createFromJavaParameters(params, PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext()), true).
+            withEnvironment(envParams);
 
     final Sdk sdk = params.getJdk();
     assert sdk != null;
@@ -407,10 +411,6 @@ public class ClojureConsoleRunner {
 
     // cmd.addAll(line.getParametersList().getList());
 //        line.getParametersList().addAll();
-
-    Map<String, String> envParams = new HashMap<String, String>();
-    envParams.putAll(System.getenv());
-    line.setEnvParams(envParams);
 
     if (!sdkConfigured) {
       ClojureConfigUtil.warningDefaultClojureJar(module);

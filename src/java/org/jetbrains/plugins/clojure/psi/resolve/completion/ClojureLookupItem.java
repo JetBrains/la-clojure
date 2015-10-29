@@ -63,8 +63,7 @@ public class ClojureLookupItem extends LookupItem<PsiElement> {
     } else if (myElement instanceof PsiClass) {
       PsiClass clazz = (PsiClass) myElement;
       String location = clazz.getPresentation().getLocationString();
-      JavaPsiClassReferenceElement.renderClassItem(presentation, this, clazz, false);
-      presentation.appendTailText(" " + location, true);
+      JavaPsiClassReferenceElement.renderClassItem(presentation, this, clazz, false, location == null ? "" : location, PsiSubstitutor.EMPTY);
     } //todo: What next?
   }
 
