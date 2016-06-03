@@ -9,6 +9,7 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl;
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager;
 import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +51,8 @@ public class TestUtils {
         LOG.error(e);
         return null;
       }
+      VfsRootAccess.allowRootAccess(TestUtils.getMockClojureLib());
+      VfsRootAccess.allowRootAccess(TestUtils.getMockClojureContribLib());
     }
     return TEST_DATA_PATH;
   }

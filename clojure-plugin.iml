@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module relativePaths="true" type="JAVA_MODULE" version="4">
-  <component name="FacetManager">
-    <facet type="Clojure" name="Clojure">
-      <configuration />
-    </facet>
-  </component>
+<module type="PLUGIN_MODULE" version="4">
+  <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/META-INF/plugin.xml" />
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -20,10 +16,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="clojure.sdk" level="project" />
-    <orderEntry type="library" name="community-plugins" level="project" />
-    <orderEntry type="library" name="idea-full" level="project" />
     <orderEntry type="module" module-name="clojure-jps-plugin" />
     <orderEntry type="library" name="nrepl" level="project" />
   </component>
 </module>
-

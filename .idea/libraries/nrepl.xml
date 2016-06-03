@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="nrepl">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/tools.nrepl-0.2.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/tools.nrepl-0.2.12.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

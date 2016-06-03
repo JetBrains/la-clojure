@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact name="Production">
+  <artifact build-on-make="true" name="Production">
     <output-path>$PROJECT_DIR$/out/artifacts/Production</output-path>
     <root id="root">
       <element id="archive" name="clojure-intellij-bin.zip">

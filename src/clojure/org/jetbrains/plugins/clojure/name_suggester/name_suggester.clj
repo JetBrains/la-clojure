@@ -1,5 +1,5 @@
 (ns
-  ^{:author Stanislav.Osipov}
+  ^{:author "Stanislav.Osipov"}
   org.jetbrains.plugins.clojure.name_suggester.name-suggester
   (:use [org.jetbrains.plugins.clojure.utils.clojure-utils :as clojure-utils])
   (:use [org.jetbrains.plugins.clojure.utils.java-wrappers])
